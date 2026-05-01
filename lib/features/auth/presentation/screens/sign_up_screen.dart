@@ -4,6 +4,11 @@ import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/common/widgets/custom_text_field.dart';
 import 'package:fiteo_myapp/features/auth/presentation/screens/login_screen.dart';
+import 'package:fiteo_myapp/features/auth/presentation/screens/verify_email_screen.dart';
+import 'package:fiteo_myapp/features/auth/data/auth_repository.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fiteo_myapp/features/auth/utils/auth_messages.dart';
+import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -15,28 +20,73 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordController = TextEditingController();
   String? _passwordError;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _birthDateController = TextEditingController();
+
+  final AuthRepository _authRepository = AuthRepository();
+
+  bool _isLoading = false;
 
   @override
   void dispose() {
     _passwordController.dispose();
+    _emailController.dispose();
+    _usernameController.dispose();
+    _birthDateController.dispose();
     super.dispose();
   }
 
-  void _validateAndContinue() {
+  Future<void> _validateAndContinue() async {
+    final email = _emailController.text.trim();
+    final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
+    final birthDate = _birthDateController.text.trim();
+
+    if (email.isEmpty || username.isEmpty || password.isEmpty || birthDate.isEmpty) {
+      AppSnackbar.showError(context, AuthMessages.fillAllFields);
+      return;
+    }
 
     if (password.length < 8) {
       setState(() {
-        _passwordError = 'Password must be at least 8 characters';
+        _passwordError = AuthMessages.passwordTooShort;
       });
       return;
     }
 
     setState(() {
       _passwordError = null;
+      _isLoading = true;
     });
 
-    // Buraya sonra signup logic eklenecek
+    try {
+      await _authRepository.signUp(
+        email: email,
+        password: password,
+        username: username,
+        birthDate: birthDate,
+      );
+
+      if (!mounted) return;
+
+      setState(() => _isLoading = false);
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const VerifyEmailScreen()),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() => _isLoading = false);
+
+      final message = e is FirebaseAuthException
+          ? authErrorMessage(e)
+          : AuthMessages.somethingWentWrong;
+
+      AppSnackbar.showError(context, message);
+    }
   }
 
   @override
@@ -87,10 +137,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
               const SizedBox(height: 32),
 
-              const CustomTextField(hintText: 'Mail'),
+              CustomTextField(
+                hintText: 'Mail',
+                controller: _emailController,
+              ),
+
               const SizedBox(height: 16),
 
-              const CustomTextField(hintText: 'Username'),
+              CustomTextField(
+                hintText: 'Username',
+                controller: _usernameController,
+              ),
+
               const SizedBox(height: 16),
 
               CustomTextField(
@@ -124,7 +182,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ],
 
               const SizedBox(height: 16),
-              const CustomTextField(hintText: 'Date of birth'),
+              CustomTextField(
+                hintText: 'Date of birth',
+                controller: _birthDateController,
+              ),
 
               const SizedBox(height: 24),
 
@@ -158,31 +219,43 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
               const SizedBox(height: 24),
 
-              Container(
-                width: screenWidth * 0.42,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: AppColors.onboardingBackground,
-                  borderRadius: BorderRadius.circular(28),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/images/google_icon.png',
-                      width: 30,
-                      height: 30,
-                    ),
-                    const SizedBox(width: 10),
-                    const Text(
-                      'Google',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: AppColors.authText,
-                        fontWeight: FontWeight.w500,
+              GestureDetector(
+                onTap: () async {
+                  final userCredential = await _authRepository.signInWithGoogle();
+
+                  if (userCredential != null && context.mounted) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    );
+                  }
+                },
+                child: Container(
+                  width: screenWidth * 0.42,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: AppColors.onboardingBackground,
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'assets/images/google_icon.png',
+                        width: 30,
+                        height: 30,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Google',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: AppColors.authText,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
@@ -204,8 +277,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
               const SizedBox(height: 20),
 
               CustomButton(
-                text: 'Sign up',
-                onPressed: _validateAndContinue,
+                text: _isLoading ? 'Loading...' : 'Sign up',
+                onPressed: _isLoading ? null : _validateAndContinue,
                 backgroundColor: AppColors.authButtonGreen,
                 textColor: Colors.white,
                 height: 54,

@@ -1,10 +1,113 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/common/widgets/common_app_bar.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
+import 'package:fiteo_myapp/features/auth/data/auth_repository.dart';
+import 'package:fiteo_myapp/features/auth/presentation/screens/login_screen.dart';
+import 'package:fiteo_myapp/features/auth/utils/auth_messages.dart';
+import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
 
-class VerifyEmailScreen extends StatelessWidget {
+class VerifyEmailScreen extends StatefulWidget {
   const VerifyEmailScreen({super.key});
+
+  @override
+  State<VerifyEmailScreen> createState() => _VerifyEmailScreenState();
+}
+
+class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
+  final AuthRepository _authRepository = AuthRepository();
+
+  bool _isChecking = false;
+  bool _canResend = false;
+  int _secondsLeft = 90;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startResendTimer();
+  }
+
+  void _startResendTimer() {
+    setState(() {
+      _canResend = false;
+      _secondsLeft = 90;
+    });
+
+    _timer?.cancel();
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_secondsLeft == 1) {
+        timer.cancel();
+        setState(() {
+          _secondsLeft = 0;
+          _canResend = true;
+        });
+      } else {
+        setState(() {
+          _secondsLeft--;
+        });
+      }
+    });
+  }
+
+  Future<void> _checkEmailVerification() async {
+    setState(() => _isChecking = true);
+
+    final isVerified = await _authRepository.isCurrentUserEmailVerified();
+
+    if (!mounted) return;
+
+    setState(() => _isChecking = false);
+
+    if (isVerified) {
+      AppSnackbar.showSuccess(context, AuthMessages.emailVerifiedSuccessfully);
+
+      await _authRepository.logout();
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+    } else {
+      AppSnackbar.showError(context, AuthMessages.emailNotVerifiedYet);
+    }
+  }
+
+  Future<void> _resendEmail() async {
+    if (!_canResend) return;
+
+    try {
+      await _authRepository.sendEmailVerification();
+
+      if (!mounted) return;
+
+      AppSnackbar.showInfo(context, AuthMessages.verificationEmailSentAgain);
+
+      _startResendTimer();
+    } catch (e) {
+      if (!mounted) return;
+
+      AppSnackbar.showError(context, AuthMessages.verificationEmailCouldNotSend);
+    }
+  }
+
+  String _formatTime(int seconds) {
+    final minutes = seconds ~/ 60;
+    final remainingSeconds = seconds % 60;
+    final secondsStr = remainingSeconds.toString().padLeft(2, '0');
+
+    return '$minutes:$secondsStr';
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,15 +178,15 @@ class VerifyEmailScreen extends StatelessWidget {
               const Spacer(),
 
               GestureDetector(
-                onTap: () {
-                  // resend logic (ileride bağlanır)
-                },
-                child: const Text(
-                  'Resend Email',
+                onTap: _canResend ? _resendEmail : null,
+                child: Text(
+                  _canResend ? 'Resend Email' : 'Resend Email (${_formatTime(_secondsLeft)})',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.authText,
+                    color: _canResend
+                        ? AppColors.authText
+                        : Colors.grey,
                   ),
                 ),
               ),
@@ -91,8 +194,8 @@ class VerifyEmailScreen extends StatelessWidget {
               const SizedBox(height: 16),
 
               CustomButton(
-                text: 'Verify',
-                onPressed: () {},
+                text: _isChecking ? 'Checking...' : 'Verify',
+                onPressed: _isChecking ? null : _checkEmailVerification,
                 backgroundColor: AppColors.authButtonGreen,
                 textColor: Colors.white,
                 height: 56,

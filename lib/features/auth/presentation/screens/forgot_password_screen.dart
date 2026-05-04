@@ -3,10 +3,66 @@ import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/common/widgets/common_app_bar.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/common/widgets/custom_text_field.dart';
-import 'package:fiteo_myapp/features/auth/presentation/screens/verify_email_screen.dart';
+import 'package:fiteo_myapp/features/auth/data/auth_repository.dart';
+import 'package:fiteo_myapp/features/auth/presentation/screens/login_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fiteo_myapp/features/auth/utils/auth_messages.dart';
+import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
 
-class ForgotPasswordScreen extends StatelessWidget {
+class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
+
+  @override
+  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+}
+
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final AuthRepository _authRepository = AuthRepository();
+
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _sendResetLink() async {
+    final email = _emailController.text.trim();
+
+    if (email.isEmpty) {
+      AppSnackbar.showError(context, AuthMessages.enterEmail);
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await _authRepository.sendPasswordResetEmail(email: email);
+
+      if (!mounted) return;
+
+      setState(() => _isLoading = false);
+
+      AppSnackbar.showInfo(context, AuthMessages.resetLinkSent);
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
+      setState(() => _isLoading = false);
+
+      final message = e.code == 'invalid-email'
+          ? AuthMessages.invalidEmail
+          : AuthMessages.resetLinkCouldNotSend;
+
+      AppSnackbar.showError(context, message);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +94,9 @@ class ForgotPasswordScreen extends StatelessWidget {
 
               const SizedBox(height: 30),
 
-              const CustomTextField(
+              CustomTextField(
                 hintText: 'Mail',
+                controller: _emailController,
               ),
 
               const SizedBox(height: 50),
@@ -60,15 +117,8 @@ class ForgotPasswordScreen extends StatelessWidget {
               const SizedBox(height: 30),
 
               CustomButton(
-                text: 'Send link',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const VerifyEmailScreen(),
-                    ),
-                  );
-                },
+                text: _isLoading ? 'Sending...' : 'Send link',
+                onPressed: _isLoading ? null : _sendResetLink,
                 backgroundColor: AppColors.authButtonGreen,
                 textColor: Colors.white,
                 height: 54,

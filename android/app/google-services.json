@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "753538795015",
+    "project_id": "fiteo-app-39f91",
+    "storage_bucket": "fiteo-app-39f91.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:753538795015:android:8e496088a593006cb70ca2",
+        "android_client_info": {
+          "package_name": "com.fiteo.fiteo_myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3puEbyOKTc5661-qwZ_tB81o0g2EWUTw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -4,11 +4,13 @@ import 'package:fiteo_myapp/app/theme/app_colors.dart';
 class ProfileHeader extends StatelessWidget {
   final String username;
   final String email;
+  final String? mascot;
 
   const ProfileHeader({
     super.key,
     required this.username,
     required this.email,
+    this.mascot,
   });
 
   @override
@@ -45,12 +47,21 @@ class ProfileHeader extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
-                  child: const Text(
-                    'U',
-                    style: TextStyle(
+                  child: mascot == null
+                      ? Text(
+                    username.isNotEmpty ? username[0].toUpperCase() : 'U',
+                    style: const TextStyle(
                       color: AppColors.homeBrown,
                       fontSize: 32,
                       fontWeight: FontWeight.w800,
+                    ),
+                  )
+                      : ClipOval(
+                    child: Image.asset(
+                      mascot!,
+                      width: 68,
+                      height: 68,
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),

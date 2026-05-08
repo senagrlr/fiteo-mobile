@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/features/meals/presentation/screens/meals_screen.dart';
 
@@ -94,8 +95,9 @@ class _AddFoodFormState extends State<AddFoodForm> {
 
         _MealInputField(
           controller: amountController,
-          hintText: 'Gram / piece',
+          hintText: 'Gram',
           keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           onChanged: (_) => _estimateCalories(),
         ),
 
@@ -142,12 +144,14 @@ class _MealInputField extends StatelessWidget {
   final String hintText;
   final TextInputType? keyboardType;
   final ValueChanged<String>? onChanged;
+  final List<TextInputFormatter>? inputFormatters;
 
   const _MealInputField({
     required this.controller,
     required this.hintText,
     this.keyboardType,
     this.onChanged,
+    this.inputFormatters,
   });
 
   @override
@@ -159,6 +163,7 @@ class _MealInputField extends StatelessWidget {
         controller: controller,
         keyboardType: keyboardType,
         onChanged: onChanged,
+        inputFormatters: inputFormatters,
         style: const TextStyle(
           color: AppColors.homeBrown,
           fontSize: 13,

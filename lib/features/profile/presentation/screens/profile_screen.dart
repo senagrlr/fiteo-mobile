@@ -1,14 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:fiteo_myapp/features/profile/data/profile_repository.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/profile_header.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/profile_menu_item.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/weekly_views_card.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
-import 'package:fiteo_myapp/features/profile/presentation/screens/edit_profile_screen.dart';
-import 'package:fiteo_myapp/features/profile/presentation/screens/goals_preferences_screen.dart';
-import 'package:fiteo_myapp/features/profile/presentation/screens/delete_account_screen.dart';
+import 'package:fiteo_myapp/app/router/app_routes.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final _profileRepository = ProfileRepository();
+
+  String username = '';
+  String email = '';
+  String? mascot;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  Future<void> loadUser() async {
+    try {
+      final doc = await _profileRepository.getCurrentUserDoc();
+      final data = doc.data();
+
+      if (!mounted) return;
+
+      setState(() {
+        username = data?['username'] ?? '';
+        email = data?['email'] ?? '';
+        mascot = data?['mascot'];
+        isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +57,10 @@ class ProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 50),
         child: Column(
           children: [
-            const ProfileHeader(
-              username: 'Username',
-              email: 'user@gmail.com',
+            ProfileHeader(
+              username: isLoading ? '...' : username,
+              email: isLoading ? '...' : email,
+              mascot: isLoading ? null : mascot,
             ),
 
             const SizedBox(height: 14),
@@ -39,42 +79,50 @@ class ProfileScreen extends StatelessWidget {
                   ProfileMenuItem(
                     icon: Icons.edit,
                     title: 'Edit Profile',
-                    onTap: () {
-                      Navigator.push(
+                    onTap: () async {
+                      final result = await Navigator.pushNamed(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => const EditProfileScreen(),
-                        ),
+                        AppRoutes.editProfile,
                       );
+
+                      if (result == true) {
+                        loadUser();
+                      }
                     },
                   ),
                   ProfileMenuItem(
                     icon: Icons.track_changes,
                     title: 'Goals & Preferences',
                     onTap: () {
-                      Navigator.push(
+                      Navigator.pushNamed(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => const GoalsPreferencesScreen(),
-                        ),
+                        AppRoutes.goalsPreferences,
                       );
                     },
                   ),
                   ProfileMenuItem(
                     icon: Icons.logout,
                     title: 'Log out',
-                    onTap: () {},
+                    onTap: () async {
+                      await _profileRepository.logout();
+
+                      if (!context.mounted) return;
+
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        AppRoutes.login,
+                            (route) => false,
+                      );
+                    },
                   ),
                   ProfileMenuItem(
                     icon: Icons.delete_outline,
                     title: 'Delete my account',
                     color: AppColors.red,
                     onTap: () {
-                      Navigator.push(
+                      Navigator.pushNamed(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => const DeleteAccountScreen(),
-                        ),
+                        AppRoutes.deleteAccount,
                       );
                     },
                   ),

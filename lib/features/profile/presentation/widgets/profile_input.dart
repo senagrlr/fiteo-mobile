@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 
 class ProfileInput extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
   final IconData icon;
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
 
   const ProfileInput({
     super.key,
     required this.controller,
     required this.hintText,
     required this.icon,
+    this.keyboardType,
+    this.inputFormatters,
   });
 
   @override
@@ -29,7 +34,8 @@ class ProfileInput extends StatelessWidget {
           Expanded(
             child: TextField(
               controller: controller,
-              keyboardType: TextInputType.number,
+              keyboardType: keyboardType,
+              inputFormatters: inputFormatters,
               style: const TextStyle(
                 color: AppColors.homeBrown,
                 fontSize: 15,

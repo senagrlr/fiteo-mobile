@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/profile_dropdown_field.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/profile_input.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/settings_card.dart';
+import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
+import 'package:fiteo_myapp/features/profile/data/profile_repository.dart';
+import 'package:fiteo_myapp/features/profile/utils/profile_messages.dart';
 
 class GoalsPreferencesScreen extends StatefulWidget {
   const GoalsPreferencesScreen({super.key});
@@ -21,11 +25,55 @@ class _GoalsPreferencesScreenState extends State<GoalsPreferencesScreen> {
   final weightController = TextEditingController();
   final targetWeightController = TextEditingController();
   final dailyCaloriesController = TextEditingController();
+  final _profileRepository = ProfileRepository();
+
+  bool isLoading = true;
+  bool isSaving = false;
 
   final goals = const ['Lose Weight', 'Build Muscle', 'Maintain Fitness', 'Improve Health'];
   final activities = const ['Sedentary', 'Lightly Active', 'Moderately Active', 'Very Active'];
   final nutritionOptions = const ['No Restrictions', 'High Protein', 'Vegetarian', 'Vegan', 'Balanced Diet'];
   final workoutOptions = const ['Home Workouts', 'Gym', 'Walking / Cardio', 'Strength Training'];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    try {
+      final doc = await _profileRepository.getCurrentUserDoc();
+      final data = doc.data();
+
+      final preferences = data?['userPreferences'] as Map<String, dynamic>?;
+
+      if (preferences != null) {
+        selectedGoal = preferences['goal'];
+        selectedActivity = preferences['activityLevel'];
+        selectedNutrition = preferences['nutritionPreference'];
+        selectedWorkout = preferences['workoutPreference'];
+
+        weightController.text = preferences['weight']?.toString() ?? '';
+        targetWeightController.text = preferences['targetWeight']?.toString() ?? '';
+        dailyCaloriesController.text = preferences['calorieGoal']?.toString() ?? '';
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isLoading = false;
+      });
+
+      AppSnackbar.showError(context, ProfileMessages.profileUpdateFailed);
+    }
+  }
 
   @override
   void dispose() {
@@ -35,13 +83,44 @@ class _GoalsPreferencesScreenState extends State<GoalsPreferencesScreen> {
     super.dispose();
   }
 
-  void _savePreferences() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Goals and preferences updated.'),
-        backgroundColor: AppColors.authButtonGreen,
-      ),
-    );
+  Future<void> _savePreferences() async {
+    setState(() {
+      isSaving = true;
+    });
+
+    try {
+      await _profileRepository.updateUserPreferences({
+        'goal': selectedGoal,
+        'activityLevel': selectedActivity,
+        'nutritionPreference': selectedNutrition,
+        'workoutPreference': selectedWorkout,
+        'weight': weightController.text.trim().isEmpty
+            ? null
+            : int.tryParse(weightController.text.trim()),
+        'targetWeight': targetWeightController.text.trim().isEmpty
+            ? null
+            : int.tryParse(targetWeightController.text.trim()),
+        'calorieGoal': dailyCaloriesController.text.trim().isEmpty
+            ? null
+            : int.tryParse(dailyCaloriesController.text.trim()),
+      });
+
+      if (!mounted) return;
+
+      AppSnackbar.showSuccess(context, ProfileMessages.preferencesUpdated,
+      );
+
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isSaving = false;
+      });
+
+      AppSnackbar.showError(context, ProfileMessages.preferencesUpdateFailed,
+      );
+    }
   }
 
   @override
@@ -84,18 +163,24 @@ class _GoalsPreferencesScreenState extends State<GoalsPreferencesScreen> {
                     controller: weightController,
                     hintText: 'Current weight (kg)',
                     icon: Icons.monitor_weight_outlined,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   ),
                   const SizedBox(height: 14),
                   ProfileInput(
                     controller: targetWeightController,
                     hintText: 'Target weight (kg)',
                     icon: Icons.track_changes,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   ),
                   const SizedBox(height: 14),
                   ProfileInput(
                     controller: dailyCaloriesController,
                     hintText: 'Daily calorie goal',
                     icon: Icons.local_fire_department_outlined,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   ),
                 ],
               ),
@@ -138,8 +223,8 @@ class _GoalsPreferencesScreenState extends State<GoalsPreferencesScreen> {
               const SizedBox(height: 30),
 
               CustomButton(
-                text: 'Save changes',
-                onPressed: _savePreferences,
+                text: isSaving ? 'Saving...' : 'Save changes',
+                onPressed: isSaving || isLoading ? null : _savePreferences,
                 backgroundColor: AppColors.authButtonGreen,
                 textColor: Colors.white,
                 height: 54,

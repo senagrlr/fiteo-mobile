@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fiteo_myapp/app/router/app_routes.dart';
+import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
+import 'package:fiteo_myapp/features/profile/data/profile_repository.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/delete_header.dart';
+import 'package:fiteo_myapp/features/profile/utils/profile_messages.dart';
 
 class DeleteAccountScreen extends StatefulWidget {
   const DeleteAccountScreen({super.key});
@@ -11,12 +16,103 @@ class DeleteAccountScreen extends StatefulWidget {
 }
 
 class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
-  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final _profileRepository = ProfileRepository();
+
+  bool isLoading = true;
+  bool isDeleting = false;
+  bool isPasswordUser = false;
+  String? deleteError;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserProvider();
+  }
+
+  Future<void> _loadUserProvider() async {
+    final doc = await _profileRepository.getCurrentUserDoc();
+    final data = doc.data();
+
+    if (!mounted) return;
+
+    setState(() {
+      isPasswordUser = data?['authProvider'] == 'password';
+      isLoading = false;
+    });
+  }
 
   @override
   void dispose() {
-    emailController.dispose();
+    passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _deleteAccount() async {
+    final password = passwordController.text.trim();
+
+    setState(() {
+      deleteError = null;
+    });
+
+    if (isPasswordUser && password.isEmpty) {
+      AppSnackbar.showError(context, ProfileMessages.currentPasswordRequired,
+      );
+      return;
+    }
+
+    setState(() {
+      isDeleting = true;
+    });
+
+    try {
+      await _profileRepository.deleteAccount(
+        currentPassword: isPasswordUser ? password : null,
+      );
+
+      if (!mounted) return;
+
+      AppSnackbar.showSuccess(
+        context,
+        ProfileMessages.accountDeleted,
+      );
+
+      await Future.delayed(const Duration(milliseconds: 700));
+
+      if (!mounted) return;
+
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.login,
+            (route) => false,
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isDeleting = false;
+      });
+
+      if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        AppSnackbar.showError(context, ProfileMessages.currentPasswordIncorrect,
+        );
+      } else if (e.code == 'requires-recent-login') {
+        AppSnackbar.showError(context, ProfileMessages.recentLoginRequired,
+        );
+      } else {
+        AppSnackbar.showError(context, ProfileMessages.accountDeleteFailed,
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isDeleting = false;
+      });
+
+      AppSnackbar.showError(context, ProfileMessages.accountDeleteFailed,
+      );
+    }
   }
 
   @override
@@ -54,6 +150,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
 
                         const SizedBox(height: 36),
 
+                      if (isPasswordUser) ...[
                         Container(
                           height: 52,
                           padding: const EdgeInsets.symmetric(horizontal: 22),
@@ -62,14 +159,15 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                             borderRadius: BorderRadius.circular(28),
                           ),
                           child: TextField(
-                            controller: emailController,
+                            controller: passwordController,
+                            obscureText: true,
                             style: const TextStyle(
                               color: AppColors.homeBrown,
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
                             ),
                             decoration: const InputDecoration(
-                              hintText: 'Enter your email to continue',
+                              hintText: 'Enter your current password',
                               hintStyle: TextStyle(
                                 color: AppColors.homeBrown,
                                 fontSize: 14,
@@ -81,11 +179,14 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                         ),
 
                         const SizedBox(height: 40),
+                      ] else ...[
+                        const SizedBox(height: 40),
+                      ],
 
                         Center(
                           child: CustomButton(
-                            text: 'Delete My Account',
-                            onPressed: () {},
+                            text: isDeleting ? 'Deleting...' : 'Delete My Account',
+                            onPressed: isDeleting || isLoading ? null : _deleteAccount,
                             backgroundColor: AppColors.authButtonGreen,
                             textColor: Colors.white,
                             height: 54,

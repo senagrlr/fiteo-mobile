@@ -5,7 +5,7 @@ import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/goal_option
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/setup_progress_indicator.dart';
 
 class GoalSelectionScreen extends StatefulWidget {
-  final VoidCallback onContinue;
+  final ValueChanged<String> onContinue;
 
   const GoalSelectionScreen({
     super.key,
@@ -79,7 +79,9 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
 
               CustomButton(
                 text: 'Continue',
-                onPressed: selectedGoal == null ? null : widget.onContinue,
+                onPressed: selectedGoal == null
+                    ? null
+                    : () => widget.onContinue(selectedGoal!),
                 backgroundColor: AppColors.authButtonGreen,
                 textColor: Colors.white,
                 height: 54,

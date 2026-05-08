@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/features/home/data/calendar_repository.dart';
 
 class WeeklyViewsCard extends StatefulWidget {
   const WeeklyViewsCard({super.key});
@@ -11,38 +12,65 @@ class WeeklyViewsCard extends StatefulWidget {
 
 class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
   int selectedBarIndex = 2;
-  String selectedWeek = '15–21 March';
 
-  final List<String> weeks = const [
-    '1–7 March',
-    '8–14 March',
-    '15–21 March',
-    '22–28 March',
-  ];
+  final _calendarRepository = CalendarRepository();
 
-  final List<double> values = const [
-    1600,
-    700,
-    1740,
-    1000,
-    2450,
-    550,
-    1500,
-  ];
+  List<double> values = List.filled(7, 0);
+  List<String> days = [];
+  int? calorieGoal;
+  bool isLoading = true;
 
-  final List<String> days = const [
-    'MON',
-    'TUE',
-    'WED',
-    'THU',
-    'FRI',
-    'SAT',
-    'SUN',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadWeeklyCalories();
+  }
+
+  Future<void> _loadWeeklyCalories() async {
+    final today = DateTime.now();
+    final start = today.subtract(const Duration(days: 6));
+
+    final weeklyValues = <double>[];
+    final weeklyDays = <String>[];
+
+    for (int i = 0; i < 7; i++) {
+      final date = start.add(Duration(days: i));
+      final data = await _calendarRepository.getDayCalories(date);
+
+      final consumed = data['consumed'] ?? 0;
+      final burned = data['burned'] ?? 0;
+
+      weeklyValues.add((consumed - burned).toDouble());
+      weeklyDays.add(_dayName(date.weekday));
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      values = weeklyValues;
+      days = weeklyDays;
+      selectedBarIndex = 6;
+      isLoading = false;
+    });
+  }
+
+  String _dayName(int weekday) {
+    const names = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+    return names[weekday - 1];
+  }
 
   @override
   Widget build(BuildContext context) {
-    final maxValue = values.reduce(max);
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    final rawMax = values.isEmpty ? 0.0 : values.reduce(max);
+    final double maxValue = rawMax <= 0
+        ? 500
+        : ((rawMax / 500).ceil() * 500).toDouble();
 
     return Container(
       width: double.infinity,
@@ -60,52 +88,15 @@ class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
       ),
       child: Column(
         children: [
-          Row(
+          const Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Weekly Calories',
                   style: TextStyle(
                     color: AppColors.homeBrown,
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              Container(
-                height: 34,
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                decoration: BoxDecoration(
-                  color: AppColors.homeCardBackground,
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: selectedWeek,
-                    dropdownColor: AppColors.homeCardBackground,
-                    icon: const Icon(
-                      Icons.keyboard_arrow_down,
-                      size: 16,
-                      color: AppColors.homeBrown,
-                    ),
-                    style: const TextStyle(
-                      color: AppColors.homeBrown,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    items: weeks.map((week) {
-                      return DropdownMenuItem(
-                        value: week,
-                        child: Text(week),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value == null) return;
-                      setState(() {
-                        selectedWeek = value;
-                        selectedBarIndex = 0;
-                      });
-                    },
                   ),
                 ),
               ),
@@ -121,12 +112,13 @@ class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                const _YAxisLabels(),
+                _YAxisLabels(maxValue: maxValue),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Stack(
                     children: [
                       const _ChartGridLines(),
+
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -160,19 +152,37 @@ class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
 }
 
 class _YAxisLabels extends StatelessWidget {
-  const _YAxisLabels();
+  final double maxValue;
+
+  const _YAxisLabels({
+    required this.maxValue,
+  });
+
+  String _formatLabel(double value) {
+    if (value == 0) return '0';
+
+    final kValue = value / 1000;
+
+    if (kValue % 1 == 0) {
+      return '${kValue.toInt()}k';
+    }
+
+    return '${kValue.toStringAsFixed(1)}k';
+  }
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
+    final step = maxValue / 3;
+
+    return SizedBox(
       height: 118,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text('3k', style: _axisStyle),
-          Text('2k', style: _axisStyle),
-          Text('1k', style: _axisStyle),
-          Text('0', style: _axisStyle),
+          Text(_formatLabel(maxValue), style: _axisStyle),
+          Text(_formatLabel(step * 2), style: _axisStyle),
+          Text(_formatLabel(step), style: _axisStyle),
+          const Text('0', style: _axisStyle),
         ],
       ),
     );

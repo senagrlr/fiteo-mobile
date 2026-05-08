@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fiteo_myapp/app/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
@@ -6,7 +9,12 @@ import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/setup_progr
 
 
 class AiPlanLoadingScreen extends StatefulWidget {
-  const AiPlanLoadingScreen({super.key});
+  final Map<String, dynamic> userPreferences;
+
+  const AiPlanLoadingScreen({
+    super.key,
+    required this.userPreferences,
+  });
 
   @override
   State<AiPlanLoadingScreen> createState() => _AiPlanLoadingScreenState();
@@ -25,6 +33,18 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
     'Designing workout roadmap...',
   ];
 
+  Future<void> saveUserPreferences() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) return;
+
+    await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+      'userPreferences': widget.userPreferences,
+      'isOnboardingCompleted': true,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -32,7 +52,7 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
   }
 
   void _startLoadingAnimation() {
-    _timer = Timer.periodic(const Duration(seconds: 2), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 2), (timer) async {
       if (currentStatusIndex < statuses.length - 1) {
         setState(() {
           currentStatusIndex++;
@@ -45,7 +65,11 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
           progress = 1.0;
         });
 
-        // Buraya sonra plan result/home navigation eklenecek.
+        await saveUserPreferences();
+
+        if (!mounted) return;
+
+        Navigator.pushReplacementNamed(context, AppRoutes.main);
       }
     });
   }

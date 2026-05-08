@@ -5,7 +5,7 @@ import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/goal_option
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/setup_progress_indicator.dart';
 
 class ActivityLevelScreen extends StatefulWidget {
-  final VoidCallback onContinue;
+  final ValueChanged<String> onContinue;
   final VoidCallback onBack;
 
   const ActivityLevelScreen({
@@ -93,8 +93,9 @@ class _ActivityLevelScreenState extends State<ActivityLevelScreen> {
 
               CustomButton(
                 text: 'Continue',
-                onPressed:
-                selectedActivity == null ? null : widget.onContinue,
+                onPressed: selectedActivity == null
+                    ? null
+                    : () => widget.onContinue(selectedActivity!),
                 backgroundColor: AppColors.authButtonGreen,
                 textColor: Colors.white,
                 height: 54,

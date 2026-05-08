@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:fiteo_myapp/app/router/app_routes.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/common/widgets/common_app_bar.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/features/auth/data/auth_repository.dart';
-import 'package:fiteo_myapp/features/auth/presentation/screens/login_screen.dart';
 import 'package:fiteo_myapp/features/auth/utils/auth_messages.dart';
 import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
 
@@ -64,14 +64,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     if (isVerified) {
       AppSnackbar.showSuccess(context, AuthMessages.emailVerifiedSuccessfully);
 
-      await _authRepository.logout();
-
-      if (!mounted) return;
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
+      Navigator.pushReplacementNamed(context, AppRoutes.planSetup);
     } else {
       AppSnackbar.showError(context, AuthMessages.emailNotVerifiedYet);
     }

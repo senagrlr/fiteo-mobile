@@ -1,9 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
-import 'package:fiteo_myapp/features/home/presentation/screens/monthly_calendar_screen.dart';
+import 'package:fiteo_myapp/features/home/data/calendar_repository.dart';
+import 'package:fiteo_myapp/app/router/app_routes.dart';
 
-class WeekCalendarRow extends StatelessWidget {
+class WeekCalendarRow extends StatefulWidget {
   const WeekCalendarRow({super.key});
+
+  @override
+  State<WeekCalendarRow> createState() => _WeekCalendarRowState();
+}
+
+class _WeekCalendarRowState extends State<WeekCalendarRow> {
+  final _repo = CalendarRepository();
+
+  final Set<String> completedDays = {};
+
+  String _format(DateTime d) {
+    return '${d.year}-${d.month}-${d.day}';
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadWeek();
+  }
+
+  Future<void> _loadWeek() async {
+    final today = DateTime.now();
+
+    for (int i = -2; i <= 2; i++) {
+      final date = today.add(Duration(days: i));
+
+      final data = await _repo.getDayCalories(date);
+
+      if ((data['consumed'] ?? 0) > 0 ||
+          (data['burned'] ?? 0) > 0) {
+        completedDays.add(_format(date));
+      }
+    }
+
+    if (!mounted) return;
+    setState(() {});
+  }
 
   String _dayName(int weekday) {
     const days = [
@@ -27,15 +65,8 @@ class WeekCalendarRow extends StatelessWidget {
           (index) => today.add(Duration(days: index - 2)),
     );
 
-    // Şimdilik demo: geçmiş 2 gün track yapılmış gibi.
-    final completedTrackedDays = <DateTime>{
-      DateTime(today.year, today.month, today.day - 2),
-      DateTime(today.year, today.month, today.day - 1),
-    };
-
     bool isCompleted(DateTime date) {
-      final normalized = DateTime(date.year, date.month, date.day);
-      return completedTrackedDays.contains(normalized);
+      return completedDays.contains(_format(date));
     }
 
     return Column(
@@ -54,12 +85,7 @@ class WeekCalendarRow extends StatelessWidget {
         const SizedBox(height: 12),
         GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const MonthlyCalendarScreen(),
-              ),
-            );
+            Navigator.pushNamed(context, AppRoutes.monthlyCalendar);
           },
           child: Container(
             padding: const EdgeInsets.symmetric(

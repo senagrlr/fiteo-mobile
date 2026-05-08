@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/features/home/presentation/widgets/home_header.dart';
 import 'package:fiteo_myapp/features/workout/presentation/widgets/add_exercise_form.dart';
 import 'package:fiteo_myapp/features/workout/presentation/widgets/exercise_list_item.dart';
+import 'package:fiteo_myapp/features/workout/data/workout_repository.dart';
+import 'package:fiteo_myapp/features/home/data/home_repository.dart';
+import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
 
 class WorkoutScreen extends StatefulWidget {
   const WorkoutScreen({super.key});
@@ -13,17 +17,105 @@ class WorkoutScreen extends StatefulWidget {
 
 class _WorkoutScreenState extends State<WorkoutScreen> {
   final List<ExerciseItem> exercises = [];
+  final _workoutRepository = WorkoutRepository();
+  bool isLoading = true;
 
-  void _addExercise(ExerciseItem item) {
-    setState(() {
-      exercises.add(item);
-    });
+  final _homeRepository = HomeRepository();
+  int streakDays = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTodayWorkouts();
+    _loadStreak();
   }
 
-  void _deleteExercise(int index) {
-    setState(() {
-      exercises.removeAt(index);
-    });
+  Future<void> _addExercise(ExerciseItem item) async {
+    try {
+      final id = await _workoutRepository.addWorkout(
+        workoutName: item.name,
+        durationMinutes: item.durationMinutes,
+        intensity: item.intensity,
+        estimatedCaloriesBurned: item.caloriesBurned,
+      );
+
+      setState(() {
+        exercises.add(item.copyWith(id: id));
+      });
+
+      await _loadStreak();
+
+    } catch (e) {
+      if (!mounted) return;
+
+      AppSnackbar.showError(context, 'Could not add exercise.');
+    }
+  }
+
+  Future<void> _deleteExercise(int index) async {
+    final item = exercises[index];
+
+    if (item.id == null) {
+      setState(() {
+        exercises.removeAt(index);
+      });
+      return;
+    }
+
+    try {
+      await _workoutRepository.deleteWorkout(item.id!);
+
+      setState(() {
+        exercises.removeAt(index);
+      });
+
+      await _loadStreak();
+
+    } catch (e) {
+      if (!mounted) return;
+
+      AppSnackbar.showError(context, 'Could not delete exercise.');
+    }
+  }
+
+  Future<void> _loadTodayWorkouts() async {
+    try {
+      final snapshot = await _workoutRepository.getTodayWorkouts();
+
+      final loadedExercises = <ExerciseItem>[];
+
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+
+        loadedExercises.add(
+          ExerciseItem(
+            id: doc.id,
+            name: data['workoutName'] as String? ?? '',
+            durationMinutes: data['durationMinutes'] as int? ?? 0,
+            intensity: data['intensity'] as String? ?? '',
+            caloriesBurned: data['estimatedCaloriesBurned'] as int? ?? 0,
+          ),
+        );
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        exercises
+          ..clear()
+          ..addAll(loadedExercises);
+
+        isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isLoading = false;
+      });
+
+      AppSnackbar.showError(context, 'Could not load exercises.');
+    }
   }
 
   void _editCalories(int index) async {
@@ -43,6 +135,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           content: TextField(
             controller: controller,
             keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             style: const TextStyle(color: AppColors.homeBrown),
             decoration: const InputDecoration(
               hintText: 'Calories burned',
@@ -75,16 +168,55 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     );
 
     if (newCalories != null) {
-      setState(() {
-        exercises[index] = exercises[index].copyWith(
-          caloriesBurned: newCalories,
-        );
-      });
+      final item = exercises[index];
+
+      try {
+        if (item.id != null) {
+          await _workoutRepository.updateWorkoutCalories(
+            workoutId: item.id!,
+            calories: newCalories,
+          );
+        }
+
+        setState(() {
+          exercises[index] = item.copyWith(
+            caloriesBurned: newCalories,
+          );
+        });
+
+        await _loadStreak();
+
+      } catch (e) {
+        if (!mounted) return;
+
+        AppSnackbar.showError(context, 'Could not update exercise.');
+      }
     }
+  }
+
+  Future<void> _loadStreak() async {
+    try {
+      final streak = await _homeRepository.getCurrentStreak();
+
+      if (!mounted) return;
+
+      setState(() {
+        streakDays = streak;
+      });
+    } catch (_) {}
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -93,7 +225,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const HomeHeader(streakDays: 2),
+              HomeHeader(streakDays: streakDays),
 
               const SizedBox(height: 42),
 
@@ -160,12 +292,14 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
 }
 
 class ExerciseItem {
+  final String? id;
   final String name;
   final int durationMinutes;
   final String intensity;
   final int caloriesBurned;
 
   const ExerciseItem({
+    this.id,
     required this.name,
     required this.durationMinutes,
     required this.intensity,
@@ -173,12 +307,14 @@ class ExerciseItem {
   });
 
   ExerciseItem copyWith({
+    String? id,
     String? name,
     int? durationMinutes,
     String? intensity,
     int? caloriesBurned,
   }) {
     return ExerciseItem(
+      id: id ?? this.id,
       name: name ?? this.name,
       durationMinutes: durationMinutes ?? this.durationMinutes,
       intensity: intensity ?? this.intensity,

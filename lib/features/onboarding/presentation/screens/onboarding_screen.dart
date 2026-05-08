@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:fiteo_myapp/app/router/app_routes.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/features/onboarding/presentation/models/onboarding_page_model.dart';
 import 'package:fiteo_myapp/features/onboarding/presentation/widgets/onboarding_indicator.dart';
 import 'package:fiteo_myapp/features/onboarding/presentation/widgets/onboarding_page_item.dart';
-import 'package:fiteo_myapp/features/auth/presentation/screens/sign_up_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -85,12 +85,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 right: 20,
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const SignUpScreen(),
-                      ),
-                    );
+                    Navigator.pushNamed(context, AppRoutes.signup);
                   },
                   child: const Text(
                     'Skip',

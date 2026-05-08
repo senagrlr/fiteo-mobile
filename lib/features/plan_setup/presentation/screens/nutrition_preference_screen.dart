@@ -5,7 +5,7 @@ import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/goal_option
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/setup_progress_indicator.dart';
 
 class NutritionPreferenceScreen extends StatefulWidget {
-  final VoidCallback onContinue;
+  final ValueChanged<String> onContinue;
   final VoidCallback onBack;
 
   const NutritionPreferenceScreen({
@@ -96,8 +96,9 @@ class _NutritionPreferenceScreenState extends State<NutritionPreferenceScreen> {
 
               CustomButton(
                 text: 'Continue',
-                onPressed:
-                selectedNutrition == null ? null : widget.onContinue,
+                onPressed: selectedNutrition == null
+                    ? null
+                    : () => widget.onContinue(selectedNutrition!),
                 backgroundColor: AppColors.authButtonGreen,
                 textColor: Colors.white,
                 height: 54,

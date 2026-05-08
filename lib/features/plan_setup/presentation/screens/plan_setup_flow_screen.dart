@@ -16,6 +16,8 @@ class PlanSetupFlowScreen extends StatefulWidget {
 class _PlanSetupFlowScreenState extends State<PlanSetupFlowScreen> {
   final PageController _pageController = PageController();
 
+  final Map<String, dynamic> userPreferences = {};
+
   void nextPage() {
     _pageController.nextPage(
       duration: const Duration(milliseconds: 350),
@@ -43,25 +45,50 @@ class _PlanSetupFlowScreenState extends State<PlanSetupFlowScreen> {
       physics: const NeverScrollableScrollPhysics(),
       children: [
         GoalSelectionScreen(
-          onContinue: nextPage,
+          onContinue: (goal) {
+            userPreferences['goal'] = goal;
+            nextPage();
+          },
         ),
         BasicInfoScreen(
-          onContinue: nextPage,
+          onContinue: ({
+            required age,
+            required height,
+            required weight,
+            required gender,
+          }) {
+            userPreferences['age'] = age;
+            userPreferences['height'] = height;
+            userPreferences['weight'] = weight;
+            userPreferences['gender'] = gender;
+            nextPage();
+          },
           onBack: previousPage,
         ),
         ActivityLevelScreen(
-          onContinue: nextPage,
+          onContinue: (activityLevel) {
+            userPreferences['activityLevel'] = activityLevel;
+            nextPage();
+          },
           onBack: previousPage,
         ),
         NutritionPreferenceScreen(
-          onContinue: nextPage,
+          onContinue: (nutritionPreference) {
+            userPreferences['nutritionPreference'] = nutritionPreference;
+            nextPage();
+          },
           onBack: previousPage,
         ),
         WorkoutPreferenceScreen(
-          onContinue: nextPage,
+          onContinue: (workoutPreference) {
+            userPreferences['workoutPreference'] = workoutPreference;
+            nextPage();
+          },
           onBack: previousPage,
         ),
-        const AiPlanLoadingScreen(),
+        AiPlanLoadingScreen(
+          userPreferences: userPreferences,
+        ),
       ],
     );
   }

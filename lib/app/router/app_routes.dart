@@ -1,0 +1,13 @@
+class AppRoutes {
+  static const onboarding = '/onboarding';
+  static const login = '/login';
+  static const signup = '/signup';
+  static const forgotPassword = '/forgot-password';
+  static const verifyEmail = '/verify-email';
+  static const planSetup = '/plan-setup';
+  static const main = '/main';
+  static const editProfile = '/edit-profile';
+  static const goalsPreferences = '/goals-preferences';
+  static const deleteAccount = '/delete-account';
+  static const monthlyCalendar = '/monthly-calendar';
+}

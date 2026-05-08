@@ -5,7 +5,7 @@ import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/goal_option
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/setup_progress_indicator.dart';
 
 class WorkoutPreferenceScreen extends StatefulWidget {
-  final VoidCallback onContinue;
+  final ValueChanged<String> onContinue;
   final VoidCallback onBack;
 
   const WorkoutPreferenceScreen({
@@ -95,7 +95,9 @@ class _WorkoutPreferenceScreenState extends State<WorkoutPreferenceScreen> {
 
               CustomButton(
                 text: 'Continue',
-                onPressed: selectedWorkout == null ? null : widget.onContinue,
+                onPressed: selectedWorkout == null
+                    ? null
+                    : () => widget.onContinue(selectedWorkout!),
                 backgroundColor: AppColors.authButtonGreen,
                 textColor: Colors.white,
                 height: 54,

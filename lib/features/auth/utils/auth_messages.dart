@@ -4,6 +4,7 @@ class AuthMessages {
   static const fillAllFields = 'Fill in all fields';
   static const emailAndPasswordEmpty = 'Email and password cannot be left blank.';
   static const enterEmail = 'Please enter your email address.';
+  static const googleSignInFailed = 'Google sign-in failed. Please try again.';
 
   static const passwordTooShort = 'Password must be at least 8 characters';
 
@@ -17,6 +18,8 @@ class AuthMessages {
 
   static const resetLinkSent = 'Reset link has been sent.';
   static const resetLinkCouldNotSend = 'Could not send reset link.';
+
+  static const invalidBirthDate = 'Please enter a valid birth date.';
 
   static const emailAlreadyRegistered = 'This email is already registered.';
   static const invalidEmail = 'Invalid email address.';

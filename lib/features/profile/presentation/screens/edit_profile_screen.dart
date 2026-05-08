@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/common/widgets/custom_text_field.dart';
+import 'package:fiteo_myapp/features/profile/data/profile_repository.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
+import 'package:fiteo_myapp/features/profile/utils/profile_messages.dart';
+import 'package:fiteo_myapp/common/widgets/field_error_text.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -15,9 +20,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final currentPasswordController = TextEditingController();
   final newPasswordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  final _profileRepository = ProfileRepository();
+
+  bool isLoading = true;
+  bool isSaving = false;
+  bool isPasswordUser = false;
 
   String? selectedMascot;
   String? passwordError;
+  String? currentPasswordError;
+  String? usernameError;
 
   final List<String> mascots = const [
     'assets/mascots/mascot_1.png',
@@ -26,14 +38,47 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     'assets/mascots/mascot_4.png',
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileData();
+  }
+
+  Future<void> _loadProfileData() async {
+    final doc = await _profileRepository.getCurrentUserDoc();
+    final data = doc.data();
+
+    final provider = data?['authProvider'] ?? '';
+
+    usernameController.text = data?['username'] ?? '';
+    selectedMascot = data?['mascot'];
+
+    isPasswordUser = provider == 'password';
+
+    if (!mounted) return;
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
   bool get isFormValid {
     final username = usernameController.text.trim();
+
+    if (username.isEmpty) return false;
+
+    if (!isPasswordUser) return true;
+
     final currentPassword = currentPasswordController.text.trim();
     final newPassword = newPasswordController.text.trim();
     final confirmPassword = confirmPasswordController.text.trim();
 
-    return username.isNotEmpty &&
-        currentPassword.isNotEmpty &&
+    final passwordFieldsEmpty =
+        currentPassword.isEmpty && newPassword.isEmpty && confirmPassword.isEmpty;
+
+    if (passwordFieldsEmpty) return true;
+
+    return currentPassword.isNotEmpty &&
         newPassword.length >= 8 &&
         confirmPassword == newPassword;
   }
@@ -136,28 +181,86 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  void _validateAndSave() {
+  Future<void> _validateAndSave() async {
+    final username = usernameController.text.trim();
+    final currentPassword = currentPasswordController.text.trim();
     final newPassword = newPasswordController.text.trim();
     final confirmPassword = confirmPasswordController.text.trim();
 
     setState(() {
-      if (newPassword.length < 8) {
-        passwordError = 'Password must be at least 8 characters.';
-      } else if (newPassword != confirmPassword) {
-        passwordError = 'Passwords do not match.';
-      } else {
-        passwordError = null;
-      }
+      passwordError = null;
+      currentPasswordError = null;
+      usernameError = null;
     });
 
-    if (!isFormValid || passwordError != null) return;
+    if (username.isEmpty) {
+      setState(() {
+        usernameError = ProfileMessages.usernameRequired;
+      });
+      return;
+    }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Profile updated successfully.'),
-        backgroundColor: AppColors.authButtonGreen,
-      ),
-    );
+    final wantsPasswordChange =
+        currentPassword.isNotEmpty || newPassword.isNotEmpty || confirmPassword.isNotEmpty;
+
+    if (isPasswordUser && wantsPasswordChange) {
+      if (newPassword.length < 8) {
+        setState(() {
+          passwordError = ProfileMessages.passwordMinLength;
+        });
+        return;
+      }
+
+      if (newPassword != confirmPassword) {
+        setState(() {
+          passwordError = ProfileMessages.passwordsDoNotMatch;
+        });
+        return;
+      }
+    }
+
+    setState(() {
+      isSaving = true;
+    });
+
+    try {
+      await _profileRepository.updateProfileInfo(
+        username: username,
+        mascotPath: selectedMascot,
+      );
+
+      if (isPasswordUser && wantsPasswordChange) {
+        await _profileRepository.changePassword(
+          currentPassword: currentPassword,
+          newPassword: newPassword,
+        );
+      }
+
+      if (!mounted) return;
+
+      AppSnackbar.showSuccess(context, ProfileMessages.profileUpdated);
+
+      Navigator.pop(context, true);
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+          currentPasswordError = ProfileMessages.currentPasswordIncorrect;
+        } else {
+          passwordError = ProfileMessages.passwordUpdateFailed;
+        }
+        isSaving = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isSaving = false;
+      });
+
+      AppSnackbar.showError(context, ProfileMessages.profileUpdateFailed);
+    }
   }
 
   @override
@@ -217,8 +320,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                       alignment: Alignment.center,
                       child: selectedMascot == null
-                          ? const Text(
-                        'U',
+                          ? Text(
+                        usernameController.text.trim().isNotEmpty
+                            ? usernameController.text.trim()[0].toUpperCase()
+                            : 'U',
                         style: TextStyle(
                           color: AppColors.homeBrown,
                           fontSize: 40,
@@ -260,10 +365,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               CustomTextField(
                 hintText: 'Username',
                 controller: usernameController,
-                onChanged: (_) => setState(() {}),
+                onChanged: (_) {
+                  setState(() {
+                    usernameError = null;
+                  });
+                },
                 fillColor: AppColors.onboardingBackground,
               ),
 
+              if (usernameError != null)
+                FieldErrorText(message: usernameError!),
+
+            if (isPasswordUser) ...[
               const SizedBox(height: 34),
 
               const Align(
@@ -283,18 +396,34 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               CustomTextField(
                 hintText: 'Current password',
                 controller: currentPasswordController,
-                onChanged: (_) => setState(() {}),
+                onChanged: (_) {
+                  setState(() {
+                    currentPasswordError = null;
+                  });
+                },
                 isPassword: true,
                 showVisibilityToggle: false,
                 fillColor: AppColors.onboardingBackground,
               ),
+
+              if (currentPasswordError != null)
+                FieldErrorText(message: currentPasswordError!),
 
               const SizedBox(height: 16),
 
               CustomTextField(
                 hintText: 'New password',
                 controller: newPasswordController,
-                onChanged: (_) => setState(() {}),
+                onChanged: (value) {
+                  if (value.trim().length >= 8 &&
+                      passwordError == ProfileMessages.passwordMinLength) {
+                    setState(() {
+                      passwordError = null;
+                    });
+                  } else {
+                    setState(() {});
+                  }
+                },
                 isPassword: true,
                 fillColor: AppColors.onboardingBackground,
               ),
@@ -304,34 +433,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               CustomTextField(
                 hintText: 'Confirm new password',
                 controller: confirmPasswordController,
-                onChanged: (_) => setState(() {}),
+                onChanged: (_) {
+                  setState(() {});
+                },
                 isPassword: true,
                 fillColor: AppColors.onboardingBackground,
               ),
+            ],
 
-              if (passwordError != null) ...[
-                const SizedBox(height: 10),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    passwordError!,
-                    style: const TextStyle(
-                      color: AppColors.red,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
+              if (passwordError != null)
+                FieldErrorText(message: passwordError!),
 
               const SizedBox(height: 36),
 
               CustomButton(
                 text: 'Save changes',
-                onPressed: isFormValid ? _validateAndSave : null,
-                backgroundColor: isFormValid
-                    ? AppColors.authButtonGreen
-                    : AppColors.authButtonGreen.withOpacity(0.45),
+                onPressed: isSaving ? null : _validateAndSave,
+                backgroundColor: isSaving
+                    ? AppColors.authButtonGreen.withOpacity(0.45)
+                    : AppColors.authButtonGreen,
                 textColor: Colors.white,
                 height: 54,
                 width: screenWidth * 0.72,

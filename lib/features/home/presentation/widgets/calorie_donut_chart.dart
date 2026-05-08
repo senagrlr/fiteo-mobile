@@ -58,11 +58,10 @@ class _CalorieDonutChartState extends State<CalorieDonutChart>
                     painter: _DonutChartPainter(
                       consumed: widget.consumed,
                       burned: widget.burned,
-                      progress: animation.value, // 🔥 animasyon
+                      progress: animation.value,
                     ),
                   ),
 
-                  // 🔥 ORTA YAZI
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -136,7 +135,7 @@ class _DonutChartPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final total = consumed + burned;
+    final total = (consumed + burned == 0) ? 1 : consumed + burned;
     final strokeWidth = 22.0;
 
     final rect = Offset.zero & size;

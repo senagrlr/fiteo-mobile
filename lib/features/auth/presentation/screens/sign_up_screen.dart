@@ -1,14 +1,16 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:fiteo_myapp/app/router/app_routes.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/common/widgets/custom_text_field.dart';
 import 'package:fiteo_myapp/features/auth/presentation/screens/login_screen.dart';
-import 'package:fiteo_myapp/features/auth/presentation/screens/verify_email_screen.dart';
 import 'package:fiteo_myapp/features/auth/data/auth_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fiteo_myapp/features/auth/utils/auth_messages.dart';
 import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
+import 'package:fiteo_myapp/common/widgets/field_error_text.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -19,7 +21,6 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordController = TextEditingController();
-  String? _passwordError;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _birthDateController = TextEditingController();
@@ -27,6 +28,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final AuthRepository _authRepository = AuthRepository();
 
   bool _isLoading = false;
+  String? emailError;
+  String? _passwordError;
+  String? birthDateError;
 
   @override
   void dispose() {
@@ -37,11 +41,38 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
+  DateTime? _parseBirthDate(String value) {
+    final parts = value.split('/');
+
+    if (parts.length != 3) return null;
+
+    final day = int.tryParse(parts[0]);
+    final month = int.tryParse(parts[1]);
+    final year = int.tryParse(parts[2]);
+
+    if (day == null || month == null || year == null) return null;
+
+    final date = DateTime(year, month, day);
+
+    if (date.day != day || date.month != month || date.year != year) {
+      return null;
+    }
+
+    return date;
+  }
+
   Future<void> _validateAndContinue() async {
     final email = _emailController.text.trim();
     final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
     final birthDate = _birthDateController.text.trim();
+
+    setState(() {
+      emailError = null;
+      _passwordError = null;
+      birthDateError = null;
+    });
+
 
     if (email.isEmpty || username.isEmpty || password.isEmpty || birthDate.isEmpty) {
       AppSnackbar.showError(context, AuthMessages.fillAllFields);
@@ -55,8 +86,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
+    final parsedBirthDate = _parseBirthDate(birthDate);
+
+    if (parsedBirthDate == null) {
+      setState(() {
+        birthDateError = AuthMessages.invalidBirthDate;
+      });
+      return;
+    }
+
+    final today = DateTime.now();
+    final todayOnly = DateTime(today.year, today.month, today.day);
+
+    if (parsedBirthDate.isAfter(todayOnly)) {
+      setState(() {
+        birthDateError = AuthMessages.invalidBirthDate;
+      });
+      return;
+    }
+
     setState(() {
-      _passwordError = null;
       _isLoading = true;
     });
 
@@ -72,20 +121,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       setState(() => _isLoading = false);
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const VerifyEmailScreen()),
-      );
+      Navigator.pushReplacementNamed(context, AppRoutes.verifyEmail);
     } catch (e) {
       if (!mounted) return;
 
-      setState(() => _isLoading = false);
+      setState(() {
+        _isLoading = false;
+      });
 
-      final message = e is FirebaseAuthException
-          ? authErrorMessage(e)
-          : AuthMessages.somethingWentWrong;
-
-      AppSnackbar.showError(context, message);
+      if (e is FirebaseAuthException) {
+        if (e.code == 'email-already-in-use') {
+          setState(() {
+            emailError = AuthMessages.emailAlreadyRegistered;
+          });
+        } else if (e.code == 'invalid-email') {
+          setState(() {
+            emailError = AuthMessages.invalidEmail;
+          });
+        } else {
+          AppSnackbar.showError(context, authErrorMessage(e));
+        }
+      } else {
+        AppSnackbar.showError(context, AuthMessages.somethingWentWrong);
+      }
     }
   }
 
@@ -140,7 +198,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
               CustomTextField(
                 hintText: 'Mail',
                 controller: _emailController,
+                onChanged: (_) {
+                  setState(() {
+                    emailError = null;
+                  });
+                },
               ),
+
+              if (emailError != null)
+                FieldErrorText(message: emailError!),
 
               const SizedBox(height: 16),
 
@@ -164,28 +230,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 },
               ),
 
-              if (_passwordError != null) ...[
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 12),
-                    child: Text(
-                      _passwordError!,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.red,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              if (_passwordError != null)
+                FieldErrorText(message: _passwordError!),
 
               const SizedBox(height: 16),
+
               CustomTextField(
-                hintText: 'Date of birth',
+                hintText: 'Date of Birth (dd/mm/yyyy)',
                 controller: _birthDateController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  BirthDateInputFormatter(),
+                ],
+                onChanged: (_) {
+                  setState(() {
+                    birthDateError = null;
+                  });
+                },
               ),
+
+              if (birthDateError != null)
+                FieldErrorText(message: birthDateError!),
 
               const SizedBox(height: 24),
 
@@ -221,15 +286,36 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
               GestureDetector(
                 onTap: () async {
-                  final userCredential = await _authRepository.signInWithGoogle();
+                  try {
+                    final userCredential = await _authRepository.signInWithGoogle();
 
-                  if (userCredential != null && context.mounted) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginScreen()),
-                    );
+                    if (!context.mounted) return;
+
+                    if (userCredential == null || userCredential.user == null) {
+                      AppSnackbar.showError(context, AuthMessages.googleSignInFailed);
+                      return;
+                    }
+
+                    final user = userCredential.user!;
+
+                    final isOnboardingCompleted =
+                    await _authRepository.isOnboardingCompleted(user.uid);
+
+                    if (!context.mounted) return;
+
+                    if (isOnboardingCompleted) {
+                      AppSnackbar.showSuccess(context, AuthMessages.loginSuccess);
+                      Navigator.pushReplacementNamed(context, AppRoutes.main);
+                    } else {
+                      Navigator.pushReplacementNamed(context, AppRoutes.planSetup);
+                    }
+                  } catch (e) {
+                    if (!context.mounted) return;
+
+                    AppSnackbar.showError(context, AuthMessages.googleSignInFailed);
                   }
                 },
+
                 child: Container(
                   width: screenWidth * 0.42,
                   height: 44,
@@ -291,6 +377,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class BirthDateInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
+    final digitsOnly = newValue.text.replaceAll(RegExp(r'\D'), '');
+
+    final buffer = StringBuffer();
+
+    for (int i = 0; i < digitsOnly.length && i < 8; i++) {
+      if (i == 2 || i == 4) {
+        buffer.write('/');
+      }
+      buffer.write(digitsOnly[i]);
+    }
+
+    final text = buffer.toString();
+
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
     );
   }
 }

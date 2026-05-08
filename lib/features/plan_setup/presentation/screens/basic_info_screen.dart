@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/common/widgets/custom_text_field.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/setup_progress_indicator.dart';
 
 class BasicInfoScreen extends StatefulWidget {
-  final VoidCallback onContinue;
+  final void Function({
+    required int age,
+    required int height,
+    required int weight,
+    required String gender,
+  }) onContinue;
   final VoidCallback onBack;
 
   const BasicInfoScreen({
@@ -20,6 +26,18 @@ class BasicInfoScreen extends StatefulWidget {
 
 class _BasicInfoScreenState extends State<BasicInfoScreen> {
   String? selectedGender;
+
+  final ageController = TextEditingController();
+  final heightController = TextEditingController();
+  final weightController = TextEditingController();
+
+  @override
+  void dispose() {
+    ageController.dispose();
+    heightController.dispose();
+    weightController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,23 +96,38 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
 
               const SizedBox(height: 36),
 
-              const CustomTextField(
+              CustomTextField(
                 hintText: 'Age',
                 fillColor: Colors.white,
+                controller: ageController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
               ),
 
               const SizedBox(height: 16),
 
-              const CustomTextField(
+              CustomTextField(
                 hintText: 'Height (cm)',
                 fillColor: Colors.white,
+                controller: heightController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
               ),
 
               const SizedBox(height: 16),
 
-              const CustomTextField(
+              CustomTextField(
                 hintText: 'Weight (kg)',
                 fillColor: Colors.white,
+                controller: weightController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
               ),
 
               const SizedBox(height: 16),
@@ -180,7 +213,14 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
                 text: 'Continue',
                 onPressed: selectedGender == null
                     ? null
-                    : widget.onContinue,
+                    : () {
+                  widget.onContinue(
+                    age: int.tryParse(ageController.text) ?? 0,
+                    height: int.tryParse(heightController.text) ?? 0,
+                    weight: int.tryParse(weightController.text) ?? 0,
+                    gender: selectedGender!,
+                  );
+                },
                 backgroundColor: AppColors.authButtonGreen,
                 textColor: Colors.white,
                 height: 54,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/features/home/presentation/widgets/home_header.dart';
+import 'package:fiteo_myapp/features/home/data/calendar_repository.dart';
+import 'package:fiteo_myapp/features/home/data/home_repository.dart';
 
 class MonthlyCalendarScreen extends StatefulWidget {
   const MonthlyCalendarScreen({super.key});
@@ -10,26 +12,24 @@ class MonthlyCalendarScreen extends StatefulWidget {
 }
 
 class _MonthlyCalendarScreenState extends State<MonthlyCalendarScreen> {
-  DateTime currentMonth = DateTime(2026, 3);
-  int selectedDay = 2;
+  DateTime currentMonth = DateTime(DateTime.now().year, DateTime.now().month);
+  int selectedDay = DateTime.now().day;
 
-  final Set<int> trackedDays = {
-    2,
-    4,
-    8,
-    12,
-    14,
-    15,
-  };
+  final _repo = CalendarRepository();
+  final _homeRepository = HomeRepository();
 
-  final Map<int, DayCalories> dayData = {
-    2: DayCalories(consumed: 1850, burned: 420),
-    4: DayCalories(consumed: 2100, burned: 350),
-    8: DayCalories(consumed: 1600, burned: 280),
-    12: DayCalories(consumed: 1950, burned: 500),
-    14: DayCalories(consumed: 1750, burned: 300),
-    15: DayCalories(consumed: 2050, burned: 310),
-  };
+  int streakDays = 0;
+
+  Map<int, DayCalories> dayData = {};
+  Set<int> trackedDays = {};
+
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMonth();
+  }
 
   String get monthName {
     const months = [
@@ -63,18 +63,61 @@ class _MonthlyCalendarScreenState extends State<MonthlyCalendarScreen> {
     setState(() {
       currentMonth = DateTime(currentMonth.year, currentMonth.month - 1);
       selectedDay = 1;
+      isLoading = true;
     });
+
+    _loadMonth();
   }
 
   void nextMonth() {
     setState(() {
       currentMonth = DateTime(currentMonth.year, currentMonth.month + 1);
       selectedDay = 1;
+      isLoading = true;
+    });
+
+    _loadMonth();
+  }
+
+  Future<void> _loadMonth() async {
+    final data = await _repo.getMonthlyData(currentMonth);
+    final streak = await _homeRepository.getCurrentStreak();
+
+    final map = <int, DayCalories>{};
+    final tracked = <int>{};
+
+    data.forEach((day, values) {
+      final consumed = values['consumed'] ?? 0;
+      final burned = values['burned'] ?? 0;
+
+      if (consumed > 0 || burned > 0) {
+        tracked.add(day);
+        map[day] = DayCalories(
+          consumed: consumed,
+          burned: burned,
+        );
+      }
+    });
+
+    if (!mounted) return;
+
+    setState(() {
+      dayData = map;
+      trackedDays = tracked;
+      streakDays = streak;
+      isLoading = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     final selectedData = dayData[selectedDay];
 
     return Scaffold(
@@ -96,8 +139,8 @@ class _MonthlyCalendarScreenState extends State<MonthlyCalendarScreen> {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  const Expanded(
-                    child: HomeHeader(streakDays: 2),
+                  Expanded(
+                    child: HomeHeader(streakDays: streakDays),
                   ),
                 ],
               ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/features/workout/presentation/screens/workout_screen.dart';
 
@@ -75,7 +76,6 @@ class _AddExerciseFormState extends State<AddExerciseForm> {
     durationController.clear();
 
     setState(() {
-      selectedIntensity = null;
       estimatedCalories = 0;
     });
   }
@@ -126,6 +126,7 @@ class _AddExerciseFormState extends State<AddExerciseForm> {
           controller: durationController,
           hintText: 'Duration (minutes)',
           keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           onChanged: (_) => _estimateCalories(),
         ),
 
@@ -227,12 +228,14 @@ class _WorkoutInputField extends StatelessWidget {
   final String hintText;
   final TextInputType? keyboardType;
   final ValueChanged<String>? onChanged;
+  final List<TextInputFormatter>? inputFormatters;
 
   const _WorkoutInputField({
     required this.controller,
     required this.hintText,
     this.keyboardType,
     this.onChanged,
+    this.inputFormatters,
   });
 
   @override
@@ -244,6 +247,7 @@ class _WorkoutInputField extends StatelessWidget {
         controller: controller,
         keyboardType: keyboardType,
         onChanged: onChanged,
+        inputFormatters: inputFormatters,
         style: const TextStyle(
           color: AppColors.homeBrown,
           fontSize: 13,

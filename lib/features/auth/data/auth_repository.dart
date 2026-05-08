@@ -39,6 +39,7 @@ class AuthRepository {
         'birthDate': birthDate,
         'authProvider': 'password',
         'emailVerified': user.emailVerified,
+        'isOnboardingCompleted': false,
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
@@ -116,6 +117,7 @@ class AuthRepository {
             'birthDate': null,
             'authProvider': 'google',
             'emailVerified': true,
+            'isOnboardingCompleted': false,
             'createdAt': FieldValue.serverTimestamp(),
             'updatedAt': FieldValue.serverTimestamp(),
           });
@@ -126,6 +128,15 @@ class AuthRepository {
     } catch (e) {
       rethrow;
     }
+  }
+
+  Future<bool> isOnboardingCompleted(String uid) async {
+    final doc = await _firestore.collection('users').doc(uid).get();
+
+    if (!doc.exists) return false;
+
+    final data = doc.data();
+    return data?['isOnboardingCompleted'] == true;
   }
 
   Future<void> logout() {

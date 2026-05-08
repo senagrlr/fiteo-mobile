@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:fiteo_myapp/app/router/app_routes.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/common/widgets/common_app_bar.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/common/widgets/custom_text_field.dart';
 import 'package:fiteo_myapp/features/auth/data/auth_repository.dart';
-import 'package:fiteo_myapp/features/auth/presentation/screens/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fiteo_myapp/features/auth/utils/auth_messages.dart';
 import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
+import 'package:fiteo_myapp/common/widgets/field_error_text.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -21,6 +22,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final AuthRepository _authRepository = AuthRepository();
 
   bool _isLoading = false;
+  String? emailError;
 
   @override
   void dispose() {
@@ -31,8 +33,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Future<void> _sendResetLink() async {
     final email = _emailController.text.trim();
 
+    setState(() {
+      emailError = null;
+    });
+
     if (email.isEmpty) {
-      AppSnackbar.showError(context, AuthMessages.enterEmail);
+      setState(() {
+        emailError = AuthMessages.enterEmail;
+      });
       return;
     }
 
@@ -47,10 +55,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
       AppSnackbar.showInfo(context, AuthMessages.resetLinkSent);
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
+
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
 
@@ -97,7 +103,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               CustomTextField(
                 hintText: 'Mail',
                 controller: _emailController,
+                onChanged: (_) {
+                  setState(() {
+                    emailError = null;
+                  });
+                },
               ),
+
+              if (emailError != null)
+                FieldErrorText(message: emailError!),
 
               const SizedBox(height: 50),
 

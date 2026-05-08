@@ -1,15 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:fiteo_myapp/app/router/app_routes.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/common/widgets/custom_text_field.dart';
 import 'package:fiteo_myapp/features/auth/presentation/screens/sign_up_screen.dart';
 import 'package:fiteo_myapp/features/auth/presentation/screens/forgot_password_screen.dart';
-import 'package:fiteo_myapp/features/auth/presentation/screens/verify_email_screen.dart';
 import 'package:fiteo_myapp/features/auth/data/auth_repository.dart';
 import 'package:fiteo_myapp/features/auth/utils/auth_messages.dart';
 import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
+import 'package:fiteo_myapp/common/widgets/field_error_text.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -25,13 +26,20 @@ class _LoginScreenState extends State<LoginScreen> {
   final AuthRepository _authRepository = AuthRepository();
 
   bool _isLoading = false;
+  String? passwordError;
 
   Future<void> _login() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
+    setState(() {
+      passwordError = null;
+    });
+
     if (email.isEmpty || password.isEmpty) {
-      AppSnackbar.showError(context, AuthMessages.emailAndPasswordEmpty);
+      setState(() {
+        passwordError = AuthMessages.emailAndPasswordEmpty;
+      });
       return;
     }
 
@@ -53,20 +61,28 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!isVerified) {
         setState(() => _isLoading = false);
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const VerifyEmailScreen()),
-        );
-
+        Navigator.pushReplacementNamed(context, AppRoutes.verifyEmail);
         return;
       }
 
-      AppSnackbar.showSuccess(context, AuthMessages.loginSuccess);
+      final isOnboardingCompleted =
+      await _authRepository.isOnboardingCompleted(refreshedUser!.uid);
+
+      if (!mounted) return;
+
+      if (isOnboardingCompleted) {
+        AppSnackbar.showSuccess(context, AuthMessages.loginSuccess);
+        Navigator.pushReplacementNamed(context, AppRoutes.main);
+      } else {
+        Navigator.pushReplacementNamed(context, AppRoutes.planSetup);
+      }
+
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
 
-      AppSnackbar.showError(context, authErrorMessage(e));
+      setState(() {
+        passwordError = AuthMessages.wrongEmailOrPassword;
+      });
     }
 
     if (mounted) {
@@ -109,6 +125,11 @@ class _LoginScreenState extends State<LoginScreen> {
               CustomTextField(
                 hintText: 'Mail',
                 controller: _emailController,
+                onChanged: (_) {
+                  setState(() {
+                    passwordError = null;
+                  });
+                },
               ),
 
               const SizedBox(height: 16),
@@ -117,7 +138,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 hintText: 'Password',
                 isPassword: true,
                 controller: _passwordController,
+                onChanged: (_) {
+                  setState(() {
+                    passwordError = null;
+                  });
+                },
               ),
+
+              if (passwordError != null)
+                FieldErrorText(message: passwordError!),
 
               const SizedBox(height: 20),
 
@@ -175,16 +204,42 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 24),
 
               GestureDetector(
-                onTap: () async {
-                  final userCredential = await _authRepository.signInWithGoogle();
+                  onTap: () async {
+                    try {
+                      final userCredential = await _authRepository.signInWithGoogle();
 
-                  if (userCredential != null && context.mounted) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginScreen()),
-                    );
-                  }
-                },
+                      if (!context.mounted) return;
+
+                      if (userCredential == null) {
+                        AppSnackbar.showError(context, AuthMessages.googleSignInFailed);
+                        return;
+                      }
+
+                      final user = userCredential.user;
+
+                      if (user == null) {
+                        AppSnackbar.showError(context, AuthMessages.googleSignInFailed);
+                        return;
+                      }
+
+                      final isOnboardingCompleted =
+                      await _authRepository.isOnboardingCompleted(user.uid);
+
+                      if (!context.mounted) return;
+
+                      if (isOnboardingCompleted) {
+                        AppSnackbar.showSuccess(context, AuthMessages.loginSuccess);
+                        Navigator.pushReplacementNamed(context, AppRoutes.main);
+                      } else {
+                        Navigator.pushReplacementNamed(context, AppRoutes.planSetup);
+                      }
+                    } catch (e) {
+                      if (!context.mounted) return;
+
+                      AppSnackbar.showError(context, AuthMessages.googleSignInFailed);
+                    }
+                  },
+
                 child: Container(
                   width: screenWidth * 0.42,
                   height: 44,

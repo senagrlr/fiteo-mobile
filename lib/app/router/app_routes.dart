@@ -1,4 +1,5 @@
 class AppRoutes {
+  static const authGate = '/auth-gate';
   static const onboarding = '/onboarding';
   static const login = '/login';
   static const signup = '/signup';

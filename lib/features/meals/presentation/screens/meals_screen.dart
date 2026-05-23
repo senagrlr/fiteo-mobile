@@ -39,51 +39,64 @@ class _MealsScreenState extends State<MealsScreen> {
   }
 
   Future<void> _addFood(FoodItem item) async {
+    final mealType = selectedMeal;
+
+    setState(() {
+      foodsByMeal[mealType]!.add(item);
+    });
+
     try {
       final id = await _mealRepository.addMeal(
         mealName: item.name,
         gram: int.tryParse(item.amount) ?? 0,
-        mealType: selectedMeal,
+        mealType: mealType,
         estimatedCalories: item.calories,
       );
 
-      setState(() {
-        foodsByMeal[selectedMeal]!.add(
-          item.copyWith(id: id),
-        );
-      });
+      if (!mounted) return;
 
-      await _loadStreak();
+      final index = foodsByMeal[mealType]!.indexOf(item);
 
+      if (index != -1) {
+        setState(() {
+          foodsByMeal[mealType]![index] = item.copyWith(id: id);
+        });
+      }
+
+      _loadStreak();
     } catch (e) {
       if (!mounted) return;
+
+      setState(() {
+        foodsByMeal[mealType]!.remove(item);
+      });
 
       AppSnackbar.showError(context, 'Could not add food.');
     }
   }
 
   Future<void> _deleteFood(int index) async {
-    final item = foodsByMeal[selectedMeal]![index];
+    final mealType = selectedMeal;
+    final item = foodsByMeal[mealType]![index];
+
+    setState(() {
+      foodsByMeal[mealType]!.removeAt(index);
+    });
 
     if (item.id == null) {
-      setState(() {
-        foodsByMeal[selectedMeal]!.removeAt(index);
-      });
-
       return;
     }
 
     try {
       await _mealRepository.deleteMeal(item.id!);
 
-      setState(() {
-        foodsByMeal[selectedMeal]!.removeAt(index);
-      });
-
-      await _loadStreak();
-
+      _loadStreak();
     } catch (e) {
       if (!mounted) return;
+
+      setState(() {
+        foodsByMeal[mealType]!.insert(index, item);
+      });
 
       AppSnackbar.showError(context, 'Could not delete food.');
     }
@@ -185,7 +198,14 @@ class _MealsScreenState extends State<MealsScreen> {
     );
 
     if (newCalories != null) {
-      final item = foodsByMeal[selectedMeal]![index];
+      final mealType = selectedMeal;
+      final item = foodsByMeal[mealType]![index];
+      final oldItem = item;
+
+      setState(() {
+        foodsByMeal[mealType]![index] =
+            item.copyWith(calories: newCalories);
+      });
 
       try {
         if (item.id != null) {
@@ -195,15 +215,13 @@ class _MealsScreenState extends State<MealsScreen> {
           );
         }
 
-        setState(() {
-          foodsByMeal[selectedMeal]![index] =
-              item.copyWith(calories: newCalories);
-        });
-
-        await _loadStreak();
-
+        _loadStreak();
       } catch (e) {
         if (!mounted) return;
+
+        setState(() {
+          foodsByMeal[mealType]![index] = oldItem;
+        });
 
         AppSnackbar.showError(context, 'Could not update calories.');
       }

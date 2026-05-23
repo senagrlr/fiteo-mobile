@@ -11,9 +11,11 @@ import 'package:fiteo_myapp/features/profile/presentation/screens/edit_profile_s
 import 'package:fiteo_myapp/features/profile/presentation/screens/goals_preferences_screen.dart';
 import 'package:fiteo_myapp/features/profile/presentation/screens/delete_account_screen.dart';
 import 'package:fiteo_myapp/features/home/presentation/screens/monthly_calendar_screen.dart';
+import 'package:fiteo_myapp/features/auth/presentation/screens/auth_gate_screen.dart';
 
 class AppRouter {
   static Map<String, WidgetBuilder> routes = {
+    AppRoutes.authGate: (context) => const AuthGateScreen(),
     AppRoutes.onboarding: (context) => const OnboardingScreen(),
     AppRoutes.login: (context) => const LoginScreen(),
     AppRoutes.signup: (context) => const SignUpScreen(),

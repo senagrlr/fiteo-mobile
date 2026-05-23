@@ -2,7 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 
 class AiFeedbackCard extends StatelessWidget {
-  const AiFeedbackCard({super.key});
+  final String mainMessage;
+  final String suggestion;
+
+  const AiFeedbackCard({
+    super.key,
+    required this.mainMessage,
+    required this.suggestion,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,10 +45,10 @@ class AiFeedbackCard extends StatelessWidget {
                   color: AppColors.homeCardBackground,
                   borderRadius: BorderRadius.circular(18),
                 ),
-                child: const Text(
-                  'You’re getting closer to your goal day by day, great job!\n\n'
-                      'You’ve had 1,200 calories so far. A 20-minute light walk can help you reach your daily goal.',
+                child: Text(
+                  '$mainMessage\n\n$suggestion',
                   textAlign: TextAlign.center,
+                  softWrap: true,
                   style: TextStyle(
                     color: AppColors.homeBrown,
                     fontSize: 13,

@@ -4,7 +4,7 @@ import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_speech_bub
 
 class AiWelcomeView extends StatelessWidget {
   final TextEditingController controller;
-  final VoidCallback onSend;
+  final Future<void> Function() onSend;
 
   const AiWelcomeView({
     super.key,

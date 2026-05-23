@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/features/workout/presentation/screens/workout_screen.dart';
+import 'package:fiteo_myapp/features/workout/data/workout_repository.dart';
 
 class AddExerciseForm extends StatefulWidget {
   final ValueChanged<ExerciseItem> onAddExercise;
@@ -20,7 +21,11 @@ class _AddExerciseFormState extends State<AddExerciseForm> {
   final durationController = TextEditingController();
 
   String? selectedIntensity;
+  String? matchedExerciseName;
   int estimatedCalories = 0;
+  bool isEstimating = false;
+
+  final _workoutRepository = WorkoutRepository();
 
   final List<String> intensities = const [
     'Low',
@@ -28,28 +33,74 @@ class _AddExerciseFormState extends State<AddExerciseForm> {
     'High',
   ];
 
-  void _estimateCalories() {
-    final duration = int.tryParse(durationController.text) ?? 0;
+  Future<void> _estimateCalories() async {
+    final name = exerciseController.text.trim();
+    final duration = int.tryParse(durationController.text.trim()) ?? 0;
 
-    int multiplier;
-
-    switch (selectedIntensity) {
-      case 'Low':
-        multiplier = 4;
-        break;
-      case 'Medium':
-        multiplier = 7;
-        break;
-      case 'High':
-        multiplier = 10;
-        break;
-      default:
-        multiplier = 0;
+    if (name.isEmpty || duration == 0 || selectedIntensity == null) {
+      setState(() {
+        estimatedCalories = 0;
+      });
+      return;
     }
 
     setState(() {
-      estimatedCalories = duration * multiplier;
+      isEstimating = true;
     });
+
+    try {
+      final metData = await _workoutRepository.findExerciseMet(name);
+
+      if (metData == null) {
+        if (!mounted) return;
+
+        setState(() {
+          estimatedCalories = 0;
+          matchedExerciseName = null;
+          isEstimating = false;
+        });
+        return;
+      }
+
+      final metValues = Map<String, dynamic>.from(metData['metValues'] ?? {});
+      final intensityKey = selectedIntensity!.toLowerCase();
+
+      final met = (metValues[intensityKey] as num?)?.toDouble();
+
+      if (met == null) {
+        if (!mounted) return;
+
+        setState(() {
+          estimatedCalories = 0;
+          isEstimating = false;
+        });
+        return;
+      }
+
+      final weightKg = await _workoutRepository.getUserWeightKg();
+
+      final calories = _workoutRepository.calculateCaloriesBurned(
+        met: met,
+        weightKg: weightKg,
+        durationMinutes: duration,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        estimatedCalories = calories;
+        matchedExerciseName = metData['name'] as String?;
+        isEstimating = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        estimatedCalories = 0;
+        matchedExerciseName = null;
+        isEstimating = false;
+      });
+    }
   }
 
   void _addExercise() {
@@ -65,7 +116,7 @@ class _AddExerciseFormState extends State<AddExerciseForm> {
 
     widget.onAddExercise(
       ExerciseItem(
-        name: name,
+        name: matchedExerciseName ?? name,
         durationMinutes: duration,
         intensity: selectedIntensity!,
         caloriesBurned: estimatedCalories,
@@ -77,6 +128,7 @@ class _AddExerciseFormState extends State<AddExerciseForm> {
 
     setState(() {
       estimatedCalories = 0;
+      matchedExerciseName = null;
     });
   }
 
@@ -196,7 +248,9 @@ class _AddExerciseFormState extends State<AddExerciseForm> {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            estimatedCalories == 0
+            isEstimating
+                ? 'Calculating...'
+                : estimatedCalories == 0
                 ? 'Calories burned'
                 : '$estimatedCalories kcal',
             style: const TextStyle(

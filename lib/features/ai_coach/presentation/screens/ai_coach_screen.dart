@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:fiteo_myapp/features/ai_coach/data/ai_chat_message.dart';
+import 'package:fiteo_myapp/features/ai_coach/data/ai_chat_repository.dart';
+import 'package:fiteo_myapp/features/ai_coach/data/ai_chat_service.dart';
 import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_message_input.dart';
 import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_welcome_view.dart';
 import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_bot_bubble.dart';
 import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_user_bubble.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_typing_bubble.dart';
 
 class AiCoachScreen extends StatefulWidget {
   const AiCoachScreen({super.key});
@@ -13,53 +17,233 @@ class AiCoachScreen extends StatefulWidget {
 
 class _AiCoachScreenState extends State<AiCoachScreen> {
   final TextEditingController _messageController = TextEditingController();
-  final List<String> messages = [];
+  final ScrollController _scrollController = ScrollController();
+  final Set<String> hiddenMessageIds = {};
+  final AiChatRepository _chatRepository = AiChatRepository();
+  final AiChatService _chatService = AiChatService();
 
-  void _sendMessage() {
-    final text = _messageController.text.trim();
-    if (text.isEmpty) return;
+  bool isSending = false;
+  String? temporaryErrorMessage;
+  int messageCount = 0;
+
+  static const int dailyLimit = 3;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMessageCount();
+  }
+
+  Future<void> _loadMessageCount() async {
+    final count = await _chatRepository.getTodayMessageCount();
+
+    if (!mounted) return;
 
     setState(() {
-      messages.add(text);
-      _messageController.clear();
+      messageCount = count;
+    });
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!_scrollController.hasClients) return;
+
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      if (!_scrollController.hasClients) return;
+
+      _scrollController.jumpTo(
+        _scrollController.position.maxScrollExtent,
+      );
+    });
+  }
+
+  Future<void> _showMessageOptions(AiChatMessage message) async {
+    if (message.id == null) return;
+
+    final shouldDelete = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(22),
+        ),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: ListTile(
+            leading: const Icon(
+              Icons.delete_outline,
+              color: Colors.redAccent,
+            ),
+            title: const Text(
+              'Delete message',
+              style: TextStyle(
+                color: Colors.redAccent,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            onTap: () => Navigator.pop(context, true),
+          ),
+        );
+      },
+    );
+
+    if (shouldDelete == true) {
+      setState(() {
+        hiddenMessageIds.add(message.id!);
+      });
+    }
+  }
+
+  Future<void> _sendMessage() async {
+    final text = _messageController.text.trim();
+
+    if (text.isEmpty || isSending) return;
+
+    if (messageCount >= dailyLimit) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Daily AI message limit reached.'),
+        ),
+      );
+      return;
+    }
+
+    _messageController.clear();
+
+    setState(() {
+      isSending = true;
+      temporaryErrorMessage = null;
+    });
+
+    await _chatRepository.saveMessage(
+      role: 'user',
+      message: text,
+    );
+
+    final userPreferences =
+    await _chatRepository.getUserPreferences();
+
+    final dailySummary =
+    await _chatRepository.getTodaySummary();
+
+    final last7Summaries =
+    await _chatRepository.getLast7DailySummaries();
+
+    final recentMessages =
+    await _chatRepository.getRecentMessages(limit: 6);
+
+    final reply = await _chatService.sendMessage(
+      message: text,
+      userPreferences: userPreferences,
+      dailySummary: dailySummary,
+      last7Summaries: last7Summaries,
+      recentMessages: recentMessages
+          .map((message) => message.toJson())
+          .toList(),
+    );
+
+    if (reply != null) {
+      await _chatRepository.saveMessage(
+        role: 'assistant',
+        message: reply,
+      );
+
+      await _chatRepository.incrementTodayMessageCount();
+    } else {
+      temporaryErrorMessage =
+      'Sorry, I could not respond right now. Please try again later.';
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      if (reply != null) {
+        messageCount++;
+      }
+
+      isSending = false;
     });
   }
 
   @override
   void dispose() {
     _messageController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final hasMessages = messages.isNotEmpty;
+    return StreamBuilder<List<AiChatMessage>>(
+      stream: _chatRepository.watchMessages(),
+      builder: (context, snapshot) {
+        final allMessages = snapshot.data ?? [];
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: hasMessages
-            ? Column(
-          children: [
-            Expanded(child: _buildChatView()),
-            AiMessageInput(
+        final messages = allMessages
+            .where(
+              (message) =>
+          message.id == null || !hiddenMessageIds.contains(message.id),
+        )
+            .toList();
+
+        final hasMessages = messages.isNotEmpty;
+
+        if (messages.isNotEmpty) {
+          _scrollToBottom();
+        }
+
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: SafeArea(
+            child: hasMessages
+                ? Column(
+              children: [
+                Expanded(
+                  child: _buildChatView(messages),
+                ),
+                _buildLimitText(),
+                AiMessageInput(
+                  controller: _messageController,
+                  onSend: _sendMessage,
+                ),
+              ],
+            )
+                : AiWelcomeView(
               controller: _messageController,
               onSend: _sendMessage,
             ),
-          ],
-        )
-            : AiWelcomeView(
-          controller: _messageController,
-          onSend: _sendMessage,
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLimitText() {
+    final remaining = dailyLimit - messageCount;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Text(
+        remaining > 0
+            ? '$remaining AI messages left today'
+            : 'Daily AI message limit reached',
+        style: const TextStyle(
+          color: Colors.grey,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
   }
 
-  Widget _buildChatView() {
+  Widget _buildChatView(List<AiChatMessage> messages) {
     return ListView.builder(
+      controller: _scrollController,
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-      itemCount: messages.length + 1,
+      itemCount:
+      messages.length + 1 + (isSending ? 1 : 0) + (temporaryErrorMessage != null ? 1 : 0),
       itemBuilder: (context, index) {
         if (index == 0) {
           return const Padding(
@@ -67,19 +251,51 @@ class _AiCoachScreenState extends State<AiCoachScreen> {
             child: Align(
               alignment: Alignment.centerLeft,
               child: AiBotBubble(
-                text: 'Hi, I’m Fiteo. Tell me your goal and I’ll guide you.',
+                text:
+                'Hi, I’m Fiteo. Tell me your goal and I’ll guide you.',
               ),
             ),
           );
         }
 
-        final message = messages[index - 1];
+        final messageIndex = index - 1;
+
+        if (messageIndex >= messages.length) {
+          if (isSending) {
+            return const Padding(
+              padding: EdgeInsets.only(bottom: 14),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: AiTypingBubble(),
+              ),
+            );
+          }
+
+          if (temporaryErrorMessage != null) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: AiBotBubble(text: temporaryErrorMessage!),
+              ),
+            );
+          }
+        }
+
+        final message = messages[messageIndex];
+        final isUser = message.role == 'user';
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 14),
           child: Align(
-            alignment: Alignment.centerRight,
-            child: AiUserBubble(text: message),
+            alignment:
+            isUser ? Alignment.centerRight : Alignment.centerLeft,
+            child: GestureDetector(
+              onLongPress: () => _showMessageOptions(message),
+              child: isUser
+                  ? AiUserBubble(text: message.text)
+                  : AiBotBubble(text: message.text),
+            ),
           ),
         );
       },

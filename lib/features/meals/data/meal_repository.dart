@@ -37,7 +37,7 @@ class MealRepository {
       'createdAt': FieldValue.serverTimestamp(),
     });
 
-    await _dailySummaryRepository.updateDailySummary();
+    _dailySummaryRepository.updateDailySummary();
 
     return docRef.id;
   }
@@ -75,7 +75,7 @@ class MealRepository {
         .doc(mealId)
         .delete();
 
-    await _dailySummaryRepository.updateDailySummary();
+    _dailySummaryRepository.updateDailySummary();
   }
 
   Future<void> updateMealCalories({
@@ -97,6 +97,6 @@ class MealRepository {
       'estimatedCalories': calories,
     });
 
-    await _dailySummaryRepository.updateDailySummary();
+    _dailySummaryRepository.updateDailySummary();
   }
 }

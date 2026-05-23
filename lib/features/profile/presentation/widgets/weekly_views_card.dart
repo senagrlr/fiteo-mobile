@@ -67,7 +67,8 @@ class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
       );
     }
 
-    final rawMax = values.isEmpty ? 0.0 : values.reduce(max);
+    final positiveValues = values.map((v) => v < 0 ? 0.0 : v).toList();
+    final rawMax = positiveValues.isEmpty ? 0.0 : positiveValues.reduce(max);
     final double maxValue = rawMax <= 0
         ? 500
         : ((rawMax / 500).ceil() * 500).toDouble();
@@ -123,7 +124,8 @@ class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: List.generate(values.length, (index) {
-                          final barHeight = (values[index] / maxValue) * 82;
+                          final safeValue = values[index] < 0 ? 0 : values[index];
+                          final barHeight = (safeValue / maxValue) * 82;
                           final isSelected = selectedBarIndex == index;
 
                           return _BarItem(

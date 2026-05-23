@@ -5,6 +5,7 @@ import 'package:fiteo_myapp/features/home/presentation/widgets/calorie_donut_cha
 import 'package:fiteo_myapp/features/home/presentation/widgets/home_header.dart';
 import 'package:fiteo_myapp/features/home/presentation/widgets/today_calories_card.dart';
 import 'package:fiteo_myapp/features/home/presentation/widgets/week_calendar_row.dart';
+import 'package:fiteo_myapp/features/home/data/daily_feedback_service.dart';
 import 'package:fiteo_myapp/features/home/data/home_repository.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,6 +17,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _homeRepository = HomeRepository();
+  final _dailyFeedbackService = DailyFeedbackService();
+
+  DailyFeedbackResult? dailyFeedback;
 
   int consumed = 0;
   int burned = 0;
@@ -36,16 +40,38 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final data = await _homeRepository.getTodaySummary();
       final streak = await _homeRepository.getCurrentStreak();
+      final last7Stats = await _homeRepository.getLast7DaysStats();
+      final todayConsumed = data['consumed'] as int? ?? 0;
+      final todayBurned = data['burned'] as int? ?? 0;
+      final todayNet = data['netCalories'] as int? ?? 0;
+      final todayGoal = data['calorieGoal'] as int? ?? 2000;
+      final todayGoalReached = data['isGoalReached'] as bool? ?? false;
+      final trackedDaysLast7 = last7Stats['trackedDays'] ?? 0;
+      final activeDaysLast7 = last7Stats['activeDays'] ?? 0;
+      final isFirstAppDay = await _homeRepository.isFirstAppDay();
+
+      final feedback = _dailyFeedbackService.generateFeedback(
+        consumedCalories: todayConsumed,
+        burnedCalories: todayBurned,
+        netCalories: todayNet,
+        calorieGoal: todayGoal,
+        isGoalReached: todayGoalReached,
+        streak: streak,
+        trackedDaysLast7: trackedDaysLast7,
+        activeDaysLast7: activeDaysLast7,
+        isFirstAppDay: isFirstAppDay,
+      );
 
       if (!mounted) return;
 
       setState(() {
-        consumed = data['consumed'];
-        burned = data['burned'];
-        net = data['netCalories'];
-        calorieGoal = data['calorieGoal'];
+        consumed = todayConsumed;
+        burned = todayBurned;
+        net = todayNet;
+        calorieGoal = todayGoal;
         remaining = data['remaining'];
         streakDays = streak;
+        dailyFeedback = feedback;
         isLoading = false;
       });
     } catch (e) {
@@ -72,18 +98,23 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: AppColors.generalBackground,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(24, 22, 24, 50),
+          padding: const EdgeInsets.fromLTRB(24, 22, 24, 50),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               HomeHeader(streakDays: streakDays),
-              SizedBox(height: 28),
+              const SizedBox(height: 28),
 
               WeekCalendarRow(),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
 
-              AiFeedbackCard(),
-              SizedBox(height: 45),
+              AiFeedbackCard(
+                mainMessage: dailyFeedback?.mainMessage ??
+                    'You’re building your routine step by step.',
+                suggestion: dailyFeedback?.suggestion ??
+                    'Keep tracking your meals and movement today to stay aware of your progress.',
+              ),
+              const SizedBox(height: 45),
 
               Center(
                 child: CalorieDonutChart(
@@ -92,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-              SizedBox(height: 48),
+              const SizedBox(height: 48),
               TodayCaloriesCard(
                 calorieGoal: calorieGoal,
                 remaining: remaining,

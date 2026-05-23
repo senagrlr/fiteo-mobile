@@ -152,6 +152,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -199,9 +200,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 hintText: 'Mail',
                 controller: _emailController,
                 onChanged: (_) {
-                  setState(() {
-                    emailError = null;
-                  });
+                  if (emailError != null) {
+                    setState(() {
+                      emailError = null;
+                    });
+                  }
                 },
               ),
 
@@ -236,16 +239,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
               const SizedBox(height: 16),
 
               CustomTextField(
-                hintText: 'Date of Birth (dd/mm/yyyy)',
+                hintText: 'Date of Birth',
                 controller: _birthDateController,
                 keyboardType: TextInputType.number,
                 inputFormatters: [
                   BirthDateInputFormatter(),
                 ],
                 onChanged: (_) {
-                  setState(() {
-                    birthDateError = null;
-                  });
+                  if (birthDateError != null) {
+                    setState(() {
+                      birthDateError = null;
+                    });
+                  }
                 },
               ),
 
@@ -304,7 +309,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     if (!context.mounted) return;
 
                     if (isOnboardingCompleted) {
-                      AppSnackbar.showSuccess(context, AuthMessages.loginSuccess);
                       Navigator.pushReplacementNamed(context, AppRoutes.main);
                     } else {
                       Navigator.pushReplacementNamed(context, AppRoutes.planSetup);

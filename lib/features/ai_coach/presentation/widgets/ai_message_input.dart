@@ -3,7 +3,7 @@ import 'package:fiteo_myapp/app/theme/app_colors.dart';
 
 class AiMessageInput extends StatelessWidget {
   final TextEditingController controller;
-  final VoidCallback onSend;
+  final Future<void> Function() onSend;
   final double horizontalPadding;
   final double bottomPadding;
 

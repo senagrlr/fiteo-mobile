@@ -38,11 +38,11 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
 
     if (user == null) return;
 
-    await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+    await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
       'userPreferences': widget.userPreferences,
       'isOnboardingCompleted': true,
       'updatedAt': FieldValue.serverTimestamp(),
-    });
+    }, SetOptions(merge: true));
   }
 
   @override

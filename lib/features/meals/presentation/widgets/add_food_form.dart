@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/features/meals/presentation/screens/meals_screen.dart';
+import 'package:fiteo_myapp/features/meals/data/meal_calorie_service.dart';
+import 'package:fiteo_myapp/features/meals/data/food_calorie_cache_repository.dart';
+import 'dart:async';
 
 class AddFoodForm extends StatefulWidget {
   final ValueChanged<FoodItem> onAddFood;
@@ -18,22 +21,85 @@ class AddFoodForm extends StatefulWidget {
 class _AddFoodFormState extends State<AddFoodForm> {
   final foodController = TextEditingController();
   final amountController = TextEditingController();
+  final _mealCalorieService = MealCalorieService();
+  final _foodCacheRepository = FoodCalorieCacheRepository();
 
+  Timer? _debounce;
+  int _calorieRequestId = 0;
+  MealCalorieResult? lastCalorieResult;
   int estimatedCalories = 0;
+  bool isEstimating = false;
 
   void _estimateCalories() {
-    final amount = int.tryParse(amountController.text) ?? 0;
+    _debounce?.cancel();
 
-    setState(() {
-      estimatedCalories = amount == 0 ? 0 : (amount * 1.5).round();
+    final requestId = ++_calorieRequestId;
+
+    _debounce = Timer(const Duration(milliseconds: 700), () async {
+      final foodName = foodController.text.trim();
+      final gram = int.tryParse(amountController.text.trim()) ?? 0;
+
+      if (foodName.isEmpty || gram == 0) {
+        if (!mounted) return;
+
+        setState(() {
+          estimatedCalories = 0;
+          isEstimating = false;
+          lastCalorieResult = null;
+        });
+        return;
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        isEstimating = true;
+      });
+
+      try {
+        final result = await _mealCalorieService.estimateMealCalories(
+          foodName: foodName,
+          gram: gram,
+        );
+
+        if (!mounted || requestId != _calorieRequestId) return;
+
+        setState(() {
+          lastCalorieResult = result;
+          estimatedCalories = result?.estimatedCalories ?? 0;
+          isEstimating = false;
+        });
+      } catch (e) {
+        if (!mounted || requestId != _calorieRequestId) return;
+
+        setState(() {
+          estimatedCalories = 0;
+          isEstimating = false;
+          lastCalorieResult = null;
+        });
+      }
     });
   }
 
-  void _addFood() {
+  Future<void> _addFood() async {
     final foodName = foodController.text.trim();
     final amount = amountController.text.trim();
 
-    if (foodName.isEmpty || amount.isEmpty || estimatedCalories == 0) return;
+    if (foodName.isEmpty ||
+        amount.isEmpty ||
+        estimatedCalories == 0 ||
+        lastCalorieResult == null) {
+      return;
+    }
+
+    await _foodCacheRepository.saveFoodToCache(
+      foodName: lastCalorieResult!.foodName,
+      normalizedName: lastCalorieResult!.normalizedName,
+      caloriesPer100g: lastCalorieResult!.caloriesPer100g,
+      source: lastCalorieResult!.source,
+      foodType: lastCalorieResult!.foodType,
+      confidence: lastCalorieResult!.confidence,
+    );
 
     widget.onAddFood(
       FoodItem(
@@ -48,11 +114,13 @@ class _AddFoodFormState extends State<AddFoodForm> {
 
     setState(() {
       estimatedCalories = 0;
+      lastCalorieResult = null;
     });
   }
 
   @override
   void dispose() {
+    _debounce?.cancel();
     foodController.dispose();
     amountController.dispose();
     super.dispose();
@@ -64,7 +132,9 @@ class _AddFoodFormState extends State<AddFoodForm> {
       children: [
         Center(
           child: GestureDetector(
-            onTap: _addFood,
+            onTap: () async {
+              await _addFood();
+            },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 8),
               decoration: BoxDecoration(
@@ -112,7 +182,9 @@ class _AddFoodFormState extends State<AddFoodForm> {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            estimatedCalories == 0
+            isEstimating
+                ? 'Calculating...'
+                : estimatedCalories == 0
                 ? 'Calories'
                 : '$estimatedCalories kcal',
             style: const TextStyle(

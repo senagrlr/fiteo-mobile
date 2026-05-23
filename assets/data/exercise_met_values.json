@@ -1,0 +1,647 @@
+[
+  {
+    "id": "upper_body_workout",
+    "name": "Upper Body Workout",
+    "aliases": [
+      "upper body",
+      "chest workout",
+      "arm workout",
+      "shoulder workout",
+      "back workout",
+      "push workout",
+      "pull workout"
+    ],
+    "metValues": {
+      "low": 3.5,
+      "medium": 5.0,
+      "high": 6.5
+    }
+  },
+  {
+    "id": "lower_body_workout",
+    "name": "Lower Body Workout",
+    "aliases": [
+      "lower body",
+      "leg workout",
+      "quad workout",
+      "hamstring workout",
+      "glute workout",
+      "calf workout"
+    ],
+    "metValues": {
+      "low": 4.0,
+      "medium": 5.5,
+      "high": 7.0
+    }
+  },
+  {
+    "id": "full_body_workout",
+    "name": "Full Body Workout",
+    "aliases": [
+      "full body",
+      "full body training",
+      "full body workout"
+    ],
+    "metValues": {
+      "low": 4.5,
+      "medium": 6.0,
+      "high": 8.0
+    }
+  },
+  {
+    "id": "strength_training",
+    "name": "Strength Training",
+    "aliases": [
+      "weight training",
+      "strength workout",
+      "lifting",
+      "gym workout",
+      "bodybuilding"
+    ],
+    "metValues": {
+      "low": 3.5,
+      "medium": 5.0,
+      "high": 6.5
+    }
+  },
+  {
+    "id": "core_workout",
+    "name": "Core Workout",
+    "aliases": [
+      "abs workout",
+      "ab workout",
+      "core training",
+      "core workout"
+    ],
+    "metValues": {
+      "low": 3.0,
+      "medium": 4.5,
+      "high": 6.0
+    }
+  },
+  {
+    "id": "hiit",
+    "name": "HIIT",
+    "aliases": [
+      "high intensity interval training",
+      "interval workout",
+      "hiit workout"
+    ],
+    "metValues": {
+      "low": 8.0,
+      "medium": 10.0,
+      "high": 12.0
+    }
+  },
+  {
+    "id": "crossfit",
+    "name": "CrossFit",
+    "aliases": [
+      "crossfit training",
+      "functional fitness"
+    ],
+    "metValues": {
+      "low": 7.0,
+      "medium": 9.0,
+      "high": 11.0
+    }
+  },
+  {
+    "id": "circuit_training",
+    "name": "Circuit Training",
+    "aliases": [
+      "circuit workout",
+      "circuit training"
+    ],
+    "metValues": {
+      "low": 5.0,
+      "medium": 7.0,
+      "high": 9.0
+    }
+  },
+  {
+    "id": "calisthenics",
+    "name": "Calisthenics",
+    "aliases": [
+      "bodyweight workout",
+      "street workout"
+    ],
+    "metValues": {
+      "low": 4.0,
+      "medium": 6.0,
+      "high": 8.0
+    }
+  },
+  {
+    "id": "running",
+    "name": "Running",
+    "aliases": [
+      "run",
+      "jogging",
+      "treadmill running"
+    ],
+    "metValues": {
+      "low": 7.0,
+      "medium": 9.8,
+      "high": 11.5
+    }
+  },
+  {
+    "id": "walking",
+    "name": "Walking",
+    "aliases": [
+      "walk",
+      "brisk walking",
+      "power walking"
+    ],
+    "metValues": {
+      "low": 2.5,
+      "medium": 3.5,
+      "high": 4.5
+    }
+  },
+  {
+    "id": "cycling",
+    "name": "Cycling",
+    "aliases": [
+      "bike",
+      "biking",
+      "stationary bike"
+    ],
+    "metValues": {
+      "low": 4.0,
+      "medium": 6.8,
+      "high": 10.0
+    }
+  },
+  {
+    "id": "swimming",
+    "name": "Swimming",
+    "aliases": [
+      "swim",
+      "freestyle swimming"
+    ],
+    "metValues": {
+      "low": 5.8,
+      "medium": 8.3,
+      "high": 10.0
+    }
+  },
+  {
+    "id": "jump_rope",
+    "name": "Jump Rope",
+    "aliases": [
+      "skipping rope",
+      "rope jumping"
+    ],
+    "metValues": {
+      "low": 8.8,
+      "medium": 11.0,
+      "high": 12.8
+    }
+  },
+  {
+    "id": "rowing",
+    "name": "Rowing",
+    "aliases": [
+      "rowing machine",
+      "erg rowing"
+    ],
+    "metValues": {
+      "low": 5.0,
+      "medium": 7.0,
+      "high": 8.5
+    }
+  },
+  {
+    "id": "elliptical",
+    "name": "Elliptical",
+    "aliases": [
+      "cross trainer",
+      "elliptical trainer"
+    ],
+    "metValues": {
+      "low": 4.5,
+      "medium": 5.8,
+      "high": 7.0
+    }
+  },
+  {
+    "id": "yoga",
+    "name": "Yoga",
+    "aliases": [
+      "stretching yoga",
+      "hatha yoga"
+    ],
+    "metValues": {
+      "low": 2.0,
+      "medium": 3.0,
+      "high": 4.0
+    }
+  },
+  {
+    "id": "pilates",
+    "name": "Pilates",
+    "aliases": [
+      "mat pilates"
+    ],
+    "metValues": {
+      "low": 3.0,
+      "medium": 4.0,
+      "high": 5.0
+    }
+  },
+  {
+    "id": "basketball",
+    "name": "Basketball",
+    "aliases": [
+      "basketball game",
+      "shooting hoops"
+    ],
+    "metValues": {
+      "low": 6.0,
+      "medium": 8.0,
+      "high": 10.0
+    }
+  },
+  {
+    "id": "football",
+    "name": "Football",
+    "aliases": [
+      "soccer",
+      "football match"
+    ],
+    "metValues": {
+      "low": 6.5,
+      "medium": 8.5,
+      "high": 10.0
+    }
+  },
+  {
+    "id": "tennis",
+    "name": "Tennis",
+    "aliases": [
+      "tennis match",
+      "singles tennis"
+    ],
+    "metValues": {
+      "low": 5.0,
+      "medium": 7.3,
+      "high": 9.0
+    }
+  },
+   {
+      "id": "padel",
+      "name": "Padel",
+      "aliases": [
+        "padel tennis",
+        "padel match"
+      ],
+      "metValues": {
+        "low": 5.0,
+        "medium": 7.0,
+        "high": 8.5
+      }
+    },
+    {
+      "id": "pickleball",
+      "name": "Pickleball",
+      "aliases": [
+        "pickle ball",
+        "pickleball match"
+      ],
+      "metValues": {
+        "low": 4.0,
+        "medium": 5.5,
+        "high": 7.0
+      }
+    },
+    {
+      "id": "american_football",
+      "name": "American Football",
+      "aliases": [
+        "football training",
+        "american football match"
+      ],
+      "metValues": {
+        "low": 5.5,
+        "medium": 7.5,
+        "high": 9.5
+      }
+    },
+    {
+      "id": "baseball",
+      "name": "Baseball",
+      "aliases": [
+        "baseball game",
+        "batting practice"
+      ],
+      "metValues": {
+        "low": 3.5,
+        "medium": 5.0,
+        "high": 7.0
+      }
+    },
+    {
+      "id": "golf",
+      "name": "Golf",
+      "aliases": [
+        "golfing",
+        "walking golf"
+      ],
+      "metValues": {
+        "low": 2.5,
+        "medium": 4.3,
+        "high": 5.5
+      }
+    },
+    {
+      "id": "skateboarding",
+      "name": "Skateboarding",
+      "aliases": [
+        "skating board",
+        "street skating"
+      ],
+      "metValues": {
+        "low": 4.0,
+        "medium": 5.5,
+        "high": 7.0
+      }
+    },
+    {
+      "id": "rock_climbing",
+      "name": "Rock Climbing",
+      "aliases": [
+        "climbing",
+        "indoor climbing",
+        "bouldering"
+      ],
+      "metValues": {
+        "low": 5.0,
+        "medium": 7.5,
+        "high": 10.0
+      }
+    },
+    {
+      "id": "kayaking",
+      "name": "Kayaking",
+      "aliases": [
+        "canoeing",
+        "kayak"
+      ],
+      "metValues": {
+        "low": 3.5,
+        "medium": 5.0,
+        "high": 7.0
+      }
+    },
+    {
+      "id": "paddleboarding",
+      "name": "Paddleboarding",
+      "aliases": [
+        "sup",
+        "stand up paddle"
+      ],
+      "metValues": {
+        "low": 3.5,
+        "medium": 5.0,
+        "high": 6.5
+      }
+    },
+    {
+      "id": "ice_skating",
+      "name": "Ice Skating",
+      "aliases": [
+        "ice skating session",
+        "skating on ice"
+      ],
+      "metValues": {
+        "low": 5.0,
+        "medium": 7.0,
+        "high": 9.0
+      }
+    },
+    {
+      "id": "ski_machine",
+      "name": "Ski Machine",
+      "aliases": [
+        "ski erg",
+        "ski machine workout"
+      ],
+      "metValues": {
+        "low": 5.5,
+        "medium": 7.5,
+        "high": 9.5
+      }
+    },
+    {
+      "id": "mobility_training",
+      "name": "Mobility Training",
+      "aliases": [
+        "mobility workout",
+        "joint mobility",
+        "movement training"
+      ],
+      "metValues": {
+        "low": 2.0,
+        "medium": 3.0,
+        "high": 4.0
+      }
+    },
+    {
+      "id": "stretching",
+      "name": "Stretching",
+      "aliases": [
+        "stretch",
+        "flexibility workout"
+      ],
+      "metValues": {
+        "low": 1.8,
+        "medium": 2.5,
+        "high": 3.5
+      }
+    },
+    {
+      "id": "aerobics",
+      "name": "Aerobics",
+      "aliases": [
+        "aerobic workout",
+        "aerobic exercise"
+      ],
+      "metValues": {
+        "low": 4.5,
+        "medium": 6.5,
+        "high": 8.0
+      }
+    },
+    {
+      "id": "spin_class",
+      "name": "Spin Class",
+      "aliases": [
+        "spinning",
+        "indoor cycling class"
+      ],
+      "metValues": {
+        "low": 6.0,
+        "medium": 8.5,
+        "high": 10.5
+      }
+    },
+    {
+      "id": "surfing",
+      "name": "Surfing",
+      "aliases": [
+        "surf",
+        "wave surfing"
+      ],
+      "metValues": {
+        "low": 3.5,
+        "medium": 5.5,
+        "high": 7.5
+      }
+    },
+    {
+      "id": "windsurfing",
+      "name": "Windsurfing",
+      "aliases": [
+        "wind surfing",
+        "windsurf"
+      ],
+      "metValues": {
+        "low": 5.0,
+        "medium": 7.0,
+        "high": 9.0
+      }
+    },
+    {
+      "id": "kitesurfing",
+      "name": "Kitesurfing",
+      "aliases": [
+        "kite surfing",
+        "kiteboarding"
+      ],
+      "metValues": {
+        "low": 6.0,
+        "medium": 8.0,
+        "high": 10.0
+      }
+    },
+    {
+      "id": "jetski",
+      "name": "Jet Ski",
+      "aliases": [
+        "jetski",
+        "jet skiing"
+      ],
+      "metValues": {
+        "low": 2.5,
+        "medium": 3.5,
+        "high": 5.0
+      }
+    },
+    {
+      "id": "scuba_diving",
+      "name": "Scuba Diving",
+      "aliases": [
+        "scuba",
+        "diving"
+      ],
+      "metValues": {
+        "low": 5.0,
+        "medium": 7.0,
+        "high": 9.0
+      }
+    },
+    {
+      "id": "snorkeling",
+      "name": "Snorkeling",
+      "aliases": [
+        "snorkel",
+        "snorkel swimming"
+      ],
+      "metValues": {
+        "low": 3.0,
+        "medium": 5.0,
+        "high": 6.5
+      }
+    },
+    {
+      "id": "sailing",
+      "name": "Sailing",
+      "aliases": [
+        "boat sailing",
+        "yacht sailing"
+      ],
+      "metValues": {
+        "low": 2.5,
+        "medium": 4.0,
+        "high": 5.5
+      }
+    },
+    {
+      "id": "water_skiing",
+      "name": "Water Skiing",
+      "aliases": [
+        "waterski",
+        "water ski"
+      ],
+      "metValues": {
+        "low": 5.5,
+        "medium": 7.0,
+        "high": 9.0
+      }
+    },
+    {
+      "id": "wakeboarding",
+      "name": "Wakeboarding",
+      "aliases": [
+        "wake board",
+        "wakeboarding session"
+      ],
+      "metValues": {
+        "low": 5.0,
+        "medium": 7.0,
+        "high": 9.0
+      }
+    },
+    {
+      "id": "row_boat",
+      "name": "Row Boat",
+      "aliases": [
+        "boat rowing",
+        "recreational rowing"
+      ],
+      "metValues": {
+        "low": 3.5,
+        "medium": 5.0,
+        "high": 7.0
+      }
+    },
+    {
+      "id": "canoeing",
+      "name": "Canoeing",
+      "aliases": [
+        "canoe",
+        "canoe rowing"
+      ],
+      "metValues": {
+        "low": 3.5,
+        "medium": 5.5,
+        "high": 7.5
+      }
+    },
+    {
+      "id": "stand_up_paddleboarding",
+      "name": "Stand Up Paddleboarding",
+      "aliases": [
+        "sup",
+        "paddleboard",
+        "stand up paddle"
+      ],
+      "metValues": {
+        "low": 3.5,
+        "medium": 5.0,
+        "high": 6.5
+      }
+    }
+  ]

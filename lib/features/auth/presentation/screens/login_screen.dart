@@ -73,7 +73,6 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
 
       if (isOnboardingCompleted) {
-        AppSnackbar.showSuccess(context, AuthMessages.loginSuccess);
         Navigator.pushReplacementNamed(context, AppRoutes.main);
       } else {
         Navigator.pushReplacementNamed(context, AppRoutes.planSetup);
@@ -104,6 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -128,9 +128,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 hintText: 'Mail',
                 controller: _emailController,
                 onChanged: (_) {
-                  setState(() {
-                    passwordError = null;
-                  });
+                  if (passwordError != null) {
+                    setState(() {
+                      passwordError = null;
+                    });
+                  }
                 },
               ),
 
@@ -141,9 +143,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 isPassword: true,
                 controller: _passwordController,
                 onChanged: (_) {
-                  setState(() {
-                    passwordError = null;
-                  });
+                  if (passwordError != null) {
+                    setState(() {
+                      passwordError = null;
+                    });
+                  }
                 },
               ),
 
@@ -230,7 +234,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (!context.mounted) return;
 
                       if (isOnboardingCompleted) {
-                        AppSnackbar.showSuccess(context, AuthMessages.loginSuccess);
                         Navigator.pushReplacementNamed(context, AppRoutes.main);
                       } else {
                         Navigator.pushReplacementNamed(context, AppRoutes.planSetup);

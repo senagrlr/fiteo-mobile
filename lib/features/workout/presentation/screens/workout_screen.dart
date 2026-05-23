@@ -31,6 +31,10 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   }
 
   Future<void> _addExercise(ExerciseItem item) async {
+    setState(() {
+      exercises.add(item);
+    });
+
     try {
       final id = await _workoutRepository.addWorkout(
         workoutName: item.name,
@@ -39,14 +43,23 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         estimatedCaloriesBurned: item.caloriesBurned,
       );
 
-      setState(() {
-        exercises.add(item.copyWith(id: id));
-      });
+      if (!mounted) return;
 
-      await _loadStreak();
+      final index = exercises.indexOf(item);
 
+      if (index != -1) {
+        setState(() {
+          exercises[index] = item.copyWith(id: id);
+        });
+      }
+
+      _loadStreak();
     } catch (e) {
       if (!mounted) return;
+
+      setState(() {
+        exercises.remove(item);
+      });
 
       AppSnackbar.showError(context, 'Could not add exercise.');
     }
@@ -55,24 +68,24 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   Future<void> _deleteExercise(int index) async {
     final item = exercises[index];
 
+    setState(() {
+      exercises.removeAt(index);
+    });
+
     if (item.id == null) {
-      setState(() {
-        exercises.removeAt(index);
-      });
       return;
     }
 
     try {
       await _workoutRepository.deleteWorkout(item.id!);
 
-      setState(() {
-        exercises.removeAt(index);
-      });
-
-      await _loadStreak();
-
+      _loadStreak();
     } catch (e) {
       if (!mounted) return;
+
+      setState(() {
+        exercises.insert(index, item);
+      });
 
       AppSnackbar.showError(context, 'Could not delete exercise.');
     }
@@ -170,6 +183,14 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     if (newCalories != null) {
       final item = exercises[index];
 
+      final oldItem = item;
+
+      setState(() {
+        exercises[index] = item.copyWith(
+          caloriesBurned: newCalories,
+        );
+      });
+
       try {
         if (item.id != null) {
           await _workoutRepository.updateWorkoutCalories(
@@ -178,16 +199,13 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           );
         }
 
-        setState(() {
-          exercises[index] = item.copyWith(
-            caloriesBurned: newCalories,
-          );
-        });
-
-        await _loadStreak();
-
+        _loadStreak();
       } catch (e) {
         if (!mounted) return;
+
+        setState(() {
+          exercises[index] = oldItem;
+        });
 
         AppSnackbar.showError(context, 'Could not update exercise.');
       }

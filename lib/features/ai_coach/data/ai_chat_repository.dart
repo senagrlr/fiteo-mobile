@@ -1,0 +1,210 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fiteo_myapp/features/ai_coach/data/ai_chat_message.dart';
+
+class AiChatRepository {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  String _todayDate() {
+    final today = DateTime.now();
+
+    return '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+  }
+
+  Future<List<AiChatMessage>> getRecentMessages({
+    int limit = 6,
+  }) async {
+    final user = _auth.currentUser;
+
+    if (user == null) return [];
+
+    final snapshot = await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('aiChatMessages')
+        .orderBy('createdAt', descending: true)
+        .limit(limit)
+        .get();
+
+    return snapshot.docs
+        .map(
+          (doc) => AiChatMessage.fromJson(
+        id: doc.id,
+        json: doc.data(),
+      ),
+    )
+        .toList()
+        .reversed
+        .toList();
+  }
+
+  Stream<List<AiChatMessage>> watchMessages() {
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      return const Stream.empty();
+    }
+
+    return _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('aiChatMessages')
+        .orderBy('createdAt')
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+          .map(
+            (doc) => AiChatMessage.fromJson(
+          id: doc.id,
+          json: doc.data(),
+        ),
+      )
+          .toList(),
+    );
+  }
+
+  Future<void> saveMessage({
+    required String role,
+    required String message,
+  }) async {
+    final user = _auth.currentUser;
+
+    if (user == null) return;
+
+    await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('aiChatMessages')
+        .add({
+      'role': role,
+      'message': message,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<Map<String, dynamic>> getUserPreferences() async {
+    final user = _auth.currentUser;
+
+    if (user == null) return {};
+
+    final doc = await _firestore.collection('users').doc(user.uid).get();
+
+    return Map<String, dynamic>.from(
+      doc.data()?['userPreferences'] ?? {},
+    );
+  }
+
+  Future<Map<String, dynamic>> getTodaySummary() async {
+    final user = _auth.currentUser;
+
+    if (user == null) return {};
+
+    final date = _todayDate();
+
+    final doc = await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('dailySummaries')
+        .doc(date)
+        .get();
+
+    final data = doc.data();
+
+    if (data == null) return {};
+
+    return {
+      'date': data['date'] ?? date,
+      'consumedCalories': data['consumedCalories'],
+      'burnedCalories': data['burnedCalories'],
+      'netCalories': data['netCalories'],
+      'calorieGoal': data['calorieGoal'],
+      'isGoalReached': data['isGoalReached'],
+    };
+  }
+
+  Future<List<Map<String, dynamic>>> getLast7DailySummaries() async {
+    final user = _auth.currentUser;
+
+    if (user == null) return [];
+
+    final snapshot = await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('dailySummaries')
+        .orderBy('date', descending: true)
+        .limit(7)
+        .get();
+
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+
+      return {
+        'date': data['date'] ?? doc.id,
+        'consumedCalories': data['consumedCalories'],
+        'burnedCalories': data['burnedCalories'],
+        'netCalories': data['netCalories'],
+        'calorieGoal': data['calorieGoal'],
+        'isGoalReached': data['isGoalReached'],
+      };
+    }).toList().reversed.toList();
+  }
+
+  Future<int> getTodayMessageCount() async {
+    final user = _auth.currentUser;
+
+    if (user == null) return 0;
+
+    final today = _todayDate();
+
+    final doc = await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('aiUsage')
+        .doc('current')
+        .get();
+
+    final data = doc.data();
+
+    if (data == null) return 0;
+
+    final date = data['date'] as String?;
+
+    if (date != today) {
+      return 0;
+    }
+
+    return data['messageCount'] as int? ?? 0;
+  }
+
+  Future<void> incrementTodayMessageCount() async {
+    final user = _auth.currentUser;
+
+    if (user == null) return;
+
+    final today = _todayDate();
+
+    final ref = _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('aiUsage')
+        .doc('current');
+
+    final doc = await ref.get();
+    final data = doc.data();
+
+    if (data == null || data['date'] != today) {
+      await ref.set({
+        'date': today,
+        'messageCount': 1,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      return;
+    }
+
+    await ref.update({
+      'messageCount': FieldValue.increment(1),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+}

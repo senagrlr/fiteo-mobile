@@ -22,7 +22,7 @@ class FiteoApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Fiteo',
         theme: AppTheme.lightTheme,
-        initialRoute: AppRoutes.onboarding,
+        initialRoute: AppRoutes.authGate,
         routes: AppRouter.routes,
       ),
     );

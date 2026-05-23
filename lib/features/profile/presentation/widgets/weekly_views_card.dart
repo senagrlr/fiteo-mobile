@@ -17,7 +17,6 @@ class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
 
   List<double> values = List.filled(7, 0);
   List<String> days = [];
-  int? calorieGoal;
   bool isLoading = true;
 
   @override
@@ -69,6 +68,7 @@ class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
 
     final positiveValues = values.map((v) => v < 0 ? 0.0 : v).toList();
     final rawMax = positiveValues.isEmpty ? 0.0 : positiveValues.reduce(max);
+
     final double maxValue = rawMax <= 0
         ? 500
         : ((rawMax / 500).ceil() * 500).toDouble();
@@ -88,6 +88,7 @@ class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
         ],
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           const Row(
             children: [
@@ -103,43 +104,56 @@ class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
               ),
             ],
           ),
-
           const SizedBox(height: 14),
           const Divider(color: Color(0xFFE1DED6)),
           const SizedBox(height: 14),
-
           SizedBox(
-            height: 155,
+            height: 165,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 _YAxisLabels(maxValue: maxValue),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Stack(
                     children: [
                       const _ChartGridLines(),
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final itemWidth =
+                          (constraints.maxWidth / values.length)
+                              .clamp(28.0, 38.0);
 
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: List.generate(values.length, (index) {
-                          final safeValue = values[index] < 0 ? 0 : values[index];
-                          final barHeight = (safeValue / maxValue) * 82;
-                          final isSelected = selectedBarIndex == index;
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                            children: List.generate(values.length, (index) {
+                              final safeValue =
+                              values[index] < 0 ? 0.0 : values[index];
 
-                          return _BarItem(
-                            day: days[index],
-                            height: barHeight,
-                            value: values[index].toInt(),
-                            isSelected: isSelected,
-                            onTap: () {
-                              setState(() {
-                                selectedBarIndex = index;
-                              });
-                            },
+                              final barHeight =
+                              ((safeValue / maxValue) * 60)
+                                  .clamp(4.0, 60.0);
+
+                              final isSelected =
+                                  selectedBarIndex == index;
+
+                              return _BarItem(
+                                width: itemWidth,
+                                day: days[index],
+                                height: barHeight,
+                                value: values[index].toInt(),
+                                isSelected: isSelected,
+                                onTap: () {
+                                  setState(() {
+                                    selectedBarIndex = index;
+                                  });
+                                },
+                              );
+                            }),
                           );
-                        }),
+                        },
                       ),
                     ],
                   ),
@@ -177,9 +191,11 @@ class _YAxisLabels extends StatelessWidget {
     final step = maxValue / 3;
 
     return SizedBox(
-      height: 118,
+      width: 44,
+      height: 126,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(_formatLabel(maxValue), style: _axisStyle),
           Text(_formatLabel(step * 2), style: _axisStyle),
@@ -193,7 +209,7 @@ class _YAxisLabels extends StatelessWidget {
 
 const TextStyle _axisStyle = TextStyle(
   color: AppColors.homeBrown,
-  fontSize: 12,
+  fontSize: 10,
   fontWeight: FontWeight.w500,
 );
 
@@ -204,7 +220,10 @@ class _ChartGridLines extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned.fill(
       child: Padding(
-        padding: const EdgeInsets.only(top: 28, bottom: 26),
+        padding: const EdgeInsets.only(
+          top: 26,
+          bottom: 30,
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: List.generate(
@@ -221,6 +240,7 @@ class _ChartGridLines extends StatelessWidget {
 }
 
 class _BarItem extends StatelessWidget {
+  final double width;
   final String day;
   final double height;
   final int value;
@@ -228,6 +248,7 @@ class _BarItem extends StatelessWidget {
   final VoidCallback onTap;
 
   const _BarItem({
+    required this.width,
     required this.day,
     required this.height,
     required this.value,
@@ -238,25 +259,25 @@ class _BarItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 38,
-      height: 155,
+      width: width,
+      height: double.infinity,
       child: GestureDetector(
         onTap: onTap,
+        behavior: HitTestBehavior.opaque,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            /// 🔥 TOOLTIP FIX
             SizedBox(
-              height: 36,
+              height: 26,
               child: isSelected
                   ? OverflowBox(
                 minWidth: 0,
-                maxWidth: 80,
+                maxWidth: 72,
                 alignment: Alignment.center,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 5,
+                    horizontal: 7,
+                    vertical: 3,
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.homeBrown,
@@ -269,7 +290,7 @@ class _BarItem extends StatelessWidget {
                     overflow: TextOverflow.visible,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -277,9 +298,7 @@ class _BarItem extends StatelessWidget {
               )
                   : null,
             ),
-
             const SizedBox(height: 4),
-
             AnimatedContainer(
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeOut,
@@ -292,11 +311,11 @@ class _BarItem extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
               ),
             ),
-
-            const SizedBox(height: 8),
-
+            const SizedBox(height: 4),
             Text(
               day,
+              maxLines: 1,
+              overflow: TextOverflow.clip,
               style: TextStyle(
                 color: isSelected
                     ? AppColors.homeBrown

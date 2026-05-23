@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/features/ai_coach/data/ai_chat_message.dart';
 import 'package:fiteo_myapp/features/ai_coach/data/ai_chat_repository.dart';
 import 'package:fiteo_myapp/features/ai_coach/data/ai_chat_service.dart';
-import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_message_input.dart';
-import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_welcome_view.dart';
-import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_bot_bubble.dart';
-import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_user_bubble.dart';
-import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_typing_bubble.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_chat/ai_message_input.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_chat/ai_welcome_view.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_chat/ai_bot_bubble.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_chat/ai_user_bubble.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_chat/ai_typing_bubble.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/shared/ai_mode_switch.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/screens/cook_ai_screen.dart';
 
 class AiCoachScreen extends StatefulWidget {
   const AiCoachScreen({super.key});
@@ -23,6 +26,8 @@ class _AiCoachScreenState extends State<AiCoachScreen> {
   final AiChatService _chatService = AiChatService();
 
   bool isSending = false;
+  bool showWelcomeInsteadOfChat = true;
+  bool isCookMode = false;
   String? temporaryErrorMessage;
   int messageCount = 0;
 
@@ -115,6 +120,7 @@ class _AiCoachScreenState extends State<AiCoachScreen> {
     setState(() {
       isSending = true;
       temporaryErrorMessage = null;
+      showWelcomeInsteadOfChat = false;
     });
 
     await _chatRepository.saveMessage(
@@ -122,17 +128,10 @@ class _AiCoachScreenState extends State<AiCoachScreen> {
       message: text,
     );
 
-    final userPreferences =
-    await _chatRepository.getUserPreferences();
-
-    final dailySummary =
-    await _chatRepository.getTodaySummary();
-
-    final last7Summaries =
-    await _chatRepository.getLast7DailySummaries();
-
-    final recentMessages =
-    await _chatRepository.getRecentMessages(limit: 6);
+    final userPreferences = await _chatRepository.getUserPreferences();
+    final dailySummary = await _chatRepository.getTodaySummary();
+    final last7Summaries = await _chatRepository.getLast7DailySummaries();
+    final recentMessages = await _chatRepository.getRecentMessages(limit: 6);
 
     final reply = await _chatService.sendMessage(
       message: text,
@@ -167,6 +166,15 @@ class _AiCoachScreenState extends State<AiCoachScreen> {
     });
   }
 
+  void _backToWelcome() {
+    setState(() {
+      showWelcomeInsteadOfChat = true;
+      temporaryErrorMessage = null;
+      isSending = false;
+      _messageController.clear();
+    });
+  }
+
   @override
   void dispose() {
     _messageController.dispose();
@@ -188,31 +196,74 @@ class _AiCoachScreenState extends State<AiCoachScreen> {
         )
             .toList();
 
-        final hasMessages = messages.isNotEmpty;
+        final hasMessages =
+            messages.isNotEmpty && !showWelcomeInsteadOfChat;
 
-        if (messages.isNotEmpty) {
+        if (hasMessages) {
           _scrollToBottom();
         }
 
         return Scaffold(
           backgroundColor: Colors.white,
           body: SafeArea(
-            child: hasMessages
+            child: isCookMode
+                ? CookAiScreen(
+              onSwitchToCoach: () {
+                setState(() {
+                  isCookMode = false;
+                });
+              },
+            )
+                : hasMessages
                 ? Column(
               children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back_ios_new,
+                        color: AppColors.homeBrown,
+                        size: 24,
+                      ),
+                      onPressed: _backToWelcome,
+                    ),
+                  ),
+                ),
+
                 Expanded(
                   child: _buildChatView(messages),
                 ),
+
                 _buildLimitText(),
+
                 AiMessageInput(
                   controller: _messageController,
                   onSend: _sendMessage,
                 ),
               ],
             )
-                : AiWelcomeView(
-              controller: _messageController,
-              onSend: _sendMessage,
+                : Stack(
+              children: [
+                AiWelcomeView(
+                  controller: _messageController,
+                  onSend: _sendMessage,
+                ),
+
+                Positioned(
+                  top: 24,
+                  right: 28,
+                  child: AiModeSwitch(
+                    isCookMode: false,
+                    onChanged: (_) {
+                      setState(() {
+                        isCookMode = true;
+                      });
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
         );
@@ -242,8 +293,10 @@ class _AiCoachScreenState extends State<AiCoachScreen> {
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-      itemCount:
-      messages.length + 1 + (isSending ? 1 : 0) + (temporaryErrorMessage != null ? 1 : 0),
+      itemCount: messages.length +
+          1 +
+          (isSending ? 1 : 0) +
+          (temporaryErrorMessage != null ? 1 : 0),
       itemBuilder: (context, index) {
         if (index == 0) {
           return const Padding(
@@ -251,8 +304,7 @@ class _AiCoachScreenState extends State<AiCoachScreen> {
             child: Align(
               alignment: Alignment.centerLeft,
               child: AiBotBubble(
-                text:
-                'Hi, I’m Fiteo. Tell me your goal and I’ll guide you.',
+                text: 'Hi, I’m Fiteo. Tell me your goal and I’ll guide you.',
               ),
             ),
           );
@@ -288,8 +340,7 @@ class _AiCoachScreenState extends State<AiCoachScreen> {
         return Padding(
           padding: const EdgeInsets.only(bottom: 14),
           child: Align(
-            alignment:
-            isUser ? Alignment.centerRight : Alignment.centerLeft,
+            alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
             child: GestureDetector(
               onLongPress: () => _showMessageOptions(message),
               child: isUser

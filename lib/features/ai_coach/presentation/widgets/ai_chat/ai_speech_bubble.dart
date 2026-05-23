@@ -11,7 +11,7 @@ class AiSpeechBubble extends StatefulWidget {
 
 class _AiSpeechBubbleState extends State<AiSpeechBubble> {
   final String fullText =
-      "Hi, I’m Fiteo\nLet’s improve your journey together.";
+      "Hi, I’m Fiteo\nLet’s improve your journey together. You can switch to cook mode.";
 
   String visibleText = "";
   int index = 0;

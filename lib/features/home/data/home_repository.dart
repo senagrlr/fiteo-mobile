@@ -32,6 +32,7 @@ class HomeRepository {
         'netCalories': 0,
         'calorieGoal': null,
         'remaining': null,
+        'isGoalReached': false,
       };
     }
 
@@ -41,6 +42,7 @@ class HomeRepository {
     final burned = data?['burnedCalories'] as int? ?? 0;
     final netCalories = data?['netCalories'] as int? ?? consumed - burned;
     final calorieGoal = data?['calorieGoal'] as int?;
+    final isGoalReached = data?['isGoalReached'] as bool? ?? false;
 
     return {
       'consumed': consumed,
@@ -48,6 +50,7 @@ class HomeRepository {
       'netCalories': netCalories,
       'calorieGoal': calorieGoal,
       'remaining': calorieGoal == null ? null : calorieGoal - netCalories,
+      'isGoalReached': isGoalReached,
     };
   }
 
@@ -87,5 +90,77 @@ class HomeRepository {
     }
 
     return streak;
+  }
+
+  Future<Map<String, int>> getLast7DaysStats() async {
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception('User not logged in');
+    }
+
+    final snapshot = await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('dailySummaries')
+        .orderBy('date', descending: true)
+        .limit(7)
+        .get();
+
+    int trackedDays = 0;
+    int activeDays = 0;
+
+    for (final doc in snapshot.docs) {
+      final data = doc.data();
+
+      final consumed =
+          data['consumedCalories'] as int? ?? 0;
+
+      final burned =
+          data['burnedCalories'] as int? ?? 0;
+
+      if (consumed > 0) {
+        trackedDays++;
+      }
+
+      if (burned > 0) {
+        activeDays++;
+      }
+    }
+
+    return {
+      'trackedDays': trackedDays,
+      'activeDays': activeDays,
+    };
+  }
+
+  Future<bool> isFirstAppDay() async {
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception('User not logged in');
+    }
+
+    final userDoc = await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .get();
+
+    final data = userDoc.data();
+
+    final createdAt =
+    data?['createdAt'] as Timestamp?;
+
+    if (createdAt == null) {
+      return false;
+    }
+
+    final createdDate = createdAt.toDate();
+
+    final now = DateTime.now();
+
+    return createdDate.year == now.year &&
+        createdDate.month == now.month &&
+        createdDate.day == now.day;
   }
 }

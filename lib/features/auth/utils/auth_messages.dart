@@ -8,7 +8,6 @@ class AuthMessages {
 
   static const passwordTooShort = 'Password must be at least 8 characters';
 
-  static const loginSuccess = 'Login successful';
   static const wrongEmailOrPassword = 'Email or password is incorrect.';
 
   static const emailVerifiedSuccessfully = 'Email verified successfully.';

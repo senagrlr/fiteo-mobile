@@ -51,6 +51,8 @@ class _LoginScreenState extends State<LoginScreen> {
         password: password,
       );
 
+      await _authRepository.saveUserFcmToken();
+
       final user = _authRepository.currentUser;
       await user?.reload();
 

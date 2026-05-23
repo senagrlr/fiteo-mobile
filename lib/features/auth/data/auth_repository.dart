@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthRepository {
@@ -48,6 +49,32 @@ class AuthRepository {
     return credential;
   }
 
+  Future<void> saveUserFcmToken() async {
+    final user = _auth.currentUser;
+
+    if (user == null) return;
+
+    final token = await FirebaseMessaging.instance.getToken();
+
+    if (token == null) return;
+
+    await _firestore.collection('users').doc(user.uid).set({
+      'fcmToken': token,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+
+    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
+      final currentUser = _auth.currentUser;
+
+      if (currentUser == null) return;
+
+      await _firestore.collection('users').doc(currentUser.uid).set({
+        'fcmToken': newToken,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    });
+  }
+
   Future<void> sendEmailVerification() async {
     final user = _auth.currentUser;
 
@@ -89,7 +116,8 @@ class AuthRepository {
       final GoogleSignIn googleSignIn = GoogleSignIn.instance;
 
       await googleSignIn.initialize(
-        serverClientId: '753538795015-rte2nnne0q0a3eig3k0a6841kea79je1.apps.googleusercontent.com',
+        serverClientId:
+        '753538795015-rte2nnne0q0a3eig3k0a6841kea79je1.apps.googleusercontent.com',
       );
 
       final GoogleSignInAccount googleUser =
@@ -122,6 +150,8 @@ class AuthRepository {
             'updatedAt': FieldValue.serverTimestamp(),
           });
         }
+
+        await saveUserFcmToken();
       }
 
       return userCredential;

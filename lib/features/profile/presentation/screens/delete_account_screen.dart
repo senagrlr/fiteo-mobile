@@ -185,7 +185,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
 
                         Center(
                           child: CustomButton(
-                            text: isDeleting ? 'Deleting...' : 'Delete My Account',
+                            text: isDeleting ? 'Deleting...' : 'Delete my account',
                             onPressed: isDeleting || isLoading ? null : _deleteAccount,
                             backgroundColor: AppColors.authButtonGreen,
                             textColor: Colors.white,

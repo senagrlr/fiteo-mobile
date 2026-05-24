@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_message_input.dart';
-import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_speech_bubble.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_chat/ai_message_input.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_chat/ai_speech_bubble.dart';
 
 class AiWelcomeView extends StatelessWidget {
   final TextEditingController controller;

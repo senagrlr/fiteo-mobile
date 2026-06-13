@@ -21,7 +21,6 @@ class AppTheme {
           statusBarColor: Colors.transparent,
           statusBarIconBrightness: Brightness.dark,
 
-          // 🔥 NAV BAR
           systemNavigationBarColor: Colors.white,
           systemNavigationBarIconBrightness: Brightness.dark,
           systemNavigationBarDividerColor: Colors.transparent,

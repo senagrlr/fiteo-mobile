@@ -61,7 +61,6 @@ class FoodListItem extends StatelessWidget {
                     color: const Color(0xFFDCD9D1),
                   ),
 
-                  /// 🔥 KALORİ
                   Text(
                     '${item.calories} kcal',
                     style: const TextStyle(

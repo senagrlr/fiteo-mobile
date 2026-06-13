@@ -27,6 +27,7 @@ class _AiCoachScreenState extends State<AiCoachScreen> {
 
   bool isSending = false;
   bool showWelcomeInsteadOfChat = true;
+  bool hasInitializedChatView = false;
   bool isCookMode = false;
   String? temporaryErrorMessage;
   int messageCount = 0;
@@ -196,6 +197,11 @@ class _AiCoachScreenState extends State<AiCoachScreen> {
         )
             .toList();
 
+        if (!hasInitializedChatView && messages.isNotEmpty) {
+          hasInitializedChatView = true;
+          showWelcomeInsteadOfChat = false;
+        }
+
         final hasMessages =
             messages.isNotEmpty && !showWelcomeInsteadOfChat;
 
@@ -272,7 +278,8 @@ class _AiCoachScreenState extends State<AiCoachScreen> {
   }
 
   Widget _buildLimitText() {
-    final remaining = dailyLimit - messageCount;
+    final remaining =
+    (dailyLimit - messageCount).clamp(0, dailyLimit);
 
     return Padding(
       padding: const EdgeInsets.only(top: 12),

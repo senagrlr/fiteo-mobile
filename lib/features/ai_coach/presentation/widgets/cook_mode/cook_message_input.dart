@@ -41,7 +41,7 @@ class CookMessageInput extends StatelessWidget {
                   fontSize: 15,
                 ),
                 decoration: const InputDecoration(
-                  hintText: 'Add ingredients',
+                  hintText: 'Enter ingredients',
                   hintStyle: TextStyle(
                     color: AppColors.homeBrown,
                     fontSize: 15,

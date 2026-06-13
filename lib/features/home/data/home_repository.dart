@@ -99,25 +99,28 @@ class HomeRepository {
       throw Exception('User not logged in');
     }
 
-    final snapshot = await _firestore
-        .collection('users')
-        .doc(user.uid)
-        .collection('dailySummaries')
-        .orderBy('date', descending: true)
-        .limit(7)
-        .get();
-
     int trackedDays = 0;
     int activeDays = 0;
 
-    for (final doc in snapshot.docs) {
-      final data = doc.data();
+    final now = DateTime.now();
 
-      final consumed =
-          data['consumedCalories'] as int? ?? 0;
+    for (int i = 0; i < 7; i++) {
+      final day = now.subtract(Duration(days: i));
+      final date = _formatDate(day);
 
-      final burned =
-          data['burnedCalories'] as int? ?? 0;
+      final summaryDoc = await _firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('dailySummaries')
+          .doc(date)
+          .get();
+
+      if (!summaryDoc.exists) continue;
+
+      final data = summaryDoc.data();
+
+      final consumed = data?['consumedCalories'] as int? ?? 0;
+      final burned = data?['burnedCalories'] as int? ?? 0;
 
       if (consumed > 0) {
         trackedDays++;

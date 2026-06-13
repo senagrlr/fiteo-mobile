@@ -18,7 +18,7 @@ class HomeHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          DateFormat('d MMMM', 'en_US').format(today), // 🔥 İngilizce tarih
+          DateFormat('d MMMM', 'en_US').format(today),
           style: const TextStyle(
             color: AppColors.homeBrown,
             fontSize: 20,

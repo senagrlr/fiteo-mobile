@@ -109,7 +109,6 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
 
-      // ✅ Common App Bar
       appBar: const CommonAppBar(),
 
       body: SafeArea(
@@ -135,7 +134,6 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
               const SizedBox(height: 40),
 
-              // ✅ ICON + BACKGROUND CIRCLE
               Container(
                 width: 150,
                 height: 150,
@@ -145,7 +143,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 ),
                 child: Center(
                   child: Image.asset(
-                    'assets/images/mail_icon.png', // senin png
+                    'assets/images/mail_icon.png',
                     width: 100,
                     height: 100,
                     fit: BoxFit.contain,

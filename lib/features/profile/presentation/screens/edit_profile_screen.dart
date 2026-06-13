@@ -86,7 +86,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void _showMascotSelector() {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // 🔥 önemli
+      isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
@@ -96,9 +96,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       builder: (context) {
         return DraggableScrollableSheet(
           expand: false,
-          initialChildSize: 0.35, // 🔥 açıldığında yüksekliği
+          initialChildSize: 0.35,
           minChildSize: 0.25,
-          maxChildSize: 0.5, // yukarı çekilebilir
+          maxChildSize: 0.5,
           builder: (context, scrollController) {
             return Padding(
               padding: const EdgeInsets.fromLTRB(24, 20, 24, 34),
@@ -146,8 +146,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               },
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
-                                width: 88,  // 🔥 büyüttük
-                                height: 88, // 🔥 büyüttük
+                                width: 88,
+                                height: 88,
                                 padding: const EdgeInsets.all(6),
                                 decoration: BoxDecoration(
                                   color: AppColors.onboardingBackground,

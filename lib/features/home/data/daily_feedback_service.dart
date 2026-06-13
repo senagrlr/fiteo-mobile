@@ -43,7 +43,7 @@ class DailyFeedbackService {
     final noMealsLogged = consumedCalories == 0;
     final noWorkoutToday = burnedCalories == 0;
     final lowActivityWeek = activeDaysLast7 <= 2;
-    final consistentWeek = trackedDaysLast7 >= 5;
+    final consistentWeek = trackedDaysLast7 >= 5 && consumedCalories > 0;
     final currentHour = DateTime.now().hour;
 
     final isNightSummaryTime = currentHour >= 22 || currentHour < 5;

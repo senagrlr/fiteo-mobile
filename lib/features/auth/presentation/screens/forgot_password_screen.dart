@@ -77,7 +77,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
 
-      // ✅ COMMON APP BAR
       appBar: const CommonAppBar(),
 
       body: SafeArea(

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/features/ai_coach/data/cook_recipe_result.dart';
 
 class CookRecipeDialog extends StatelessWidget {
-  final String recipe;
-  final VoidCallback onAddToIntake;
+  final CookRecipeResult recipe;
+  final Future<void> Function() onAddToIntake;
 
   const CookRecipeDialog({
     super.key,
@@ -56,7 +57,7 @@ class CookRecipeDialog extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    recipe,
+                    recipe.toDisplayText(),
                     style: const TextStyle(
                       color: AppColors.homeBrown,
                       fontSize: 15,
@@ -74,7 +75,9 @@ class CookRecipeDialog extends StatelessWidget {
               width: double.infinity,
               height: 52,
               child: ElevatedButton(
-                onPressed: onAddToIntake,
+                onPressed: () async {
+                  await onAddToIntake();
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.homeBrown,
                   foregroundColor: Colors.white,

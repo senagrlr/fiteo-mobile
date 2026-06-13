@@ -670,3 +670,128 @@ exports.chatWithCoach = onRequest(
     }
   }
 );
+
+exports.generateRecipeFromIngredients = onRequest(
+  {
+    secrets: [openaiApiKey],
+    cors: true,
+  },
+  async (req, res) => {
+    try {
+      const ingredients = req.body?.ingredients;
+      const preferences = req.body?.preferences || {};
+
+      if (!ingredients || typeof ingredients !== "string") {
+        return res.status(400).json({
+          error: "Missing ingredients",
+        });
+      }
+
+      const compactPreferences = {
+        goal: preferences.goal || null,
+        nutritionPreference: preferences.nutritionPreference || null,
+      };
+
+      const client = new OpenAI({
+        apiKey: openaiApiKey.value(),
+      });
+
+      const response = await client.responses.create({
+        model: "gpt-4o-mini",
+        max_output_tokens: 450,
+        input: [
+          {
+            role: "system",
+            content:
+              "You are Fiteo Cook Mode, an AI recipe assistant inside a fitness and diet app. " +
+              "Create one simple recipe using only the user's main ingredients. " +
+              "The user provides ingredients they have available. You do not have to use every ingredient. Use only the ingredients that make sense for one simple recipe. " +
+              "Parse ingredient input flexibly. Ingredients may be separated by commas, spaces, slashes, dashes, or new lines. Multi-word ingredients such as ground beef, olive oil, or red pepper should be treated as single ingredients when appropriate. " +
+              "You may add only basic pantry items such as salt, black pepper, water, and a small amount of oil. " +
+              "Do not add new main ingredients such as rice, pasta, meat, fish, cheese, tomato, lettuce, vegetables, fruits, dairy, eggs, or grains unless the user provided them. " +
+              "The user's goal or nutrition preference is only a light preference. Never add new main ingredients just to match the goal. " +
+              "Estimate calories by summing ingredient calories. Cooking usually changes weight, not total calories, unless oil or another ingredient is added. " +
+              "If you add allowed pantry items such as oil, include their estimated calories in the ingredients list and totalCalories. Salt, pepper, and water should be 0 kcal. " +
+              "Keep recipes practical and concise. Do not generate unnecessarily long instructions. " +
+              "Return only valid JSON.",
+          },
+          {
+            role: "user",
+            content:
+              "User ingredients: " +
+              ingredients +
+              "\nUser preferences: " +
+              JSON.stringify(compactPreferences) +
+              "\nCreate a recipe using only these ingredients and allowed pantry items.",
+          },
+        ],
+        text: {
+          format: {
+            type: "json_schema",
+            name: "recipe_result",
+            schema: {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                recipeName: {
+                  type: "string",
+                },
+                ingredients: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    additionalProperties: false,
+                    properties: {
+                      name: {
+                        type: "string",
+                      },
+                      amount: {
+                        type: "string",
+                      },
+                      calories: {
+                        type: "number",
+                      },
+                    },
+                    required: ["name", "amount", "calories"],
+                  },
+                },
+                instructions: {
+                  type: "array",
+                  items: {
+                    type: "string",
+                  },
+                },
+                totalCalories: {
+                  type: "number",
+                },
+                servings: {
+                  type: "number",
+                },
+                caloriesPerServing: {
+                  type: "number",
+                },
+              },
+              required: [
+                "recipeName",
+                "ingredients",
+                "instructions",
+                "totalCalories",
+                "servings",
+                "caloriesPerServing",
+              ],
+            },
+          },
+        },
+      });
+
+      const result = JSON.parse(response.output_text);
+
+      return res.status(200).json(result);
+    } catch (error) {
+      return res.status(500).json({
+        error: "Recipe generation failed",
+        message: error.message,
+      });
+    }
+  }
+);

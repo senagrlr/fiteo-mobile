@@ -43,7 +43,7 @@ class DeleteHeader extends StatelessWidget {
 
                 Expanded(
                   child: Transform.translate(
-                    offset: const Offset(0, -35), // 🔥 yukarı çeker
+                    offset: const Offset(0, -35),
                     child: const _DeleteSpeechBubble(),
                   ),
                 ),

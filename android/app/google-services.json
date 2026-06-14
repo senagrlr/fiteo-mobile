@@ -12,7 +12,28 @@
           "package_name": "com.fiteo.fiteo_myapp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "753538795015-abf82uql2q4rpnmqul64v4484g30sqt7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fiteo.fiteo_myapp",
+            "certificate_hash": "0e78a7a4ac9c454afcb15db1fe4eb5d6fc49a02b"
+          }
+        },
+        {
+          "client_id": "753538795015-o06mlh15f51kljt8pn568iclng8fusbr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fiteo.fiteo_myapp",
+            "certificate_hash": "7a21a21c01a3879de88363f4c3e644f68e559e4c"
+          }
+        },
+        {
+          "client_id": "753538795015-rte2nnne0q0a3eig3k0a6841kea79je1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyD3puEbyOKTc5661-qwZ_tB81o0g2EWUTw"
@@ -20,7 +41,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "753538795015-rte2nnne0q0a3eig3k0a6841kea79je1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "753538795015-vlmu3jf07ud2cnpqqeajhpagmqvetci8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.fiteo.fiteoMyapp"
+              }
+            }
+          ]
         }
       }
     }

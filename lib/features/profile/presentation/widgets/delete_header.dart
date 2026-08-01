@@ -8,47 +8,20 @@ class DeleteHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 235,
+      height: 120,
       width: double.infinity,
-      child: Stack(
-        clipBehavior: Clip.none,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Positioned(
-            top: -55,
-            left: -35,
-            right: -55,
-            child: Image.asset(
-              'assets/images/profile_header_bg.png',
-              width: MediaQuery.of(context).size.width + 70,
-              height: 270,
-              fit: BoxFit.fill,
-            ),
+          Image.asset(
+            'assets/images/fiteo_sad_mascot.png',
+            width: 96,
+            height: 110,
+            fit: BoxFit.contain,
           ),
-
-          Positioned(
-            left: 24,
-            bottom: 34,
-            right: 24,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Image.asset(
-                  'assets/images/fiteo_sad_mascot.png',
-                  width: 140,
-                  height: 140,
-                  fit: BoxFit.contain,
-                ),
-
-                const SizedBox(width: 5),
-
-                Expanded(
-                  child: Transform.translate(
-                    offset: const Offset(0, -35),
-                    child: const _DeleteSpeechBubble(),
-                  ),
-                ),
-              ],
-            ),
+          const SizedBox(width: 8),
+          const Expanded(
+            child: _DeleteSpeechBubble(),
           ),
         ],
       ),
@@ -63,25 +36,27 @@ class _DeleteSpeechBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       clipBehavior: Clip.none,
+      alignment: Alignment.center,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical:20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
+          width: double.infinity,
+          height: 62,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
           ),
-          child: const Center(
-            child: _TypewriterBubbleText(
-              text: 'I am sorry to see you go',
-            ),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF3F1EC),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          alignment: Alignment.center,
+          child: const _TypewriterBubbleText(
+            text: 'Sorry to see you go',
           ),
         ),
-
         Positioned(
-          left: -12,
-          bottom: 28,
+          left: -11,
           child: CustomPaint(
-            size: const Size(16, 20),
+            size: const Size(13, 18),
             painter: _SpeechBubbleTailPainter(),
           ),
         ),
@@ -98,10 +73,12 @@ class _TypewriterBubbleText extends StatefulWidget {
   });
 
   @override
-  State<_TypewriterBubbleText> createState() => _TypewriterBubbleTextState();
+  State<_TypewriterBubbleText> createState() =>
+      _TypewriterBubbleTextState();
 }
 
-class _TypewriterBubbleTextState extends State<_TypewriterBubbleText> {
+class _TypewriterBubbleTextState
+    extends State<_TypewriterBubbleText> {
   String visibleText = '';
   int index = 0;
   Timer? timer;
@@ -110,16 +87,19 @@ class _TypewriterBubbleTextState extends State<_TypewriterBubbleText> {
   void initState() {
     super.initState();
 
-    timer = Timer.periodic(const Duration(milliseconds: 45), (timer) {
-      if (index < widget.text.length) {
-        setState(() {
-          visibleText += widget.text[index];
-          index++;
-        });
-      } else {
-        timer.cancel();
-      }
-    });
+    timer = Timer.periodic(
+      const Duration(milliseconds: 45),
+          (timer) {
+        if (index < widget.text.length) {
+          setState(() {
+            visibleText += widget.text[index];
+            index++;
+          });
+        } else {
+          timer.cancel();
+        }
+      },
+    );
   }
 
   @override
@@ -135,9 +115,8 @@ class _TypewriterBubbleTextState extends State<_TypewriterBubbleText> {
       textAlign: TextAlign.center,
       style: const TextStyle(
         color: AppColors.homeBrown,
-        fontSize: 17,
-        height: 1.25,
-        fontWeight: FontWeight.w600,
+        fontSize: 13,
+        fontWeight: FontWeight.w700,
       ),
     );
   }
@@ -147,7 +126,7 @@ class _SpeechBubbleTailPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white
+      ..color = const Color(0xFFF3F1EC)
       ..style = PaintingStyle.fill;
 
     final path = Path()
@@ -160,5 +139,9 @@ class _SpeechBubbleTailPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(
+      covariant CustomPainter oldDelegate,
+      ) {
+    return false;
+  }
 }

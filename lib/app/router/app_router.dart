@@ -12,6 +12,7 @@ import 'package:fiteo_myapp/features/profile/presentation/screens/goals_preferen
 import 'package:fiteo_myapp/features/profile/presentation/screens/delete_account_screen.dart';
 import 'package:fiteo_myapp/features/home/presentation/screens/monthly_calendar_screen.dart';
 import 'package:fiteo_myapp/features/auth/presentation/screens/auth_gate_screen.dart';
+import 'package:fiteo_myapp/features/profile/presentation/screens/saved_recipes_screen.dart';
 
 class AppRouter {
   static Map<String, WidgetBuilder> routes = {
@@ -27,5 +28,6 @@ class AppRouter {
     AppRoutes.goalsPreferences: (context) => const GoalsPreferencesScreen(),
     AppRoutes.deleteAccount: (context) => const DeleteAccountScreen(),
     AppRoutes.monthlyCalendar: (context) => const MonthlyCalendarScreen(),
+    AppRoutes.savedRecipes: (context) => const SavedRecipesScreen(),
   };
 }

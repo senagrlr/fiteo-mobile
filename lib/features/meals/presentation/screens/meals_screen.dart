@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lottie/lottie.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
-import 'package:fiteo_myapp/features/home/presentation/widgets/home_header.dart';
+import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
+import 'package:fiteo_myapp/features/home/data/home_repository.dart';
+import 'package:fiteo_myapp/features/meals/data/meal_repository.dart';
 import 'package:fiteo_myapp/features/meals/presentation/widgets/add_food_form.dart';
 import 'package:fiteo_myapp/features/meals/presentation/widgets/food_list_item.dart';
-import 'package:fiteo_myapp/features/meals/presentation/widgets/meal_type_selector.dart';
-import 'package:fiteo_myapp/features/meals/data/meal_repository.dart';
-import 'package:fiteo_myapp/features/home/data/home_repository.dart';
-import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
+import 'package:fiteo_myapp/features/meals/presentation/widgets/meal_swipe_header.dart';
 
 class MealsScreen extends StatefulWidget {
   const MealsScreen({super.key});
@@ -17,12 +18,33 @@ class MealsScreen extends StatefulWidget {
 }
 
 class _MealsScreenState extends State<MealsScreen> {
-  String selectedMeal = 'Breakfast';
   final _mealRepository = MealRepository();
+  final _homeRepository = HomeRepository();
+
+  final PageController _mealPageController = PageController();
+
+  int selectedMealIndex = 0;
+  int streakDays = 0;
   bool isLoading = true;
 
-  final _homeRepository = HomeRepository();
-  int streakDays = 0;
+  final List<MealHeaderData> mealPages = const [
+    MealHeaderData(
+      name: 'Breakfast',
+      imagePath: 'assets/images/breakfast_plate.png',
+    ),
+    MealHeaderData(
+      name: 'Lunch',
+      imagePath: 'assets/images/lunch_plate.png',
+    ),
+    MealHeaderData(
+      name: 'Dinner',
+      imagePath: 'assets/images/dinner_plate.png',
+    ),
+    MealHeaderData(
+      name: 'Snacks',
+      imagePath: 'assets/images/snacks_plate.png',
+    ),
+  ];
 
   final Map<String, List<FoodItem>> foodsByMeal = {
     'Breakfast': [],
@@ -31,11 +53,54 @@ class _MealsScreenState extends State<MealsScreen> {
     'Snacks': [],
   };
 
+  String get selectedMeal {
+    return mealPages[selectedMealIndex].name;
+  }
+
+  List<FoodItem> get selectedFoods {
+    return foodsByMeal[selectedMeal] ?? [];
+  }
+
+  int get totalCalories {
+    return selectedFoods.fold(
+      0,
+          (total, item) => total + item.calories,
+    );
+  }
+
+  int get totalProtein {
+    return selectedFoods.fold(
+      0,
+          (total, item) => total + item.protein,
+    );
+  }
+
+  int get totalFats {
+    return selectedFoods.fold(
+      0,
+          (total, item) => total + item.fats,
+    );
+  }
+
+  int get totalCarbs {
+    return selectedFoods.fold(
+      0,
+          (total, item) => total + item.carbs,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
+
     _loadTodayMeals();
     _loadStreak();
+  }
+
+  @override
+  void dispose() {
+    _mealPageController.dispose();
+    super.dispose();
   }
 
   Future<void> _addFood(FoodItem item) async {
@@ -59,46 +124,81 @@ class _MealsScreenState extends State<MealsScreen> {
 
       if (index != -1) {
         setState(() {
-          foodsByMeal[mealType]![index] = item.copyWith(id: id);
+          foodsByMeal[mealType]![index] = item.copyWith(
+            id: id,
+          );
         });
       }
 
       _loadStreak();
-    } catch (e) {
+    } catch (_) {
       if (!mounted) return;
 
       setState(() {
         foodsByMeal[mealType]!.remove(item);
       });
 
-      AppSnackbar.showError(context, 'Could not add food.');
+      AppSnackbar.showError(
+        context,
+        'Could not add food.',
+      );
     }
   }
 
-  Future<void> _deleteFood(int index) async {
-    final mealType = selectedMeal;
-    final item = foodsByMeal[mealType]![index];
+  Future<void> _deleteFood({
+    required String mealType,
+    required int index,
+  }) async {
+    final mealFoods = foodsByMeal[mealType];
 
+    if (mealFoods == null ||
+        index < 0 ||
+        index >= mealFoods.length) {
+      return;
+    }
+
+    final deletedItem = mealFoods[index];
+
+    // Önce arayüzden kaldırıyoruz.
     setState(() {
-      foodsByMeal[mealType]!.removeAt(index);
+      mealFoods.removeAt(index);
     });
 
-    if (item.id == null) {
+    // Henüz Firestore'a kaydedilmemişse başka işlem gerekmiyor.
+    if (deletedItem.id == null) {
       return;
     }
 
     try {
-      await _mealRepository.deleteMeal(item.id!);
+      await _mealRepository.deleteMeal(
+        deletedItem.id!,
+      );
 
-      _loadStreak();
-    } catch (e) {
+      await _loadStreak();
+    } catch (_) {
       if (!mounted) return;
 
-      setState(() {
-        foodsByMeal[mealType]!.insert(index, item);
-      });
+      // Silme başarısız olursa eski yerine geri koyuyoruz.
+      final currentFoods = foodsByMeal[mealType];
 
-      AppSnackbar.showError(context, 'Could not delete food.');
+      if (currentFoods != null) {
+        final safeIndex = index.clamp(
+          0,
+          currentFoods.length,
+        );
+
+        setState(() {
+          currentFoods.insert(
+            safeIndex,
+            deletedItem,
+          );
+        });
+      }
+
+      AppSnackbar.showError(
+        context,
+        'Could not delete food.',
+      );
     }
   }
 
@@ -116,13 +216,20 @@ class _MealsScreenState extends State<MealsScreen> {
       for (final doc in snapshot.docs) {
         final data = doc.data();
 
-        final mealType = data['mealType'] as String? ?? 'Breakfast';
+        final mealType =
+            data['mealType'] as String? ?? 'Breakfast';
+
+        final calories =
+            data['estimatedCalories'] as int? ?? 0;
 
         final item = FoodItem(
           id: doc.id,
           name: data['mealName'] as String? ?? '',
           amount: (data['gram'] ?? '').toString(),
-          calories: data['estimatedCalories'] as int? ?? 0,
+          calories: calories,
+          protein: (calories * 0.07).round(),
+          fats: (calories * 0.035).round(),
+          carbs: (calories * 0.10).round(),
         );
 
         if (loadedFoods.containsKey(mealType)) {
@@ -139,92 +246,17 @@ class _MealsScreenState extends State<MealsScreen> {
 
         isLoading = false;
       });
-    } catch (e) {
+    } catch (_) {
       if (!mounted) return;
 
       setState(() {
         isLoading = false;
       });
 
-      AppSnackbar.showError(context, 'Could not load meals.');
-    }
-  }
-
-  void _editCalories(int index) async {
-    final controller = TextEditingController(
-      text: foodsByMeal[selectedMeal]![index].calories.toString(),
-    );
-
-    final newCalories = await showDialog<int>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: AppColors.homeCardBackground,
-          title: const Text(
-            'Edit calories',
-            style: TextStyle(color: AppColors.homeBrown),
-          ),
-          content: TextField(
-            controller: controller,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration: const InputDecoration(
-              hintText: 'Calories',
-            ),
-          ),
-          actions: [
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.homeBrown,
-              ),
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.homeBrown,
-              ),
-              onPressed: () {
-                Navigator.pop(
-                  context,
-                  int.tryParse(controller.text),
-                );
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (newCalories != null) {
-      final mealType = selectedMeal;
-      final item = foodsByMeal[mealType]![index];
-      final oldItem = item;
-
-      setState(() {
-        foodsByMeal[mealType]![index] =
-            item.copyWith(calories: newCalories);
-      });
-
-      try {
-        if (item.id != null) {
-          await _mealRepository.updateMealCalories(
-            mealId: item.id!,
-            calories: newCalories,
-          );
-        }
-
-        _loadStreak();
-      } catch (e) {
-        if (!mounted) return;
-
-        setState(() {
-          foodsByMeal[mealType]![index] = oldItem;
-        });
-
-        AppSnackbar.showError(context, 'Could not update calories.');
-      }
+      AppSnackbar.showError(
+        context,
+        'Could not load meals.',
+      );
     }
   }
 
@@ -242,100 +274,152 @@ class _MealsScreenState extends State<MealsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final foods = foodsByMeal[selectedMeal]!;
     if (isLoading) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: CircularProgressIndicator(),
+      return const AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle(
+          statusBarColor: AppColors.calendarCompleted,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
+        ),
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
         ),
       );
     }
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 22, 24, 110),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              HomeHeader(streakDays: streakDays),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: AppColors.calendarCompleted,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        extendBodyBehindAppBar: true,
+        body: ScrollConfiguration(
+          behavior: const _NoOverscrollBehavior(),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.zero,
+            physics: const ClampingScrollPhysics(),
+            child: Column(
+              children: [
+                MealSwipeHeader(
+                  selectedIndex: selectedMealIndex,
+                  pageController: _mealPageController,
+                  meals: mealPages,
+                  streakDays: streakDays,
+                  calories: totalCalories,
+                  fats: totalFats,
+                  carbs: totalCarbs,
+                  proteins: totalProtein,
+                  onPageChanged: (index) {
+                    setState(() {
+                      selectedMealIndex = index;
+                    });
+                  },
+                ),
 
-              const SizedBox(height: 24),
-
-              MealTypeSelector(
-                selectedMeal: selectedMeal,
-                onSelected: (meal) {
-                  setState(() {
-                    selectedMeal = meal;
-                  });
-                },
-              ),
-
-              const SizedBox(height: 25),
-
-              Center(
-                child: SizedBox(
-                  width: 210,
-                  height: 210,
-                  child: ClipRect(
-                    child: Transform.scale(
-                      scale: 1.6,
-                      child: Image.asset(
-                        'assets/images/meal_plate.png',
-                        fit: BoxFit.contain,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    28,
+                    22,
+                    28,
+                    20,
+                  ),
+                  child: Column(
+                    children: [
+                      AddFoodForm(
+                        onAddFood: _addFood,
                       ),
-                    ),
+
+                      const SizedBox(height: 38),
+
+                      Center(
+                        child: Text(
+                          'Today’s $selectedMeal',
+                          style: const TextStyle(
+                            color: AppColors.homeBrown,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      if (selectedFoods.isEmpty)
+                        SizedBox(
+                          height: 170,
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Positioned(
+                                top: -45,
+                                left: 20,
+                                right: 0,
+                                child: SizedBox(
+                                  width: 250,
+                                  height: 250,
+                                  child: Lottie.asset(
+                                    'assets/animations/empty.json',
+                                    repeat: true,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        ...List.generate(
+                          selectedFoods.length,
+                              (index) {
+                            final mealType = selectedMeal;
+                            final item =
+                            foodsByMeal[mealType]![index];
+
+                            return FoodListItem(
+                              item: item,
+                              onDelete: () {
+                                _deleteFood(
+                                  mealType: mealType,
+                                  index: index,
+                                );
+                              },
+                            );
+                          },
+                        ),
+                    ],
                   ),
                 ),
-              ),
-
-              const SizedBox(height: 18),
-
-              AddFoodForm(
-                onAddFood: _addFood,
-              ),
-
-              const SizedBox(height: 34),
-
-              Center(
-                child: Text(
-                  'Today’s $selectedMeal',
-                  style: const TextStyle(
-                    color: AppColors.homeBrown,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 14),
-
-              if (foods.isEmpty)
-                const Center(
-                  child: Text(
-                    'No food added yet.',
-                    style: TextStyle(
-                      color: AppColors.homeBrown,
-                      fontSize: 14,
-                    ),
-                  ),
-                )
-              else
-                ...List.generate(
-                  foods.length,
-                      (index) => FoodListItem(
-                    item: foods[index],
-                    onEdit: () => _editCalories(index),
-                    onDelete: () => _deleteFood(index),
-                  ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+}
+
+class _NoOverscrollBehavior extends ScrollBehavior {
+  const _NoOverscrollBehavior();
+
+  @override
+  ScrollPhysics getScrollPhysics(
+      BuildContext context,
+      ) {
+    return const ClampingScrollPhysics();
+  }
+
+  @override
+  Widget buildOverscrollIndicator(
+      BuildContext context,
+      Widget child,
+      ScrollableDetails details,
+      ) {
+    return child;
   }
 }
 
@@ -344,12 +428,18 @@ class FoodItem {
   final String name;
   final String amount;
   final int calories;
+  final int protein;
+  final int fats;
+  final int carbs;
 
   const FoodItem({
     this.id,
     required this.name,
     required this.amount,
     required this.calories,
+    this.protein = 0,
+    this.fats = 0,
+    this.carbs = 0,
   });
 
   FoodItem copyWith({
@@ -357,12 +447,18 @@ class FoodItem {
     String? name,
     String? amount,
     int? calories,
+    int? protein,
+    int? fats,
+    int? carbs,
   }) {
     return FoodItem(
       id: id ?? this.id,
       name: name ?? this.name,
       amount: amount ?? this.amount,
       calories: calories ?? this.calories,
+      protein: protein ?? this.protein,
+      fats: fats ?? this.fats,
+      carbs: carbs ?? this.carbs,
     );
   }
 }

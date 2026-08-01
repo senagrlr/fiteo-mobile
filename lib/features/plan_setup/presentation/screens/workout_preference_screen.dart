@@ -44,7 +44,7 @@ class _WorkoutPreferenceScreenState extends State<WorkoutPreferenceScreen> {
 
               const SetupProgressIndicator(
                 currentStep: 5,
-                totalSteps: 6,
+                totalSteps: 7,
               ),
 
               const SizedBox(height: 25),

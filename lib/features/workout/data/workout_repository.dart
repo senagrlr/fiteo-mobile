@@ -6,13 +6,18 @@ import 'package:fiteo_myapp/features/ai/data/ai_service.dart';
 class WorkoutRepository {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   final DailySummaryRepository _dailySummaryRepository =
   DailySummaryRepository();
+
   final AiService _aiService = AiService();
 
   String _todayDate() {
     final today = DateTime.now();
-    return '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
+    return '${today.year}-'
+        '${today.month.toString().padLeft(2, '0')}-'
+        '${today.day.toString().padLeft(2, '0')}';
   }
 
   String _normalizeText(String value) {
@@ -25,7 +30,10 @@ class WorkoutRepository {
   int _levenshteinDistance(String a, String b) {
     final matrix = List.generate(
       a.length + 1,
-          (_) => List<int>.filled(b.length + 1, 0),
+          (_) => List<int>.filled(
+        b.length + 1,
+        0,
+      ),
     );
 
     for (int i = 0; i <= a.length; i++) {
@@ -44,21 +52,34 @@ class WorkoutRepository {
           matrix[i - 1][j] + 1,
           matrix[i][j - 1] + 1,
           matrix[i - 1][j - 1] + cost,
-        ].reduce((value, element) => value < element ? value : element);
+        ].reduce(
+              (value, element) =>
+          value < element ? value : element,
+        );
       }
     }
 
     return matrix[a.length][b.length];
   }
 
-  bool _isSimilarEnough(String input, String candidate) {
-    if (input.isEmpty || candidate.isEmpty) return false;
+  bool _isSimilarEnough(
+      String input,
+      String candidate,
+      ) {
+    if (input.isEmpty || candidate.isEmpty) {
+      return false;
+    }
 
-    if (input.contains(candidate) || candidate.contains(input)) {
+    if (input.contains(candidate) ||
+        candidate.contains(input)) {
       return true;
     }
 
-    final distance = _levenshteinDistance(input, candidate);
+    final distance = _levenshteinDistance(
+      input,
+      candidate,
+    );
+
     final maxLength = input.length > candidate.length
         ? input.length
         : candidate.length;
@@ -68,15 +89,20 @@ class WorkoutRepository {
     return similarity >= 0.82;
   }
 
-  Future<Map<String, dynamic>?> findExerciseMet(String exerciseName) async {
-    final normalizedInput = _normalizeText(exerciseName);
+  Future<Map<String, dynamic>?> findExerciseMet(
+      String exerciseName,
+      ) async {
+    final normalizedInput = _normalizeText(
+      exerciseName,
+    );
 
     if (normalizedInput.isEmpty) {
       return null;
     }
 
-    final snapshot =
-    await _firestore.collection('exerciseMetValues').get();
+    final snapshot = await _firestore
+        .collection('exerciseMetValues')
+        .get();
 
     final exercises = snapshot.docs.map((doc) {
       final data = doc.data();
@@ -84,7 +110,9 @@ class WorkoutRepository {
       return {
         'id': doc.id,
         'name': data['name'],
-        'aliases': List<String>.from(data['aliases'] ?? []),
+        'aliases': List<String>.from(
+          data['aliases'] ?? [],
+        ),
         'metValues': data['metValues'],
       };
     }).toList();
@@ -151,12 +179,14 @@ class WorkoutRepository {
       }).toList(),
     );
 
-    if (aiResult == null || aiResult.exerciseId.isEmpty) {
+    if (aiResult == null ||
+        aiResult.exerciseId.isEmpty) {
       return null;
     }
 
     final matchedExercise = exercises.firstWhere(
-          (exercise) => exercise['id'] == aiResult.exerciseId,
+          (exercise) =>
+      exercise['id'] == aiResult.exerciseId,
       orElse: () => {},
     );
 
@@ -179,7 +209,12 @@ class WorkoutRepository {
     required int durationMinutes,
   }) {
     final durationHours = durationMinutes / 60;
-    return (met * weightKg * durationHours).round();
+
+    return (
+        met *
+            weightKg *
+            durationHours
+    ).round();
   }
 
   Future<double> getUserWeightKg() async {
@@ -189,14 +224,28 @@ class WorkoutRepository {
       throw Exception('User not logged in');
     }
 
-    final doc = await _firestore.collection('users').doc(user.uid).get();
-    final preferences = doc.data()?['userPreferences'] as Map<String, dynamic>?;
+    final doc = await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .get();
+
+    final preferences =
+    doc.data()?['userPreferences']
+    as Map<String, dynamic>?;
 
     final weight = preferences?['weight'];
 
-    if (weight is int) return weight.toDouble();
-    if (weight is double) return weight;
-    if (weight is String) return double.tryParse(weight) ?? 70;
+    if (weight is int) {
+      return weight.toDouble();
+    }
+
+    if (weight is double) {
+      return weight;
+    }
+
+    if (weight is String) {
+      return double.tryParse(weight) ?? 70;
+    }
 
     return 70;
   }
@@ -221,17 +270,20 @@ class WorkoutRepository {
       'workoutName': workoutName,
       'durationMinutes': durationMinutes,
       'intensity': intensity,
-      'estimatedCaloriesBurned': estimatedCaloriesBurned,
+      'estimatedCaloriesBurned':
+      estimatedCaloriesBurned,
       'date': _todayDate(),
       'createdAt': FieldValue.serverTimestamp(),
     });
 
-    _dailySummaryRepository.updateDailySummary();
+    await _dailySummaryRepository
+        .updateDailySummary();
 
     return docRef.id;
   }
 
-  Future<QuerySnapshot<Map<String, dynamic>>> getTodayWorkouts() async {
+  Future<QuerySnapshot<Map<String, dynamic>>>
+  getTodayWorkouts() async {
     final user = _auth.currentUser;
 
     if (user == null) {
@@ -242,25 +294,11 @@ class WorkoutRepository {
         .collection('users')
         .doc(user.uid)
         .collection('workouts')
-        .where('date', isEqualTo: _todayDate())
+        .where(
+      'date',
+      isEqualTo: _todayDate(),
+    )
         .get();
-  }
-
-  Future<void> deleteWorkout(String workoutId) async {
-    final user = _auth.currentUser;
-
-    if (user == null) {
-      throw Exception('User not logged in');
-    }
-
-    await _firestore
-        .collection('users')
-        .doc(user.uid)
-        .collection('workouts')
-        .doc(workoutId)
-        .delete();
-
-    _dailySummaryRepository.updateDailySummary();
   }
 
   Future<void> updateWorkoutCalories({
@@ -280,8 +318,30 @@ class WorkoutRepository {
         .doc(workoutId)
         .update({
       'estimatedCaloriesBurned': calories,
+      'updatedAt': FieldValue.serverTimestamp(),
     });
 
-    _dailySummaryRepository.updateDailySummary();
+    await _dailySummaryRepository
+        .updateDailySummary();
+  }
+
+  Future<void> deleteWorkout(
+      String workoutId,
+      ) async {
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception('User not logged in');
+    }
+
+    await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('workouts')
+        .doc(workoutId)
+        .delete();
+
+    await _dailySummaryRepository
+        .updateDailySummary();
   }
 }

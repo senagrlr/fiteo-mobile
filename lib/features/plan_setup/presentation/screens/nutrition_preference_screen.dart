@@ -45,7 +45,7 @@ class _NutritionPreferenceScreenState extends State<NutritionPreferenceScreen> {
 
               const SetupProgressIndicator(
                 currentStep: 4,
-                totalSteps: 6,
+                totalSteps: 7,
               ),
 
               const SizedBox(height: 25),

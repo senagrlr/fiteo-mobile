@@ -5,8 +5,17 @@ import 'package:fiteo_myapp/features/home/data/daily_summary_repository.dart';
 class MealRepository {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   final DailySummaryRepository _dailySummaryRepository =
   DailySummaryRepository();
+
+  String _todayDate() {
+    final today = DateTime.now();
+
+    return '${today.year}-'
+        '${today.month.toString().padLeft(2, '0')}-'
+        '${today.day.toString().padLeft(2, '0')}';
+  }
 
   Future<String> addMeal({
     required String mealName,
@@ -20,10 +29,6 @@ class MealRepository {
       throw Exception('User not logged in');
     }
 
-    final today = DateTime.now();
-    final date =
-        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
-
     final docRef = await _firestore
         .collection('users')
         .doc(user.uid)
@@ -33,11 +38,11 @@ class MealRepository {
       'gram': gram,
       'mealType': mealType,
       'estimatedCalories': estimatedCalories,
-      'date': date,
+      'date': _todayDate(),
       'createdAt': FieldValue.serverTimestamp(),
     });
 
-    _dailySummaryRepository.updateDailySummary();
+    await _dailySummaryRepository.updateDailySummary();
 
     return docRef.id;
   }
@@ -49,15 +54,14 @@ class MealRepository {
       throw Exception('User not logged in');
     }
 
-    final today = DateTime.now();
-    final date =
-        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
-
     return _firestore
         .collection('users')
         .doc(user.uid)
         .collection('meals')
-        .where('date', isEqualTo: date)
+        .where(
+      'date',
+      isEqualTo: _todayDate(),
+    )
         .get();
   }
 
@@ -75,7 +79,7 @@ class MealRepository {
         .doc(mealId)
         .delete();
 
-    _dailySummaryRepository.updateDailySummary();
+    await _dailySummaryRepository.updateDailySummary();
   }
 
   Future<void> updateMealCalories({
@@ -95,8 +99,9 @@ class MealRepository {
         .doc(mealId)
         .update({
       'estimatedCalories': calories,
+      'updatedAt': FieldValue.serverTimestamp(),
     });
 
-    _dailySummaryRepository.updateDailySummary();
+    await _dailySummaryRepository.updateDailySummary();
   }
 }

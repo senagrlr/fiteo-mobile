@@ -12,7 +12,8 @@ class DeleteAccountScreen extends StatefulWidget {
   const DeleteAccountScreen({super.key});
 
   @override
-  State<DeleteAccountScreen> createState() => _DeleteAccountScreenState();
+  State<DeleteAccountScreen> createState() =>
+      _DeleteAccountScreenState();
 }
 
 class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
@@ -22,7 +23,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
   bool isLoading = true;
   bool isDeleting = false;
   bool isPasswordUser = false;
-  String? deleteError;
+  bool obscurePassword = true;
 
   @override
   void initState() {
@@ -51,12 +52,10 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
   Future<void> _deleteAccount() async {
     final password = passwordController.text.trim();
 
-    setState(() {
-      deleteError = null;
-    });
-
     if (isPasswordUser && password.isEmpty) {
-      AppSnackbar.showError(context, ProfileMessages.currentPasswordRequired,
+      AppSnackbar.showError(
+        context,
+        ProfileMessages.currentPasswordRequired,
       );
       return;
     }
@@ -77,7 +76,9 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
         ProfileMessages.accountDeleted,
       );
 
-      await Future.delayed(const Duration(milliseconds: 700));
+      await Future.delayed(
+        const Duration(milliseconds: 700),
+      );
 
       if (!mounted) return;
 
@@ -93,24 +94,33 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
         isDeleting = false;
       });
 
-      if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
-        AppSnackbar.showError(context, ProfileMessages.currentPasswordIncorrect,
+      if (e.code == 'wrong-password' ||
+          e.code == 'invalid-credential') {
+        AppSnackbar.showError(
+          context,
+          ProfileMessages.currentPasswordIncorrect,
         );
       } else if (e.code == 'requires-recent-login') {
-        AppSnackbar.showError(context, ProfileMessages.recentLoginRequired,
+        AppSnackbar.showError(
+          context,
+          ProfileMessages.recentLoginRequired,
         );
       } else {
-        AppSnackbar.showError(context, ProfileMessages.accountDeleteFailed,
+        AppSnackbar.showError(
+          context,
+          ProfileMessages.accountDeleteFailed,
         );
       }
-    } catch (e) {
+    } catch (_) {
       if (!mounted) return;
 
       setState(() {
         isDeleting = false;
       });
 
-      AppSnackbar.showError(context, ProfileMessages.accountDeleteFailed,
+      AppSnackbar.showError(
+        context,
+        ProfileMessages.accountDeleteFailed,
       );
     }
   }
@@ -121,99 +131,117 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.homeBrown,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Delete My Account',
+          style: TextStyle(
+            color: AppColors.homeBrown,
+            fontWeight: FontWeight.w800,
+            fontSize: 20,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: SafeArea(
-        top: false,
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                const DeleteHeader(),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            screenWidth * 0.09,
+            18,
+            screenWidth * 0.09,
+            40,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const DeleteHeader(),
 
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 44),
+              const SizedBox(height: 24),
 
-                        const Text(
-                          'Deleting your account will permanently remove your profile and personal data. This action cannot be undone.',
-                          textAlign: TextAlign.left,
-                          style: TextStyle(
-                            color: AppColors.homeBrown,
-                            fontSize: 15,
-                            height: 1.45,
-                            fontWeight: FontWeight.w500,
-                          ),
+              const Text(
+                'Deleting your account will permanently remove your '
+                    'profile and personal data. This action cannot be undone.',
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  color: AppColors.homeBrown,
+                  fontSize: 15,
+                  height: 1.45,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              if (isPasswordUser)
+                Container(
+                  height: 52,
+                  padding: const EdgeInsets.only(left: 22),
+                  decoration: BoxDecoration(
+                    color: AppColors.onboardingBackground,
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  child: TextField(
+                    controller: passwordController,
+                    obscureText: obscurePassword,
+                    textAlignVertical: TextAlignVertical.center,
+                    style: const TextStyle(
+                      color: AppColors.homeBrown,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Enter your current password',
+                      hintStyle: const TextStyle(
+                        color: AppColors.homeBrown,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 15,
+                      ),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            obscurePassword = !obscurePassword;
+                          });
+                        },
+                        icon: Icon(
+                          obscurePassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: AppColors.homeBrown,
+                          size: 21,
                         ),
-
-                        const SizedBox(height: 36),
-
-                      if (isPasswordUser) ...[
-                        Container(
-                          height: 52,
-                          padding: const EdgeInsets.symmetric(horizontal: 22),
-                          decoration: BoxDecoration(
-                            color: AppColors.onboardingBackground,
-                            borderRadius: BorderRadius.circular(28),
-                          ),
-                          child: TextField(
-                            controller: passwordController,
-                            obscureText: true,
-                            style: const TextStyle(
-                              color: AppColors.homeBrown,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            decoration: const InputDecoration(
-                              hintText: 'Enter your current password',
-                              hintStyle: TextStyle(
-                                color: AppColors.homeBrown,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                              ),
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 40),
-                      ] else ...[
-                        const SizedBox(height: 40),
-                      ],
-
-                        Center(
-                          child: CustomButton(
-                            text: isDeleting ? 'Deleting...' : 'Delete my account',
-                            onPressed: isDeleting || isLoading ? null : _deleteAccount,
-                            backgroundColor: AppColors.authButtonGreen,
-                            textColor: Colors.white,
-                            height: 54,
-                            width: screenWidth * 0.68,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ],
-            ),
 
-            Positioned(
-              top: 50,
-              left: 20,
-              child: GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: const Icon(
-                  Icons.arrow_back_ios_new,
-                  color: AppColors.homeBrown,
-                  size: 26,
+              const Spacer(),
+
+              Center(
+                child: CustomButton(
+                  text: isDeleting ? 'Deleting...' : 'Confirm',
+                  onPressed:
+                  isDeleting || isLoading ? null : _deleteAccount,
+                  backgroundColor: AppColors.authButtonGreen,
+                  textColor: Colors.white,
+                  height: 54,
+                  width: screenWidth * 0.52,
+                  fontSize: 20,
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

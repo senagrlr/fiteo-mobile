@@ -19,11 +19,23 @@ class GoalSelectionScreen extends StatefulWidget {
 class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
   String? selectedGoal;
 
-  final List<String> goals = const [
-    'Lose Weight',
-    'Build Muscle',
-    'Maintain Fitness',
-    'Improve Health',
+  final List<Map<String, String>> goals = const [
+    {
+      'title': 'Lose Weight',
+      'emoji': '🏃',
+    },
+    {
+      'title': 'Build Muscle',
+      'emoji': '💪',
+    },
+    {
+      'title': 'Maintain Fitness',
+      'emoji': '⚖️',
+    },
+    {
+      'title': 'Improve Health',
+      'emoji': '❤️',
+    },
   ];
 
   @override
@@ -42,7 +54,7 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
 
               const SetupProgressIndicator(
                 currentStep: 1,
-                totalSteps: 6,
+                totalSteps: 7,
               ),
 
               const SizedBox(height: 80),
@@ -64,11 +76,11 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
                     (goal) => Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: GoalOptionCard(
-                    title: goal,
-                    isSelected: selectedGoal == goal,
+                    title: '${goal['emoji']}  ${goal['title']}',
+                    isSelected: selectedGoal == goal['title'],
                     onTap: () {
                       setState(() {
-                        selectedGoal = goal;
+                        selectedGoal = goal['title'];
                       });
                     },
                   ),

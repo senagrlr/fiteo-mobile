@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/features/home/presentation/widgets/home_header.dart';
+import 'package:fiteo_myapp/features/home/presentation/widgets/calendar_day_summary_card.dart';
+import 'package:fiteo_myapp/features/home/presentation/widgets/monthly_calendar_widget.dart';
 import 'package:fiteo_myapp/features/home/data/calendar_repository.dart';
 import 'package:fiteo_myapp/features/home/data/home_repository.dart';
 
@@ -8,11 +10,17 @@ class MonthlyCalendarScreen extends StatefulWidget {
   const MonthlyCalendarScreen({super.key});
 
   @override
-  State<MonthlyCalendarScreen> createState() => _MonthlyCalendarScreenState();
+  State<MonthlyCalendarScreen> createState() =>
+      _MonthlyCalendarScreenState();
 }
 
-class _MonthlyCalendarScreenState extends State<MonthlyCalendarScreen> {
-  DateTime currentMonth = DateTime(DateTime.now().year, DateTime.now().month);
+class _MonthlyCalendarScreenState
+    extends State<MonthlyCalendarScreen> {
+  DateTime currentMonth = DateTime(
+    DateTime.now().year,
+    DateTime.now().month,
+  );
+
   int selectedDay = DateTime.now().day;
 
   final _repo = CalendarRepository();
@@ -51,17 +59,30 @@ class _MonthlyCalendarScreenState extends State<MonthlyCalendarScreen> {
   }
 
   int get daysInMonth {
-    return DateTime(currentMonth.year, currentMonth.month + 1, 0).day;
+    return DateTime(
+      currentMonth.year,
+      currentMonth.month + 1,
+      0,
+    ).day;
   }
 
   int get firstWeekdayIndex {
-    final firstDay = DateTime(currentMonth.year, currentMonth.month, 1);
+    final firstDay = DateTime(
+      currentMonth.year,
+      currentMonth.month,
+      1,
+    );
+
     return firstDay.weekday % 7;
   }
 
   void previousMonth() {
     setState(() {
-      currentMonth = DateTime(currentMonth.year, currentMonth.month - 1);
+      currentMonth = DateTime(
+        currentMonth.year,
+        currentMonth.month - 1,
+      );
+
       selectedDay = 1;
       isLoading = true;
     });
@@ -71,7 +92,11 @@ class _MonthlyCalendarScreenState extends State<MonthlyCalendarScreen> {
 
   void nextMonth() {
     setState(() {
-      currentMonth = DateTime(currentMonth.year, currentMonth.month + 1);
+      currentMonth = DateTime(
+        currentMonth.year,
+        currentMonth.month + 1,
+      );
+
       selectedDay = 1;
       isLoading = true;
     });
@@ -81,7 +106,8 @@ class _MonthlyCalendarScreenState extends State<MonthlyCalendarScreen> {
 
   Future<void> _loadMonth() async {
     final data = await _repo.getMonthlyData(currentMonth);
-    final streak = await _homeRepository.getCurrentStreak();
+    final streak =
+    await _homeRepository.getCurrentStreak();
 
     final map = <int, DayCalories>{};
     final tracked = <int>{};
@@ -92,6 +118,7 @@ class _MonthlyCalendarScreenState extends State<MonthlyCalendarScreen> {
 
       if (consumed > 0 || burned > 0) {
         tracked.add(day);
+
         map[day] = DayCalories(
           consumed: consumed,
           burned: burned,
@@ -99,7 +126,9 @@ class _MonthlyCalendarScreenState extends State<MonthlyCalendarScreen> {
       }
     });
 
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
 
     setState(() {
       dayData = map;
@@ -114,7 +143,9 @@ class _MonthlyCalendarScreenState extends State<MonthlyCalendarScreen> {
     if (isLoading) {
       return const Scaffold(
         backgroundColor: Colors.white,
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
       );
     }
 
@@ -124,23 +155,35 @@ class _MonthlyCalendarScreenState extends State<MonthlyCalendarScreen> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(26, 18, 26, 110),
+          padding: const EdgeInsets.fromLTRB(
+            26,
+            18,
+            26,
+            110,
+          ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+            CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
                   GestureDetector(
-                    onTap: () => Navigator.pop(context),
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
                     child: const Icon(
                       Icons.arrow_back_ios_new,
                       color: AppColors.homeBrown,
                       size: 26,
                     ),
                   ),
+
                   const SizedBox(width: 16),
+
                   Expanded(
-                    child: HomeHeader(streakDays: streakDays),
+                    child: HomeHeader(
+                      streakDays: streakDays,
+                    ),
                   ),
                 ],
               ),
@@ -160,174 +203,32 @@ class _MonthlyCalendarScreenState extends State<MonthlyCalendarScreen> {
 
               const SizedBox(height: 36),
 
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(18, 18, 18, 22),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF6F6F6),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          onPressed: previousMonth,
-                          icon: const Icon(
-                            Icons.arrow_back_ios_new,
-                            color: Color(0xFFB8BEC4),
-                            size: 20,
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            '$monthName ${currentMonth.year}',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: AppColors.homeBrown,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: nextMonth,
-                          icon: const Icon(
-                            Icons.arrow_forward_ios,
-                            color: Color(0xFFB8BEC4),
-                            size: 20,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    const Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _WeekDayText('SAN'),
-                        _WeekDayText('MON'),
-                        _WeekDayText('TUE'),
-                        _WeekDayText('WED'),
-                        _WeekDayText('THU'),
-                        _WeekDayText('FRI'),
-                        _WeekDayText('SAT'),
-                      ],
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: firstWeekdayIndex + daysInMonth,
-                      gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 7,
-                        mainAxisSpacing: 8,
-                        crossAxisSpacing: 6,
-                      ),
-                      itemBuilder: (context, index) {
-                        if (index < firstWeekdayIndex) {
-                          return const SizedBox();
-                        }
-
-                        final day = index - firstWeekdayIndex + 1;
-                        final isTracked = trackedDays.contains(day);
-                        final isSelected = selectedDay == day;
-
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedDay = day;
-                            });
-                          },
-                          child: Container(
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: isTracked
-                                  ? AppColors.calendarCompleted
-                                  : Colors.transparent,
-                              shape: BoxShape.circle,
-                              border: isSelected
-                                  ? Border.all(
-                                color: AppColors.homeBrown,
-                                width: 1.5,
-                              )
-                                  : null,
-                            ),
-                            child: Text(
-                              '$day',
-                              style: TextStyle(
-                                color: isTracked
-                                    ? Colors.white
-                                    : Colors.black,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
+              MonthlyCalendarWidget(
+                currentMonth: currentMonth,
+                selectedDay: selectedDay,
+                firstWeekdayIndex:
+                firstWeekdayIndex,
+                daysInMonth: daysInMonth,
+                trackedDays: trackedDays,
+                onPreviousMonth: previousMonth,
+                onNextMonth: nextMonth,
+                onDaySelected: (day) {
+                  setState(() {
+                    selectedDay = day;
+                  });
+                },
               ),
 
               const SizedBox(height: 42),
 
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(22, 20, 22, 24),
-                decoration: BoxDecoration(
-                  color: AppColors.homeCardBackground,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Date : $selectedDay $monthName ${currentMonth.year}',
-                      style: const TextStyle(
-                        color: AppColors.homeBrown,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    const Divider(color: Color(0xFFDCD9D1)),
-
-                    const SizedBox(height: 14),
-
-                    if (selectedData == null)
-                      const Text(
-                        'No calorie data for this day.',
-                        style: TextStyle(
-                          color: AppColors.homeBrown,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      )
-                    else ...[
-                      _InfoRow(
-                        text:
-                        'Calories Consumed: ${selectedData.consumed} kcal',
-                      ),
-                      const SizedBox(height: 12),
-                      _InfoRow(
-                        text: 'Calories Burned: ${selectedData.burned} kcal',
-                      ),
-                      const SizedBox(height: 12),
-                      _InfoRow(
-                        text:
-                        'Net Calories: ${selectedData.netCalories} kcal',
-                      ),
-                    ],
-                  ],
-                ),
+              CalendarDaySummaryCard(
+                selectedDay: selectedDay,
+                monthName: monthName,
+                year: currentMonth.year,
+                consumedCalories:
+                selectedData?.consumed ?? 0,
+                burnedCalories:
+                selectedData?.burned ?? 0,
               ),
             ],
           ),
@@ -347,61 +248,4 @@ class DayCalories {
   });
 
   int get netCalories => consumed - burned;
-}
-
-class _WeekDayText extends StatelessWidget {
-  final String text;
-
-  const _WeekDayText(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 32,
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: Color(0xFFA9A0A0),
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  final String text;
-
-  const _InfoRow({
-    required this.text,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Text(
-          '✔',
-          style: TextStyle(
-            color: AppColors.red,
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(
-              color: AppColors.homeBrown,
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 }

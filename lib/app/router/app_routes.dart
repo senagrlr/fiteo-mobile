@@ -11,4 +11,5 @@ class AppRoutes {
   static const goalsPreferences = '/goals-preferences';
   static const deleteAccount = '/delete-account';
   static const monthlyCalendar = '/monthly-calendar';
+  static const String savedRecipes = '/saved-recipes';
 }

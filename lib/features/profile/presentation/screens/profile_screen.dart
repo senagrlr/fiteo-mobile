@@ -6,6 +6,7 @@ import 'package:fiteo_myapp/features/profile/presentation/widgets/weekly_views_c
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/router/app_routes.dart';
 
+
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -88,6 +89,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       if (result == true) {
                         loadUser();
                       }
+                    },
+                  ),
+                  ProfileMenuItem(
+                    icon: Icons.favorite_border_rounded,
+                    title: 'Saved Recipes',
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        AppRoutes.savedRecipes,
+                      );
                     },
                   ),
                   ProfileMenuItem(

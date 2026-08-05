@@ -43,7 +43,7 @@ class _ActivityLevelScreenState extends State<ActivityLevelScreen> {
 
               const SetupProgressIndicator(
                 currentStep: 3,
-                totalSteps: 6,
+                totalSteps: 7,
               ),
 
               const SizedBox(height: 25),

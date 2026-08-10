@@ -276,10 +276,11 @@ class _CookRecipeDialogState extends State<CookRecipeDialog>
 
                     _NutritionSummary(
                       servings: widget.recipe.servings,
-                      totalCalories:
-                      widget.recipe.totalCalories,
-                      caloriesPerServing:
-                      widget.recipe.caloriesPerServing,
+                      totalCalories: widget.recipe.totalCalories,
+                      caloriesPerServing: widget.recipe.caloriesPerServing,
+                      proteinPerServing: widget.recipe.proteinPerServing,
+                      fatPerServing: widget.recipe.fatPerServing,
+                      carbsPerServing: widget.recipe.carbsPerServing,
                     ),
                   ],
                 ),
@@ -464,11 +465,17 @@ class _NutritionSummary extends StatelessWidget {
   final int servings;
   final int totalCalories;
   final int caloriesPerServing;
+  final double proteinPerServing;
+  final double fatPerServing;
+  final double carbsPerServing;
 
   const _NutritionSummary({
     required this.servings,
     required this.totalCalories,
     required this.caloriesPerServing,
+    required this.proteinPerServing,
+    required this.fatPerServing,
+    required this.carbsPerServing,
   });
 
   @override
@@ -495,6 +502,18 @@ class _NutritionSummary extends StatelessWidget {
           _NutritionRow(
             label: 'Per serving',
             value: '$caloriesPerServing kcal',
+          ),
+          _NutritionRow(
+            label: 'Protein',
+            value: '${proteinPerServing.round()} g',
+          ),
+          _NutritionRow(
+            label: 'Fats',
+            value: '${fatPerServing.round()} g',
+          ),
+          _NutritionRow(
+            label: 'Carbs',
+            value: '${carbsPerServing.round()} g',
             showDivider: false,
           ),
         ],

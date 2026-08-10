@@ -1,18 +1,111 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/saved_recipe_card.dart';
+import 'package:fiteo_myapp/features/profile/data/saved_recipe_repository.dart';
+import 'package:fiteo_myapp/features/ai_coach/data/cook_recipe_result.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_recipe_dialog.dart';
+import 'package:fiteo_myapp/features/meals/data/meal_repository.dart';
 
-class SavedRecipesScreen extends StatelessWidget {
+class SavedRecipesScreen extends StatefulWidget {
   const SavedRecipesScreen({super.key});
 
   @override
+  State<SavedRecipesScreen> createState() =>
+      _SavedRecipesScreenState();
+}
+
+class _SavedRecipesScreenState
+    extends State<SavedRecipesScreen> {
+  final SavedRecipeRepository _savedRecipeRepository = SavedRecipeRepository();
+  final MealRepository _mealRepository = MealRepository();
+
+  List<Map<String, dynamic>> savedRecipes = [];
+
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedRecipes();
+  }
+
+  Future<void> _loadSavedRecipes() async {
+    try {
+      final snapshot =
+      await _savedRecipeRepository.getSavedRecipes();
+
+      final recipes = snapshot.docs.map((doc) {
+        return {
+          'id': doc.id,
+          ...doc.data(),
+        };
+      }).toList();
+
+      if (!mounted) return;
+
+      setState(() {
+        savedRecipes = recipes;
+        isLoading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<String?> _selectMealType() async {
+    return showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(22),
+        ),
+      ),
+      builder: (context) {
+        final mealTypes = [
+          'Breakfast',
+          'Lunch',
+          'Dinner',
+          'Snacks',
+        ];
+
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: mealTypes.map((mealType) {
+              return ListTile(
+                title: Text(
+                  mealType,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pop(context, mealType);
+                },
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final savedRecipes = <Map<String, dynamic>>[
-      // Test etmek için listeyi boş bırak:
-      // {'name': 'Pizza', 'calories': 250},
-    ];
+    if (isLoading) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -59,10 +152,71 @@ class SavedRecipesScreen extends StatelessWidget {
           final recipe = savedRecipes[index];
 
           return SavedRecipeCard(
-            recipeName: recipe['name'] as String,
-            calories: recipe['calories'] as int,
+            recipeName:
+            recipe['recipeName'] as String? ?? '',
+            calories:
+            (recipe['caloriesPerServing'] as num?)
+                ?.round() ??
+                0,
             onTap: () {
-              // Tarif detay sayfasına yönlendirme
+              final savedRecipe =
+              CookRecipeResult.fromMap(recipe);
+
+              showDialog(
+                context: context,
+                barrierColor: Colors.black.withValues(
+                  alpha: 0.22,
+                ),
+                builder: (context) {
+                  return CookRecipeDialog(
+                    recipe: savedRecipe,
+                    initiallySaved: true,
+                    onSavedChanged: (isSaved) async {
+                      if (!isSaved) {
+                        final recipeId =
+                        recipe['id'] as String?;
+
+                        if (recipeId != null) {
+                          await _savedRecipeRepository
+                              .deleteSavedRecipe(recipeId);
+
+                          await _loadSavedRecipes();
+                        }
+                      }
+                    },
+                    onAddToIntake: () async {
+                      Navigator.pop(context);
+
+                      final mealType = await _selectMealType();
+
+                      if (mealType == null) return;
+
+                      await _mealRepository.addMeal(
+                        mealName: savedRecipe.recipeName,
+                        amount: 1,
+                        unit: 'Serving',
+                        mealType: mealType,
+                        estimatedCalories: savedRecipe.caloriesPerServing,
+                        protein: savedRecipe.proteinPerServing.round(),
+                        fats: savedRecipe.fatPerServing.round(),
+                        carbs: savedRecipe.carbsPerServing.round(),
+                        nutritionSource: 'ai_recipe',
+                        isEstimated: true,
+                      );
+
+                      if (!mounted) return;
+
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            '${savedRecipe.recipeName} added to $mealType.',
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              );
             },
           );
         },

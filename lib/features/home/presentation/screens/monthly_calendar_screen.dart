@@ -113,15 +113,25 @@ class _MonthlyCalendarScreenState
     final tracked = <int>{};
 
     data.forEach((day, values) {
-      final consumed = values['consumed'] ?? 0;
-      final burned = values['burned'] ?? 0;
+      final consumed = (values['consumed'] ?? 0).round();
+      final burned = (values['burned'] ?? 0).round();
+      final protein = (values['protein'] ?? 0).toDouble();
+      final fats = (values['fats'] ?? 0).toDouble();
+      final carbs = (values['carbs'] ?? 0).toDouble();
+      final netCalories = (values['netCalories'] ?? 0).round();
+      final hydration = (values['hydration'] ?? 0).round();
 
-      if (consumed > 0 || burned > 0) {
+      if (consumed > 0 || burned > 0 || hydration > 0) {
         tracked.add(day);
 
         map[day] = DayCalories(
           consumed: consumed,
           burned: burned,
+          protein: protein,
+          fats: fats,
+          carbs: carbs,
+          netCalories: netCalories,
+          hydration: hydration,
         );
       }
     });
@@ -225,10 +235,13 @@ class _MonthlyCalendarScreenState
                 selectedDay: selectedDay,
                 monthName: monthName,
                 year: currentMonth.year,
-                consumedCalories:
-                selectedData?.consumed ?? 0,
-                burnedCalories:
-                selectedData?.burned ?? 0,
+                consumedCalories: selectedData?.consumed ?? 0,
+                burnedCalories: selectedData?.burned ?? 0,
+                protein: selectedData?.protein ?? 0,
+                fats: selectedData?.fats ?? 0,
+                carbs: selectedData?.carbs ?? 0,
+                netCalories: selectedData?.netCalories ?? 0,
+                hydration: selectedData?.hydration ?? 0,
               ),
             ],
           ),
@@ -242,10 +255,20 @@ class DayCalories {
   final int consumed;
   final int burned;
 
+  final double protein;
+  final double fats;
+  final double carbs;
+
+  final int netCalories;
+  final int hydration;
+
   const DayCalories({
     required this.consumed,
     required this.burned,
+    required this.protein,
+    required this.fats,
+    required this.carbs,
+    required this.netCalories,
+    required this.hydration,
   });
-
-  int get netCalories => consumed - burned;
 }

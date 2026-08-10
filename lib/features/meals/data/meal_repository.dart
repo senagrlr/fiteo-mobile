@@ -19,9 +19,15 @@ class MealRepository {
 
   Future<String> addMeal({
     required String mealName,
-    required int gram,
+    required int amount,
+    required String unit,
     required String mealType,
     int? estimatedCalories,
+    int protein = 0,
+    int fats = 0,
+    int carbs = 0,
+    String nutritionSource = 'unknown',
+    bool isEstimated = false,
   }) async {
     final user = _auth.currentUser;
 
@@ -35,9 +41,15 @@ class MealRepository {
         .collection('meals')
         .add({
       'mealName': mealName,
-      'gram': gram,
+      'amount': amount,
+      'unit': unit,
       'mealType': mealType,
       'estimatedCalories': estimatedCalories,
+      'protein': protein,
+      'fats': fats,
+      'carbs': carbs,
+      'nutritionSource': nutritionSource,
+      'isEstimated': isEstimated,
       'date': _todayDate(),
       'createdAt': FieldValue.serverTimestamp(),
     });

@@ -711,6 +711,7 @@ exports.generateRecipeFromIngredients = onRequest(
               "Do not add new main ingredients such as rice, pasta, meat, fish, cheese, tomato, lettuce, vegetables, fruits, dairy, eggs, or grains unless the user provided them. " +
               "The user's goal or nutrition preference is only a light preference. Never add new main ingredients just to match the goal. " +
               "Estimate calories by summing ingredient calories. Cooking usually changes weight, not total calories, unless oil or another ingredient is added. " +
+              "Also estimate protein, fat, and carbohydrates for the full recipe and return the values per serving. " +
               "If you add allowed pantry items such as oil, include their estimated calories in the ingredients list and totalCalories. Salt, pepper, and water should be 0 kcal. " +
               "Keep recipes practical and concise. Do not generate unnecessarily long instructions. " +
               "Return only valid JSON.",
@@ -770,6 +771,15 @@ exports.generateRecipeFromIngredients = onRequest(
                 caloriesPerServing: {
                   type: "number",
                 },
+                proteinPerServing: {
+                  type: "number",
+                },
+                fatPerServing: {
+                  type: "number",
+                },
+                carbsPerServing: {
+                  type: "number",
+                },
               },
               required: [
                 "recipeName",
@@ -778,6 +788,9 @@ exports.generateRecipeFromIngredients = onRequest(
                 "totalCalories",
                 "servings",
                 "caloriesPerServing",
+                "proteinPerServing",
+                "fatPerServing",
+                "carbsPerServing",
               ],
             },
           },

@@ -9,6 +9,7 @@ import 'package:fiteo_myapp/features/home/presentation/widgets/daily_macros_card
 import 'package:fiteo_myapp/features/home/presentation/widgets/home_header.dart';
 import 'package:fiteo_myapp/features/home/presentation/widgets/water_progress_card.dart';
 import 'package:fiteo_myapp/features/home/presentation/widgets/week_calendar_row.dart';
+import 'package:fiteo_myapp/features/home/data/daily_summary_repository.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,6 +21,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _homeRepository = HomeRepository();
   final _dailyFeedbackService = DailyFeedbackService();
+  final _dailySummaryRepository = DailySummaryRepository();
 
   DailyFeedbackResult? dailyFeedback;
 
@@ -30,18 +32,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   int calorieGoal = 2000;
 
-  // Geçici tasarım verileri.
-  // Backend hazır olduğunda repository üzerinden gelecek.
-  double proteinConsumed = 35;
+  double proteinConsumed = 0;
   double proteinGoal = 70;
 
-  double fatConsumed = 15;
+  double fatConsumed = 0;
   double fatGoal = 50;
 
-  double carbsConsumed = 55;
+  double carbsConsumed = 0;
   double carbsGoal = 120;
 
-  int waterConsumedMl = 420;
+  int waterConsumedMl = 0;
   int waterGoalMl = 2500;
 
   bool isLoading = true;
@@ -57,11 +57,15 @@ class _HomeScreenState extends State<HomeScreen> {
       final data = await _homeRepository.getTodaySummary();
       final streak = await _homeRepository.getCurrentStreak();
       final last7Stats = await _homeRepository.getLast7DaysStats();
+      final todayWater = await _dailySummaryRepository.getWaterForDay();
 
       final todayConsumed = data['consumed'] as int? ?? 0;
       final todayBurned = data['burned'] as int? ?? 0;
       final todayNet = data['netCalories'] as int? ?? 0;
       final todayGoal = data['calorieGoal'] as int? ?? 2000;
+      final todayProtein = (data['protein'] as num?)?.toDouble() ?? 0.0;
+      final todayFats = (data['fats'] as num?)?.toDouble() ?? 0.0;
+      final todayCarbs = (data['carbs'] as num?)?.toDouble() ?? 0.0;
 
       final todayGoalReached =
           data['isGoalReached'] as bool? ?? todayConsumed >= todayGoal;
@@ -94,6 +98,10 @@ class _HomeScreenState extends State<HomeScreen> {
         net = todayNet;
         calorieGoal = todayGoal;
         streakDays = streak;
+        proteinConsumed = todayProtein;
+        fatConsumed = todayFats;
+        carbsConsumed = todayCarbs;
+        waterConsumedMl = todayWater;
         dailyFeedback = feedback;
         isLoading = false;
       });
@@ -106,10 +114,20 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _addWater() {
+  Future<void> _addWater(int amount) async {
+    await _dailySummaryRepository.addWater(
+      amountMl: amount,
+    );
+
+    if (!mounted) return;
+
+    final updatedWater =
+    await _dailySummaryRepository.getWaterForDay();
+
+    if (!mounted) return;
+
     setState(() {
-      waterConsumedMl =
-          (waterConsumedMl + 250).clamp(0, waterGoalMl).toInt();
+      waterConsumedMl = updatedWater;
     });
   }
 
@@ -182,12 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: WaterProgressCard(
                         consumedMl: waterConsumedMl,
                         goalMl: waterGoalMl,
-                        onWaterAdded: (amount) {
-                          setState(() {
-                            waterConsumedMl =
-                                (waterConsumedMl + amount).clamp(0, waterGoalMl).toInt();
-                          });
-                        },
+                        onWaterAdded: _addWater,
                       ),
                     ),
                   ],

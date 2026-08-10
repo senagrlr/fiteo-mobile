@@ -18,6 +18,16 @@ class CookRecipeIngredient {
       calories: (json['calories'] as num?)?.round() ?? 0,
     );
   }
+
+  factory CookRecipeIngredient.fromMap(
+      Map<String, dynamic> map,
+      ) {
+    return CookRecipeIngredient(
+      name: map['name'] as String? ?? '',
+      amount: map['amount'] as String? ?? '',
+      calories: (map['calories'] as num?)?.round() ?? 0,
+    );
+  }
 }
 
 class CookRecipeResult {
@@ -27,6 +37,9 @@ class CookRecipeResult {
   final int totalCalories;
   final int servings;
   final int caloriesPerServing;
+  final double proteinPerServing;
+  final double fatPerServing;
+  final double carbsPerServing;
   final List<String> allergens;
 
   const CookRecipeResult({
@@ -36,6 +49,9 @@ class CookRecipeResult {
     required this.totalCalories,
     required this.servings,
     required this.caloriesPerServing,
+    required this.proteinPerServing,
+    required this.fatPerServing,
+    required this.carbsPerServing,
     this.allergens = const [],
   });
 
@@ -75,7 +91,48 @@ class CookRecipeResult {
       (json['servings'] as num?)?.round() ?? 1,
       caloriesPerServing:
       (json['caloriesPerServing'] as num?)?.round() ?? 0,
+      proteinPerServing:
+      (json['proteinPerServing'] as num?)?.toDouble() ?? 0,
+      fatPerServing:
+      (json['fatPerServing'] as num?)?.toDouble() ?? 0,
+      carbsPerServing:
+      (json['carbsPerServing'] as num?)?.toDouble() ?? 0,
       allergens: allergens,
+    );
+  }
+
+  factory CookRecipeResult.fromMap(
+      Map<String, dynamic> map,
+      ) {
+    final ingredientsData =
+        map['ingredients'] as List<dynamic>? ?? [];
+
+    return CookRecipeResult(
+      recipeName: map['recipeName'] as String? ?? '',
+      ingredients: ingredientsData
+          .whereType<Map<String, dynamic>>()
+          .map(CookRecipeIngredient.fromMap)
+          .toList(),
+      instructions:
+      (map['instructions'] as List<dynamic>? ?? [])
+          .map((item) => item.toString())
+          .toList(),
+      totalCalories:
+      (map['totalCalories'] as num?)?.round() ?? 0,
+      servings:
+      (map['servings'] as num?)?.round() ?? 1,
+      caloriesPerServing:
+      (map['caloriesPerServing'] as num?)?.round() ?? 0,
+      proteinPerServing:
+      (map['proteinPerServing'] as num?)?.toDouble() ?? 0,
+      fatPerServing:
+      (map['fatPerServing'] as num?)?.toDouble() ?? 0,
+      carbsPerServing:
+      (map['carbsPerServing'] as num?)?.toDouble() ?? 0,
+      allergens:
+      (map['allergens'] as List<dynamic>? ?? [])
+          .map((item) => item.toString())
+          .toList(),
     );
   }
 

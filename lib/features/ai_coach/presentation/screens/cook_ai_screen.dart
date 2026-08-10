@@ -8,6 +8,7 @@ import 'package:fiteo_myapp/features/ai_coach/data/ai_chat_repository.dart';
 import 'package:fiteo_myapp/features/ai_coach/data/cook_recipe_result.dart';
 import 'package:fiteo_myapp/features/ai_coach/data/cook_recipe_service.dart';
 import 'package:fiteo_myapp/features/meals/data/meal_repository.dart';
+import 'package:fiteo_myapp/features/profile/data/saved_recipe_repository.dart';
 
 class CookAiScreen extends StatefulWidget {
   final VoidCallback onSwitchToCoach;
@@ -26,10 +27,12 @@ class _CookAiScreenState extends State<CookAiScreen> {
   final AiChatRepository _chatRepository = AiChatRepository();
   final CookRecipeService _recipeService = CookRecipeService();
   final MealRepository _mealRepository = MealRepository();
+  final SavedRecipeRepository _savedRecipeRepository = SavedRecipeRepository();
 
   bool isGenerating = false;
   CookRecipeResult? generatedRecipeResult;
   int recipeCount = 0;
+  String? savedRecipeId;
 
   static const int dailyRecipeLimit = 2;
 
@@ -118,6 +121,7 @@ class _CookAiScreenState extends State<CookAiScreen> {
     setState(() {
       recipeCount++;
       generatedRecipeResult = recipe;
+      savedRecipeId = null;
     });
 
     await Future.delayed(const Duration(milliseconds: 250));
@@ -138,6 +142,20 @@ class _CookAiScreenState extends State<CookAiScreen> {
       builder: (context) {
         return CookRecipeDialog(
           recipe: recipe,
+          initiallySaved: savedRecipeId != null,
+          onSavedChanged: (isSaved) async {
+            if (isSaved) {
+              final id = await _savedRecipeRepository.saveRecipe(recipe);
+              savedRecipeId = id;
+            } else {
+              final id = savedRecipeId;
+
+              if (id != null) {
+                await _savedRecipeRepository.deleteSavedRecipe(id);
+                savedRecipeId = null;
+              }
+            }
+          },
           onAddToIntake: () async {
             Navigator.pop(context);
 
@@ -148,9 +166,15 @@ class _CookAiScreenState extends State<CookAiScreen> {
             try {
               await _mealRepository.addMeal(
                 mealName: recipe.recipeName,
-                gram: 1,
+                amount: 1,
+                unit: 'Serving',
                 mealType: mealType,
                 estimatedCalories: recipe.caloriesPerServing,
+                protein: recipe.proteinPerServing.round(),
+                fats: recipe.fatPerServing.round(),
+                carbs: recipe.carbsPerServing.round(),
+                nutritionSource: 'ai_recipe',
+                isEstimated: true,
               );
 
               if (!mounted) return;

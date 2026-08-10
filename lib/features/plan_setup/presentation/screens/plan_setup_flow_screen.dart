@@ -15,15 +15,13 @@ class PlanSetupFlowScreen extends StatefulWidget {
   });
 
   @override
-  State<PlanSetupFlowScreen> createState() {
-    return _PlanSetupFlowScreenState();
-  }
+  State<PlanSetupFlowScreen> createState() =>
+      _PlanSetupFlowScreenState();
 }
 
 class _PlanSetupFlowScreenState
     extends State<PlanSetupFlowScreen> {
-  final PageController _pageController =
-  PageController();
+  final PageController _pageController = PageController();
 
   final Map<String, dynamic> userPreferences = {};
 
@@ -46,8 +44,7 @@ class _PlanSetupFlowScreenState
   }
 
   double get _initialGoalWeight {
-    final currentWeight =
-    userPreferences['weight'];
+    final currentWeight = userPreferences['weight'];
 
     if (currentWeight is int) {
       return currentWeight.toDouble();
@@ -72,8 +69,7 @@ class _PlanSetupFlowScreenState
       MaterialPageRoute(
         builder: (context) {
           return AiPlanLoadingScreen(
-            userPreferences:
-            Map<String, dynamic>.from(
+            userPreferences: Map<String, dynamic>.from(
               userPreferences,
             ),
           );
@@ -92,8 +88,7 @@ class _PlanSetupFlowScreenState
   Widget build(BuildContext context) {
     return PageView(
       controller: _pageController,
-      physics:
-      const NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       children: [
         GoalSelectionScreen(
           onContinue: (goal) {
@@ -130,11 +125,8 @@ class _PlanSetupFlowScreenState
         ),
 
         NutritionPreferenceScreen(
-          onContinue: (
-              nutritionPreference,
-              ) {
-            userPreferences[
-            'nutritionPreference'] =
+          onContinue: (nutritionPreference) {
+            userPreferences['nutritionPreference'] =
                 nutritionPreference;
 
             nextPage();
@@ -143,11 +135,8 @@ class _PlanSetupFlowScreenState
         ),
 
         WorkoutPreferenceScreen(
-          onContinue: (
-              workoutPreference,
-              ) {
-            userPreferences[
-            'workoutPreference'] =
+          onContinue: (workoutPreference) {
+            userPreferences['workoutPreference'] =
                 workoutPreference;
 
             nextPage();
@@ -168,8 +157,7 @@ class _PlanSetupFlowScreenState
 
         PlanPreviewScreen(
           onBack: previousPage,
-          onCreatePlan:
-          _openAiPlanLoadingScreen,
+          onCreatePlan: _openAiPlanLoadingScreen,
         ),
       ],
     );

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/goal_option_card.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/setup_progress_indicator.dart';
@@ -15,28 +17,43 @@ class ActivityLevelScreen extends StatefulWidget {
   });
 
   @override
-  State<ActivityLevelScreen> createState() => _ActivityLevelScreenState();
+  State<ActivityLevelScreen> createState() =>
+      _ActivityLevelScreenState();
 }
 
 class _ActivityLevelScreenState extends State<ActivityLevelScreen> {
   String? selectedActivity;
 
-  final List<String> activities = const [
-    'Sedentary',
-    'Lightly Active',
-    'Moderately Active',
-    'Very Active',
-  ];
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+
+    final activities = [
+      (
+      value: 'Sedentary',
+      label: context.l10n.activitySedentary,
+      ),
+      (
+      value: 'Lightly Active',
+      label: context.l10n.activityLightlyActive,
+      ),
+      (
+      value: 'Moderately Active',
+      label: context.l10n.activityModeratelyActive,
+      ),
+      (
+      value: 'Very Active',
+      label: context.l10n.activityVeryActive,
+      ),
+    ];
 
     return Scaffold(
       backgroundColor: AppColors.onboardingBackground,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.10),
+          padding: EdgeInsets.symmetric(
+            horizontal: screenWidth * 0.10,
+          ),
           child: Column(
             children: [
               const SizedBox(height: 18),
@@ -62,12 +79,10 @@ class _ActivityLevelScreenState extends State<ActivityLevelScreen> {
 
               const SizedBox(height: 60),
 
-              const Text(
-                'How active are you?',
+              Text(
+                context.l10n.activityLevelTitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w700,
+                style: AppTextStyles.headingLarge.copyWith(
                   color: AppColors.authText,
                 ),
               ),
@@ -76,13 +91,16 @@ class _ActivityLevelScreenState extends State<ActivityLevelScreen> {
 
               ...activities.map(
                     (activity) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.only(
+                    bottom: 16,
+                  ),
                   child: GoalOptionCard(
-                    title: activity,
-                    isSelected: selectedActivity == activity,
+                    title: activity.label,
+                    isSelected:
+                    selectedActivity == activity.value,
                     onTap: () {
                       setState(() {
-                        selectedActivity = activity;
+                        selectedActivity = activity.value;
                       });
                     },
                   ),
@@ -92,11 +110,14 @@ class _ActivityLevelScreenState extends State<ActivityLevelScreen> {
               const Spacer(),
 
               CustomButton(
-                text: 'Continue',
+                text: context.l10n.continueText,
                 onPressed: selectedActivity == null
                     ? null
-                    : () => widget.onContinue(selectedActivity!),
-                backgroundColor: AppColors.authButtonGreen,
+                    : () => widget.onContinue(
+                  selectedActivity!,
+                ),
+                backgroundColor:
+                AppColors.authButtonGreen,
                 textColor: Colors.white,
                 height: 54,
                 width: screenWidth * 0.72,

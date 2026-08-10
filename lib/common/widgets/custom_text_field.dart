@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:flutter/services.dart';
 
 class CustomTextField extends StatefulWidget {
@@ -39,18 +40,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
       keyboardType: widget.keyboardType,
       inputFormatters: widget.inputFormatters,
       obscureText: widget.isPassword ? _obscureText : false,
-      style: const TextStyle(
-        color: AppColors.authText,
-        fontSize: 18,
-        fontWeight: FontWeight.w400,
-      ),
+      style: AppTextStyles.input,
       decoration: InputDecoration(
         hintText: widget.hintText,
-        hintStyle: const TextStyle(
-          color: AppColors.authText,
-          fontSize: 18,
-          fontWeight: FontWeight.w400,
-        ),
+        hintStyle: AppTextStyles.input,
         filled: true,
         fillColor: widget.fillColor,
         contentPadding: const EdgeInsets.symmetric(

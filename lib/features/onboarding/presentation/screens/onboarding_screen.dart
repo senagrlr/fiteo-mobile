@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fiteo_myapp/app/router/app_routes.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/features/onboarding/presentation/models/onboarding_page_model.dart';
 import 'package:fiteo_myapp/features/onboarding/presentation/widgets/onboarding_indicator.dart';
 import 'package:fiteo_myapp/features/onboarding/presentation/widgets/onboarding_page_item.dart';
@@ -16,16 +18,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentIndex = 0;
 
-  final List<OnboardingPageModel> _pages = const [
+  List<OnboardingPageModel> _pages(BuildContext context) => [
     OnboardingPageModel(
       asset: 'assets/animations/onboarding_1.json',
-      title: 'A new you begins here but\nstaying motivated isn’t\nalways easy.',
+      title: context.l10n.onboardingPage1Title,
       mediaHeightFactor: 0.50,
       isLottie: true,
     ),
     OnboardingPageModel(
       asset: 'assets/animations/onboarding_2.json',
-      title: 'You want to live healthier but tracking can be overwhelming.',
+      title: context.l10n.onboardingPage2Title,
       mediaHeightFactor: 0.30,
       isLottie: true,
       textSpacing: 0.05,
@@ -33,7 +35,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
     OnboardingPageModel(
       asset: 'assets/animations/onboarding_3.json',
-      title: 'What if you had an AI coach that makes this journey easier for you?',
+      title: context.l10n.onboardingPage3Title,
       mediaHeightFactor: 0.56,
       textSpacing: 0,
       topSpacing: 0.070,
@@ -41,8 +43,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
     OnboardingPageModel(
       asset: 'assets/images/onboarding_3.png',
-      headerTitle: 'Meet Fiteo',
-      title: 'Personalized nutrition,\nworkouts,\nand an AI-powered coach\nall in one app.',
+      headerTitle: context.l10n.onboardingMeetFiteo,
+      title: context.l10n.onboardingPage4Title,
       mediaHeightFactor: 0.44,
       isLottie: false,
       headerSpacing: 0.005,
@@ -65,6 +67,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+    final pages = _pages(context);
 
     return Scaffold(
       backgroundColor: AppColors.onboardingBackground,
@@ -74,9 +77,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             PageView.builder(
               controller: _pageController,
               onPageChanged: _onPageChanged,
-              itemCount: _pages.length,
+              itemCount: pages.length,
               itemBuilder: (context, index) {
-                return OnboardingPageItem(page: _pages[index]);
+                return OnboardingPageItem(page: pages[index]);
               },
             ),
             if (_currentIndex == 3)
@@ -87,11 +90,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   onTap: () {
                     Navigator.pushNamed(context, AppRoutes.signup);
                   },
-                  child: const Text(
-                    'Skip',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
+                  child: Text(
+                    context.l10n.skip,
+                    style: AppTextStyles.labelLarge.copyWith(
                       color: AppColors.onboardingText,
                     ),
                   ),
@@ -102,7 +103,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               right: screenWidth * 0.10,
               child: OnboardingIndicator(
                 currentIndex: _currentIndex,
-                itemCount: _pages.length,
+                itemCount: pages.length,
               ),
             ),
           ],

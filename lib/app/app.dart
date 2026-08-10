@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:fiteo_myapp/app/theme/app_theme.dart';
+import 'package:fiteo_myapp/l10n/generated/app_localizations.dart';
 
 import 'package:fiteo_myapp/app/router/app_router.dart';
 import 'package:fiteo_myapp/app/router/app_routes.dart';
@@ -20,8 +22,15 @@ class FiteoApp extends StatelessWidget {
       ),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Fiteo',
+        onGenerateTitle: (context) => AppLocalizations.of(context).appName,
         theme: AppTheme.lightTheme,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
         initialRoute: AppRoutes.authGate,
         routes: AppRouter.routes,
       ),

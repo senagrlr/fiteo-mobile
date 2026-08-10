@@ -9,6 +9,19 @@ class AppColors {
   static const Color textSecondary = Color(0xFF666666);
   static const Color border = Color(0xFFE0E0E0);
 
+  // Semantic colors. Prefer these in new UI code. Legacy feature-specific
+  // tokens below are kept during migration to avoid risky visual regressions.
+  static const Color brandPrimary = Color(0xFFACBB5E);
+  static const Color brandAccent = Color(0xFF693C37);
+  static const Color textBrand = Color(0xFF693C37);
+  static const Color textBrandSoft = Color(0xFF9B7775);
+  static const Color textMuted = Color(0xFFA89A97);
+  static const Color surfacePrimary = Color(0xFFFFFFFF);
+  static const Color surfaceSoft = Color(0xFFF4F4EF);
+  static const Color onPrimary = Color(0xFFFFFFFF);
+  static const Color error = Color(0xFFC43D3F);
+  static const Color success = Color(0xFFACBB5E);
+
   // Onboarding
   static const Color onboardingBackground = Color(0xFFECEBE2);
   static const Color onboardingText = Color(0xFF9B7775);

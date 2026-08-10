@@ -1,12 +1,14 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:fiteo_myapp/app/router/app_routes.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
+import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
 import 'package:fiteo_myapp/common/widgets/common_app_bar.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/features/auth/data/auth_repository.dart';
-import 'package:fiteo_myapp/features/auth/utils/auth_messages.dart';
-import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
   const VerifyEmailScreen({super.key});
@@ -37,36 +39,54 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
     _timer?.cancel();
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_secondsLeft == 1) {
-        timer.cancel();
-        setState(() {
-          _secondsLeft = 0;
-          _canResend = true;
-        });
-      } else {
-        setState(() {
-          _secondsLeft--;
-        });
-      }
-    });
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+          (timer) {
+        if (_secondsLeft == 1) {
+          timer.cancel();
+
+          setState(() {
+            _secondsLeft = 0;
+            _canResend = true;
+          });
+        } else {
+          setState(() {
+            _secondsLeft--;
+          });
+        }
+      },
+    );
   }
 
   Future<void> _checkEmailVerification() async {
-    setState(() => _isChecking = true);
+    setState(() {
+      _isChecking = true;
+    });
 
-    final isVerified = await _authRepository.isCurrentUserEmailVerified();
+    final isVerified =
+    await _authRepository.isCurrentUserEmailVerified();
 
     if (!mounted) return;
 
-    setState(() => _isChecking = false);
+    setState(() {
+      _isChecking = false;
+    });
 
     if (isVerified) {
-      AppSnackbar.showSuccess(context, AuthMessages.emailVerifiedSuccessfully);
+      AppSnackbar.showSuccess(
+        context,
+        context.l10n.emailVerifiedSuccessfully,
+      );
 
-      Navigator.pushReplacementNamed(context, AppRoutes.planSetup);
+      Navigator.pushReplacementNamed(
+        context,
+        AppRoutes.planSetup,
+      );
     } else {
-      AppSnackbar.showError(context, AuthMessages.emailNotVerifiedYet);
+      AppSnackbar.showError(
+        context,
+        context.l10n.emailNotVerifiedYet,
+      );
     }
   }
 
@@ -78,20 +98,28 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
       if (!mounted) return;
 
-      AppSnackbar.showInfo(context, AuthMessages.verificationEmailSentAgain);
+      AppSnackbar.showInfo(
+        context,
+        context.l10n.verificationEmailSentAgain,
+      );
 
       _startResendTimer();
-    } catch (e) {
+    } catch (_) {
       if (!mounted) return;
 
-      AppSnackbar.showError(context, AuthMessages.verificationEmailCouldNotSend);
+      AppSnackbar.showError(
+        context,
+        context.l10n.verificationEmailCouldNotSend,
+      );
     }
   }
 
   String _formatTime(int seconds) {
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
-    final secondsStr = remainingSeconds.toString().padLeft(2, '0');
+
+    final secondsStr =
+    remainingSeconds.toString().padLeft(2, '0');
 
     return '$minutes:$secondsStr';
   }
@@ -108,25 +136,23 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-
       appBar: const CommonAppBar(),
-
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.10),
+          padding: EdgeInsets.symmetric(
+            horizontal: screenWidth * 0.10,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 80),
 
-              const SizedBox(
+              SizedBox(
                 width: double.infinity,
                 child: Text(
-                  'Verify your email',
+                  context.l10n.verifyEmailTitle,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 34,
-                    fontWeight: FontWeight.w700,
+                  style: AppTextStyles.displayMedium.copyWith(
                     color: AppColors.authText,
                   ),
                 ),
@@ -153,15 +179,14 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
               const SizedBox(height: 40),
 
-              const SizedBox(
+              SizedBox(
                 width: double.infinity,
                 child: Text(
-                  'We’ve sent a verification link to your email address. Please check your inbox and tap the link to continue.',
+                  context.l10n.verifyEmailDescription,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
                     height: 1.6,
-                    color: Color(0xFF5E4A4A),
                   ),
                 ),
               ),
@@ -171,9 +196,12 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
               GestureDetector(
                 onTap: _canResend ? _resendEmail : null,
                 child: Text(
-                  _canResend ? 'Resend Email' : 'Resend Email (${_formatTime(_secondsLeft)})',
-                  style: TextStyle(
-                    fontSize: 18,
+                  _canResend
+                      ? context.l10n.resendEmail
+                      : context.l10n.resendEmailWithTime(
+                    _formatTime(_secondsLeft),
+                  ),
+                  style: AppTextStyles.bodyLarge.copyWith(
                     fontWeight: FontWeight.w500,
                     color: _canResend
                         ? AppColors.authText
@@ -185,8 +213,11 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
               const SizedBox(height: 16),
 
               CustomButton(
-                text: _isChecking ? 'Checking...' : 'Verify',
-                onPressed: _isChecking ? null : _checkEmailVerification,
+                text: _isChecking
+                    ? context.l10n.checking
+                    : context.l10n.verify,
+                onPressed:
+                _isChecking ? null : _checkEmailVerification,
                 backgroundColor: AppColors.authButtonGreen,
                 textColor: Colors.white,
                 height: 56,

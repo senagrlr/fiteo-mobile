@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 
 class GoalOptionCard extends StatelessWidget {
   final String title;
@@ -17,6 +19,7 @@ class GoalOptionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         width: double.infinity,
@@ -26,7 +29,9 @@ class GoalOptionCard extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.authButtonGreen.withOpacity(0.22)
+              ? AppColors.authButtonGreen.withValues(
+            alpha: 0.22,
+          )
               : Colors.white,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
@@ -41,13 +46,15 @@ class GoalOptionCard extends StatelessWidget {
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
+                style: AppTextStyles.bodyLarge.copyWith(
                   color: AppColors.authText,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
+
+            const SizedBox(width: 12),
+
             Icon(
               isSelected
                   ? Icons.check_circle

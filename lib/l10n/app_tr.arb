@@ -1,0 +1,189 @@
+{
+  "@@locale": "tr",
+
+  "appName": "Fiteo",
+
+  "continueText": "Devam Et",
+  "back": "Geri",
+  "cancel": "İptal",
+  "save": "Kaydet",
+  "done": "Bitti",
+  "close": "Kapat",
+
+  "email": "E-posta",
+  "password": "Şifre",
+
+  "login": "Giriş Yap",
+  "welcomeBack": "Tekrar Hoş Geldin",
+  "loginSubtitle": "Yolculuğuna devam etmek için giriş yap.",
+
+  "emailAndPasswordEmpty": "Lütfen e-posta adresini ve şifreni gir.",
+  "wrongEmailOrPassword": "E-posta veya şifre hatalı.",
+  "or": "veya",
+  "googleSignInFailed": "Google ile giriş başarısız oldu. Lütfen tekrar dene.",
+  "dontHaveAccount": "Hesabın yok mu?",
+  "signUp": "Kayıt Ol",
+  "loading": "Yükleniyor...",
+
+  "username": "Kullanıcı Adı",
+  "dateOfBirth": "Doğum Tarihi",
+  "alreadyHaveAccount": "Zaten hesabın var mı?",
+  "fillAllFields": "Lütfen tüm alanları doldur.",
+  "passwordTooShort": "Şifre en az 8 karakter olmalıdır.",
+  "invalidBirthDate": "Lütfen geçerli bir doğum tarihi gir.",
+  "emailAlreadyRegistered": "Bu e-posta adresiyle zaten bir hesap mevcut.",
+  "signUpAgreement": "Kayıt olarak Hizmet Şartlarımızı ve Gizlilik Politikamızı kabul etmiş olursun.",
+
+  "verifyEmailTitle": "E-postanı Doğrula",
+  "verifyEmailDescription": "E-posta adresine bir doğrulama bağlantısı gönderdik. Devam etmek için gelen kutunu kontrol et ve bağlantıya dokun.",
+  "resendEmail": "E-postayı Tekrar Gönder",
+  "resendEmailWithTime": "E-postayı Tekrar Gönder ({time})",
+  "checking": "Kontrol Ediliyor...",
+  "verify": "Doğrula",
+  "emailVerifiedSuccessfully": "E-posta adresin başarıyla doğrulandı.",
+  "emailNotVerifiedYet": "E-posta adresin henüz doğrulanmadı.",
+  "verificationEmailSentAgain": "Doğrulama e-postası tekrar gönderildi.",
+  "verificationEmailCouldNotSend": "Doğrulama e-postası gönderilemedi. Lütfen tekrar dene.",
+  "@resendEmailWithTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+
+  "forgotPassword": "Şifremi unuttum",
+  "forgotPasswordTitle": "Şifremi Unuttum",
+  "forgotPasswordDescription": "E-posta adresini gir, şifreni sıfırlaman için link gönderelim.",
+
+  "enterEmail": "Lütfen e-posta adresini gir.",
+  "emailRequired": "E-posta adresi gerekli.",
+  "invalidEmail": "Lütfen geçerli bir e-posta adresi gir.",
+
+  "onboardingPage1Title": "Yeni bir sen için ilk adımı attın, ama motive kalmak her zaman kolay değil.",
+  "onboardingPage2Title": "Daha sağlıklı yaşamak istiyorsun, ama her şeyi takip etmek bunaltıcı olabiliyor.",
+  "onboardingPage3Title": "Peki ya bu yolculuğu senin için kolaylaştıran bir yapay zekâ koçun olsaydı.",
+  "onboardingMeetFiteo": "Fiteo ile Tanış",
+  "onboardingPage4Title": "Kişisel beslenme ve fitness yol arkadaşın.",
+  "skip": "Atla",
+
+  "planSetupMainGoalTitle": "Ana hedefin nedir?",
+  "goalLoseWeight": "Kilo Vermek",
+  "goalBuildMuscle": "Kas Kazanmak",
+  "goalMaintainFitness": "Formunu Korumak",
+  "goalImproveHealth": "Sağlığını İyileştirmek",
+
+  "planSetupAboutYourselfTitle": "Bize kendinden bahset",
+  "age": "Yaş",
+  "height": "Boy",
+  "weight": "Kilo",
+  "gender": "Cinsiyet",
+  "female": "Kadın",
+  "male": "Erkek",
+
+  "activityLevelTitle": "Ne kadar aktifsin?",
+  "activitySedentary": "Hareketsiz",
+  "activityLightlyActive": "Az Aktif",
+  "activityModeratelyActive": "Orta Düzey Aktif",
+  "activityVeryActive": "Çok Aktif",
+
+  "nutritionPreferenceTitle": "Nasıl beslenmeyi tercih ediyorsun?",
+  "nutritionNoRestrictions": "Kısıtlama Yok",
+  "nutritionHighProtein": "Yüksek Proteinli",
+  "nutritionVegetarian": "Vejetaryen",
+  "nutritionVegan": "Vegan",
+  "nutritionBalancedDiet": "Dengeli Beslenme",
+
+  "workoutPreferenceTitle": "Nasıl egzersiz yapmayı tercih ediyorsun?",
+  "workoutHome": "Evde Egzersiz",
+  "workoutGym": "Spor Salonu",
+  "workoutWalkingCardio": "Yürüyüş / Kardiyo",
+  "workoutStrengthTraining": "Kuvvet Antrenmanı",
+
+  "goalWeightTitle": "Hedef kilon nedir?",
+
+  "planPreviewTitle": "Hedeflerin sana özel bir planı hak ediyor",
+  "planPreviewDescription": "Genel planlarda motivasyon zamanla azalabilir. Fiteo, hedeflerine ve yaşam tarzına uyum sağlayarak hedefin doğrultusunda ilerlemene yardımcı olur.",
+  "createMyPlan": "Planımı Oluştur",
+
+  "planProgressOverTime": "Zaman içindeki ilerlemen",
+  "fiteoPlan": "Fiteo planı",
+  "genericPlan": "Genel plan",
+  "chartStart": "Başlangıç",
+  "chartEarly": "İlk Dönem",
+  "chartMid": "Orta",
+  "chartGoal": "Hedef",
+  "yourGoal": "Hedefin",
+
+  "customizeYourPlan": "Planın hazırlanıyor",
+  "analyzingGoals": "Hedeflerin analiz ediliyor...",
+  "calculatingCalories": "Kalori ihtiyacın hesaplanıyor...",
+  "buildingMealSuggestions": "Öğün önerilerin hazırlanıyor...",
+  "designingWorkoutRoadmap": "Egzersiz yol haritan hazırlanıyor...",
+  "yourPlanIsReady": "Planın hazır!",
+  "savingPersonalizedPlan": "Kişisel planın kaydediliyor...",
+  "thisMayTakeFewSeconds": "Bu işlem birkaç saniye sürebilir.",
+  "planCouldNotBeSaved": "Planın kaydedilemedi.",
+
+  "aiPlanReadyTitle": "Yapay zekâ planın hazır!",
+  "aiPlanReadyDescription": "Hedeflerine göre günlük değerlerini oluşturduk. Devam etmeden önce istersen bu değerleri düzenleyebilirsin.",
+  "dailyTargets": "Günlük hedefler",
+  "carbohydrates": "Karbonhidrat",
+  "fats": "Yağ",
+  "water": "Su",
+  "startMyJourney": "Yolculuğuma Başla",
+
+  "planChartTitle": "Zaman içindeki ilerlemen",
+  "planChartFiteoPlan": "Fiteo planı",
+  "planChartGenericPlan": "Genel plan",
+  "planChartStart": "Başlangıç",
+  "planChartEarly": "İlk dönem",
+  "planChartMid": "Orta",
+  "planChartGoal": "Hedef",
+  "planChartYourGoal": "Hedefin",
+
+  "sendResetLink": "Sıfırlama Bağlantısı Gönder",
+  "sendLink": "Link Gönder",
+  "sending": "Gönderiliyor...",
+
+  "resetLinkSent": "Şifre sıfırlama bağlantısı gönderildi. E-postanı kontrol et.",
+  "resetLinkCouldNotSend": "Şifre sıfırlama bağlantısı gönderilemedi. Lütfen tekrar dene.",
+
+  "passwordRequired": "Şifre gerekli.",
+  "somethingWentWrong": "Bir şeyler ters gitti. Lütfen tekrar dene.",
+
+  "dailySummary": "Günlük Özet",
+  "calories": "Kalori",
+  "protein": "Protein",
+  "carbs": "Karbonhidrat",
+  "fat": "Yağ",
+
+  "addFood": "Yemek Ekle",
+
+  "breakfast": "Kahvaltı",
+  "lunch": "Öğle Yemeği",
+  "dinner": "Akşam Yemeği",
+  "snack": "Ara Öğün",
+
+  "weeklyReport": "Haftalık Rapor",
+  "monthlyReport": "Aylık Rapor",
+  "progress": "İlerleme",
+  "workout": "Egzersiz",
+  "profile": "Profil",
+
+  "recipeCouldNotBeCreated": "Tarif oluşturulamadı. Lütfen tekrar dene.",
+  "couldNotAddRecipeToMeals": "Tarif öğünlere eklenemedi.",
+  "dailyAiMessageLimitReached": "Günlük yapay zekâ mesaj limitine ulaştın.",
+
+  "recipeAddedToMeal": "{recipeName}, {mealType} öğününe eklendi.",
+  "@recipeAddedToMeal": {
+    "placeholders": {
+      "recipeName": {
+        "type": "String"
+      },
+      "mealType": {
+        "type": "String"
+      }
+    }
+  }
+}

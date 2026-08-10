@@ -14,24 +14,27 @@ class SetupProgressIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: List.generate(totalSteps, (index) {
-        final isActive = index < currentStep;
+      children: List.generate(
+        totalSteps,
+            (index) {
+          final isActive = index < currentStep;
 
-        return Expanded(
-          child: Container(
-            height: 7,
-            margin: EdgeInsets.only(
-              right: index == totalSteps - 1 ? 0 : 8,
+          return Expanded(
+            child: Container(
+              height: 7,
+              margin: EdgeInsets.only(
+                right: index == totalSteps - 1 ? 0 : 8,
+              ),
+              decoration: BoxDecoration(
+                color: isActive
+                    ? AppColors.authButtonGreen
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
             ),
-            decoration: BoxDecoration(
-              color: isActive
-                  ? AppColors.authButtonGreen
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-          ),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 }

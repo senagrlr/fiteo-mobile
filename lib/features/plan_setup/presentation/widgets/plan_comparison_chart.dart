@@ -1,6 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 
 class PlanComparisonChart extends StatefulWidget {
   const PlanComparisonChart({
@@ -106,26 +109,27 @@ class _PlanComparisonChartState extends State<PlanComparisonChart>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Your progress over time',
-            style: TextStyle(
+          Text(
+            context.l10n.planChartTitle,
+            style: AppTextStyles.titleMedium.copyWith(
               color: AppColors.authText,
-              fontSize: 17,
               fontWeight: FontWeight.w800,
             ),
           ),
 
           const SizedBox(height: 11),
 
-          const Row(
+          Row(
             children: [
               _LegendItem(
-                label: 'Fiteo plan',
+                label: context.l10n.planChartFiteoPlan,
                 color: AppColors.authButtonGreen,
               ),
-              SizedBox(width: 18),
+
+              const SizedBox(width: 18),
+
               _LegendItem(
-                label: 'Generic plan',
+                label: context.l10n.planChartGenericPlan,
                 color: _genericPlanColor,
               ),
             ],
@@ -138,7 +142,10 @@ class _PlanComparisonChartState extends State<PlanComparisonChart>
               animation: _animation,
               builder: (context, child) {
                 return LineChart(
-                  _chartData(_animation.value),
+                  _chartData(
+                    context,
+                    _animation.value,
+                  ),
                   duration: Duration.zero,
                 );
               },
@@ -149,7 +156,10 @@ class _PlanComparisonChartState extends State<PlanComparisonChart>
     );
   }
 
-  LineChartData _chartData(double animationValue) {
+  LineChartData _chartData(
+      BuildContext context,
+      double animationValue,
+      ) {
     return LineChartData(
       minX: 0,
       maxX: 6,
@@ -201,7 +211,7 @@ class _PlanComparisonChartState extends State<PlanComparisonChart>
                 space: 8,
                 child: Text(
                   '${value.toInt()}%',
-                  style: TextStyle(
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: AppColors.authText.withValues(
                       alpha: 0.48,
                     ),
@@ -223,16 +233,19 @@ class _PlanComparisonChartState extends State<PlanComparisonChart>
 
               switch (value.toInt()) {
                 case 0:
-                  text = 'Start';
+                  text = context.l10n.planChartStart;
                   break;
+
                 case 2:
-                  text = 'Early';
+                  text = context.l10n.planChartEarly;
                   break;
+
                 case 4:
-                  text = 'Mid';
+                  text = context.l10n.planChartMid;
                   break;
+
                 case 6:
-                  text = 'Goal';
+                  text = context.l10n.planChartGoal;
                   break;
               }
 
@@ -245,7 +258,7 @@ class _PlanComparisonChartState extends State<PlanComparisonChart>
                 space: 7,
                 child: Text(
                   text,
-                  style: TextStyle(
+                  style: AppTextStyles.labelSmall.copyWith(
                     color: AppColors.authText.withValues(
                       alpha: 0.50,
                     ),
@@ -288,12 +301,13 @@ class _PlanComparisonChartState extends State<PlanComparisonChart>
                 right: 4,
                 bottom: 5,
               ),
-              style: const TextStyle(
+              style: AppTextStyles.labelSmall.copyWith(
                 color: AppColors.red,
                 fontSize: 10,
                 fontWeight: FontWeight.w800,
               ),
-              labelResolver: (_) => 'Your goal',
+              labelResolver: (_) =>
+              context.l10n.planChartYourGoal,
             ),
           ),
         ],
@@ -414,10 +428,12 @@ class _LegendItem extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
           ),
         ),
+
         const SizedBox(width: 7),
+
         Text(
           label,
-          style: TextStyle(
+          style: AppTextStyles.labelSmall.copyWith(
             color: AppColors.authText.withValues(
               alpha: 0.66,
             ),

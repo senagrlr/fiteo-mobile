@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/setup_progress_indicator.dart';
 
@@ -16,10 +19,12 @@ class GoalWeightScreen extends StatefulWidget {
   });
 
   @override
-  State<GoalWeightScreen> createState() => _GoalWeightScreenState();
+  State<GoalWeightScreen> createState() =>
+      _GoalWeightScreenState();
 }
 
-class _GoalWeightScreenState extends State<GoalWeightScreen> {
+class _GoalWeightScreenState
+    extends State<GoalWeightScreen> {
   static const double _minimumKg = 30;
   static const double _maximumKg = 200;
 
@@ -45,25 +50,34 @@ class _GoalWeightScreenState extends State<GoalWeightScreen> {
   }
 
   double get minimumDisplayedWeight {
-    return selectedUnit == 'KG' ? _minimumKg : _minimumLb;
+    return selectedUnit == 'KG'
+        ? _minimumKg
+        : _minimumLb;
   }
 
   double get maximumDisplayedWeight {
-    return selectedUnit == 'KG' ? _maximumKg : _maximumLb;
+    return selectedUnit == 'KG'
+        ? _maximumKg
+        : _maximumLb;
   }
 
   int get totalRulerItems {
-    return ((maximumDisplayedWeight - minimumDisplayedWeight) *
+    return ((maximumDisplayedWeight -
+        minimumDisplayedWeight) *
         _decimalMultiplier)
         .round() +
         1;
   }
 
   int get currentRulerIndex {
-    return ((displayedWeight - minimumDisplayedWeight) *
+    return ((displayedWeight -
+        minimumDisplayedWeight) *
         _decimalMultiplier)
         .round()
-        .clamp(0, totalRulerItems - 1);
+        .clamp(
+      0,
+      totalRulerItems - 1,
+    );
   }
 
   @override
@@ -88,10 +102,6 @@ class _GoalWeightScreenState extends State<GoalWeightScreen> {
     super.dispose();
   }
 
-  double _kgToLb(double kg) {
-    return kg * 2.2046226218;
-  }
-
   double _lbToKg(double lb) {
     return lb / 2.2046226218;
   }
@@ -102,7 +112,8 @@ class _GoalWeightScreenState extends State<GoalWeightScreen> {
   }
 
   int _indexFromScrollOffset(double offset) {
-    final index = (offset / _itemWidth).round();
+    final index =
+    (offset / _itemWidth).round();
 
     return index.clamp(
       0,
@@ -111,31 +122,39 @@ class _GoalWeightScreenState extends State<GoalWeightScreen> {
   }
 
   void _updateWeightFromScroll() {
-    if (!_scrollController.hasClients || !_isControllerReady) {
+    if (!_scrollController.hasClients ||
+        !_isControllerReady) {
       return;
     }
 
-    final index = _indexFromScrollOffset(
+    final index =
+    _indexFromScrollOffset(
       _scrollController.offset,
     );
 
     final value = _valueForIndex(index);
 
-    final newWeightKg = selectedUnit == 'KG'
+    final newWeightKg =
+    selectedUnit == 'KG'
         ? value
         : _lbToKg(value);
 
-    final clampedWeight = newWeightKg.clamp(
+    final clampedWeight =
+    newWeightKg.clamp(
       _minimumKg,
       _maximumKg,
     );
 
-    if ((selectedWeightKg - clampedWeight).abs() < 0.001) {
+    if ((selectedWeightKg -
+        clampedWeight)
+        .abs() <
+        0.001) {
       return;
     }
 
     setState(() {
-      selectedWeightKg = clampedWeight;
+      selectedWeightKg =
+          clampedWeight;
     });
   }
 
@@ -146,35 +165,46 @@ class _GoalWeightScreenState extends State<GoalWeightScreen> {
 
     _isControllerReady = true;
 
-    final targetOffset = currentRulerIndex * _itemWidth;
+    final targetOffset =
+        currentRulerIndex * _itemWidth;
 
     _scrollController.jumpTo(
       targetOffset.clamp(
         0,
-        _scrollController.position.maxScrollExtent,
+        _scrollController
+            .position
+            .maxScrollExtent,
       ),
     );
 
     _updateWeightFromScroll();
   }
 
-  Future<void> _snapToNearestValue() async {
+  Future<void>
+  _snapToNearestValue() async {
     if (!_scrollController.hasClients) {
       return;
     }
 
-    final index = _indexFromScrollOffset(
+    final index =
+    _indexFromScrollOffset(
       _scrollController.offset,
     );
 
-    final targetOffset = index * _itemWidth;
+    final targetOffset =
+        index * _itemWidth;
 
     await _scrollController.animateTo(
       targetOffset.clamp(
         0,
-        _scrollController.position.maxScrollExtent,
+        _scrollController
+            .position
+            .maxScrollExtent,
       ),
-      duration: const Duration(milliseconds: 180),
+      duration:
+      const Duration(
+        milliseconds: 180,
+      ),
       curve: Curves.easeOut,
     );
 
@@ -197,26 +227,36 @@ class _GoalWeightScreenState extends State<GoalWeightScreen> {
   }
 
   String _formattedWeight() {
-    return displayedWeight.toStringAsFixed(1);
+    return displayedWeight
+        .toStringAsFixed(1);
   }
 
   void _continue() {
     final roundedWeightKg =
-    double.parse(selectedWeightKg.toStringAsFixed(1));
+    double.parse(
+      selectedWeightKg
+          .toStringAsFixed(1),
+    );
 
-    widget.onContinue(roundedWeightKg);
+    widget.onContinue(
+      roundedWeightKg,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenWidth =
+        MediaQuery.sizeOf(context).width;
 
     return Scaffold(
-      backgroundColor: AppColors.onboardingBackground,
+      backgroundColor:
+      AppColors.onboardingBackground,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: screenWidth * 0.10,
+          padding:
+          EdgeInsets.symmetric(
+            horizontal:
+            screenWidth * 0.10,
           ),
           child: Column(
             children: [
@@ -230,16 +270,21 @@ class _GoalWeightScreenState extends State<GoalWeightScreen> {
               const SizedBox(height: 25),
 
               Align(
-                alignment: Alignment.centerLeft,
+                alignment:
+                Alignment.centerLeft,
                 child: GestureDetector(
                   onTap: widget.onBack,
-                  behavior: HitTestBehavior.opaque,
+                  behavior:
+                  HitTestBehavior.opaque,
                   child: const Padding(
-                    padding: EdgeInsets.all(4),
+                    padding:
+                    EdgeInsets.all(4),
                     child: Icon(
-                      Icons.arrow_back_ios_new,
+                      Icons
+                          .arrow_back_ios_new,
                       size: 24,
-                      color: AppColors.authText,
+                      color:
+                      AppColors.authText,
                     ),
                   ),
                 ),
@@ -247,50 +292,72 @@ class _GoalWeightScreenState extends State<GoalWeightScreen> {
 
               const SizedBox(height: 54),
 
-              const Text(
-                'What is your goal\nweight?',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.authText,
-                  fontSize: 30,
-                  height: 1.2,
-                  fontWeight: FontWeight.w700,
+              Text(
+                context
+                    .l10n
+                    .goalWeightTitle,
+                textAlign:
+                TextAlign.center,
+                style: AppTextStyles
+                    .headingLarge
+                    .copyWith(
+                  color:
+                  AppColors.authText,
                 ),
               ),
 
               const SizedBox(height: 24),
 
               _UnitSelector(
-                selectedUnit: selectedUnit,
-                onChanged: _changeUnit,
+                selectedUnit:
+                selectedUnit,
+                onChanged:
+                _changeUnit,
               ),
 
               const SizedBox(height: 52),
 
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment:
+                MainAxisAlignment
+                    .center,
+                crossAxisAlignment:
+                CrossAxisAlignment.end,
                 children: [
                   Text(
                     _formattedWeight(),
-                    style: const TextStyle(
-                      color: AppColors.authText,
+                    style: AppTextStyles
+                        .displayMedium
+                        .copyWith(
+                      color:
+                      AppColors.authText,
                       fontSize: 38,
                       height: 1,
-                      fontWeight: FontWeight.w800,
+                      fontWeight:
+                      FontWeight.w800,
                     ),
                   ),
+
                   const SizedBox(width: 5),
+
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 3),
+                    padding:
+                    const EdgeInsets
+                        .only(
+                      bottom: 3,
+                    ),
                     child: Text(
                       selectedUnit,
-                      style: TextStyle(
-                        color: AppColors.authText.withValues(
+                      style: AppTextStyles
+                          .labelMedium
+                          .copyWith(
+                        color: AppColors
+                            .authText
+                            .withValues(
                           alpha: 0.65,
                         ),
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
+                        fontWeight:
+                        FontWeight.w700,
                       ),
                     ),
                   ),
@@ -302,15 +369,23 @@ class _GoalWeightScreenState extends State<GoalWeightScreen> {
               SizedBox(
                 height: 74,
                 child: LayoutBuilder(
-                  builder: (context, constraints) {
+                  builder:
+                      (context, constraints) {
                     final sidePadding =
-                        (constraints.maxWidth - _itemWidth) / 2;
+                        (constraints
+                            .maxWidth -
+                            _itemWidth) /
+                            2;
 
                     return Stack(
-                      alignment: Alignment.topCenter,
+                      alignment:
+                      Alignment
+                          .topCenter,
                       children: [
-                        NotificationListener<ScrollNotification>(
-                          onNotification: (notification) {
+                        NotificationListener<
+                            ScrollNotification>(
+                          onNotification:
+                              (notification) {
                             if (notification
                             is ScrollUpdateNotification) {
                               _updateWeightFromScroll();
@@ -323,43 +398,68 @@ class _GoalWeightScreenState extends State<GoalWeightScreen> {
 
                             return false;
                           },
-                          child: ListView.builder(
-                            controller: _scrollController,
-                            scrollDirection: Axis.horizontal,
+                          child:
+                          ListView.builder(
+                            controller:
+                            _scrollController,
+                            scrollDirection:
+                            Axis.horizontal,
                             physics:
                             const ClampingScrollPhysics(),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: sidePadding,
+                            padding:
+                            EdgeInsets.symmetric(
+                              horizontal:
+                              sidePadding,
                             ),
-                            itemCount: totalRulerItems,
-                            itemExtent: _itemWidth,
-                            itemBuilder: (context, index) {
+                            itemCount:
+                            totalRulerItems,
+                            itemExtent:
+                            _itemWidth,
+                            itemBuilder:
+                                (context,
+                                index) {
                               final isWholeNumber =
-                                  index % 10 == 0;
+                                  index % 10 ==
+                                      0;
 
                               final isHalfNumber =
-                                  index % 5 == 0;
+                                  index % 5 ==
+                                      0;
 
-                              final tickHeight = isWholeNumber
+                              final tickHeight =
+                              isWholeNumber
                                   ? 34.0
                                   : isHalfNumber
                                   ? 26.0
                                   : 18.0;
 
                               return Align(
-                                alignment: Alignment.topCenter,
-                                child: Container(
-                                  width: isWholeNumber ? 2 : 1,
-                                  height: tickHeight,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.authText
+                                alignment:
+                                Alignment
+                                    .topCenter,
+                                child:
+                                Container(
+                                  width:
+                                  isWholeNumber
+                                      ? 2
+                                      : 1,
+                                  height:
+                                  tickHeight,
+                                  decoration:
+                                  BoxDecoration(
+                                    color:
+                                    AppColors
+                                        .authText
                                         .withValues(
-                                      alpha: isWholeNumber
+                                      alpha:
+                                      isWholeNumber
                                           ? 0.65
                                           : 0.40,
                                     ),
                                     borderRadius:
-                                    BorderRadius.circular(2),
+                                    BorderRadius.circular(
+                                      2,
+                                    ),
                                   ),
                                 ),
                               );
@@ -371,10 +471,15 @@ class _GoalWeightScreenState extends State<GoalWeightScreen> {
                           child: Container(
                             width: 3,
                             height: 48,
-                            decoration: BoxDecoration(
-                              color: AppColors.authButtonGreen,
+                            decoration:
+                            BoxDecoration(
+                              color: AppColors
+                                  .authButtonGreen,
                               borderRadius:
-                              BorderRadius.circular(3),
+                              BorderRadius
+                                  .circular(
+                                3,
+                              ),
                             ),
                           ),
                         ),
@@ -387,12 +492,18 @@ class _GoalWeightScreenState extends State<GoalWeightScreen> {
               const Spacer(),
 
               CustomButton(
-                text: 'Continue',
+                text: context
+                    .l10n
+                    .continueText,
                 onPressed: _continue,
-                backgroundColor: AppColors.authButtonGreen,
-                textColor: Colors.white,
+                backgroundColor:
+                AppColors
+                    .authButtonGreen,
+                textColor:
+                Colors.white,
                 height: 54,
-                width: screenWidth * 0.72,
+                width:
+                screenWidth * 0.72,
                 fontSize: 22,
               ),
 
@@ -405,7 +516,8 @@ class _GoalWeightScreenState extends State<GoalWeightScreen> {
   }
 }
 
-class _UnitSelector extends StatelessWidget {
+class _UnitSelector
+    extends StatelessWidget {
   final String selectedUnit;
   final ValueChanged<String> onChanged;
 
@@ -417,24 +529,34 @@ class _UnitSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(4),
+      padding:
+      const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.55),
-        borderRadius: BorderRadius.circular(24),
+        color: Colors.white
+            .withValues(alpha: 0.55),
+        borderRadius:
+        BorderRadius.circular(24),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize:
+        MainAxisSize.min,
         children: [
           _UnitButton(
             title: 'LB',
-            isSelected: selectedUnit == 'LB',
-            onTap: () => onChanged('LB'),
+            isSelected:
+            selectedUnit == 'LB',
+            onTap: () =>
+                onChanged('LB'),
           ),
+
           const SizedBox(width: 5),
+
           _UnitButton(
             title: 'KG',
-            isSelected: selectedUnit == 'KG',
-            onTap: () => onChanged('KG'),
+            isSelected:
+            selectedUnit == 'KG',
+            onTap: () =>
+                onChanged('KG'),
           ),
         ],
       ),
@@ -442,7 +564,8 @@ class _UnitSelector extends StatelessWidget {
   }
 }
 
-class _UnitButton extends StatelessWidget {
+class _UnitButton
+    extends StatelessWidget {
   final String title;
   final bool isSelected;
   final VoidCallback onTap;
@@ -457,26 +580,39 @@ class _UnitButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      behavior: HitTestBehavior.opaque,
+      behavior:
+      HitTestBehavior.opaque,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
+        duration:
+        const Duration(
+          milliseconds: 180,
+        ),
         width: 58,
         height: 30,
-        alignment: Alignment.center,
+        alignment:
+        Alignment.center,
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.authButtonGreen
+              ? AppColors
+              .authButtonGreen
               : Colors.white,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius:
+          BorderRadius.circular(18),
         ),
         child: Text(
           title,
-          style: TextStyle(
+          style: AppTextStyles
+              .labelMedium
+              .copyWith(
             color: isSelected
                 ? Colors.white
-                : AppColors.authText.withValues(alpha: 0.60),
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
+                : AppColors
+                .authText
+                .withValues(
+              alpha: 0.60,
+            ),
+            fontWeight:
+            FontWeight.w700,
           ),
         ),
       ),

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/goal_option_card.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/setup_progress_indicator.dart';
@@ -19,25 +22,40 @@ class WorkoutPreferenceScreen extends StatefulWidget {
       _WorkoutPreferenceScreenState();
 }
 
-class _WorkoutPreferenceScreenState extends State<WorkoutPreferenceScreen> {
+class _WorkoutPreferenceScreenState
+    extends State<WorkoutPreferenceScreen> {
   String? selectedWorkout;
-
-  final List<String> workoutOptions = const [
-    'Home Workouts',
-    'Gym',
-    'Walking / Cardio',
-    'Strength Training',
-  ];
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
+    final workoutOptions = [
+      (
+      value: 'Home Workouts',
+      label: context.l10n.workoutHome,
+      ),
+      (
+      value: 'Gym',
+      label: context.l10n.workoutGym,
+      ),
+      (
+      value: 'Walking / Cardio',
+      label: context.l10n.workoutWalkingCardio,
+      ),
+      (
+      value: 'Strength Training',
+      label: context.l10n.workoutStrengthTraining,
+      ),
+    ];
+
     return Scaffold(
       backgroundColor: AppColors.onboardingBackground,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.10),
+          padding: EdgeInsets.symmetric(
+            horizontal: screenWidth * 0.10,
+          ),
           child: Column(
             children: [
               const SizedBox(height: 18),
@@ -63,13 +81,10 @@ class _WorkoutPreferenceScreenState extends State<WorkoutPreferenceScreen> {
 
               const SizedBox(height: 60),
 
-              const Text(
-                'How do you like\nto work out?',
+              Text(
+                context.l10n.workoutPreferenceTitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 30,
-                  height: 1.2,
-                  fontWeight: FontWeight.w700,
+                style: AppTextStyles.headingLarge.copyWith(
                   color: AppColors.authText,
                 ),
               ),
@@ -78,13 +93,16 @@ class _WorkoutPreferenceScreenState extends State<WorkoutPreferenceScreen> {
 
               ...workoutOptions.map(
                     (option) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.only(
+                    bottom: 16,
+                  ),
                   child: GoalOptionCard(
-                    title: option,
-                    isSelected: selectedWorkout == option,
+                    title: option.label,
+                    isSelected:
+                    selectedWorkout == option.value,
                     onTap: () {
                       setState(() {
-                        selectedWorkout = option;
+                        selectedWorkout = option.value;
                       });
                     },
                   ),
@@ -94,10 +112,12 @@ class _WorkoutPreferenceScreenState extends State<WorkoutPreferenceScreen> {
               const Spacer(),
 
               CustomButton(
-                text: 'Continue',
+                text: context.l10n.continueText,
                 onPressed: selectedWorkout == null
                     ? null
-                    : () => widget.onContinue(selectedWorkout!),
+                    : () => widget.onContinue(
+                  selectedWorkout!,
+                ),
                 backgroundColor: AppColors.authButtonGreen,
                 textColor: Colors.white,
                 height: 54,

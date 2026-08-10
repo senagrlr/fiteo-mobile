@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 
 class AiNutritionPlan {
@@ -29,14 +31,10 @@ class AiNutritionPlan {
   }) {
     return AiNutritionPlan(
       calories: calories ?? this.calories,
-      proteinGrams:
-      proteinGrams ?? this.proteinGrams,
-      carbsGrams:
-      carbsGrams ?? this.carbsGrams,
-      fatsGrams:
-      fatsGrams ?? this.fatsGrams,
-      waterMl:
-      waterMl ?? this.waterMl,
+      proteinGrams: proteinGrams ?? this.proteinGrams,
+      carbsGrams: carbsGrams ?? this.carbsGrams,
+      fatsGrams: fatsGrams ?? this.fatsGrams,
+      waterMl: waterMl ?? this.waterMl,
     );
   }
 }
@@ -89,8 +87,7 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
     );
 
     _waterController = TextEditingController(
-      text: (widget.initialPlan.waterMl / 1000)
-          .toStringAsFixed(1),
+      text: (widget.initialPlan.waterMl / 1000).toStringAsFixed(1),
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -131,9 +128,7 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
     );
 
     final waterLiters = double.tryParse(
-      _waterController.text
-          .trim()
-          .replaceAll(',', '.'),
+      _waterController.text.trim().replaceAll(',', '.'),
     );
 
     if (calories == null ||
@@ -213,8 +208,7 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
                         color: AppColors.authText.withValues(
                           alpha: 0.22,
                         ),
-                        borderRadius:
-                        BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                     ),
 
@@ -224,8 +218,9 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
                       width: 72,
                       height: 72,
                       decoration: BoxDecoration(
-                        color: AppColors.authButtonGreen
-                            .withValues(alpha: 0.18),
+                        color: AppColors.authButtonGreen.withValues(
+                          alpha: 0.18,
+                        ),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -237,10 +232,10 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
 
                     const SizedBox(height: 18),
 
-                    const Text(
-                      'Your AI plan is ready!',
+                    Text(
+                      context.l10n.aiPlanReadyTitle,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: AppTextStyles.headingLarge.copyWith(
                         color: AppColors.authText,
                         fontSize: 27,
                         height: 1.15,
@@ -251,14 +246,12 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
                     const SizedBox(height: 10),
 
                     Text(
-                      'We created daily targets based on your goals. '
-                          'You can adjust the values before continuing.',
+                      context.l10n.aiPlanReadyDescription,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         color: AppColors.authText.withValues(
                           alpha: 0.72,
                         ),
-                        fontSize: 14,
                         height: 1.45,
                         fontWeight: FontWeight.w400,
                       ),
@@ -275,22 +268,20 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius:
-                        BorderRadius.circular(26),
+                        borderRadius: BorderRadius.circular(26),
                       ),
                       child: Column(
                         crossAxisAlignment:
                         CrossAxisAlignment.start,
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.only(
+                          Padding(
+                            padding: const EdgeInsets.only(
                               left: 4,
                             ),
                             child: Text(
-                              'Daily targets',
-                              style: TextStyle(
+                              context.l10n.dailyTargets,
+                              style: AppTextStyles.titleMedium.copyWith(
                                 color: AppColors.authText,
-                                fontSize: 18,
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
@@ -299,46 +290,37 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
                           const SizedBox(height: 16),
 
                           _PlanValueField(
-                            icon: Icons
-                                .local_fire_department_rounded,
-                            label: 'Calories',
-                            controller:
-                            _caloriesController,
+                            icon: Icons.local_fire_department_rounded,
+                            label: context.l10n.calories,
+                            controller: _caloriesController,
                             suffix: 'kcal',
                           ),
 
                           _PlanValueField(
-                            icon:
-                            Icons.fitness_center_rounded,
-                            label: 'Protein',
-                            controller:
-                            _proteinController,
+                            icon: Icons.fitness_center_rounded,
+                            label: context.l10n.protein,
+                            controller: _proteinController,
                             suffix: 'g',
                           ),
 
                           _PlanValueField(
                             icon: Icons.grain_rounded,
-                            label: 'Carbohydrates',
-                            controller:
-                            _carbsController,
+                            label: context.l10n.carbohydrates,
+                            controller: _carbsController,
                             suffix: 'g',
                           ),
 
                           _PlanValueField(
-                            icon:
-                            Icons.opacity_rounded,
-                            label: 'Fats',
-                            controller:
-                            _fatsController,
+                            icon: Icons.opacity_rounded,
+                            label: context.l10n.fats,
+                            controller: _fatsController,
                             suffix: 'g',
                           ),
 
                           _PlanValueField(
-                            icon:
-                            Icons.local_drink_outlined,
-                            label: 'Water',
-                            controller:
-                            _waterController,
+                            icon: Icons.local_drink_outlined,
+                            label: context.l10n.water,
+                            controller: _waterController,
                             suffix: 'L',
                             allowDecimal: true,
                             showBottomDivider: false,
@@ -350,10 +332,9 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
                     const SizedBox(height: 24),
 
                     CustomButton(
-                      text: 'Start my journey',
+                      text: context.l10n.startMyJourney,
                       onPressed: _submit,
-                      backgroundColor:
-                      AppColors.authButtonGreen,
+                      backgroundColor: AppColors.authButtonGreen,
                       textColor: Colors.white,
                       height: 54,
                       width: screenWidth * 0.72,
@@ -370,8 +351,7 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
           top: 0,
           child: IgnorePointer(
             child: ConfettiWidget(
-              confettiController:
-              _confettiController,
+              confettiController: _confettiController,
               blastDirectionality:
               BlastDirectionality.explosive,
               shouldLoop: false,
@@ -422,8 +402,9 @@ class _PlanValueField extends StatelessWidget {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: AppColors.authButtonGreen
-                    .withValues(alpha: 0.15),
+                color: AppColors.authButtonGreen.withValues(
+                  alpha: 0.15,
+                ),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -438,7 +419,7 @@ class _PlanValueField extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.authText,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -466,14 +447,14 @@ class _PlanValueField extends StatelessWidget {
                   FilteringTextInputFormatter.digitsOnly,
                 ],
                 textAlign: TextAlign.end,
-                style: const TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.authText,
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
                 ),
                 decoration: InputDecoration(
                   suffixText: suffix,
-                  suffixStyle: TextStyle(
+                  suffixStyle: AppTextStyles.labelSmall.copyWith(
                     color: AppColors.authText.withValues(
                       alpha: 0.58,
                     ),
@@ -481,8 +462,7 @@ class _PlanValueField extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                   filled: true,
-                  fillColor:
-                  AppColors.onboardingBackground,
+                  fillColor: AppColors.onboardingBackground,
                   isDense: true,
                   contentPadding:
                   const EdgeInsets.symmetric(
@@ -490,21 +470,17 @@ class _PlanValueField extends StatelessWidget {
                     vertical: 10,
                   ),
                   border: OutlineInputBorder(
-                    borderRadius:
-                    BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(16),
                     borderSide: BorderSide.none,
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius:
-                    BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(16),
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius:
-                    BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(16),
                     borderSide: const BorderSide(
-                      color:
-                      AppColors.authButtonGreen,
+                      color: AppColors.authButtonGreen,
                       width: 1.2,
                     ),
                   ),

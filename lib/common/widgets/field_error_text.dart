@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 
 class FieldErrorText extends StatelessWidget {
   final String message;
@@ -16,10 +17,7 @@ class FieldErrorText extends StatelessWidget {
         alignment: Alignment.centerLeft,
         child: Text(
           message,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.red,
-          ),
+          style: AppTextStyles.error,
         ),
       ),
     );

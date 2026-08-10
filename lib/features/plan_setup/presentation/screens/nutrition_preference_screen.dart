@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/goal_option_card.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/setup_progress_indicator.dart';
@@ -19,26 +22,44 @@ class NutritionPreferenceScreen extends StatefulWidget {
       _NutritionPreferenceScreenState();
 }
 
-class _NutritionPreferenceScreenState extends State<NutritionPreferenceScreen> {
+class _NutritionPreferenceScreenState
+    extends State<NutritionPreferenceScreen> {
   String? selectedNutrition;
-
-  final List<String> nutritionOptions = const [
-    'No Restrictions',
-    'High Protein',
-    'Vegetarian',
-    'Vegan',
-    'Balanced Diet',
-  ];
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
+    final nutritionOptions = [
+      (
+      value: 'No Restrictions',
+      label: context.l10n.nutritionNoRestrictions,
+      ),
+      (
+      value: 'High Protein',
+      label: context.l10n.nutritionHighProtein,
+      ),
+      (
+      value: 'Vegetarian',
+      label: context.l10n.nutritionVegetarian,
+      ),
+      (
+      value: 'Vegan',
+      label: context.l10n.nutritionVegan,
+      ),
+      (
+      value: 'Balanced Diet',
+      label: context.l10n.nutritionBalancedDiet,
+      ),
+    ];
+
     return Scaffold(
       backgroundColor: AppColors.onboardingBackground,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.10),
+          padding: EdgeInsets.symmetric(
+            horizontal: screenWidth * 0.10,
+          ),
           child: Column(
             children: [
               const SizedBox(height: 18),
@@ -64,13 +85,10 @@ class _NutritionPreferenceScreenState extends State<NutritionPreferenceScreen> {
 
               const SizedBox(height: 60),
 
-              const Text(
-                'What do you prefer\nto eat?',
+              Text(
+                context.l10n.nutritionPreferenceTitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 30,
-                  height: 1.2,
-                  fontWeight: FontWeight.w700,
+                style: AppTextStyles.headingLarge.copyWith(
                   color: AppColors.authText,
                 ),
               ),
@@ -79,13 +97,16 @@ class _NutritionPreferenceScreenState extends State<NutritionPreferenceScreen> {
 
               ...nutritionOptions.map(
                     (option) => Padding(
-                  padding: const EdgeInsets.only(bottom: 14),
+                  padding: const EdgeInsets.only(
+                    bottom: 14,
+                  ),
                   child: GoalOptionCard(
-                    title: option,
-                    isSelected: selectedNutrition == option,
+                    title: option.label,
+                    isSelected:
+                    selectedNutrition == option.value,
                     onTap: () {
                       setState(() {
-                        selectedNutrition = option;
+                        selectedNutrition = option.value;
                       });
                     },
                   ),
@@ -95,11 +116,14 @@ class _NutritionPreferenceScreenState extends State<NutritionPreferenceScreen> {
               const Spacer(),
 
               CustomButton(
-                text: 'Continue',
+                text: context.l10n.continueText,
                 onPressed: selectedNutrition == null
                     ? null
-                    : () => widget.onContinue(selectedNutrition!),
-                backgroundColor: AppColors.authButtonGreen,
+                    : () => widget.onContinue(
+                  selectedNutrition!,
+                ),
+                backgroundColor:
+                AppColors.authButtonGreen,
                 textColor: Colors.white,
                 height: 54,
                 width: screenWidth * 0.72,

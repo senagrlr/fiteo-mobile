@@ -1,20 +1,22 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fiteo_myapp/app/router/app_routes.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
+import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
 import 'package:fiteo_myapp/common/widgets/common_app_bar.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/common/widgets/custom_text_field.dart';
-import 'package:fiteo_myapp/features/auth/data/auth_repository.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fiteo_myapp/features/auth/utils/auth_messages.dart';
-import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
 import 'package:fiteo_myapp/common/widgets/field_error_text.dart';
+import 'package:fiteo_myapp/features/auth/data/auth_repository.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 
   @override
-  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+  State<ForgotPasswordScreen> createState() =>
+      _ForgotPasswordScreenState();
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
@@ -39,7 +41,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     if (email.isEmpty) {
       setState(() {
-        emailError = AuthMessages.enterEmail;
+        emailError = context.l10n.enterEmail;
       });
       return;
     }
@@ -53,20 +55,28 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
       setState(() => _isLoading = false);
 
-      AppSnackbar.showInfo(context, AuthMessages.resetLinkSent);
+      AppSnackbar.showInfo(
+        context,
+        context.l10n.resetLinkSent,
+      );
 
-      Navigator.pushReplacementNamed(context, AppRoutes.login);
-
+      Navigator.pushReplacementNamed(
+        context,
+        AppRoutes.login,
+      );
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
 
       setState(() => _isLoading = false);
 
       final message = e.code == 'invalid-email'
-          ? AuthMessages.invalidEmail
-          : AuthMessages.resetLinkCouldNotSend;
+          ? context.l10n.invalidEmail
+          : context.l10n.resetLinkCouldNotSend;
 
-      AppSnackbar.showError(context, message);
+      AppSnackbar.showError(
+        context,
+        message,
+      );
     }
   }
 
@@ -76,23 +86,21 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-
       appBar: const CommonAppBar(),
-
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.10),
+          padding: EdgeInsets.symmetric(
+            horizontal: screenWidth * 0.10,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 120),
 
-              const Text(
-                'Forgot password?',
+              Text(
+                context.l10n.forgotPasswordTitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.w700,
+                style: AppTextStyles.displayMedium.copyWith(
                   color: AppColors.authText,
                 ),
               ),
@@ -100,37 +108,41 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               const SizedBox(height: 30),
 
               CustomTextField(
-                hintText: 'Mail',
+                hintText: context.l10n.email,
                 controller: _emailController,
                 onChanged: (_) {
-                  setState(() {
-                    emailError = null;
-                  });
+                  if (emailError != null) {
+                    setState(() {
+                      emailError = null;
+                    });
+                  }
                 },
               ),
 
               if (emailError != null)
-                FieldErrorText(message: emailError!),
+                FieldErrorText(
+                  message: emailError!,
+                ),
 
               const SizedBox(height: 50),
 
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
-                  'Enter your email address and we’ll send you a link to reset your password.',
+                  context.l10n.forgotPasswordDescription,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF5E4A4A),
-                    height: 1.5,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
 
               CustomButton(
-                text: _isLoading ? 'Sending...' : 'Send link',
+                text: _isLoading
+                    ? context.l10n.sending
+                    : context.l10n.sendLink,
                 onPressed: _isLoading ? null : _sendResetLink,
                 backgroundColor: AppColors.authButtonGreen,
                 textColor: Colors.white,

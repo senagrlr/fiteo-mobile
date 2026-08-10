@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/plan_comparison_chart.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/setup_progress_indicator.dart';
@@ -56,14 +58,11 @@ class PlanPreviewScreen extends StatelessWidget {
 
               const SizedBox(height: 28),
 
-              const Text(
-                'Your goals deserve\na plan made for you',
+              Text(
+                context.l10n.planPreviewTitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: AppTextStyles.headingLarge.copyWith(
                   color: AppColors.authText,
-                  fontSize: 30,
-                  height: 1.2,
-                  fontWeight: FontWeight.w700,
                 ),
               ),
 
@@ -74,24 +73,21 @@ class PlanPreviewScreen extends StatelessWidget {
               const SizedBox(height: 26),
 
               Text(
-                'Generic plans often lose momentum over time. '
-                    'Fiteo adapts to your goals and lifestyle to help '
-                    'you keep progressing toward your goal.',
+                context.l10n.planPreviewDescription,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.authText.withValues(
                     alpha: 0.78,
                   ),
-                  fontSize: 15,
                   height: 1.50,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
 
               const SizedBox(height: 34),
 
               CustomButton(
-                text: 'Create my plan',
+                text: context.l10n.createMyPlan,
                 onPressed: onCreatePlan,
                 backgroundColor: AppColors.authButtonGreen,
                 textColor: Colors.white,

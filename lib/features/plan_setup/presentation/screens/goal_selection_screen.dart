@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/goal_option_card.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/setup_progress_indicator.dart';
@@ -13,40 +16,48 @@ class GoalSelectionScreen extends StatefulWidget {
   });
 
   @override
-  State<GoalSelectionScreen> createState() => _GoalSelectionScreenState();
+  State<GoalSelectionScreen> createState() =>
+      _GoalSelectionScreenState();
 }
 
-class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
+class _GoalSelectionScreenState
+    extends State<GoalSelectionScreen> {
   String? selectedGoal;
-
-  final List<Map<String, String>> goals = const [
-    {
-      'title': 'Lose Weight',
-      'emoji': '🏃',
-    },
-    {
-      'title': 'Build Muscle',
-      'emoji': '💪',
-    },
-    {
-      'title': 'Maintain Fitness',
-      'emoji': '⚖️',
-    },
-    {
-      'title': 'Improve Health',
-      'emoji': '❤️',
-    },
-  ];
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
+    final goals = [
+      (
+      value: 'Lose Weight',
+      label: context.l10n.goalLoseWeight,
+      emoji: '🏃',
+      ),
+      (
+      value: 'Build Muscle',
+      label: context.l10n.goalBuildMuscle,
+      emoji: '💪',
+      ),
+      (
+      value: 'Maintain Fitness',
+      label: context.l10n.goalMaintainFitness,
+      emoji: '⚖️',
+      ),
+      (
+      value: 'Improve Health',
+      label: context.l10n.goalImproveHealth,
+      emoji: '❤️',
+      ),
+    ];
+
     return Scaffold(
       backgroundColor: AppColors.onboardingBackground,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.10),
+          padding: EdgeInsets.symmetric(
+            horizontal: screenWidth * 0.10,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -59,13 +70,10 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
 
               const SizedBox(height: 80),
 
-              const Text(
-                'What is your main goal?',
+              Text(
+                context.l10n.planSetupMainGoalTitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 30,
-                  height: 1.2,
-                  fontWeight: FontWeight.w700,
+                style: AppTextStyles.headingLarge.copyWith(
                   color: AppColors.authText,
                 ),
               ),
@@ -74,13 +82,16 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
 
               ...goals.map(
                     (goal) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.only(
+                    bottom: 16,
+                  ),
                   child: GoalOptionCard(
-                    title: '${goal['emoji']}  ${goal['title']}',
-                    isSelected: selectedGoal == goal['title'],
+                    title: '${goal.emoji}  ${goal.label}',
+                    isSelected:
+                    selectedGoal == goal.value,
                     onTap: () {
                       setState(() {
-                        selectedGoal = goal['title'];
+                        selectedGoal = goal.value;
                       });
                     },
                   ),
@@ -90,11 +101,14 @@ class _GoalSelectionScreenState extends State<GoalSelectionScreen> {
               const Spacer(),
 
               CustomButton(
-                text: 'Continue',
+                text: context.l10n.continueText,
                 onPressed: selectedGoal == null
                     ? null
-                    : () => widget.onContinue(selectedGoal!),
-                backgroundColor: AppColors.authButtonGreen,
+                    : () => widget.onContinue(
+                  selectedGoal!,
+                ),
+                backgroundColor:
+                AppColors.authButtonGreen,
                 textColor: Colors.white,
                 height: 54,
                 width: screenWidth * 0.72,

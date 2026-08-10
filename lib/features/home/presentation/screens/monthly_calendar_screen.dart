@@ -188,19 +188,6 @@ class _MonthlyCalendarScreenState
                 ],
               ),
 
-              const SizedBox(height: 54),
-
-              const Center(
-                child: Text(
-                  'Monthly calendar',
-                  style: TextStyle(
-                    color: AppColors.homeBrown,
-                    fontSize: 21,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-
               const SizedBox(height: 36),
 
               MonthlyCalendarWidget(

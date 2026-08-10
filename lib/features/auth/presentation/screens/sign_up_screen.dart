@@ -1,16 +1,17 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fiteo_myapp/app/router/app_routes.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
+import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/common/widgets/custom_text_field.dart';
-import 'package:fiteo_myapp/features/auth/presentation/screens/login_screen.dart';
-import 'package:fiteo_myapp/features/auth/data/auth_repository.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fiteo_myapp/features/auth/utils/auth_messages.dart';
-import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
 import 'package:fiteo_myapp/common/widgets/field_error_text.dart';
+import 'package:fiteo_myapp/features/auth/data/auth_repository.dart';
+import 'package:fiteo_myapp/features/auth/presentation/screens/login_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -28,6 +29,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final AuthRepository _authRepository = AuthRepository();
 
   bool _isLoading = false;
+
   String? emailError;
   String? _passwordError;
   String? birthDateError;
@@ -38,6 +40,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _emailController.dispose();
     _usernameController.dispose();
     _birthDateController.dispose();
+
     super.dispose();
   }
 
@@ -50,11 +53,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final month = int.tryParse(parts[1]);
     final year = int.tryParse(parts[2]);
 
-    if (day == null || month == null || year == null) return null;
+    if (day == null || month == null || year == null) {
+      return null;
+    }
 
     final date = DateTime(year, month, day);
 
-    if (date.day != day || date.month != month || date.year != year) {
+    if (date.day != day ||
+        date.month != month ||
+        date.year != year) {
       return null;
     }
 
@@ -73,15 +80,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
       birthDateError = null;
     });
 
-
-    if (email.isEmpty || username.isEmpty || password.isEmpty || birthDate.isEmpty) {
-      AppSnackbar.showError(context, AuthMessages.fillAllFields);
+    if (email.isEmpty ||
+        username.isEmpty ||
+        password.isEmpty ||
+        birthDate.isEmpty) {
+      AppSnackbar.showError(
+        context,
+        context.l10n.fillAllFields,
+      );
       return;
     }
 
     if (password.length < 8) {
       setState(() {
-        _passwordError = AuthMessages.passwordTooShort;
+        _passwordError = context.l10n.passwordTooShort;
       });
       return;
     }
@@ -90,17 +102,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     if (parsedBirthDate == null) {
       setState(() {
-        birthDateError = AuthMessages.invalidBirthDate;
+        birthDateError = context.l10n.invalidBirthDate;
       });
       return;
     }
 
     final today = DateTime.now();
-    final todayOnly = DateTime(today.year, today.month, today.day);
+    final todayOnly = DateTime(
+      today.year,
+      today.month,
+      today.day,
+    );
 
     if (parsedBirthDate.isAfter(todayOnly)) {
       setState(() {
-        birthDateError = AuthMessages.invalidBirthDate;
+        birthDateError = context.l10n.invalidBirthDate;
       });
       return;
     }
@@ -119,31 +135,46 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       if (!mounted) return;
 
-      setState(() => _isLoading = false);
+      setState(() {
+        _isLoading = false;
+      });
 
-      Navigator.pushReplacementNamed(context, AppRoutes.verifyEmail);
-    } catch (e) {
+      Navigator.pushReplacementNamed(
+        context,
+        AppRoutes.verifyEmail,
+      );
+    } on FirebaseAuthException catch (e) {
       if (!mounted) return;
 
       setState(() {
         _isLoading = false;
       });
 
-      if (e is FirebaseAuthException) {
-        if (e.code == 'email-already-in-use') {
-          setState(() {
-            emailError = AuthMessages.emailAlreadyRegistered;
-          });
-        } else if (e.code == 'invalid-email') {
-          setState(() {
-            emailError = AuthMessages.invalidEmail;
-          });
-        } else {
-          AppSnackbar.showError(context, authErrorMessage(e));
-        }
+      if (e.code == 'email-already-in-use') {
+        setState(() {
+          emailError = context.l10n.emailAlreadyRegistered;
+        });
+      } else if (e.code == 'invalid-email') {
+        setState(() {
+          emailError = context.l10n.invalidEmail;
+        });
       } else {
-        AppSnackbar.showError(context, AuthMessages.somethingWentWrong);
+        AppSnackbar.showError(
+          context,
+          context.l10n.somethingWentWrong,
+        );
       }
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      AppSnackbar.showError(
+        context,
+        context.l10n.somethingWentWrong,
+      );
     }
   }
 
@@ -156,31 +187,38 @@ class _SignUpScreenState extends State<SignUpScreen> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.10),
+          padding: EdgeInsets.symmetric(
+            horizontal: screenWidth * 0.10,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 60),
-              const Text(
-                'Sign up',
-                style: TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.w700,
+              const SizedBox(height:70),
+
+              Text(
+                context.l10n.signUp,
+                style: AppTextStyles.displayMedium.copyWith(
                   color: AppColors.authText,
                 ),
               ),
+
               const SizedBox(height: 8),
+
               RichText(
                 text: TextSpan(
-                  style: const TextStyle(
-                    fontSize: 18,
+                  style: AppTextStyles.bodyLarge.copyWith(
                     color: AppColors.authText,
                   ),
                   children: [
-                    const TextSpan(text: 'Already have an account? '),
                     TextSpan(
-                      text: 'Log in',
-                      style: const TextStyle(fontWeight: FontWeight.w700),
+                      text: '${context.l10n.alreadyHaveAccount} ',
+                    ),
+                    TextSpan(
+                      text: context.l10n.login,
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        color: AppColors.authText,
+                        fontWeight: FontWeight.w700,
+                      ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () {
                           Navigator.push(
@@ -194,10 +232,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 32),
+
+              const SizedBox(height: 35),
 
               CustomTextField(
-                hintText: 'Mail',
+                hintText: context.l10n.email,
                 controller: _emailController,
                 onChanged: (_) {
                   if (emailError != null) {
@@ -209,23 +248,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
 
               if (emailError != null)
-                FieldErrorText(message: emailError!),
+                FieldErrorText(
+                  message: emailError!,
+                ),
 
               const SizedBox(height: 16),
 
               CustomTextField(
-                hintText: 'Username',
+                hintText: context.l10n.username,
                 controller: _usernameController,
               ),
 
               const SizedBox(height: 16),
 
               CustomTextField(
-                hintText: 'Password',
+                hintText: context.l10n.password,
                 isPassword: true,
                 controller: _passwordController,
                 onChanged: (value) {
-                  if (_passwordError != null && value.length >= 8) {
+                  if (_passwordError != null &&
+                      value.length >= 8) {
                     setState(() {
                       _passwordError = null;
                     });
@@ -234,12 +276,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
 
               if (_passwordError != null)
-                FieldErrorText(message: _passwordError!),
+                FieldErrorText(
+                  message: _passwordError!,
+                ),
 
               const SizedBox(height: 16),
 
               CustomTextField(
-                hintText: 'Date of Birth',
+                hintText: context.l10n.dateOfBirth,
                 controller: _birthDateController,
                 keyboardType: TextInputType.number,
                 inputFormatters: [
@@ -255,33 +299,36 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
 
               if (birthDateError != null)
-                FieldErrorText(message: birthDateError!),
+                FieldErrorText(
+                  message: birthDateError!,
+                ),
 
               const SizedBox(height: 24),
 
               Row(
-                children: const [
-                  Expanded(
+                children: [
+                  const Expanded(
                     child: Divider(
                       color: AppColors.authText,
                       thickness: 1.2,
-                      endIndent: 20,
-                      indent: 20,
+                      endIndent: 24,
+                      indent: 50,
                     ),
                   ),
+
                   Text(
-                    'or',
-                    style: TextStyle(
+                    context.l10n.or,
+                    style: AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.authText,
-                      fontSize: 16,
                     ),
                   ),
-                  Expanded(
+
+                  const Expanded(
                     child: Divider(
                       color: AppColors.authText,
                       thickness: 1.2,
-                      indent: 20,
-                      endIndent: 20,
+                      indent: 24,
+                      endIndent: 50,
                     ),
                   ),
                 ],
@@ -292,34 +339,49 @@ class _SignUpScreenState extends State<SignUpScreen> {
               GestureDetector(
                 onTap: () async {
                   try {
-                    final userCredential = await _authRepository.signInWithGoogle();
+                    final userCredential =
+                    await _authRepository.signInWithGoogle();
 
                     if (!context.mounted) return;
 
-                    if (userCredential == null || userCredential.user == null) {
-                      AppSnackbar.showError(context, AuthMessages.googleSignInFailed);
+                    if (userCredential == null ||
+                        userCredential.user == null) {
+                      AppSnackbar.showError(
+                        context,
+                        context.l10n.googleSignInFailed,
+                      );
                       return;
                     }
 
                     final user = userCredential.user!;
 
                     final isOnboardingCompleted =
-                    await _authRepository.isOnboardingCompleted(user.uid);
+                    await _authRepository.isOnboardingCompleted(
+                      user.uid,
+                    );
 
                     if (!context.mounted) return;
 
                     if (isOnboardingCompleted) {
-                      Navigator.pushReplacementNamed(context, AppRoutes.main);
+                      Navigator.pushReplacementNamed(
+                        context,
+                        AppRoutes.main,
+                      );
                     } else {
-                      Navigator.pushReplacementNamed(context, AppRoutes.planSetup);
+                      Navigator.pushReplacementNamed(
+                        context,
+                        AppRoutes.planSetup,
+                      );
                     }
-                  } catch (e) {
+                  } catch (_) {
                     if (!context.mounted) return;
 
-                    AppSnackbar.showError(context, AuthMessages.googleSignInFailed);
+                    AppSnackbar.showError(
+                      context,
+                      context.l10n.googleSignInFailed,
+                    );
                   }
                 },
-
                 child: Container(
                   width: screenWidth * 0.42,
                   height: 44,
@@ -335,11 +397,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         width: 30,
                         height: 30,
                       ),
+
                       const SizedBox(width: 10),
-                      const Text(
+
+                      Text(
                         'Google',
-                        style: TextStyle(
-                          fontSize: 16,
+                        style: AppTextStyles.bodyMedium.copyWith(
                           color: AppColors.authText,
                           fontWeight: FontWeight.w500,
                         ),
@@ -349,26 +412,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
 
-              const SizedBox(height: 26),
+              const SizedBox(height: 40),
 
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                ),
                 child: Text(
-                  'By signing up, you agree to our Terms of\nService and Privacy Policy.',
+                  context.l10n.signUpAgreement,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF5E4A4A),
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textMuted,
                     height: 1.5,
                   ),
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
 
               CustomButton(
-                text: _isLoading ? 'Loading...' : 'Sign up',
-                onPressed: _isLoading ? null : _validateAndContinue,
+                text: _isLoading
+                    ? context.l10n.loading
+                    : context.l10n.signUp,
+                onPressed:
+                _isLoading ? null : _validateAndContinue,
                 backgroundColor: AppColors.authButtonGreen,
                 textColor: Colors.white,
                 height: 54,
@@ -391,7 +458,8 @@ class BirthDateInputFormatter extends TextInputFormatter {
       TextEditingValue oldValue,
       TextEditingValue newValue,
       ) {
-    final digitsOnly = newValue.text.replaceAll(RegExp(r'\D'), '');
+    final digitsOnly =
+    newValue.text.replaceAll(RegExp(r'\D'), '');
 
     final buffer = StringBuffer();
 
@@ -399,6 +467,7 @@ class BirthDateInputFormatter extends TextInputFormatter {
       if (i == 2 || i == 4) {
         buffer.write('/');
       }
+
       buffer.write(digitsOnly[i]);
     }
 
@@ -406,7 +475,9 @@ class BirthDateInputFormatter extends TextInputFormatter {
 
     return TextEditingValue(
       text: text,
-      selection: TextSelection.collapsed(offset: text.length),
+      selection: TextSelection.collapsed(
+        offset: text.length,
+      ),
     );
   }
 }

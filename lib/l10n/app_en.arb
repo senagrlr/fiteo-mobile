@@ -1,0 +1,189 @@
+{
+  "@@locale": "en",
+
+  "appName": "Fiteo",
+
+  "continueText": "Continue",
+  "back": "Back",
+  "cancel": "Cancel",
+  "save": "Save",
+  "done": "Done",
+  "close": "Close",
+
+  "email": "Email",
+  "password": "Password",
+
+  "login": "Log In",
+  "welcomeBack": "Welcome Back",
+  "loginSubtitle": "Log in to continue your journey.",
+
+  "emailAndPasswordEmpty": "Please enter your email and password.",
+  "wrongEmailOrPassword": "Incorrect email or password.",
+  "or": "or",
+  "googleSignInFailed": "Google sign-in failed. Please try again.",
+  "dontHaveAccount": "Don’t have an account?",
+  "signUp": "Sign up",
+  "loading": "Loading...",
+
+  "username": "Username",
+  "dateOfBirth": "Date of Birth",
+  "alreadyHaveAccount": "Already have an account?",
+  "fillAllFields": "Please fill in all fields.",
+  "passwordTooShort": "Password must be at least 8 characters.",
+  "invalidBirthDate": "Please enter a valid date of birth.",
+  "emailAlreadyRegistered": "An account with this email already exists.",
+  "signUpAgreement": "By signing up, you agree to our Terms of Service and Privacy Policy.",
+
+  "verifyEmailTitle": "E-postanı Doğrula",
+  "verifyEmailDescription": "E-posta adresine bir doğrulama bağlantısı gönderdik. Devam etmek için gelen kutunu kontrol et ve bağlantıya dokun.",
+  "resendEmail": "E-postayı Tekrar Gönder",
+  "resendEmailWithTime": "E-postayı Tekrar Gönder ({time})",
+  "checking": "Kontrol Ediliyor...",
+  "verify": "Doğrula",
+  "emailVerifiedSuccessfully": "E-posta adresin başarıyla doğrulandı.",
+  "emailNotVerifiedYet": "E-posta adresin henüz doğrulanmadı.",
+  "verificationEmailSentAgain": "Doğrulama e-postası tekrar gönderildi.",
+  "verificationEmailCouldNotSend": "Doğrulama e-postası gönderilemedi. Lütfen tekrar dene.",
+  "@resendEmailWithTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+
+  "forgotPassword": "Forgot Password?",
+  "forgotPasswordTitle": "Forgot Password",
+  "forgotPasswordDescription": "Enter your email address and we'll send you instructions to reset your password.",
+
+  "enterEmail": "Please enter your email address.",
+  "emailRequired": "Email is required.",
+  "invalidEmail": "Please enter a valid email address.",
+
+  "onboardingPage1Title": "A new you begins here but staying motivated isn't always easy.",
+  "onboardingPage2Title": "You want to live healthier but tracking can be overwhelming.",
+  "onboardingPage3Title": "What if you had an AI coach that makes this journey easier for you?",
+  "onboardingMeetFiteo": "Meet Fiteo",
+  "onboardingPage4Title": "Your personal nutrition and fitness companion.",
+  "skip": "Skip",
+
+  "planSetupMainGoalTitle": "What is your main goal?",
+  "goalLoseWeight": "Lose Weight",
+  "goalBuildMuscle": "Build Muscle",
+  "goalMaintainFitness": "Maintain Fitness",
+  "goalImproveHealth": "Improve Health",
+
+  "planSetupAboutYourselfTitle": "Tell us about yourself",
+  "age": "Age",
+  "height": "Height",
+  "weight": "Weight",
+  "gender": "Gender",
+  "female": "Female",
+  "male": "Male",
+
+  "activityLevelTitle": "How active are you?",
+  "activitySedentary": "Sedentary",
+  "activityLightlyActive": "Lightly Active",
+  "activityModeratelyActive": "Moderately Active",
+  "activityVeryActive": "Very Active",
+
+  "nutritionPreferenceTitle": "What do you prefer to eat?",
+  "nutritionNoRestrictions": "No Restrictions",
+  "nutritionHighProtein": "High Protein",
+  "nutritionVegetarian": "Vegetarian",
+  "nutritionVegan": "Vegan",
+  "nutritionBalancedDiet": "Balanced Diet",
+
+  "workoutPreferenceTitle": "How do you like to work out?",
+  "workoutHome": "Home Workouts",
+  "workoutGym": "Gym",
+  "workoutWalkingCardio": "Walking / Cardio",
+  "workoutStrengthTraining": "Strength Training",
+
+  "goalWeightTitle": "What is your goal weight?",
+
+  "planPreviewTitle": "Your goals deserve a plan made for you",
+  "planPreviewDescription": "Generic plans often lose momentum over time. Fiteo adapts to your goals and lifestyle to help you keep progressing toward your goal.",
+  "createMyPlan": "Create my plan",
+
+  "planProgressOverTime": "Your progress over time",
+  "fiteoPlan": "Fiteo plan",
+  "genericPlan": "Generic plan",
+  "chartStart": "Start",
+  "chartEarly": "Early",
+  "chartMid": "Mid",
+  "chartGoal": "Goal",
+  "yourGoal": "Your goal",
+
+  "customizeYourPlan": "Customize your plan",
+  "analyzingGoals": "Analyzing goals...",
+  "calculatingCalories": "Calculating calories...",
+  "buildingMealSuggestions": "Building meal suggestions...",
+  "designingWorkoutRoadmap": "Designing workout roadmap...",
+  "yourPlanIsReady": "Your plan is ready!",
+  "savingPersonalizedPlan": "Saving your personalized plan...",
+  "thisMayTakeFewSeconds": "This may take a few seconds.",
+  "planCouldNotBeSaved": "Your plan could not be saved.",
+
+  "aiPlanReadyTitle": "Your AI plan is ready!",
+  "aiPlanReadyDescription": "We created daily targets based on your goals. You can adjust the values before continuing.",
+  "dailyTargets": "Daily targets",
+  "carbohydrates": "Carbohydrates",
+  "fats": "Fats",
+  "water": "Water",
+  "startMyJourney": "Start my journey",
+
+  "planChartTitle": "Your progress over time",
+  "planChartFiteoPlan": "Fiteo plan",
+  "planChartGenericPlan": "Generic plan",
+  "planChartStart": "Start",
+  "planChartEarly": "Early",
+  "planChartMid": "Mid",
+  "planChartGoal": "Goal",
+  "planChartYourGoal": "Your goal",
+
+  "sendResetLink": "Send Reset Link",
+  "sendLink": "Send Link",
+  "sending": "Sending...",
+
+  "resetLinkSent": "Password reset link sent. Check your email.",
+  "resetLinkCouldNotSend": "Password reset link could not be sent. Please try again.",
+
+  "passwordRequired": "Password is required.",
+  "somethingWentWrong": "Something went wrong. Please try again.",
+
+  "dailySummary": "Daily Summary",
+  "calories": "Calories",
+  "protein": "Protein",
+  "carbs": "Carbs",
+  "fat": "Fat",
+
+  "addFood": "Add Food",
+
+  "breakfast": "Breakfast",
+  "lunch": "Lunch",
+  "dinner": "Dinner",
+  "snack": "Snack",
+
+  "weeklyReport": "Weekly Report",
+  "monthlyReport": "Monthly Report",
+  "progress": "Progress",
+  "workout": "Workout",
+  "profile": "Profile",
+
+  "recipeCouldNotBeCreated": "Recipe could not be created. Please try again.",
+  "couldNotAddRecipeToMeals": "Could not add recipe to meals.",
+  "dailyAiMessageLimitReached": "Daily AI message limit reached.",
+
+  "recipeAddedToMeal": "{recipeName} added to {mealType}.",
+  "@recipeAddedToMeal": {
+    "placeholders": {
+      "recipeName": {
+        "type": "String"
+      },
+      "mealType": {
+        "type": "String"
+      }
+    }
+  }
+}

@@ -8,6 +8,8 @@ import 'package:lottie/lottie.dart';
 
 import 'package:fiteo_myapp/app/router/app_routes.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/plan_ready_sheet.dart';
 
@@ -26,13 +28,6 @@ class AiPlanLoadingScreen extends StatefulWidget {
 }
 
 class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
-  final List<String> statuses = const [
-    'Analyzing goals...',
-    'Calculating calories...',
-    'Building meal suggestions...',
-    'Designing workout roadmap...',
-  ];
-
   Timer? _statusTimer;
 
   int currentStatusIndex = 0;
@@ -160,7 +155,7 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
           (timer) async {
         if (!mounted) return;
 
-        if (currentStatusIndex < statuses.length - 1) {
+        if (currentStatusIndex < 3) {
           setState(() {
             currentStatusIndex++;
           });
@@ -241,20 +236,23 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
       await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
-          .set({
-        'userPreferences': updatedPreferences,
-        'nutritionPlan': {
-          'dailyCalories': generatedPlan.calories,
-          'proteinGrams': generatedPlan.proteinGrams,
-          'carbsGrams': generatedPlan.carbsGrams,
-          'fatsGrams': generatedPlan.fatsGrams,
-          'waterMl': generatedPlan.waterMl,
-          'createdAt': FieldValue.serverTimestamp(),
+          .set(
+        {
+          'userPreferences': updatedPreferences,
+          'nutritionPlan': {
+            'dailyCalories': generatedPlan.calories,
+            'proteinGrams': generatedPlan.proteinGrams,
+            'carbsGrams': generatedPlan.carbsGrams,
+            'fatsGrams': generatedPlan.fatsGrams,
+            'waterMl': generatedPlan.waterMl,
+            'createdAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          },
+          'isOnboardingCompleted': true,
           'updatedAt': FieldValue.serverTimestamp(),
         },
-        'isOnboardingCompleted': true,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+        SetOptions(merge: true),
+      );
 
       if (!mounted) return;
 
@@ -272,13 +270,22 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
 
       AppSnackbar.showError(
         context,
-        'Your plan could not be saved.',
+        context.l10n.planCouldNotBeSaved,
       );
 
       didOpenPlanSheet = false;
 
       await _showPlanReadySheet();
     }
+  }
+
+  List<String> _localizedStatuses(BuildContext context) {
+    return [
+      context.l10n.analyzingGoals,
+      context.l10n.calculatingCalories,
+      context.l10n.buildingMealSuggestions,
+      context.l10n.designingWorkoutRoadmap,
+    ];
   }
 
   @override
@@ -291,6 +298,8 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final screenHeight = MediaQuery.sizeOf(context).height;
+
+    final statuses = _localizedStatuses(context);
 
     return PopScope(
       canPop: false,
@@ -310,8 +319,6 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
 
                 Center(
                   child: Transform.translate(
-                    // Lottie dosyasının iç çizimi biraz solda olduğu
-                    // için yalnızca animasyonu sağa taşıyoruz.
                     offset: const Offset(10, 0),
                     child: SizedBox(
                       width: 250,
@@ -328,15 +335,12 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
 
                 const SizedBox(height: 26),
 
-                const Center(
+                Center(
                   child: Text(
-                    'Customize your plan',
+                    context.l10n.customizeYourPlan,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: AppTextStyles.headingLarge.copyWith(
                       color: AppColors.authText,
-                      fontSize: 25,
-                      height: 1.2,
-                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -376,16 +380,15 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
                     child: Text(
                       isCreatingPlan
                           ? statuses[currentStatusIndex]
-                          : 'Your plan is ready!',
+                          : context.l10n.yourPlanIsReady,
                       key: ValueKey(
                         isCreatingPlan
                             ? currentStatusIndex
                             : -1,
                       ),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         color: AppColors.onboardingText,
-                        fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -397,12 +400,11 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
                 Center(
                   child: Text(
                     isSaving
-                        ? 'Saving your personalized plan...'
-                        : 'This may take a few seconds.',
+                        ? context.l10n.savingPersonalizedPlan
+                        : context.l10n.thisMayTakeFewSeconds,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Color(0xFF5E4A4A),
-                      fontSize: 13,
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textSecondary,
                       fontWeight: FontWeight.w400,
                     ),
                   ),

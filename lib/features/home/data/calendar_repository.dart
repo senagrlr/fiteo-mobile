@@ -37,7 +37,7 @@ class CalendarRepository {
     };
   }
 
-  Future<Map<int, Map<String, int>>> getMonthlyData(DateTime month) async {
+  Future<Map<int, Map<String, num>>> getMonthlyData(DateTime month) async {
     final user = _auth.currentUser;
     if (user == null) throw Exception('User not logged in');
 
@@ -57,7 +57,7 @@ class CalendarRepository {
         .where('date', isLessThanOrEqualTo: endDate)
         .get();
 
-    final Map<int, Map<String, int>> data = {};
+    final Map<int, Map<String, num>> data = {};
 
     for (final doc in snapshot.docs) {
       final d = doc.data();
@@ -68,8 +68,13 @@ class CalendarRepository {
       final day = int.parse(dateStr.split('-')[2]);
 
       data[day] = {
-        'consumed': d['consumedCalories'] as int? ?? 0,
-        'burned': d['burnedCalories'] as int? ?? 0,
+        'consumed': (d['consumedCalories'] as num?) ?? 0,
+        'burned': (d['burnedCalories'] as num?) ?? 0,
+        'netCalories': (d['netCalories'] as num?) ?? 0,
+        'protein': (d['protein'] as num?) ?? 0,
+        'fats': (d['fats'] as num?) ?? 0,
+        'carbs': (d['carbs'] as num?) ?? 0,
+        'hydration': (d['hydrationMl'] as num?) ?? 0,
       };
     }
 

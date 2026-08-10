@@ -25,30 +25,37 @@ class ExerciseListItem extends StatelessWidget {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (bottomSheetContext) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(
-              bottomSheetContext,
-            ).viewInsets.bottom,
-          ),
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(
-              28,
-              18,
-              28,
-              30,
-            ),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(30),
+        final keyboardHeight =
+            MediaQuery.viewInsetsOf(bottomSheetContext).bottom;
+
+        return AnimatedPadding(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOut,
+            padding: EdgeInsets.only(bottom: keyboardHeight),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight:
+                MediaQuery.sizeOf(bottomSheetContext).height * 0.85,
               ),
-            ),
-            child: SafeArea(
-              top: false,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
+              child: Container(
+              padding: const EdgeInsets.fromLTRB(
+                28,
+                18,
+                28,
+                30,
+              ),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(30),
+                ),
+              ),
+              child: SafeArea(
+                top: false,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                   Container(
                     width: 48,
                     height: 5,
@@ -183,9 +190,11 @@ class ExerciseListItem extends StatelessWidget {
               ),
             ),
           ),
+            ),
+            ),
         );
       },
-    ).whenComplete(caloriesController.dispose);
+    );
   }
 
   @override
@@ -273,8 +282,7 @@ class _ExerciseDetailRow extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(width: 180),
-
+        const Spacer(),
         Text(
           value,
           style: const TextStyle(

@@ -113,9 +113,15 @@ class _MealsScreenState extends State<MealsScreen> {
     try {
       final id = await _mealRepository.addMeal(
         mealName: item.name,
-        gram: int.tryParse(item.amount) ?? 0,
+        amount: int.tryParse(item.amount) ?? 0,
+        unit: item.unit,
         mealType: mealType,
         estimatedCalories: item.calories,
+        protein: item.protein,
+        fats: item.fats,
+        carbs: item.carbs,
+        nutritionSource: item.nutritionSource,
+        isEstimated: item.isEstimated,
       );
 
       if (!mounted) return;
@@ -222,14 +228,30 @@ class _MealsScreenState extends State<MealsScreen> {
         final calories =
             data['estimatedCalories'] as int? ?? 0;
 
+        final hasStoredMacros =
+            data.containsKey('protein') &&
+                data.containsKey('fats') &&
+                data.containsKey('carbs');
+
         final item = FoodItem(
           id: doc.id,
           name: data['mealName'] as String? ?? '',
-          amount: (data['gram'] ?? '').toString(),
+          amount: (data['amount'] ?? data['gram'] ?? '').toString(),
+          unit: data['unit'] as String? ?? 'Grams',
           calories: calories,
-          protein: (calories * 0.07).round(),
-          fats: (calories * 0.035).round(),
-          carbs: (calories * 0.10).round(),
+          protein: hasStoredMacros
+              ? (data['protein'] as num?)?.round() ?? 0
+              : (calories * 0.07).round(),
+          fats: hasStoredMacros
+              ? (data['fats'] as num?)?.round() ?? 0
+              : (calories * 0.035).round(),
+          carbs: hasStoredMacros
+              ? (data['carbs'] as num?)?.round() ?? 0
+              : (calories * 0.10).round(),
+          nutritionSource:
+          data['nutritionSource'] as String? ??
+              (hasStoredMacros ? 'unknown' : 'legacy'),
+          isEstimated: data['isEstimated'] as bool? ?? !hasStoredMacros,
         );
 
         if (loadedFoods.containsKey(mealType)) {
@@ -427,38 +449,54 @@ class FoodItem {
   final String? id;
   final String name;
   final String amount;
+  final String unit;
+
   final int calories;
   final int protein;
   final int fats;
   final int carbs;
 
+  final String nutritionSource;
+  final bool isEstimated;
+
   const FoodItem({
     this.id,
     required this.name,
     required this.amount,
+    required this.unit,
     required this.calories,
     this.protein = 0,
     this.fats = 0,
     this.carbs = 0,
+    this.nutritionSource = 'unknown',
+    this.isEstimated = false,
   });
 
   FoodItem copyWith({
     String? id,
     String? name,
     String? amount,
+    String? unit,
     int? calories,
     int? protein,
     int? fats,
     int? carbs,
+    String? nutritionSource,
+    bool? isEstimated,
   }) {
     return FoodItem(
       id: id ?? this.id,
       name: name ?? this.name,
       amount: amount ?? this.amount,
+      unit: unit ?? this.unit,
       calories: calories ?? this.calories,
       protein: protein ?? this.protein,
       fats: fats ?? this.fats,
       carbs: carbs ?? this.carbs,
+      nutritionSource:
+      nutritionSource ?? this.nutritionSource,
+      isEstimated:
+      isEstimated ?? this.isEstimated,
     );
   }
 }

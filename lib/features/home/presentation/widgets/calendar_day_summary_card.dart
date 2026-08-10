@@ -7,6 +7,11 @@ class CalendarDaySummaryCard extends StatelessWidget {
   final int year;
   final int consumedCalories;
   final int burnedCalories;
+  final double protein;
+  final double fats;
+  final double carbs;
+  final int netCalories;
+  final int hydration;
 
   const CalendarDaySummaryCard({
     super.key,
@@ -15,20 +20,18 @@ class CalendarDaySummaryCard extends StatelessWidget {
     required this.year,
     required this.consumedCalories,
     required this.burnedCalories,
+    required this.protein,
+    required this.fats,
+    required this.carbs,
+    required this.netCalories,
+    required this.hydration,
   });
 
   @override
   Widget build(BuildContext context) {
-    const calorieGoal = 1600;
-    const hydration = 1500;
 
-    const fat = 40;
     const fatGoal = 70;
-
-    const carbs = 100;
     const carbsGoal = 150;
-
-    const protein = 70;
     const proteinGoal = 90;
 
     return Container(
@@ -85,15 +88,15 @@ class CalendarDaySummaryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 18),
-          const Row(
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: _SummaryInfoItem(
                   icon: Icons.local_fire_department_rounded,
                   iconColor: AppColors.calendarGoalIcon,
-                  label: 'Total Calorie',
-                  value: '$calorieGoal kcal',
+                  label: 'Net Calories',
+                  value: '$netCalories kcal',
                 ),
               ),
               SizedBox(width: 18),
@@ -108,30 +111,30 @@ class CalendarDaySummaryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 26),
-          const Row(
+          Row(
             children: [
               Expanded(
                 child: _MacroSummaryItem(
                   label: 'Protein',
-                  value: protein,
+                  value: protein.round(),
                   goal: proteinGoal,
                   progressColor: AppColors.proteinProgress,
                 ),
               ),
-              SizedBox(width: 14),
+              const SizedBox(width: 14),
               Expanded(
                 child: _MacroSummaryItem(
                   label: 'Fats',
-                  value: fat,
+                  value: fats.round(),
                   goal: fatGoal,
                   progressColor: AppColors.fatProgress,
                 ),
               ),
-              SizedBox(width: 14),
+              const SizedBox(width: 14),
               Expanded(
                 child: _MacroSummaryItem(
                   label: 'Carbs',
-                  value: carbs,
+                  value: carbs.round(),
                   goal: carbsGoal,
                   progressColor: AppColors.carbsProgress,
                 ),

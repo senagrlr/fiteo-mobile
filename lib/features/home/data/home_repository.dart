@@ -33,6 +33,9 @@ class HomeRepository {
         'calorieGoal': null,
         'remaining': null,
         'isGoalReached': false,
+        'protein': 0.0,
+        'fats': 0.0,
+        'carbs': 0.0,
       };
     }
 
@@ -44,6 +47,10 @@ class HomeRepository {
     final calorieGoal = data?['calorieGoal'] as int?;
     final isGoalReached = data?['isGoalReached'] as bool? ?? false;
 
+    final protein = (data?['protein'] as num?)?.toDouble() ?? 0.0;
+    final fats = (data?['fats'] as num?)?.toDouble() ?? 0.0;
+    final carbs = (data?['carbs'] as num?)?.toDouble() ?? 0.0;
+
     return {
       'consumed': consumed,
       'burned': burned,
@@ -51,6 +58,9 @@ class HomeRepository {
       'calorieGoal': calorieGoal,
       'remaining': calorieGoal == null ? null : calorieGoal - netCalories,
       'isGoalReached': isGoalReached,
+      'protein': protein,
+      'fats': fats,
+      'carbs': carbs,
     };
   }
 

@@ -1,11 +1,11 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/features/meals/data/food_calorie_cache_repository.dart';
 import 'package:fiteo_myapp/features/meals/data/meal_calorie_service.dart';
 import 'package:fiteo_myapp/features/meals/presentation/screens/meals_screen.dart';
+import 'package:fiteo_myapp/features/meals/domain/models/nutrition_food.dart';
 
 class AddFoodForm extends StatefulWidget {
   final ValueChanged<FoodItem> onAddFood;
@@ -69,30 +69,41 @@ class _AddFoodFormState extends State<AddFoodForm> {
         });
 
         try {
-          final result =
-          await _mealCalorieService.estimateMealCalories(
-            foodName: foodName,
-            gram: amount,
-          );
+          final MealCalorieResult? result;
+
+          if (selectedUnit == 'Grams') {
+            result =
+            await _mealCalorieService.estimateForGrams(
+              foodName: foodName,
+              gram: amount,
+            );
+          } else {
+            result =
+            await _mealCalorieService.estimateForPieces(
+              foodName: foodName,
+              pieces: amount.toDouble(),
+            );
+          }
 
           if (!mounted ||
               requestId != _calorieRequestId) {
             return;
           }
 
-          final calories =
-              result?.estimatedCalories ?? 0;
-
           setState(() {
             lastCalorieResult = result;
-            estimatedCalories = calories;
+
+            estimatedCalories =
+                result?.estimatedCalories ?? 0;
 
             estimatedProtein =
-                (calories * 0.07).round();
+                result?.protein.round() ?? 0;
+
             estimatedFats =
-                (calories * 0.035).round();
+                result?.fat.round() ?? 0;
+
             estimatedCarbs =
-                (calories * 0.10).round();
+                result?.carbs.round() ?? 0;
 
             isEstimating = false;
           });
@@ -132,25 +143,51 @@ class _AddFoodFormState extends State<AddFoodForm> {
       return;
     }
 
-    await _foodCacheRepository.saveFoodToCache(
-      foodName: lastCalorieResult!.foodName,
-      normalizedName:
-      lastCalorieResult!.normalizedName,
-      caloriesPer100g:
-      lastCalorieResult!.caloriesPer100g,
-      source: lastCalorieResult!.source,
-      foodType: lastCalorieResult!.foodType,
-      confidence: lastCalorieResult!.confidence,
-    );
+    if (selectedUnit == 'Grams') {
+      final amountValue = int.tryParse(amount) ?? 0;
+
+      if (amountValue > 0) {
+        final proteinPer100g =
+            lastCalorieResult!.protein * 100 / amountValue;
+
+        final fatPer100g =
+            lastCalorieResult!.fat * 100 / amountValue;
+
+        final carbsPer100g =
+            lastCalorieResult!.carbs * 100 / amountValue;
+
+        final food = NutritionFood(
+          id: lastCalorieResult!.normalizedName,
+          name: lastCalorieResult!.foodName,
+          caloriesPer100g: lastCalorieResult!.caloriesPer100g.toDouble(),
+          proteinPer100g: proteinPer100g,
+          fatPer100g: fatPer100g,
+          carbsPer100g: carbsPer100g,
+          servings: const [],
+          source: lastCalorieResult!.source,
+          isEstimated: lastCalorieResult!.isEstimated,
+          foodType: lastCalorieResult!.foodType,
+          confidence: lastCalorieResult!.confidence,
+        );
+
+        await _foodCacheRepository.saveFoodToCache(
+          normalizedName: lastCalorieResult!.normalizedName,
+          food: food,
+        );
+      }
+    }
 
     widget.onAddFood(
       FoodItem(
         name: foodName,
         amount: amount,
+        unit: selectedUnit,
         calories: estimatedCalories,
         protein: estimatedProtein,
         fats: estimatedFats,
         carbs: estimatedCarbs,
+        nutritionSource: lastCalorieResult!.source,
+        isEstimated: lastCalorieResult!.isEstimated,
       ),
     );
 

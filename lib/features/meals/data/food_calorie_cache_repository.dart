@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fiteo_myapp/features/meals/domain/models/nutrition_food.dart';
 
 class FoodCalorieCacheRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -7,7 +8,7 @@ class FoodCalorieCacheRepository {
     return value.trim().toLowerCase();
   }
 
-  Future<Map<String, dynamic>?> getCachedFood(String foodName) async {
+  Future<NutritionFood?> getCachedFood(String foodName) async {
     final normalizedName = normalizeFoodName(foodName);
 
     final doc = await _firestore
@@ -15,9 +16,33 @@ class FoodCalorieCacheRepository {
         .doc(normalizedName)
         .get();
 
-    if (!doc.exists) return null;
+    if (!doc.exists) {
+      return null;
+    }
 
-    return doc.data();
+    final data = doc.data();
+
+    if (data == null) {
+      return null;
+    }
+
+    return NutritionFood.fromMap(data);
+  }
+
+  Future<void> saveFoodToCache({
+    required String normalizedName,
+    required NutritionFood food,
+  }) async {
+    final docId = normalizeFoodName(normalizedName);
+
+    await _firestore
+        .collection('foodCalorieCache')
+        .doc(docId)
+        .set({
+      ...food.toMap(),
+      'normalizedName': docId,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 
   int calculateCalories({
@@ -27,24 +52,10 @@ class FoodCalorieCacheRepository {
     return ((gram / 100) * caloriesPer100g).round();
   }
 
-  Future<void> saveFoodToCache({
-    required String foodName,
-    required String normalizedName,
-    required num caloriesPer100g,
-    required String source,
-    required String foodType,
-    String? confidence,
-  }) async {
-    final docId = normalizeFoodName(normalizedName);
-
-    await _firestore.collection('foodCalorieCache').doc(docId).set({
-      'name': foodName,
-      'normalizedName': docId,
-      'caloriesPer100g': caloriesPer100g,
-      'source': source,
-      'foodType': foodType,
-      'confidence': confidence,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+  double calculateMacro({
+    required int gram,
+    required num valuePer100g,
+  }) {
+    return (gram / 100) * valuePer100g;
   }
 }

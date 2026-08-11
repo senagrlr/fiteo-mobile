@@ -1,11 +1,15 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/features/meals/data/food_calorie_cache_repository.dart';
 import 'package:fiteo_myapp/features/meals/data/meal_calorie_service.dart';
-import 'package:fiteo_myapp/features/meals/presentation/screens/meals_screen.dart';
 import 'package:fiteo_myapp/features/meals/domain/models/nutrition_food.dart';
+import 'package:fiteo_myapp/features/meals/presentation/screens/meals_screen.dart';
 
 class AddFoodForm extends StatefulWidget {
   final ValueChanged<FoodItem> onAddFood;
@@ -16,7 +20,8 @@ class AddFoodForm extends StatefulWidget {
   });
 
   @override
-  State<AddFoodForm> createState() => _AddFoodFormState();
+  State<AddFoodForm> createState() =>
+      _AddFoodFormState();
 }
 
 class _AddFoodFormState extends State<AddFoodForm> {
@@ -24,8 +29,10 @@ class _AddFoodFormState extends State<AddFoodForm> {
   final amountController = TextEditingController();
 
   final _mealCalorieService = MealCalorieService();
-  final _foodCacheRepository = FoodCalorieCacheRepository();
+  final _foodCacheRepository =
+  FoodCalorieCacheRepository();
 
+  // Internal değerler İngilizce kalıyor.
   final List<String> units = const [
     'Grams',
     'Pieces',
@@ -45,6 +52,22 @@ class _AddFoodFormState extends State<AddFoodForm> {
 
   bool isEstimating = false;
 
+  String _localizedUnit(
+      BuildContext context,
+      String unit,
+      ) {
+    switch (unit) {
+      case 'Grams':
+        return context.l10n.grams;
+
+      case 'Pieces':
+        return context.l10n.pieces;
+
+      default:
+        return unit;
+    }
+  }
+
   void _estimateCalories() {
     _debounce?.cancel();
 
@@ -53,9 +76,14 @@ class _AddFoodFormState extends State<AddFoodForm> {
     _debounce = Timer(
       const Duration(milliseconds: 700),
           () async {
-        final foodName = foodController.text.trim();
+        final foodName =
+        foodController.text.trim();
+
         final amount =
-            int.tryParse(amountController.text.trim()) ?? 0;
+            int.tryParse(
+              amountController.text.trim(),
+            ) ??
+                0;
 
         if (foodName.isEmpty || amount == 0) {
           _resetValues();
@@ -72,14 +100,14 @@ class _AddFoodFormState extends State<AddFoodForm> {
           final MealCalorieResult? result;
 
           if (selectedUnit == 'Grams') {
-            result =
-            await _mealCalorieService.estimateForGrams(
+            result = await _mealCalorieService
+                .estimateForGrams(
               foodName: foodName,
               gram: amount,
             );
           } else {
-            result =
-            await _mealCalorieService.estimateForPieces(
+            result = await _mealCalorieService
+                .estimateForPieces(
               foodName: foodName,
               pieces: amount.toDouble(),
             );
@@ -133,8 +161,11 @@ class _AddFoodFormState extends State<AddFoodForm> {
   }
 
   Future<void> _addFood() async {
-    final foodName = foodController.text.trim();
-    final amount = amountController.text.trim();
+    final foodName =
+    foodController.text.trim();
+
+    final amount =
+    amountController.text.trim();
 
     if (foodName.isEmpty ||
         amount.isEmpty ||
@@ -144,34 +175,48 @@ class _AddFoodFormState extends State<AddFoodForm> {
     }
 
     if (selectedUnit == 'Grams') {
-      final amountValue = int.tryParse(amount) ?? 0;
+      final amountValue =
+          int.tryParse(amount) ?? 0;
 
       if (amountValue > 0) {
         final proteinPer100g =
-            lastCalorieResult!.protein * 100 / amountValue;
+            lastCalorieResult!.protein *
+                100 /
+                amountValue;
 
         final fatPer100g =
-            lastCalorieResult!.fat * 100 / amountValue;
+            lastCalorieResult!.fat *
+                100 /
+                amountValue;
 
         final carbsPer100g =
-            lastCalorieResult!.carbs * 100 / amountValue;
+            lastCalorieResult!.carbs *
+                100 /
+                amountValue;
 
         final food = NutritionFood(
           id: lastCalorieResult!.normalizedName,
           name: lastCalorieResult!.foodName,
-          caloriesPer100g: lastCalorieResult!.caloriesPer100g.toDouble(),
+          caloriesPer100g:
+          lastCalorieResult!
+              .caloriesPer100g
+              .toDouble(),
           proteinPer100g: proteinPer100g,
           fatPer100g: fatPer100g,
           carbsPer100g: carbsPer100g,
           servings: const [],
           source: lastCalorieResult!.source,
-          isEstimated: lastCalorieResult!.isEstimated,
-          foodType: lastCalorieResult!.foodType,
-          confidence: lastCalorieResult!.confidence,
+          isEstimated:
+          lastCalorieResult!.isEstimated,
+          foodType:
+          lastCalorieResult!.foodType,
+          confidence:
+          lastCalorieResult!.confidence,
         );
 
         await _foodCacheRepository.saveFoodToCache(
-          normalizedName: lastCalorieResult!.normalizedName,
+          normalizedName:
+          lastCalorieResult!.normalizedName,
           food: food,
         );
       }
@@ -186,8 +231,10 @@ class _AddFoodFormState extends State<AddFoodForm> {
         protein: estimatedProtein,
         fats: estimatedFats,
         carbs: estimatedCarbs,
-        nutritionSource: lastCalorieResult!.source,
-        isEstimated: lastCalorieResult!.isEstimated,
+        nutritionSource:
+        lastCalorieResult!.source,
+        isEstimated:
+        lastCalorieResult!.isEstimated,
       ),
     );
 
@@ -206,6 +253,7 @@ class _AddFoodFormState extends State<AddFoodForm> {
     _debounce?.cancel();
     foodController.dispose();
     amountController.dispose();
+
     super.dispose();
   }
 
@@ -223,11 +271,13 @@ class _AddFoodFormState extends State<AddFoodForm> {
               ),
               decoration: BoxDecoration(
                 color: AppColors.calendarCompleted,
-                borderRadius: BorderRadius.circular(22),
+                borderRadius:
+                BorderRadius.circular(22),
               ),
-              child: const Text(
-                'Add food',
-                style: TextStyle(
+              child: Text(
+                context.l10n.addFood,
+                style:
+                AppTextStyles.titleMedium.copyWith(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -241,7 +291,7 @@ class _AddFoodFormState extends State<AddFoodForm> {
 
         _MealInputField(
           controller: foodController,
-          hintText: 'Food name',
+          hintText: context.l10n.foodName,
           onChanged: (_) => _estimateCalories(),
         ),
 
@@ -251,6 +301,12 @@ class _AddFoodFormState extends State<AddFoodForm> {
           controller: amountController,
           selectedUnit: selectedUnit,
           units: units,
+          localizedUnit:
+              (unit) => _localizedUnit(
+            context,
+            unit,
+          ),
+          amountHint: context.l10n.amount,
           onUnitChanged: (value) {
             setState(() {
               selectedUnit = value;
@@ -262,11 +318,13 @@ class _AddFoodFormState extends State<AddFoodForm> {
         ),
 
         const SizedBox(height: 18),
-        const Text(
-          '( Calories are estimated based on\naverage nutritional values. )',
+
+        Text(
+          context.l10n.calorieEstimateDisclaimer,
           textAlign: TextAlign.center,
-          style: TextStyle(
-            color: AppColors.homeBrown,
+          style:
+          AppTextStyles.labelSmall.copyWith(
+            color: AppColors.waterCardInactiveText,
             fontSize: 10,
             height: 1.3,
             fontWeight: FontWeight.w400,
@@ -276,22 +334,27 @@ class _AddFoodFormState extends State<AddFoodForm> {
         const SizedBox(height: 18),
 
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment:
+          MainAxisAlignment.center,
           children: [
             _MacroChip(
-              title: 'Protein',
+              title: context.l10n.protein,
               value: estimatedProtein,
               isLoading: isEstimating,
             ),
+
             const SizedBox(width: 8),
+
             _MacroChip(
-              title: 'Fats',
+              title: context.l10n.fats,
               value: estimatedFats,
               isLoading: isEstimating,
             ),
+
             const SizedBox(width: 8),
+
             _MacroChip(
-              title: 'Carbs',
+              title: context.l10n.carbs,
               value: estimatedCarbs,
               isLoading: isEstimating,
             ),
@@ -301,14 +364,12 @@ class _AddFoodFormState extends State<AddFoodForm> {
         const SizedBox(height: 8),
 
         _MacroChip(
-          title: 'Calories',
+          title: context.l10n.calories,
           value: estimatedCalories,
           isLoading: isEstimating,
           wide: true,
           suffix: 'kcal',
         ),
-
-
       ],
     );
   }
@@ -340,20 +401,24 @@ class _MacroChip extends StatelessWidget {
     }
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 220),
+      duration:
+      const Duration(milliseconds: 220),
       width: wide ? 150 : 70,
       height: 38,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: AppColors.homeCardBackground,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius:
+        BorderRadius.circular(20),
       ),
       child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 180),
+        duration:
+        const Duration(milliseconds: 180),
         child: Text(
           text,
           key: ValueKey(text),
-          style: const TextStyle(
+          style:
+          AppTextStyles.bodyMedium.copyWith(
             color: AppColors.homeBrown,
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -369,7 +434,8 @@ class _MealInputField extends StatelessWidget {
   final String hintText;
   final TextInputType? keyboardType;
   final ValueChanged<String>? onChanged;
-  final List<TextInputFormatter>? inputFormatters;
+  final List<TextInputFormatter>?
+  inputFormatters;
 
   const _MealInputField({
     required this.controller,
@@ -389,33 +455,41 @@ class _MealInputField extends StatelessWidget {
         keyboardType: keyboardType,
         onChanged: onChanged,
         inputFormatters: inputFormatters,
-        style: const TextStyle(
+        style: AppTextStyles.bodyMedium.copyWith(
           color: AppColors.homeBrown,
           fontSize: 13,
         ),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(
-            color: AppColors.homeBrown,
+          hintStyle:
+          AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.homeSecondaryValue,
             fontSize: 13,
             fontWeight: FontWeight.w400,
           ),
           filled: true,
-          fillColor: AppColors.homeCardBackground,
-          contentPadding: const EdgeInsets.symmetric(
+          fillColor:
+          AppColors.homeCardBackground,
+          contentPadding:
+          const EdgeInsets.symmetric(
             horizontal: 18,
             vertical: 8,
           ),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(22),
+            borderRadius:
+            BorderRadius.circular(22),
             borderSide: BorderSide.none,
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(22),
+          enabledBorder:
+          OutlineInputBorder(
+            borderRadius:
+            BorderRadius.circular(22),
             borderSide: BorderSide.none,
           ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(22),
+          focusedBorder:
+          OutlineInputBorder(
+            borderRadius:
+            BorderRadius.circular(22),
             borderSide: BorderSide.none,
           ),
         ),
@@ -428,13 +502,23 @@ class _MealAmountField extends StatelessWidget {
   final TextEditingController controller;
   final String selectedUnit;
   final List<String> units;
-  final ValueChanged<String> onUnitChanged;
+
+  final String Function(String unit)
+  localizedUnit;
+
+  final String amountHint;
+
+  final ValueChanged<String>
+  onUnitChanged;
+
   final ValueChanged<String>? onChanged;
 
   const _MealAmountField({
     required this.controller,
     required this.selectedUnit,
     required this.units,
+    required this.localizedUnit,
+    required this.amountHint,
     required this.onUnitChanged,
     this.onChanged,
   });
@@ -446,34 +530,44 @@ class _MealAmountField extends StatelessWidget {
       height: 38,
       decoration: BoxDecoration(
         color: AppColors.homeCardBackground,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius:
+        BorderRadius.circular(22),
       ),
       child: Row(
         children: [
           Expanded(
             child: TextField(
               controller: controller,
-              keyboardType: TextInputType.number,
+              keyboardType:
+              TextInputType.number,
               inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
+                FilteringTextInputFormatter
+                    .digitsOnly,
               ],
               onChanged: onChanged,
-              style: const TextStyle(
+              style:
+              AppTextStyles.bodyMedium
+                  .copyWith(
                 color: AppColors.homeBrown,
                 fontSize: 13,
                 height: 1,
               ),
-              decoration: const InputDecoration(
-                hintText: 'Amount',
-                hintStyle: TextStyle(
-                  color: AppColors.homeBrown,
+              decoration: InputDecoration(
+                hintText: amountHint,
+                hintStyle:
+                AppTextStyles.bodyMedium
+                    .copyWith(
+                  color:
+                  AppColors.homeSecondaryValue,
                   fontSize: 13,
-                  fontWeight: FontWeight.w400,
+                  fontWeight:
+                  FontWeight.w400,
                   height: 1,
                 ),
                 border: InputBorder.none,
                 isDense: true,
-                contentPadding: EdgeInsets.only(
+                contentPadding:
+                const EdgeInsets.only(
                   left: 18,
                   right: 8,
                 ),
@@ -484,41 +578,66 @@ class _MealAmountField extends StatelessWidget {
           Container(
             width: 1,
             height: 20,
-            color: const Color(0xFFDCD9D1),
+            color:
+            AppColors.mealFieldDivider,
           ),
 
           SizedBox(
             width: 94,
-            child: DropdownButtonHideUnderline(
+            child:
+            DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: selectedUnit,
                 isExpanded: true,
-                borderRadius: BorderRadius.circular(18),
+                borderRadius:
+                BorderRadius.circular(18),
                 dropdownColor:
-                AppColors.homeCardBackground,
+                AppColors
+                    .homeCardBackground,
                 icon: const Icon(
-                  Icons.keyboard_arrow_down_rounded,
+                  Icons
+                      .keyboard_arrow_down_rounded,
                   size: 18,
-                  color: AppColors.homeBrown,
+                  color:
+                  AppColors
+                      .homeSecondaryValue,
                 ),
-                style: const TextStyle(
-                  color: AppColors.homeBrown,
+                style:
+                AppTextStyles.bodySmall
+                    .copyWith(
+                  color:
+                  AppColors
+                      .homeSecondaryValue,
                   fontSize: 12,
-                  fontWeight: FontWeight.w600,
+                  fontWeight:
+                  FontWeight.w600,
                 ),
-                padding: const EdgeInsets.only(
+                padding:
+                const EdgeInsets.only(
                   left: 10,
                   right: 7,
                 ),
-                items: units.map((unit) {
-                  return DropdownMenuItem<String>(
-                    value: unit,
-                    child: Text(
-                      unit,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  );
-                }).toList(),
+                items: units.map(
+                      (unit) {
+                    return DropdownMenuItem<String>(
+                      value: unit,
+                      child: Text(
+                        localizedUnit(unit),
+                        overflow:
+                        TextOverflow.ellipsis,
+                        style:
+                        AppTextStyles.bodySmall
+                            .copyWith(
+                          color: AppColors
+                              .homeSecondaryValue,
+                          fontSize: 12,
+                          fontWeight:
+                          FontWeight.w600,
+                        ),
+                      ),
+                    );
+                  },
+                ).toList(),
                 onChanged: (value) {
                   if (value != null) {
                     onUnitChanged(value);

@@ -1,31 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 
 class WaterAmountDialog extends StatefulWidget {
-  const WaterAmountDialog({super.key});
+  const WaterAmountDialog({
+    super.key,
+  });
 
   @override
-  State<WaterAmountDialog> createState() => _WaterAmountDialogState();
+  State<WaterAmountDialog> createState() =>
+      _WaterAmountDialogState();
 }
 
-class _WaterAmountDialogState extends State<WaterAmountDialog> {
+class _WaterAmountDialogState
+    extends State<WaterAmountDialog> {
   static const int minAmount = 0;
   static const int maxAmount = 250;
 
   int selectedAmount = 150;
   bool isEditingAmount = false;
 
-  late final TextEditingController amountController;
+  late final TextEditingController
+  amountController;
+
   late final FocusNode amountFocusNode;
 
   @override
   void initState() {
     super.initState();
 
-    amountController = TextEditingController(
-      text: selectedAmount.toString(),
-    );
+    amountController =
+        TextEditingController(
+          text: selectedAmount.toString(),
+        );
 
     amountFocusNode = FocusNode();
   }
@@ -34,6 +44,7 @@ class _WaterAmountDialogState extends State<WaterAmountDialog> {
   void dispose() {
     amountController.dispose();
     amountFocusNode.dispose();
+
     super.dispose();
   }
 
@@ -41,26 +52,42 @@ class _WaterAmountDialogState extends State<WaterAmountDialog> {
     required double localY,
     required double height,
   }) {
-    final normalizedPosition = (1 - (localY / height)).clamp(0.0, 1.0);
-    final amount = (normalizedPosition * maxAmount).round();
+    final normalizedPosition =
+    (1 - (localY / height))
+        .clamp(0.0, 1.0);
+
+    final amount =
+    (normalizedPosition *
+        maxAmount)
+        .round();
 
     setState(() {
-      selectedAmount = amount.clamp(minAmount, maxAmount);
+      selectedAmount = amount.clamp(
+        minAmount,
+        maxAmount,
+      );
     });
   }
 
   void _startEditingAmount() {
     setState(() {
       isEditingAmount = true;
-      amountController.text = selectedAmount.toString();
-      amountController.selection = TextSelection(
-        baseOffset: 0,
-        extentOffset: amountController.text.length,
-      );
+
+      amountController.text =
+          selectedAmount.toString();
+
+      amountController.selection =
+          TextSelection(
+            baseOffset: 0,
+            extentOffset:
+            amountController.text.length,
+          );
     });
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) {
       if (!mounted) return;
+
       amountFocusNode.requestFocus();
     });
   }
@@ -70,7 +97,9 @@ class _WaterAmountDialogState extends State<WaterAmountDialog> {
 
     setState(() {
       isEditingAmount = false;
-      amountController.text = selectedAmount.toString();
+
+      amountController.text =
+          selectedAmount.toString();
     });
   }
 
@@ -83,7 +112,10 @@ class _WaterAmountDialogState extends State<WaterAmountDialog> {
       return;
     }
 
-    final amount = value.clamp(minAmount, maxAmount);
+    final amount = value.clamp(
+      minAmount,
+      maxAmount,
+    );
 
     amountFocusNode.unfocus();
 
@@ -95,24 +127,33 @@ class _WaterAmountDialogState extends State<WaterAmountDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final keyboardHeight = MediaQuery.viewInsetsOf(context).bottom;
-    final isKeyboardVisible = keyboardHeight > 0;
+    final keyboardHeight =
+        MediaQuery.viewInsetsOf(context)
+            .bottom;
+
+    final isKeyboardVisible =
+        keyboardHeight > 0;
 
     return AnimatedPadding(
-      duration: const Duration(milliseconds: 200),
+      duration:
+      const Duration(milliseconds: 200),
       curve: Curves.easeOut,
       padding: EdgeInsets.fromLTRB(
         28,
         20,
         28,
-        isKeyboardVisible ? keyboardHeight + 12 : 30,
+        isKeyboardVisible
+            ? keyboardHeight + 12
+            : 30,
       ),
       child: Dialog(
         insetPadding: EdgeInsets.zero,
-        backgroundColor: Colors.transparent,
+        backgroundColor:
+        Colors.transparent,
         child: SingleChildScrollView(
           keyboardDismissBehavior:
-          ScrollViewKeyboardDismissBehavior.onDrag,
+          ScrollViewKeyboardDismissBehavior
+              .onDrag,
           child: Container(
             width: 330,
             padding: EdgeInsets.fromLTRB(
@@ -122,14 +163,18 @@ class _WaterAmountDialogState extends State<WaterAmountDialog> {
               isEditingAmount ? 20 : 28,
             ),
             decoration: BoxDecoration(
-              color: AppColors.waterDialogBackground,
-              borderRadius: BorderRadius.circular(30),
+              color: AppColors
+                  .waterDialogBackground,
+              borderRadius:
+              BorderRadius.circular(30),
             ),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisSize:
+              MainAxisSize.min,
               children: [
                 Align(
-                  alignment: Alignment.centerRight,
+                  alignment:
+                  Alignment.centerRight,
                   child: IconButton(
                     onPressed: () {
                       if (isEditingAmount) {
@@ -141,73 +186,102 @@ class _WaterAmountDialogState extends State<WaterAmountDialog> {
                     },
                     icon: const Icon(
                       Icons.close_rounded,
-                      color: AppColors.waterDialogText,
+                      color: AppColors
+                          .waterDialogText,
                       size: 30,
                     ),
                   ),
                 ),
+
                 if (!isEditingAmount) ...[
                   const SizedBox(height: 2),
+
                   SizedBox(
                     width: 170,
                     height: 230,
                     child: LayoutBuilder(
-                      builder: (context, constraints) {
+                      builder:
+                          (context, constraints) {
                         return GestureDetector(
-                          behavior: HitTestBehavior.opaque,
+                          behavior:
+                          HitTestBehavior
+                              .opaque,
                           onTapDown: (details) {
                             _updateAmountFromPosition(
-                              localY: details.localPosition.dy,
-                              height: constraints.maxHeight,
+                              localY: details
+                                  .localPosition.dy,
+                              height: constraints
+                                  .maxHeight,
                             );
                           },
-                          onVerticalDragUpdate: (details) {
+                          onVerticalDragUpdate:
+                              (details) {
                             _updateAmountFromPosition(
-                              localY: details.localPosition.dy,
-                              height: constraints.maxHeight,
+                              localY: details
+                                  .localPosition.dy,
+                              height: constraints
+                                  .maxHeight,
                             );
                           },
                           child: CustomPaint(
-                            painter: WaterGlassPainter(
-                              progress: selectedAmount / maxAmount,
+                            painter:
+                            WaterGlassPainter(
+                              progress:
+                              selectedAmount /
+                                  maxAmount,
                             ),
                           ),
                         );
                       },
                     ),
                   ),
+
                   const SizedBox(height: 30),
+
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment:
+                    MainAxisAlignment.center,
                     children: [
                       Flexible(
                         child: Text(
                           '$selectedAmount ml',
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: AppColors.waterDialogText,
+                          overflow: TextOverflow
+                              .ellipsis,
+                          style: AppTextStyles
+                              .displayMedium
+                              .copyWith(
+                            color: AppColors
+                                .waterDialogText,
                             fontSize: 38,
-                            fontWeight: FontWeight.w800,
+                            fontWeight:
+                            FontWeight.w800,
                           ),
                         ),
                       ),
+
                       const SizedBox(width: 8),
+
                       IconButton(
-                        onPressed: _startEditingAmount,
+                        onPressed:
+                        _startEditingAmount,
                         icon: const Icon(
                           Icons.edit_outlined,
-                          color: AppColors.waterEditIcon,
+                          color: AppColors
+                              .waterEditIcon,
                           size: 23,
                         ),
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 26),
+
                   SizedBox(
                     width: 185,
                     height: 58,
                     child: ElevatedButton(
-                      onPressed: selectedAmount <= 0
+                      onPressed:
+                      selectedAmount <= 0
                           ? null
                           : () {
                         Navigator.pop(
@@ -215,98 +289,156 @@ class _WaterAmountDialogState extends State<WaterAmountDialog> {
                           selectedAmount,
                         );
                       },
-                      style: ElevatedButton.styleFrom(
+                      style:
+                      ElevatedButton.styleFrom(
                         backgroundColor:
-                        AppColors.waterDrinkButton,
+                        AppColors
+                            .waterDrinkButton,
                         disabledBackgroundColor:
-                        AppColors.waterDrinkButtonDisabled,
-                        foregroundColor: Colors.white,
+                        AppColors
+                            .waterDrinkButtonDisabled,
+                        foregroundColor:
+                        Colors.white,
                         elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+                        shape:
+                        RoundedRectangleBorder(
+                          borderRadius:
+                          BorderRadius.circular(
+                            30,
+                          ),
                         ),
                       ),
-                      child: const Text(
-                        'Drink',
-                        style: TextStyle(
+                      child: Text(
+                        context.l10n.drink,
+                        style: AppTextStyles
+                            .titleLarge
+                            .copyWith(
                           fontSize: 25,
-                          fontWeight: FontWeight.w700,
+                          fontWeight:
+                          FontWeight.w700,
+                          color: Colors.white,
                         ),
                       ),
                     ),
                   ),
                 ],
+
                 if (isEditingAmount) ...[
-                  const Text(
-                    'Enter water amount',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: AppColors.waterDialogText,
+                  Text(
+                    context.l10n
+                        .enterWaterAmount,
+                    textAlign:
+                    TextAlign.center,
+                    style: AppTextStyles
+                        .titleLarge
+                        .copyWith(
+                      color: AppColors
+                          .waterDialogText,
                       fontSize: 20,
-                      fontWeight: FontWeight.w700,
+                      fontWeight:
+                      FontWeight.w700,
                     ),
                   ),
+
                   const SizedBox(height: 18),
+
                   TextField(
-                    controller: amountController,
-                    focusNode: amountFocusNode,
+                    controller:
+                    amountController,
+                    focusNode:
+                    amountFocusNode,
                     autofocus: true,
-                    keyboardType: TextInputType.number,
-                    textInputAction: TextInputAction.done,
-                    textAlign: TextAlign.center,
+                    keyboardType:
+                    TextInputType.number,
+                    textInputAction:
+                    TextInputAction.done,
+                    textAlign:
+                    TextAlign.center,
                     inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(3),
+                      FilteringTextInputFormatter
+                          .digitsOnly,
+                      LengthLimitingTextInputFormatter(
+                        3,
+                      ),
                     ],
                     decoration: InputDecoration(
                       suffixText: 'ml',
                       hintText: '0 - 250',
                       filled: true,
-                      fillColor:
-                      AppColors.waterDialogInputBackground,
-                      contentPadding: const EdgeInsets.symmetric(
+                      fillColor: AppColors
+                          .waterDialogInputBackground,
+                      contentPadding:
+                      const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 14,
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
+                      border:
+                      OutlineInputBorder(
+                        borderRadius:
+                        BorderRadius.circular(
+                          14,
+                        ),
+                        borderSide:
+                        BorderSide.none,
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
+                      enabledBorder:
+                      OutlineInputBorder(
+                        borderRadius:
+                        BorderRadius.circular(
+                          14,
+                        ),
+                        borderSide:
+                        BorderSide.none,
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
+                      focusedBorder:
+                      OutlineInputBorder(
+                        borderRadius:
+                        BorderRadius.circular(
+                          14,
+                        ),
+                        borderSide:
+                        BorderSide.none,
                       ),
                     ),
                     onSubmitted: (_) {
                       _drinkEditedAmount();
                     },
                   ),
+
                   const SizedBox(height: 14),
+
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment:
+                    MainAxisAlignment.end,
                     children: [
                       TextButton(
-                        onPressed: _cancelEditingAmount,
-                        child: const Text(
-                          'Cancel',
-                          style: TextStyle(
-                            color:
-                            AppColors.waterDialogSecondaryText,
+                        onPressed:
+                        _cancelEditingAmount,
+                        child: Text(
+                          context.l10n.cancel,
+                          style: AppTextStyles
+                              .bodyMedium
+                              .copyWith(
+                            color: AppColors
+                                .waterDialogSecondaryText,
                           ),
                         ),
                       ),
+
                       const SizedBox(width: 8),
+
                       TextButton(
-                        onPressed: _drinkEditedAmount,
-                        child: const Text(
-                          'Drink',
-                          style: TextStyle(
-                            color: AppColors.waterDialogText,
-                            fontWeight: FontWeight.w700,
+                        onPressed:
+                        _drinkEditedAmount,
+                        child: Text(
+                          context.l10n.drink,
+                          style: AppTextStyles
+                              .bodyMedium
+                              .copyWith(
+                            color: AppColors
+                                .waterDialogText,
+                            fontWeight:
+                            FontWeight.w700,
                           ),
                         ),
                       ),
@@ -322,7 +454,8 @@ class _WaterAmountDialogState extends State<WaterAmountDialog> {
   }
 }
 
-class WaterGlassPainter extends CustomPainter {
+class WaterGlassPainter
+    extends CustomPainter {
   const WaterGlassPainter({
     required this.progress,
   });
@@ -330,9 +463,15 @@ class WaterGlassPainter extends CustomPainter {
   final double progress;
 
   @override
-  void paint(Canvas canvas, Size size) {
+  void paint(
+      Canvas canvas,
+      Size size,
+      ) {
     final glassPath = Path()
-      ..moveTo(size.width * 0.12, size.height * 0.10)
+      ..moveTo(
+        size.width * 0.12,
+        size.height * 0.10,
+      )
       ..quadraticBezierTo(
         size.width * 0.50,
         size.height * 0.02,
@@ -352,44 +491,69 @@ class WaterGlassPainter extends CustomPainter {
       ..close();
 
     final glassPaint = Paint()
-      ..color = AppColors.waterGlassBackground
+      ..color =
+          AppColors.waterGlassBackground
       ..style = PaintingStyle.fill
       ..isAntiAlias = true;
 
-    canvas.drawPath(glassPath, glassPaint);
+    canvas.drawPath(
+      glassPath,
+      glassPaint,
+    );
 
     canvas.save();
     canvas.clipPath(glassPath);
 
     final waterTop = size.height *
-        (0.88 - (progress.clamp(0.0, 1.0) * 0.70));
+        (0.88 -
+            (progress.clamp(
+              0.0,
+              1.0,
+            ) *
+                0.70));
 
     final waterPath = Path()
-      ..moveTo(0, waterTop)
+      ..moveTo(
+        0,
+        waterTop,
+      )
       ..quadraticBezierTo(
         size.width * 0.50,
         waterTop - 13,
         size.width,
         waterTop,
       )
-      ..lineTo(size.width, size.height)
-      ..lineTo(0, size.height)
+      ..lineTo(
+        size.width,
+        size.height,
+      )
+      ..lineTo(
+        0,
+        size.height,
+      )
       ..close();
 
     final waterPaint = Paint()
-      ..color = AppColors.waterGlassFill
+      ..color =
+          AppColors.waterGlassFill
       ..style = PaintingStyle.fill
       ..isAntiAlias = true;
 
-    canvas.drawPath(waterPath, waterPaint);
+    canvas.drawPath(
+      waterPath,
+      waterPaint,
+    );
+
     canvas.restore();
 
     final topWaterPaint = Paint()
-      ..color = AppColors.waterGlassTop
+      ..color =
+          AppColors.waterGlassTop
       ..style = PaintingStyle.fill
       ..isAntiAlias = true;
 
-    final topOval = Rect.fromCenter(
+    final topOval =
+    Rect.fromCenter(
       center: Offset(
         size.width * 0.50,
         size.height * 0.10,
@@ -398,16 +562,25 @@ class WaterGlassPainter extends CustomPainter {
       height: size.height * 0.14,
     );
 
-    canvas.drawOval(topOval, topWaterPaint);
+    canvas.drawOval(
+      topOval,
+      topWaterPaint,
+    );
 
     final outlinePaint = Paint()
-      ..color = AppColors.waterGlassOutline
-      ..style = PaintingStyle.stroke
+      ..color =
+          AppColors.waterGlassOutline
+      ..style =
+          PaintingStyle.stroke
       ..strokeWidth = 8
-      ..strokeJoin = StrokeJoin.round
+      ..strokeJoin =
+          StrokeJoin.round
       ..isAntiAlias = true;
 
-    canvas.drawPath(glassPath, outlinePaint);
+    canvas.drawPath(
+      glassPath,
+      outlinePaint,
+    );
 
     final handleCenter = Offset(
       size.width * 0.50,
@@ -415,7 +588,8 @@ class WaterGlassPainter extends CustomPainter {
     );
 
     final handlePaint = Paint()
-      ..color = AppColors.waterGlassHandle
+      ..color =
+          AppColors.waterGlassHandle
       ..style = PaintingStyle.fill
       ..isAntiAlias = true;
 
@@ -427,10 +601,13 @@ class WaterGlassPainter extends CustomPainter {
 
     final iconPaint = Paint()
       ..color = Colors.white
-      ..style = PaintingStyle.stroke
+      ..style =
+          PaintingStyle.stroke
       ..strokeWidth = 2.2
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round
+      ..strokeCap =
+          StrokeCap.round
+      ..strokeJoin =
+          StrokeJoin.round
       ..isAntiAlias = true;
 
     final upArrow = Path()
@@ -461,8 +638,15 @@ class WaterGlassPainter extends CustomPainter {
         handleCenter.dy + 3,
       );
 
-    canvas.drawPath(upArrow, iconPaint);
-    canvas.drawPath(downArrow, iconPaint);
+    canvas.drawPath(
+      upArrow,
+      iconPaint,
+    );
+
+    canvas.drawPath(
+      downArrow,
+      iconPaint,
+    );
   }
 
   @override

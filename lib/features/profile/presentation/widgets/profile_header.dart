@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 
 class ProfileHeader extends StatelessWidget {
   final String username;
@@ -49,8 +51,11 @@ class ProfileHeader extends StatelessWidget {
                   alignment: Alignment.center,
                   child: mascot == null
                       ? Text(
-                    username.isNotEmpty ? username[0].toUpperCase() : 'U',
-                    style: const TextStyle(
+                    username.isNotEmpty
+                        ? username[0].toUpperCase()
+                        : 'U',
+                    style:
+                    AppTextStyles.titleLarge.copyWith(
                       color: AppColors.homeBrown,
                       fontSize: 32,
                       fontWeight: FontWeight.w800,
@@ -65,18 +70,21 @@ class ProfileHeader extends StatelessWidget {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 8),
+
                 Text(
                   username,
-                  style: const TextStyle(
-                    color: AppColors.homeBrown,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.homeSecondaryValue,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
+
                 Text(
                   email,
-                  style: const TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     color: AppColors.homeBrown,
                     fontSize: 16,
                     fontWeight: FontWeight.w700,

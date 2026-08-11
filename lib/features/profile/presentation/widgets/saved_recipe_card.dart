@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 
 class SavedRecipeCard extends StatelessWidget {
   final String recipeName;
@@ -19,43 +21,49 @@ class SavedRecipeCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(22),
         child: Container(
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: AppColors.calendarCompleted,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(22),
           ),
           child: Column(
             children: [
               Expanded(
+                flex: 6,
                 child: Container(
                   width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                  ),
                   alignment: Alignment.center,
                   color: AppColors.calendarCompleted,
                   child: Text(
                     recipeName,
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: AppTextStyles.titleMedium.copyWith(
                       color: Colors.white,
-                      fontSize: 18,
+                      fontSize: 19,
                       fontWeight: FontWeight.w700,
+                      height: 1.2,
                     ),
                   ),
                 ),
               ),
               Expanded(
+                flex: 4,
                 child: Container(
                   width: double.infinity,
                   alignment: Alignment.center,
-                  color: const Color(0xFFF3F1EC),
+                  color: AppColors.savedRecipeCaloriesBackground,
                   child: Text(
                     '$calories kcal',
-                    style: const TextStyle(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.homeBrown,
-                      fontSize: 16,
+                      fontSize: 17,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

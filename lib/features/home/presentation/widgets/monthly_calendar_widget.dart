@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 
 class MonthlyCalendarWidget extends StatelessWidget {
   final DateTime currentMonth;
@@ -24,27 +27,39 @@ class MonthlyCalendarWidget extends StatelessWidget {
     required this.onDaySelected,
   });
 
-  String get monthName {
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
+  List<String> _weekDays(BuildContext context) {
+    final locale =
+    Localizations.localeOf(context).toLanguageTag();
 
-    return months[currentMonth.month - 1];
+    final sunday = DateTime(2026, 8, 9);
+
+    return List.generate(
+      7,
+          (index) {
+        return DateFormat(
+          'EEE',
+          locale,
+        ).format(
+          sunday.add(
+            Duration(days: index),
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final locale =
+    Localizations.localeOf(context).toLanguageTag();
+
+    final monthTitle = DateFormat(
+      'MMMM yyyy',
+      locale,
+    ).format(currentMonth);
+
+    final weekDays = _weekDays(context);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(
@@ -54,7 +69,7 @@ class MonthlyCalendarWidget extends StatelessWidget {
         22,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFFF6F6F6),
+        color: AppColors.calendarBackground,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -65,26 +80,28 @@ class MonthlyCalendarWidget extends StatelessWidget {
                 onPressed: onPreviousMonth,
                 icon: const Icon(
                   Icons.arrow_back_ios_new,
-                  color: Color(0xFFB8BEC4),
+                  color: AppColors.calendarArrow,
                   size: 20,
                 ),
               ),
+
               Expanded(
                 child: Text(
-                  '$monthName ${currentMonth.year}',
+                  monthTitle,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: AppTextStyles.titleLarge.copyWith(
                     color: AppColors.homeBrown,
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
+
               IconButton(
                 onPressed: onNextMonth,
                 icon: const Icon(
                   Icons.arrow_forward_ios,
-                  color: Color(0xFFB8BEC4),
+                  color: AppColors.calendarArrow,
                   size: 20,
                 ),
               ),
@@ -93,25 +110,24 @@ class MonthlyCalendarWidget extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _WeekDayText('SAN'),
-              _WeekDayText('MON'),
-              _WeekDayText('TUE'),
-              _WeekDayText('WED'),
-              _WeekDayText('THU'),
-              _WeekDayText('FRI'),
-              _WeekDayText('SAT'),
-            ],
+          Row(
+            mainAxisAlignment:
+            MainAxisAlignment.spaceBetween,
+            children: weekDays
+                .map(
+                  (day) => _WeekDayText(day),
+            )
+                .toList(),
           ),
 
           const SizedBox(height: 12),
 
           GridView.builder(
             shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: firstWeekdayIndex + daysInMonth,
+            physics:
+            const NeverScrollableScrollPhysics(),
+            itemCount:
+            firstWeekdayIndex + daysInMonth,
             gridDelegate:
             const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 7,
@@ -123,15 +139,22 @@ class MonthlyCalendarWidget extends StatelessWidget {
                 return const SizedBox();
               }
 
-              final day = index - firstWeekdayIndex + 1;
-              final isTracked = trackedDays.contains(day);
-              final isSelected = selectedDay == day;
+              final day =
+                  index - firstWeekdayIndex + 1;
+
+              final isTracked =
+              trackedDays.contains(day);
+
+              final isSelected =
+                  selectedDay == day;
 
               return GestureDetector(
-                onTap: () => onDaySelected(day),
+                onTap: () =>
+                    onDaySelected(day),
                 behavior: HitTestBehavior.opaque,
                 child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 180),
+                  duration:
+                  const Duration(milliseconds: 180),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: isTracked
@@ -147,7 +170,8 @@ class MonthlyCalendarWidget extends StatelessWidget {
                   ),
                   child: Text(
                     '$day',
-                    style: TextStyle(
+                    style:
+                    AppTextStyles.bodyMedium.copyWith(
                       color: isTracked
                           ? Colors.white
                           : Colors.black,
@@ -175,10 +199,12 @@ class _WeekDayText extends StatelessWidget {
     return SizedBox(
       width: 32,
       child: Text(
-        text,
+        text.toUpperCase(),
         textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: Color(0xFFA9A0A0),
+        maxLines: 1,
+        overflow: TextOverflow.clip,
+        style: AppTextStyles.labelSmall.copyWith(
+          color: AppColors.calendarWeekdayText,
           fontSize: 11,
           fontWeight: FontWeight.w700,
         ),

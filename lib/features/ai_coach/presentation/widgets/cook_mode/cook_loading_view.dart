@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 
 class CookLoadingView extends StatelessWidget {
   const CookLoadingView({super.key});
@@ -21,10 +24,10 @@ class CookLoadingView extends StatelessWidget {
 
               const SizedBox(height: 28),
 
-              const Text(
-                'Creating your recipe...\nPlease wait.',
+              Text(
+                context.l10n.creatingRecipe,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: AppTextStyles.titleMedium.copyWith(
                   color: AppColors.homeBrown,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,

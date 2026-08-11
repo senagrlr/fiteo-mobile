@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
+import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
 import 'package:fiteo_myapp/features/home/data/daily_feedback_service.dart';
+import 'package:fiteo_myapp/features/home/data/daily_summary_repository.dart';
 import 'package:fiteo_myapp/features/home/data/home_repository.dart';
 import 'package:fiteo_myapp/features/home/presentation/widgets/ai_feedback_card.dart';
 import 'package:fiteo_myapp/features/home/presentation/widgets/calorie_apple_progress.dart';
@@ -9,19 +13,26 @@ import 'package:fiteo_myapp/features/home/presentation/widgets/daily_macros_card
 import 'package:fiteo_myapp/features/home/presentation/widgets/home_header.dart';
 import 'package:fiteo_myapp/features/home/presentation/widgets/water_progress_card.dart';
 import 'package:fiteo_myapp/features/home/presentation/widgets/week_calendar_row.dart';
-import 'package:fiteo_myapp/features/home/data/daily_summary_repository.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({
+    super.key,
+  });
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() =>
+      _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _homeRepository = HomeRepository();
-  final _dailyFeedbackService = DailyFeedbackService();
-  final _dailySummaryRepository = DailySummaryRepository();
+  final HomeRepository _homeRepository =
+  HomeRepository();
+
+  final DailyFeedbackService _dailyFeedbackService =
+  DailyFeedbackService();
+
+  final DailySummaryRepository _dailySummaryRepository =
+  DailySummaryRepository();
 
   DailyFeedbackResult? dailyFeedback;
 
@@ -49,36 +60,67 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
     _loadData();
   }
 
   Future<void> _loadData() async {
     try {
-      final data = await _homeRepository.getTodaySummary();
-      final streak = await _homeRepository.getCurrentStreak();
-      final last7Stats = await _homeRepository.getLast7DaysStats();
-      final todayWater = await _dailySummaryRepository.getWaterForDay();
+      final data =
+      await _homeRepository.getTodaySummary();
 
-      final todayConsumed = data['consumed'] as int? ?? 0;
-      final todayBurned = data['burned'] as int? ?? 0;
-      final todayNet = data['netCalories'] as int? ?? 0;
-      final todayGoal = data['calorieGoal'] as int? ?? 2000;
-      final todayProtein = (data['protein'] as num?)?.toDouble() ?? 0.0;
-      final todayFats = (data['fats'] as num?)?.toDouble() ?? 0.0;
-      final todayCarbs = (data['carbs'] as num?)?.toDouble() ?? 0.0;
+      final streak =
+      await _homeRepository.getCurrentStreak();
+
+      final last7Stats =
+      await _homeRepository.getLast7DaysStats();
+
+      final todayWater =
+      await _dailySummaryRepository.getWaterForDay();
+
+      final todayConsumed =
+          data['consumed'] as int? ?? 0;
+
+      final todayBurned =
+          data['burned'] as int? ?? 0;
+
+      final todayNet =
+          data['netCalories'] as int? ?? 0;
+
+      final todayGoal =
+          data['calorieGoal'] as int? ?? 2000;
+
+      final todayProtein =
+          (data['protein'] as num?)?.toDouble() ??
+              0.0;
+
+      final todayFats =
+          (data['fats'] as num?)?.toDouble() ??
+              0.0;
+
+      final todayCarbs =
+          (data['carbs'] as num?)?.toDouble() ??
+              0.0;
 
       final todayGoalReached =
-          data['isGoalReached'] as bool? ?? todayConsumed >= todayGoal;
+          data['isGoalReached'] as bool? ??
+              todayConsumed >= todayGoal;
 
       final trackedDaysLast7 =
-          (last7Stats['trackedDays'] as num?)?.toInt() ?? 0;
+          (last7Stats['trackedDays'] as num?)
+              ?.toInt() ??
+              0;
 
       final activeDaysLast7 =
-          (last7Stats['activeDays'] as num?)?.toInt() ?? 0;
+          (last7Stats['activeDays'] as num?)
+              ?.toInt() ??
+              0;
 
-      final isFirstAppDay = await _homeRepository.isFirstAppDay();
+      final isFirstAppDay =
+      await _homeRepository.isFirstAppDay();
 
-      final feedback = _dailyFeedbackService.generateFeedback(
+      final feedback =
+      _dailyFeedbackService.generateFeedback(
         consumedCalories: todayConsumed,
         burnedCalories: todayBurned,
         netCalories: todayNet,
@@ -98,14 +140,18 @@ class _HomeScreenState extends State<HomeScreen> {
         net = todayNet;
         calorieGoal = todayGoal;
         streakDays = streak;
+
         proteinConsumed = todayProtein;
         fatConsumed = todayFats;
         carbsConsumed = todayCarbs;
+
         waterConsumedMl = todayWater;
+
         dailyFeedback = feedback;
+
         isLoading = false;
       });
-    } catch (e) {
+    } catch (_) {
       if (!mounted) return;
 
       setState(() {
@@ -134,79 +180,118 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Scaffold(
-        backgroundColor: AppColors.generalBackground,
-        body: Center(
-          child: CircularProgressIndicator(),
+      return const SystemNavigationBar(
+        color: AppColors.generalBackground,
+        child: Scaffold(
+          backgroundColor:
+          AppColors.generalBackground,
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
         ),
       );
     }
 
-    return Scaffold(
-      backgroundColor: AppColors.generalBackground,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 22, 24, 50),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              HomeHeader(streakDays: streakDays),
-              const SizedBox(height: 28),
-
-              const WeekCalendarRow(),
-              const SizedBox(height: 30),
-
-              AiFeedbackCard(
-                mainMessage: dailyFeedback?.mainMessage ??
-                    'You’re building your routine step by step.',
-                suggestion: dailyFeedback?.suggestion ??
-                    'Keep tracking your meals and movement today to stay aware of your progress.',
-              ),
-              const SizedBox(height: 45),
-
-              Center(
-                child: CalorieDonutChart(
-                  consumed: consumed.toDouble(),
-                  burned: burned.toDouble(),
+    return SystemNavigationBar(
+      color: AppColors.generalBackground,
+      child: Scaffold(
+        backgroundColor:
+        AppColors.generalBackground,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+              24,
+              22,
+              24,
+              50,
+            ),
+            child: Column(
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
+              children: [
+                HomeHeader(
+                  streakDays: streakDays,
                 ),
-              ),
-              const SizedBox(height: 48),
 
-              CalorieAppleProgress(
-                consumedCalories: consumed,
-                calorieGoal: calorieGoal,
-              ),
-              const SizedBox(height: 34),
+                const SizedBox(height: 28),
 
-              SizedBox(
-                height: 170,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      flex: 6,
-                      child: DailyMacrosCard(
-                        protein: proteinConsumed,
-                        proteinGoal: proteinGoal,
-                        fat: fatConsumed,
-                        fatGoal: fatGoal,
-                        carbs: carbsConsumed,
-                        carbsGoal: carbsGoal,
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      flex: 4,
-                      child: WaterProgressCard(
-                        consumedMl: waterConsumedMl,
-                        goalMl: waterGoalMl,
-                        onWaterAdded: _addWater,
-                      ),
-                    ),
-                  ],
+                const WeekCalendarRow(),
+
+                const SizedBox(height: 30),
+
+                AiFeedbackCard(
+                  mainMessage:
+                  dailyFeedback?.mainMessage ??
+                      context.l10n
+                          .defaultAiFeedbackMessage,
+                  suggestion:
+                  dailyFeedback?.suggestion ??
+                      context.l10n
+                          .defaultAiFeedbackSuggestion,
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 45),
+
+                Center(
+                  child: CalorieDonutChart(
+                    consumed:
+                    consumed.toDouble(),
+                    burned:
+                    burned.toDouble(),
+                  ),
+                ),
+
+                const SizedBox(height: 48),
+
+                CalorieAppleProgress(
+                  consumedCalories: consumed,
+                  calorieGoal: calorieGoal,
+                ),
+
+                const SizedBox(height: 34),
+
+                SizedBox(
+                  height: 170,
+                  child: Row(
+                    crossAxisAlignment:
+                    CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        flex: 6,
+                        child: DailyMacrosCard(
+                          protein:
+                          proteinConsumed,
+                          proteinGoal:
+                          proteinGoal,
+                          fat:
+                          fatConsumed,
+                          fatGoal:
+                          fatGoal,
+                          carbs:
+                          carbsConsumed,
+                          carbsGoal:
+                          carbsGoal,
+                        ),
+                      ),
+
+                      const SizedBox(width: 14),
+
+                      Expanded(
+                        flex: 4,
+                        child: WaterProgressCard(
+                          consumedMl:
+                          waterConsumedMl,
+                          goalMl:
+                          waterGoalMl,
+                          onWaterAdded:
+                          _addWater,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

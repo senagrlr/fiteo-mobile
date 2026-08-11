@@ -1,7 +1,11 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 
 class MealHeaderData {
   final String name;
@@ -79,8 +83,7 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
       ) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.pageController !=
-        widget.pageController) {
+    if (oldWidget.pageController != widget.pageController) {
       oldWidget.pageController.removeListener(
         _pageListener,
       );
@@ -117,12 +120,50 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
   }
 
   double get _swipeProgress {
-    final nearestPage = currentPage.roundToDouble();
+    final nearestPage =
+    currentPage.roundToDouble();
 
     return (currentPage - nearestPage).clamp(
       -1.0,
       1.0,
     );
+  }
+
+  String _localizedMealName(
+      BuildContext context,
+      String mealName,
+      ) {
+    switch (mealName) {
+      case 'Breakfast':
+        return context.l10n.breakfast;
+
+      case 'Lunch':
+        return context.l10n.lunch;
+
+      case 'Dinner':
+        return context.l10n.dinner;
+
+      case 'Snacks':
+        return context.l10n.snack;
+
+      default:
+        return mealName;
+    }
+  }
+
+  String _formattedDate(
+      BuildContext context,
+      ) {
+    final now = DateTime.now();
+
+    final locale =
+    Localizations.localeOf(context)
+        .toLanguageTag();
+
+    return DateFormat(
+      'd MMMM',
+      locale,
+    ).format(now);
   }
 
   @override
@@ -134,17 +175,26 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
       return const SizedBox.shrink();
     }
 
-    final meal = widget.meals[_visibleMealIndex];
-    final progress = _swipeProgress;
+    final meal =
+    widget.meals[_visibleMealIndex];
 
-    final horizontalOffset = progress * -150;
+    final progress =
+        _swipeProgress;
+
+    final horizontalOffset =
+        progress * -150;
 
     final arcOffset =
-        math.sin(progress.abs() * math.pi) * -42;
+        math.sin(
+          progress.abs() * math.pi,
+        ) *
+            -42;
 
-    final rotation = progress * -0.25;
+    final rotation =
+        progress * -0.25;
 
-    final scale = 1 - (progress.abs() * 0.06);
+    final scale =
+        1 - (progress.abs() * 0.06);
 
     return SizedBox(
       height: 410,
@@ -160,12 +210,13 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
             ),
           ),
 
+          // TARİH
           Positioned(
             top: statusBarHeight + 16,
             left: 24,
             child: Text(
-              _formattedDate(),
-              style: const TextStyle(
+              _formattedDate(context),
+              style: AppTextStyles.titleLarge.copyWith(
                 color: Colors.white,
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -173,6 +224,7 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
             ),
           ),
 
+          // STREAK
           Positioned(
             top: statusBarHeight + 10,
             right: 20,
@@ -183,7 +235,9 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
               ),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(
+                  20,
+                ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -193,10 +247,14 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
                     color: AppColors.red,
                     size: 18,
                   ),
+
                   const SizedBox(width: 6),
+
                   Text(
-                    '${widget.streakDays} days',
-                    style: const TextStyle(
+                    context.l10n.streakDays(
+                      widget.streakDays,
+                    ),
+                    style: AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.homeBrown,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -207,12 +265,16 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
             ),
           ),
 
+          // SWIPE ALANI
           Positioned.fill(
             child: PageView.builder(
               controller: widget.pageController,
-              physics: const ClampingScrollPhysics(),
-              onPageChanged: widget.onPageChanged,
-              itemCount: widget.meals.length,
+              physics:
+              const ClampingScrollPhysics(),
+              onPageChanged:
+              widget.onPageChanged,
+              itemCount:
+              widget.meals.length,
               itemBuilder: (
                   context,
                   index,
@@ -221,7 +283,9 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
                     currentPage - index;
 
                 final absoluteDifference =
-                pageDifference.abs().clamp(
+                pageDifference
+                    .abs()
+                    .clamp(
                   0.0,
                   1.0,
                 );
@@ -235,13 +299,21 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
                 final pageMeal =
                 widget.meals[index];
 
+                final localizedMealName =
+                _localizedMealName(
+                  context,
+                  pageMeal.name,
+                );
+
                 return Stack(
                   children: [
                     Positioned(
-                      top: statusBarHeight + 76,
+                      top:
+                      statusBarHeight + 76,
                       left: 20,
                       right: 20,
-                      child: Transform.translate(
+                      child:
+                      Transform.translate(
                         offset: Offset(
                           titleOffset,
                           0,
@@ -251,23 +323,32 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
                           child: Column(
                             children: [
                               Text(
-                                pageMeal.name,
+                                localizedMealName,
                                 textAlign:
                                 TextAlign.center,
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: AppTextStyles
+                                    .displayMedium
+                                    .copyWith(
+                                  color:
+                                  Colors.white,
                                   fontSize: 38,
                                   fontWeight:
-                                  FontWeight.w800,
+                                  FontWeight.w900,
                                   height: 1,
                                 ),
                               ),
-                              const SizedBox(height: 10),
+
+                              const SizedBox(
+                                height: 10,
+                              ),
+
                               _MealMacroSummary(
                                 calories:
                                 widget.calories,
-                                fats: widget.fats,
-                                carbs: widget.carbs,
+                                fats:
+                                widget.fats,
+                                carbs:
+                                widget.carbs,
                                 proteins:
                                 widget.proteins,
                               ),
@@ -282,6 +363,7 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
             ),
           ),
 
+          // TABAK GÖRSELİ
           Positioned(
             top: 152 + arcOffset,
             left: 0,
@@ -312,10 +394,13 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
                           return FadeTransition(
                             opacity: animation,
                             child: ScaleTransition(
-                              scale: Tween<double>(
+                              scale:
+                              Tween<double>(
                                 begin: 0.94,
                                 end: 1,
-                              ).animate(animation),
+                              ).animate(
+                                animation,
+                              ),
                               child: child,
                             ),
                           );
@@ -340,8 +425,7 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
                                 ) {
                               return const Center(
                                 child: Icon(
-                                  Icons
-                                      .restaurant_rounded,
+                                  Icons.restaurant_rounded,
                                   color:
                                   AppColors.homeBrown,
                                   size: 90,
@@ -360,27 +444,6 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
         ],
       ),
     );
-  }
-
-  String _formattedDate() {
-    final now = DateTime.now();
-
-    const months = [
-      'january',
-      'february',
-      'march',
-      'april',
-      'may',
-      'june',
-      'july',
-      'august',
-      'september',
-      'october',
-      'november',
-      'december',
-    ];
-
-    return '${now.day} ${months[now.month - 1]}';
   }
 }
 
@@ -409,23 +472,39 @@ class _MealMacroSummary extends StatelessWidget {
           mainAxisAlignment:
           MainAxisAlignment.center,
           children: [
-            _value('$calories kcal'),
+            _value(
+              '$calories kcal',
+            ),
+
             _divider(),
-            _value('$proteins protein'),
+
+            _value(
+              '$proteins ${context.l10n.protein}',
+            ),
+
             _divider(),
-            _value('$fats fat'),
+
+            _value(
+              '$fats ${context.l10n.fat}',
+            ),
+
             _divider(),
-            _value('$carbs carbs'),
+
+            _value(
+              '$carbs ${context.l10n.carbs}',
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _value(String value) {
+  Widget _value(
+      String value,
+      ) {
     return Text(
       value,
-      style: const TextStyle(
+      style: AppTextStyles.bodyMedium.copyWith(
         color: Colors.white,
         fontSize: 15,
         fontWeight: FontWeight.w700,
@@ -449,7 +528,9 @@ class _MealMacroSummary extends StatelessWidget {
 
 class _MealHeaderClipper extends CustomClipper<Path> {
   @override
-  Path getClip(Size size) {
+  Path getClip(
+      Size size,
+      ) {
     final path = Path();
 
     path.lineTo(
@@ -476,7 +557,8 @@ class _MealHeaderClipper extends CustomClipper<Path> {
 
   @override
   bool shouldReclip(
-      covariant CustomClipper<Path> oldClipper,
+      covariant CustomClipper<Path>
+      oldClipper,
       ) {
     return false;
   }

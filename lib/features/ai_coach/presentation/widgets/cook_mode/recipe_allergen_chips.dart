@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 
 class RecipeAllergenChips extends StatelessWidget {
   final List<String> allergens;
@@ -19,19 +22,19 @@ class RecipeAllergenChips extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F6F4),
+        color: AppColors.allergenCardBackground,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFFEAE5DF),
+          color: AppColors.allergenCardBorder,
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Allergens',
-            style: TextStyle(
-              color: Color(0xFF7D7670),
+          Text(
+            context.l10n.allergens,
+            style: AppTextStyles.titleMedium.copyWith(
+              color: AppColors.homeSecondaryValue,
               fontSize: 16,
               fontWeight: FontWeight.w800,
             ),
@@ -43,7 +46,10 @@ class RecipeAllergenChips extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: allergens.map((allergen) {
-              final data = _allergenData(allergen);
+              final data = _allergenData(
+                context,
+                allergen,
+              );
 
               return Container(
                 padding: const EdgeInsets.symmetric(
@@ -54,7 +60,7 @@ class RecipeAllergenChips extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: const Color(0xFFE5E1DC),
+                    color: AppColors.allergenChipBorder,
                   ),
                 ),
                 child: Row(
@@ -66,10 +72,12 @@ class RecipeAllergenChips extends StatelessWidget {
                         fontSize: 16,
                       ),
                     ),
+
                     const SizedBox(width: 7),
+
                     Text(
                       data.label,
-                      style: const TextStyle(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         color: AppColors.homeBrown,
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -83,10 +91,10 @@ class RecipeAllergenChips extends StatelessWidget {
 
           const SizedBox(height: 11),
 
-          const Text(
-            'AI-generated allergen information. Always check ingredient labels before consuming.',
-            style: TextStyle(
-              color: Color(0xFF9A938C),
+          Text(
+            context.l10n.allergenDisclaimer,
+            style: AppTextStyles.labelSmall.copyWith(
+              color: AppColors.homeSecondaryValue,
               fontSize: 10,
               height: 1.35,
               fontWeight: FontWeight.w500,
@@ -97,41 +105,71 @@ class RecipeAllergenChips extends StatelessWidget {
     );
   }
 
-  _AllergenData _allergenData(String allergen) {
+  _AllergenData _allergenData(
+      BuildContext context,
+      String allergen,
+      ) {
     switch (allergen.trim().toLowerCase()) {
       case 'gluten':
-        return const _AllergenData(label: 'Gluten', emoji: '🌾');
+        return _AllergenData(
+          label: context.l10n.allergenGluten,
+          emoji: '🌾',
+        );
 
       case 'milk':
       case 'dairy':
       case 'milk products':
-        return const _AllergenData(label: 'Dairy', emoji: '🥛');
+        return _AllergenData(
+          label: context.l10n.allergenDairy,
+          emoji: '🥛',
+        );
 
       case 'egg':
       case 'eggs':
-        return const _AllergenData(label: 'Egg', emoji: '🥚');
+        return _AllergenData(
+          label: context.l10n.allergenEgg,
+          emoji: '🥚',
+        );
 
       case 'peanut':
       case 'peanuts':
-        return const _AllergenData(label: 'Peanuts', emoji: '🥜');
+        return _AllergenData(
+          label: context.l10n.allergenPeanuts,
+          emoji: '🥜',
+        );
 
       case 'tree nuts':
       case 'nuts':
-        return const _AllergenData(label: 'Tree nuts', emoji: '🌰');
+        return _AllergenData(
+          label: context.l10n.allergenTreeNuts,
+          emoji: '🌰',
+        );
 
       case 'soy':
       case 'soya':
-        return const _AllergenData(label: 'Soy', emoji: '🫘');
+        return _AllergenData(
+          label: context.l10n.allergenSoy,
+          emoji: '🫘',
+        );
 
       case 'fish':
-        return const _AllergenData(label: 'Fish', emoji: '🐟');
+        return _AllergenData(
+          label: context.l10n.allergenFish,
+          emoji: '🐟',
+        );
 
       case 'shellfish':
       case 'crustaceans':
-        return const _AllergenData(label: 'Shellfish', emoji: '🦐');
+        return _AllergenData(
+          label: context.l10n.allergenShellfish,
+          emoji: '🦐',
+        );
 
       case 'sesame':
-        return const _AllergenData(label: 'Sesame', emoji: '🌱');
+        return _AllergenData(
+          label: context.l10n.allergenSesame,
+          emoji: '🌱',
+        );
 
       default:
         return _AllergenData(

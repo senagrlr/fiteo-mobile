@@ -148,6 +148,29 @@ class AppLocalizationsTr extends AppLocalizations {
   String get invalidEmail => 'Lütfen geçerli bir e-posta adresi gir.';
 
   @override
+  String get sendResetLink => 'Sıfırlama Bağlantısı Gönder';
+
+  @override
+  String get sendLink => 'Link Gönder';
+
+  @override
+  String get sending => 'Gönderiliyor...';
+
+  @override
+  String get resetLinkSent =>
+      'Şifre sıfırlama bağlantısı gönderildi. E-postanı kontrol et.';
+
+  @override
+  String get resetLinkCouldNotSend =>
+      'Şifre sıfırlama bağlantısı gönderilemedi. Lütfen tekrar dene.';
+
+  @override
+  String get passwordRequired => 'Şifre gerekli.';
+
+  @override
+  String get somethingWentWrong => 'Bir şeyler ters gitti. Lütfen tekrar dene.';
+
+  @override
   String get onboardingPage1Title =>
       'Yeni bir sen için ilk adımı attın, ama motive kalmak her zaman kolay değil.';
 
@@ -268,31 +291,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get createMyPlan => 'Planımı Oluştur';
 
   @override
-  String get planProgressOverTime => 'Zaman içindeki ilerlemen';
-
-  @override
-  String get fiteoPlan => 'Fiteo planı';
-
-  @override
-  String get genericPlan => 'Genel plan';
-
-  @override
-  String get chartStart => 'Başlangıç';
-
-  @override
-  String get chartEarly => 'İlk Dönem';
-
-  @override
-  String get chartMid => 'Orta';
-
-  @override
-  String get chartGoal => 'Hedef';
-
-  @override
-  String get yourGoal => 'Hedefin';
-
-  @override
-  String get customizeYourPlan => 'Planın sana özel hazırlanıyor';
+  String get customizeYourPlan => 'Planın hazırlanıyor';
 
   @override
   String get analyzingGoals => 'Hedeflerin analiz ediliyor...';
@@ -365,29 +364,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get planChartYourGoal => 'Hedefin';
 
   @override
-  String get sendResetLink => 'Sıfırlama Bağlantısı Gönder';
-
-  @override
-  String get sendLink => 'Link Gönder';
-
-  @override
-  String get sending => 'Gönderiliyor...';
-
-  @override
-  String get resetLinkSent =>
-      'Şifre sıfırlama bağlantısı gönderildi. E-postanı kontrol et.';
-
-  @override
-  String get resetLinkCouldNotSend =>
-      'Şifre sıfırlama bağlantısı gönderilemedi. Lütfen tekrar dene.';
-
-  @override
-  String get passwordRequired => 'Şifre gerekli.';
-
-  @override
-  String get somethingWentWrong => 'Bir şeyler ters gitti. Lütfen tekrar dene.';
-
-  @override
   String get dailySummary => 'Günlük Özet';
 
   @override
@@ -397,13 +373,112 @@ class AppLocalizationsTr extends AppLocalizations {
   String get protein => 'Protein';
 
   @override
-  String get carbs => 'Karbonhidrat';
+  String get carbs => 'Karb.';
 
   @override
   String get fat => 'Yağ';
 
   @override
+  String get foodIntake => 'Alınan';
+
+  @override
+  String get exerciseBurn => 'Yakılan';
+
+  @override
+  String get netCalories => 'Net Kalori';
+
+  @override
+  String get hydration => 'Su Tüketimi';
+
+  @override
+  String get remaining => 'Kalan';
+
+  @override
+  String get calorieGoal => 'Kalori Hedefi';
+
+  @override
+  String caloriesOverGoal(int calories) {
+    return '$calories kcal fazla';
+  }
+
+  @override
+  String caloriesPerDay(int calories) {
+    return '$calories kcal/gün';
+  }
+
+  @override
+  String get consumed => 'Alınan';
+
+  @override
+  String get burned => 'Yakılan';
+
+  @override
+  String get net => 'Net';
+
+  @override
+  String get todaysMacros => 'Makrolar';
+
+  @override
+  String macroGoalTitle(String macro) {
+    return '$macro Hedefi';
+  }
+
+  @override
+  String get viewCalendar => 'Takvimi Gör';
+
+  @override
+  String streakDays(int count) {
+    return '$count gün';
+  }
+
+  @override
+  String get defaultAiFeedbackMessage => 'Rutinini adım adım oluşturuyorsun.';
+
+  @override
+  String get defaultAiFeedbackSuggestion =>
+      'Bugünkü ilerlemeni takip etmek için öğünlerini ve hareketlerini kaydetmeye devam et.';
+
+  @override
+  String get drink => 'İç';
+
+  @override
+  String get enterWaterAmount => 'Su miktarını gir';
+
+  @override
   String get addFood => 'Yemek Ekle';
+
+  @override
+  String get foodName => 'Yemek adı';
+
+  @override
+  String get amount => 'Miktar';
+
+  @override
+  String get grams => 'Gram';
+
+  @override
+  String get pieces => 'Adet';
+
+  @override
+  String get calorieEstimateDisclaimer =>
+      '( Kaloriler ortalama besin değerlerine\ngöre tahmini olarak hesaplanır. )';
+
+  @override
+  String get couldNotAddFood => 'Yemek eklenemedi.';
+
+  @override
+  String get couldNotDeleteFood => 'Yemek silinemedi.';
+
+  @override
+  String get couldNotLoadMeals => 'Öğünler yüklenemedi.';
+
+  @override
+  String get deleteFood => 'Yemeği Sil';
+
+  @override
+  String todaysMeal(String meal) {
+    return 'Bugünkü $meal';
+  }
 
   @override
   String get breakfast => 'Kahvaltı';
@@ -416,6 +491,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get snack => 'Ara Öğün';
+
+  @override
+  String get monthlyCalendar => 'Aylık Takvim';
 
   @override
   String get weeklyReport => 'Haftalık Rapor';
@@ -440,8 +518,307 @@ class AppLocalizationsTr extends AppLocalizations {
   String get couldNotAddRecipeToMeals => 'Tarif öğünlere eklenemedi.';
 
   @override
+  String get recipeCouldNotBeSaved => 'Tarif kaydedilemedi.';
+
+  @override
+  String get removeFromSaved => 'Kaydedilenlerden kaldır';
+
+  @override
+  String get saveRecipe => 'Tarifi kaydet';
+
+  @override
+  String get addToIntake => 'Günlük Tüketime Ekle';
+
+  @override
+  String get ingredients => 'Malzemeler';
+
+  @override
+  String get instructions => 'Hazırlanışı';
+
+  @override
+  String get nutrition => 'Besin Değerleri';
+
+  @override
+  String get servings => 'Porsiyon';
+
+  @override
+  String get totalCalories => 'Toplam Kalori';
+
+  @override
+  String get perServing => 'Porsiyon Başına';
+
+  @override
   String get dailyAiMessageLimitReached =>
       'Günlük yapay zekâ mesaj limitine ulaştın.';
+
+  @override
+  String get aiWelcomeMessage =>
+      'Selam, ben Fiteo. Yolculuğunu daha iyi hale getirelim. Aşçı moduna geçebilirsin.';
+
+  @override
+  String get aiMessageInputHint => 'Hedefini anlat, sana yol göstereyim';
+
+  @override
+  String get aiCouldNotRespond =>
+      'Üzgünüm, şu anda yanıt veremiyorum. Lütfen daha sonra tekrar dene.';
+
+  @override
+  String get aiChatGreeting =>
+      'Merhaba, ben Fiteo. Hedefini söyle, sana yol göstereyim.';
+
+  @override
+  String get deleteMessage => 'Mesajı Sil';
+
+  @override
+  String aiMessagesLeftToday(int count) {
+    return 'Bugün $count yapay zekâ mesaj hakkın kaldı';
+  }
+
+  @override
+  String get creatingRecipe => 'Tarifin hazırlanıyor...\nLütfen bekle.';
+
+  @override
+  String get enterIngredients => 'Malzemeleri gir';
+
+  @override
+  String get cookWelcomeMessage =>
+      'Malzemeleri yaz, sana en uygun tarifi hazırlayayım.';
+
+  @override
+  String get dailyRecipeLimitReached =>
+      'Günlük tarif oluşturma limitine ulaştın.';
+
+  @override
+  String recipeRequestsLeftToday(int count) {
+    return 'Bugün $count tarif oluşturma hakkın kaldı';
+  }
+
+  @override
+  String get addExercise => 'Egzersiz Ekle';
+
+  @override
+  String get exerciseName => 'Egzersiz adı';
+
+  @override
+  String get durationMinutes => 'Süre (dakika)';
+
+  @override
+  String get intensity => 'Yoğunluk';
+
+  @override
+  String get intensityLow => 'Düşük';
+
+  @override
+  String get intensityMedium => 'Orta';
+
+  @override
+  String get intensityHigh => 'Yüksek';
+
+  @override
+  String get calculating => 'Hesaplanıyor...';
+
+  @override
+  String get caloriesBurned => 'Yakılan Kalori';
+
+  @override
+  String get metEstimateDisclaimer =>
+      '( Kaloriler ortalama MET değerleri\nkullanılarak tahmini hesaplanır. )';
+
+  @override
+  String get duration => 'Süre';
+
+  @override
+  String minutesShort(int minutes) {
+    return '$minutes dk';
+  }
+
+  @override
+  String get saveCalories => 'Kaloriyi Kaydet';
+
+  @override
+  String get deleteExercise => 'Egzersizi Sil';
+
+  @override
+  String get todaysExercises => 'Bugünkü Egzersizler';
+
+  @override
+  String get couldNotAddExercise => 'Egzersiz eklenemedi.';
+
+  @override
+  String get couldNotUpdateCalories => 'Kalori bilgisi güncellenemedi.';
+
+  @override
+  String get couldNotDeleteExercise => 'Egzersiz silinemedi.';
+
+  @override
+  String get couldNotLoadExercises => 'Egzersizler yüklenemedi.';
+
+  @override
+  String get allergens => 'Alerjenler';
+
+  @override
+  String get allergenDisclaimer =>
+      'Alerjen bilgileri yapay zekâ tarafından oluşturulmuştur. Tüketmeden önce her zaman ürün içeriklerini kontrol et.';
+
+  @override
+  String get allergenGluten => 'Gluten';
+
+  @override
+  String get allergenDairy => 'Süt Ürünleri';
+
+  @override
+  String get allergenEgg => 'Yumurta';
+
+  @override
+  String get allergenPeanuts => 'Yer Fıstığı';
+
+  @override
+  String get allergenTreeNuts => 'Sert Kabuklu Yemişler';
+
+  @override
+  String get allergenSoy => 'Soya';
+
+  @override
+  String get allergenFish => 'Balık';
+
+  @override
+  String get allergenShellfish => 'Kabuklu Deniz Ürünleri';
+
+  @override
+  String get allergenSesame => 'Susam';
+
+  @override
+  String get deleteMyAccount => 'Hesabımı Sil';
+
+  @override
+  String get sorryToSeeYouGo => 'Gitmene üzüldüm';
+
+  @override
+  String get deleteAccountDescription =>
+      'Hesabını silmek profilini ve kişisel verilerini kalıcı olarak kaldırır. Bu işlem geri alınamaz.';
+
+  @override
+  String get enterCurrentPassword => 'Mevcut şifreni gir';
+
+  @override
+  String get deleting => 'Siliniyor...';
+
+  @override
+  String get confirm => 'Onayla';
+
+  @override
+  String get currentPasswordRequired => 'Mevcut şifre gerekli.';
+
+  @override
+  String get currentPasswordIncorrect => 'Mevcut şifre hatalı.';
+
+  @override
+  String get recentLoginRequired =>
+      'Hesabını silmeden önce lütfen tekrar giriş yap.';
+
+  @override
+  String get accountDeleteFailed => 'Hesabın silinemedi. Lütfen tekrar dene.';
+
+  @override
+  String get accountDeleted => 'Hesabın silindi.';
+
+  @override
+  String get weeklyCalories => 'Haftalık Kalori';
+
+  @override
+  String get mondayShort => 'PZT';
+
+  @override
+  String get tuesdayShort => 'SAL';
+
+  @override
+  String get wednesdayShort => 'ÇAR';
+
+  @override
+  String get thursdayShort => 'PER';
+
+  @override
+  String get fridayShort => 'CUM';
+
+  @override
+  String get saturdayShort => 'CMT';
+
+  @override
+  String get sundayShort => 'PAZ';
+
+  @override
+  String get editProfile => 'Profili Düzenle';
+
+  @override
+  String get chooseYourMascot => 'Maskotunu seç';
+
+  @override
+  String get changePassword => 'Şifreyi Değiştir';
+
+  @override
+  String get currentPassword => 'Mevcut şifre';
+
+  @override
+  String get newPassword => 'Yeni şifre';
+
+  @override
+  String get confirmNewPassword => 'Yeni şifreyi doğrula';
+
+  @override
+  String get saveChanges => 'Kaydet';
+
+  @override
+  String get savedRecipes => 'Kaydedilen Tarifler';
+
+  @override
+  String get goalsPreferences => 'Hedefler ve Tercihler';
+
+  @override
+  String get logOut => 'Çıkış Yap';
+
+  @override
+  String get noSavedRecipesYet => 'Henüz kaydedilmiş tarif yok.';
+
+  @override
+  String get bodyGoals => 'Vücut Hedefleri';
+
+  @override
+  String get preferencesTitle => 'Tercihler';
+
+  @override
+  String get currentWeightKg => 'Mevcut kilo (kg)';
+
+  @override
+  String get targetWeightKg => 'Hedef kilo (kg)';
+
+  @override
+  String get dailyCalorieGoal => 'Günlük kalori hedefi';
+
+  @override
+  String get preferencesUpdated => 'Tercihler başarıyla güncellendi.';
+
+  @override
+  String get preferencesUpdateFailed =>
+      'Tercihler güncellenemedi. Lütfen tekrar dene.';
+
+  @override
+  String get usernameRequired => 'Kullanıcı adı gerekli.';
+
+  @override
+  String get passwordMinLength => 'Şifre en az 8 karakter olmalıdır.';
+
+  @override
+  String get passwordsDoNotMatch => 'Şifreler eşleşmiyor.';
+
+  @override
+  String get passwordUpdateFailed => 'Şifre güncellenemedi.';
+
+  @override
+  String get profileUpdateFailed =>
+      'Profil güncellenemedi. Lütfen tekrar dene.';
+
+  @override
+  String get profileUpdated => 'Profil başarıyla güncellendi.';
 
   @override
   String recipeAddedToMeal(String recipeName, String mealType) {

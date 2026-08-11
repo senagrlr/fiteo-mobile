@@ -1,44 +1,64 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 
 class CookSpeechBubble extends StatefulWidget {
   const CookSpeechBubble({super.key});
 
   @override
-  State<CookSpeechBubble> createState() => _CookSpeechBubbleState();
+  State<CookSpeechBubble> createState() =>
+      _CookSpeechBubbleState();
 }
 
-class _CookSpeechBubbleState extends State<CookSpeechBubble> {
-  final String fullText =
-      "Type ingredients,\nI’ll cook up best recipe for you.";
-
-  String visibleText = "";
+class _CookSpeechBubbleState
+    extends State<CookSpeechBubble> {
+  String visibleText = '';
   int index = 0;
-  Timer? timer;
+
+  Timer? _typingTimer;
+  bool _typingStarted = false;
 
   @override
-  void initState() {
-    super.initState();
-    _startTyping();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!_typingStarted) {
+      _typingStarted = true;
+
+      _startTyping(
+        context.l10n.cookWelcomeMessage,
+      );
+    }
   }
 
-  void _startTyping() {
-    timer = Timer.periodic(const Duration(milliseconds: 35), (timer) {
-      if (index < fullText.length) {
-        setState(() {
-          visibleText += fullText[index];
-          index++;
-        });
-      } else {
-        timer.cancel();
-      }
-    });
+  void _startTyping(String fullText) {
+    _typingTimer = Timer.periodic(
+      const Duration(milliseconds: 35),
+          (timer) {
+        if (!mounted) {
+          timer.cancel();
+          return;
+        }
+
+        if (index < fullText.length) {
+          setState(() {
+            visibleText += fullText[index];
+            index++;
+          });
+        } else {
+          timer.cancel();
+        }
+      },
+    );
   }
 
   @override
   void dispose() {
-    timer?.cancel();
+    _typingTimer?.cancel();
     super.dispose();
   }
 
@@ -60,9 +80,10 @@ class _CookSpeechBubbleState extends State<CookSpeechBubble> {
           child: Text(
             visibleText,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            softWrap: true,
+            style: AppTextStyles.bodyMedium.copyWith(
               color: AppColors.homeBrown,
-              fontSize: 18,
+              fontSize: 15,
               height: 1.4,
               fontWeight: FontWeight.w700,
             ),
@@ -99,5 +120,8 @@ class _CookBubbleTailPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(
+      covariant CustomPainter oldDelegate,
+      ) =>
+      false;
 }

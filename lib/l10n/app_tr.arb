@@ -16,7 +16,6 @@
   "login": "Giriş Yap",
   "welcomeBack": "Tekrar Hoş Geldin",
   "loginSubtitle": "Yolculuğuna devam etmek için giriş yap.",
-
   "emailAndPasswordEmpty": "Lütfen e-posta adresini ve şifreni gir.",
   "wrongEmailOrPassword": "E-posta veya şifre hatalı.",
   "or": "veya",
@@ -38,12 +37,6 @@
   "verifyEmailDescription": "E-posta adresine bir doğrulama bağlantısı gönderdik. Devam etmek için gelen kutunu kontrol et ve bağlantıya dokun.",
   "resendEmail": "E-postayı Tekrar Gönder",
   "resendEmailWithTime": "E-postayı Tekrar Gönder ({time})",
-  "checking": "Kontrol Ediliyor...",
-  "verify": "Doğrula",
-  "emailVerifiedSuccessfully": "E-posta adresin başarıyla doğrulandı.",
-  "emailNotVerifiedYet": "E-posta adresin henüz doğrulanmadı.",
-  "verificationEmailSentAgain": "Doğrulama e-postası tekrar gönderildi.",
-  "verificationEmailCouldNotSend": "Doğrulama e-postası gönderilemedi. Lütfen tekrar dene.",
   "@resendEmailWithTime": {
     "placeholders": {
       "time": {
@@ -51,14 +44,26 @@
       }
     }
   },
+  "checking": "Kontrol Ediliyor...",
+  "verify": "Doğrula",
+  "emailVerifiedSuccessfully": "E-posta adresin başarıyla doğrulandı.",
+  "emailNotVerifiedYet": "E-posta adresin henüz doğrulanmadı.",
+  "verificationEmailSentAgain": "Doğrulama e-postası tekrar gönderildi.",
+  "verificationEmailCouldNotSend": "Doğrulama e-postası gönderilemedi. Lütfen tekrar dene.",
 
   "forgotPassword": "Şifremi unuttum",
   "forgotPasswordTitle": "Şifremi Unuttum",
   "forgotPasswordDescription": "E-posta adresini gir, şifreni sıfırlaman için link gönderelim.",
-
   "enterEmail": "Lütfen e-posta adresini gir.",
   "emailRequired": "E-posta adresi gerekli.",
   "invalidEmail": "Lütfen geçerli bir e-posta adresi gir.",
+  "sendResetLink": "Sıfırlama Bağlantısı Gönder",
+  "sendLink": "Link Gönder",
+  "sending": "Gönderiliyor...",
+  "resetLinkSent": "Şifre sıfırlama bağlantısı gönderildi. E-postanı kontrol et.",
+  "resetLinkCouldNotSend": "Şifre sıfırlama bağlantısı gönderilemedi. Lütfen tekrar dene.",
+  "passwordRequired": "Şifre gerekli.",
+  "somethingWentWrong": "Bir şeyler ters gitti. Lütfen tekrar dene.",
 
   "onboardingPage1Title": "Yeni bir sen için ilk adımı attın, ama motive kalmak her zaman kolay değil.",
   "onboardingPage2Title": "Daha sağlıklı yaşamak istiyorsun, ama her şeyi takip etmek bunaltıcı olabiliyor.",
@@ -106,15 +111,6 @@
   "planPreviewDescription": "Genel planlarda motivasyon zamanla azalabilir. Fiteo, hedeflerine ve yaşam tarzına uyum sağlayarak hedefin doğrultusunda ilerlemene yardımcı olur.",
   "createMyPlan": "Planımı Oluştur",
 
-  "planProgressOverTime": "Zaman içindeki ilerlemen",
-  "fiteoPlan": "Fiteo planı",
-  "genericPlan": "Genel plan",
-  "chartStart": "Başlangıç",
-  "chartEarly": "İlk Dönem",
-  "chartMid": "Orta",
-  "chartGoal": "Hedef",
-  "yourGoal": "Hedefin",
-
   "customizeYourPlan": "Planın hazırlanıyor",
   "analyzingGoals": "Hedeflerin analiz ediliyor...",
   "calculatingCalories": "Kalori ihtiyacın hesaplanıyor...",
@@ -142,29 +138,97 @@
   "planChartGoal": "Hedef",
   "planChartYourGoal": "Hedefin",
 
-  "sendResetLink": "Sıfırlama Bağlantısı Gönder",
-  "sendLink": "Link Gönder",
-  "sending": "Gönderiliyor...",
-
-  "resetLinkSent": "Şifre sıfırlama bağlantısı gönderildi. E-postanı kontrol et.",
-  "resetLinkCouldNotSend": "Şifre sıfırlama bağlantısı gönderilemedi. Lütfen tekrar dene.",
-
-  "passwordRequired": "Şifre gerekli.",
-  "somethingWentWrong": "Bir şeyler ters gitti. Lütfen tekrar dene.",
-
   "dailySummary": "Günlük Özet",
   "calories": "Kalori",
   "protein": "Protein",
-  "carbs": "Karbonhidrat",
+  "carbs": "Karb.",
   "fat": "Yağ",
 
+  "foodIntake": "Alınan",
+  "exerciseBurn": "Yakılan",
+  "netCalories": "Net Kalori",
+  "hydration": "Su Tüketimi",
+
+  "remaining": "Kalan",
+  "calorieGoal": "Kalori Hedefi",
+
+  "caloriesOverGoal": "{calories} kcal fazla",
+  "@caloriesOverGoal": {
+    "placeholders": {
+      "calories": {
+        "type": "int"
+      }
+    }
+  },
+
+  "caloriesPerDay": "{calories} kcal/gün",
+  "@caloriesPerDay": {
+    "placeholders": {
+      "calories": {
+        "type": "int"
+      }
+    }
+  },
+
+  "consumed": "Alınan",
+  "burned": "Yakılan",
+  "net": "Net",
+
+  "todaysMacros": "Makrolar",
+
+  "macroGoalTitle": "{macro} Hedefi",
+  "@macroGoalTitle": {
+    "placeholders": {
+      "macro": {
+        "type": "String"
+      }
+    }
+  },
+
+  "viewCalendar": "Takvimi Gör",
+
+  "streakDays": "{count} gün",
+  "@streakDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "defaultAiFeedbackMessage": "Rutinini adım adım oluşturuyorsun.",
+  "defaultAiFeedbackSuggestion": "Bugünkü ilerlemeni takip etmek için öğünlerini ve hareketlerini kaydetmeye devam et.",
+
+  "drink": "İç",
+  "enterWaterAmount": "Su miktarını gir",
+
   "addFood": "Yemek Ekle",
+  "foodName": "Yemek adı",
+  "amount": "Miktar",
+  "grams": "Gram",
+  "pieces": "Adet",
+  "calorieEstimateDisclaimer": "( Kaloriler ortalama besin değerlerine\ngöre tahmini olarak hesaplanır. )",
+
+  "couldNotAddFood": "Yemek eklenemedi.",
+  "couldNotDeleteFood": "Yemek silinemedi.",
+  "couldNotLoadMeals": "Öğünler yüklenemedi.",
+  "deleteFood": "Yemeği Sil",
+
+  "todaysMeal": "Bugünkü {meal}",
+  "@todaysMeal": {
+    "placeholders": {
+      "meal": {
+        "type": "String"
+      }
+    }
+  },
 
   "breakfast": "Kahvaltı",
   "lunch": "Öğle Yemeği",
   "dinner": "Akşam Yemeği",
   "snack": "Ara Öğün",
 
+  "monthlyCalendar": "Aylık Takvim",
   "weeklyReport": "Haftalık Rapor",
   "monthlyReport": "Aylık Rapor",
   "progress": "İlerleme",
@@ -173,7 +237,155 @@
 
   "recipeCouldNotBeCreated": "Tarif oluşturulamadı. Lütfen tekrar dene.",
   "couldNotAddRecipeToMeals": "Tarif öğünlere eklenemedi.",
+  "recipeCouldNotBeSaved": "Tarif kaydedilemedi.",
+  "removeFromSaved": "Kaydedilenlerden kaldır",
+  "saveRecipe": "Tarifi kaydet",
+  "addToIntake": "Günlük Tüketime Ekle",
+
+  "ingredients": "Malzemeler",
+  "instructions": "Hazırlanışı",
+  "nutrition": "Besin Değerleri",
+
+  "servings": "Porsiyon",
+  "totalCalories": "Toplam Kalori",
+  "perServing": "Porsiyon Başına",
+
   "dailyAiMessageLimitReached": "Günlük yapay zekâ mesaj limitine ulaştın.",
+
+  "aiWelcomeMessage": "Selam, ben Fiteo. Yolculuğunu daha iyi hale getirelim. Aşçı moduna geçebilirsin.",
+  "aiMessageInputHint": "Hedefini anlat, sana yol göstereyim",
+  "aiCouldNotRespond": "Üzgünüm, şu anda yanıt veremiyorum. Lütfen daha sonra tekrar dene.",
+  "aiChatGreeting": "Merhaba, ben Fiteo. Hedefini söyle, sana yol göstereyim.",
+  "deleteMessage": "Mesajı Sil",
+
+  "aiMessagesLeftToday": "Bugün {count} yapay zekâ mesaj hakkın kaldı",
+  "@aiMessagesLeftToday": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "creatingRecipe": "Tarifin hazırlanıyor...\nLütfen bekle.",
+  "enterIngredients": "Malzemeleri gir",
+  "cookWelcomeMessage": "Malzemeleri yaz, sana en uygun tarifi hazırlayayım.",
+
+  "dailyRecipeLimitReached": "Günlük tarif oluşturma limitine ulaştın.",
+
+  "recipeRequestsLeftToday": "Bugün {count} tarif oluşturma hakkın kaldı",
+  "@recipeRequestsLeftToday": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "addExercise": "Egzersiz Ekle",
+  "exerciseName": "Egzersiz adı",
+  "durationMinutes": "Süre (dakika)",
+  "intensity": "Yoğunluk",
+
+  "intensityLow": "Düşük",
+  "intensityMedium": "Orta",
+  "intensityHigh": "Yüksek",
+
+  "calculating": "Hesaplanıyor...",
+  "caloriesBurned": "Yakılan Kalori",
+
+  "metEstimateDisclaimer": "( Kaloriler ortalama MET değerleri\nkullanılarak tahmini hesaplanır. )",
+
+  "duration": "Süre",
+
+  "minutesShort": "{minutes} dk",
+  "@minutesShort": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+
+  "saveCalories": "Kaloriyi Kaydet",
+  "deleteExercise": "Egzersizi Sil",
+
+  "todaysExercises": "Bugünkü Egzersizler",
+  "couldNotAddExercise": "Egzersiz eklenemedi.",
+  "couldNotUpdateCalories": "Kalori bilgisi güncellenemedi.",
+  "couldNotDeleteExercise": "Egzersiz silinemedi.",
+  "couldNotLoadExercises": "Egzersizler yüklenemedi.",
+
+  "allergens": "Alerjenler",
+  "allergenDisclaimer": "Alerjen bilgileri yapay zekâ tarafından oluşturulmuştur. Tüketmeden önce her zaman ürün içeriklerini kontrol et.",
+
+  "allergenGluten": "Gluten",
+  "allergenDairy": "Süt Ürünleri",
+  "allergenEgg": "Yumurta",
+  "allergenPeanuts": "Yer Fıstığı",
+  "allergenTreeNuts": "Sert Kabuklu Yemişler",
+  "allergenSoy": "Soya",
+  "allergenFish": "Balık",
+  "allergenShellfish": "Kabuklu Deniz Ürünleri",
+  "allergenSesame": "Susam",
+
+  "deleteMyAccount": "Hesabımı Sil",
+  "sorryToSeeYouGo": "Gitmene üzüldüm",
+  "deleteAccountDescription": "Hesabını silmek profilini ve kişisel verilerini kalıcı olarak kaldırır. Bu işlem geri alınamaz.",
+  "enterCurrentPassword": "Mevcut şifreni gir",
+  "deleting": "Siliniyor...",
+  "confirm": "Onayla",
+
+  "currentPasswordRequired": "Lütfen mevcut şifreni gir.",
+  "currentPasswordIncorrect": "Mevcut şifren hatalı.",
+  "recentLoginRequired": "Hesabını silmeden önce lütfen tekrar giriş yap.",
+  "accountDeleteFailed": "Hesabın silinemedi. Lütfen tekrar dene.",
+  "accountDeleted": "Hesabın silindi.",
+
+  "weeklyCalories": "Haftalık Kalori",
+
+  "mondayShort": "PZT",
+  "tuesdayShort": "SAL",
+  "wednesdayShort": "ÇAR",
+  "thursdayShort": "PER",
+  "fridayShort": "CUM",
+  "saturdayShort": "CMT",
+  "sundayShort": "PAZ",
+
+  "editProfile": "Profili Düzenle",
+  "chooseYourMascot": "Maskotunu seç",
+  "changePassword": "Şifreyi Değiştir",
+  "currentPassword": "Mevcut şifre",
+  "newPassword": "Yeni şifre",
+  "confirmNewPassword": "Yeni şifreyi doğrula",
+  "saveChanges": "Kaydet",
+
+  "editProfile": "Profili Düzenle",
+  "savedRecipes": "Kaydedilen Tarifler",
+  "goalsPreferences": "Hedefler ve Tercihler",
+  "logOut": "Çıkış Yap",
+  "deleteMyAccount": "Hesabımı Sil",
+  "noSavedRecipesYet": "Henüz kaydedilmiş tarif yok.",
+
+  "goalsPreferences": "Hedefler ve Tercihler",
+  "bodyGoals": "Vücut Hedefleri",
+  "preferencesTitle": "Tercihler",
+
+  "currentWeightKg": "Mevcut kilo (kg)",
+  "targetWeightKg": "Hedef kilo (kg)",
+  "dailyCalorieGoal": "Günlük kalori hedefi",
+
+  "preferencesUpdated": "Tercihler başarıyla güncellendi.",
+  "preferencesUpdateFailed": "Tercihler güncellenemedi. Lütfen tekrar dene.",
+
+  "usernameRequired": "Kullanıcı adı gerekli.",
+  "currentPasswordRequired": "Mevcut şifre gerekli.",
+  "passwordMinLength": "Şifre en az 8 karakter olmalıdır.",
+  "passwordsDoNotMatch": "Şifreler eşleşmiyor.",
+  "currentPasswordIncorrect": "Mevcut şifre hatalı.",
+  "passwordUpdateFailed": "Şifre güncellenemedi.",
+  "profileUpdateFailed": "Profil güncellenemedi. Lütfen tekrar dene.",
+  "profileUpdated": "Profil başarıyla güncellendi.",
 
   "recipeAddedToMeal": "{recipeName}, {mealType} öğününe eklendi.",
   "@recipeAddedToMeal": {

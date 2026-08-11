@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
-import 'package:flutter/services.dart';
 
 class CustomTextField extends StatefulWidget {
   final String hintText;
@@ -26,10 +27,12 @@ class CustomTextField extends StatefulWidget {
   });
 
   @override
-  State<CustomTextField> createState() => _CustomTextFieldState();
+  State<CustomTextField> createState() =>
+      _CustomTextFieldState();
 }
 
-class _CustomTextFieldState extends State<CustomTextField> {
+class _CustomTextFieldState
+    extends State<CustomTextField> {
   bool _obscureText = true;
 
   @override
@@ -39,42 +42,70 @@ class _CustomTextFieldState extends State<CustomTextField> {
       onChanged: widget.onChanged,
       keyboardType: widget.keyboardType,
       inputFormatters: widget.inputFormatters,
-      obscureText: widget.isPassword ? _obscureText : false,
-      style: AppTextStyles.input,
+      obscureText:
+      widget.isPassword ? _obscureText : false,
+
+      // Kullanıcının yazdığı gerçek metin.
+      style: AppTextStyles.input.copyWith(
+        color: AppColors.homeBrown,
+      ),
+
       decoration: InputDecoration(
         hintText: widget.hintText,
-        hintStyle: AppTextStyles.input,
+
+        // Username, Current password,
+        // New password, Confirm new password vb.
+        hintStyle: AppTextStyles.input.copyWith(
+          color: AppColors.homeSecondaryValue,
+          fontWeight: FontWeight.w500,
+        ),
+
         filled: true,
         fillColor: widget.fillColor,
-        contentPadding: const EdgeInsets.symmetric(
+
+        contentPadding:
+        const EdgeInsets.symmetric(
           horizontal: 28,
           vertical: 14,
         ),
-        suffixIcon: widget.isPassword && widget.showVisibilityToggle
+
+        suffixIcon:
+        widget.isPassword &&
+            widget.showVisibilityToggle
             ? IconButton(
           icon: Icon(
             _obscureText
-                ? Icons.visibility_off_outlined
-                : Icons.visibility_outlined,
-            color: AppColors.authButtonGreen,
+                ? Icons
+                .visibility_off_outlined
+                : Icons
+                .visibility_outlined,
+            color: AppColors
+                .homeSecondaryValue,
           ),
           onPressed: () {
             setState(() {
-              _obscureText = !_obscureText;
+              _obscureText =
+              !_obscureText;
             });
           },
         )
             : null,
+
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius:
+          BorderRadius.circular(30),
           borderSide: BorderSide.none,
         ),
+
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius:
+          BorderRadius.circular(30),
           borderSide: BorderSide.none,
         ),
+
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius:
+          BorderRadius.circular(30),
           borderSide: BorderSide.none,
         ),
       ),

@@ -1,22 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
+import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
+import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
+import 'package:fiteo_myapp/features/profile/data/profile_repository.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/profile_dropdown_field.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/profile_input.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/settings_card.dart';
-import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
-import 'package:fiteo_myapp/features/profile/data/profile_repository.dart';
-import 'package:fiteo_myapp/features/profile/utils/profile_messages.dart';
 
 class GoalsPreferencesScreen extends StatefulWidget {
-  const GoalsPreferencesScreen({super.key});
+  const GoalsPreferencesScreen({
+    super.key,
+  });
 
   @override
-  State<GoalsPreferencesScreen> createState() => _GoalsPreferencesScreenState();
+  State<GoalsPreferencesScreen> createState() =>
+      _GoalsPreferencesScreenState();
 }
 
-class _GoalsPreferencesScreenState extends State<GoalsPreferencesScreen> {
+class _GoalsPreferencesScreenState
+    extends State<GoalsPreferencesScreen> {
   String? selectedGoal = 'Lose Weight';
   String? selectedActivity = 'Moderately Active';
   String? selectedNutrition = 'High Protein';
@@ -25,15 +32,41 @@ class _GoalsPreferencesScreenState extends State<GoalsPreferencesScreen> {
   final weightController = TextEditingController();
   final targetWeightController = TextEditingController();
   final dailyCaloriesController = TextEditingController();
-  final _profileRepository = ProfileRepository();
+
+  final ProfileRepository _profileRepository =
+  ProfileRepository();
 
   bool isLoading = true;
   bool isSaving = false;
 
-  final goals = const ['Lose Weight', 'Build Muscle', 'Maintain Fitness', 'Improve Health'];
-  final activities = const ['Sedentary', 'Lightly Active', 'Moderately Active', 'Very Active'];
-  final nutritionOptions = const ['No Restrictions', 'High Protein', 'Vegetarian', 'Vegan', 'Balanced Diet'];
-  final workoutOptions = const ['Home Workouts', 'Gym', 'Walking / Cardio', 'Strength Training'];
+  final List<String> goals = const [
+    'Lose Weight',
+    'Build Muscle',
+    'Maintain Fitness',
+    'Improve Health',
+  ];
+
+  final List<String> activities = const [
+    'Sedentary',
+    'Lightly Active',
+    'Moderately Active',
+    'Very Active',
+  ];
+
+  final List<String> nutritionOptions = const [
+    'No Restrictions',
+    'High Protein',
+    'Vegetarian',
+    'Vegan',
+    'Balanced Diet',
+  ];
+
+  final List<String> workoutOptions = const [
+    'Home Workouts',
+    'Gym',
+    'Walking / Cardio',
+    'Strength Training',
+  ];
 
   @override
   void initState() {
@@ -43,20 +76,43 @@ class _GoalsPreferencesScreenState extends State<GoalsPreferencesScreen> {
 
   Future<void> _loadPreferences() async {
     try {
-      final doc = await _profileRepository.getCurrentUserDoc();
+      final doc =
+      await _profileRepository.getCurrentUserDoc();
+
       final data = doc.data();
 
-      final preferences = data?['userPreferences'] as Map<String, dynamic>?;
+      final preferences =
+      data?['userPreferences']
+      as Map<String, dynamic>?;
 
       if (preferences != null) {
-        selectedGoal = preferences['goal'];
-        selectedActivity = preferences['activityLevel'];
-        selectedNutrition = preferences['nutritionPreference'];
-        selectedWorkout = preferences['workoutPreference'];
+        selectedGoal =
+        preferences['goal'] as String?;
 
-        weightController.text = preferences['weight']?.toString() ?? '';
-        targetWeightController.text = preferences['targetWeight']?.toString() ?? '';
-        dailyCaloriesController.text = preferences['calorieGoal']?.toString() ?? '';
+        selectedActivity =
+        preferences['activityLevel']
+        as String?;
+
+        selectedNutrition =
+        preferences['nutritionPreference']
+        as String?;
+
+        selectedWorkout =
+        preferences['workoutPreference']
+        as String?;
+
+        weightController.text =
+            preferences['weight']?.toString() ?? '';
+
+        targetWeightController.text =
+            preferences['targetWeight']
+                ?.toString() ??
+                '';
+
+        dailyCaloriesController.text =
+            preferences['calorieGoal']
+                ?.toString() ??
+                '';
       }
 
       if (!mounted) return;
@@ -64,23 +120,137 @@ class _GoalsPreferencesScreenState extends State<GoalsPreferencesScreen> {
       setState(() {
         isLoading = false;
       });
-    } catch (e) {
+    } catch (_) {
       if (!mounted) return;
 
       setState(() {
         isLoading = false;
       });
 
-      AppSnackbar.showError(context, ProfileMessages.profileUpdateFailed);
+      AppSnackbar.showError(
+        context,
+        context.l10n.profileUpdateFailed,
+      );
     }
   }
 
-  @override
-  void dispose() {
-    weightController.dispose();
-    targetWeightController.dispose();
-    dailyCaloriesController.dispose();
-    super.dispose();
+  String _goalLabel(String value) {
+    switch (value) {
+      case 'Lose Weight':
+        return context.l10n.goalLoseWeight;
+
+      case 'Build Muscle':
+        return context.l10n.goalBuildMuscle;
+
+      case 'Maintain Fitness':
+        return context.l10n.goalMaintainFitness;
+
+      case 'Improve Health':
+        return context.l10n.goalImproveHealth;
+
+      default:
+        return value;
+    }
+  }
+
+  String _goalValueFromLabel(String label) {
+    for (final value in goals) {
+      if (_goalLabel(value) == label) {
+        return value;
+      }
+    }
+
+    return label;
+  }
+
+  String _activityLabel(String value) {
+    switch (value) {
+      case 'Sedentary':
+        return context.l10n.activitySedentary;
+
+      case 'Lightly Active':
+        return context.l10n.activityLightlyActive;
+
+      case 'Moderately Active':
+        return context.l10n.activityModeratelyActive;
+
+      case 'Very Active':
+        return context.l10n.activityVeryActive;
+
+      default:
+        return value;
+    }
+  }
+
+  String _activityValueFromLabel(String label) {
+    for (final value in activities) {
+      if (_activityLabel(value) == label) {
+        return value;
+      }
+    }
+
+    return label;
+  }
+
+  String _nutritionLabel(String value) {
+    switch (value) {
+      case 'No Restrictions':
+        return context.l10n.nutritionNoRestrictions;
+
+      case 'High Protein':
+        return context.l10n.nutritionHighProtein;
+
+      case 'Vegetarian':
+        return context.l10n.nutritionVegetarian;
+
+      case 'Vegan':
+        return context.l10n.nutritionVegan;
+
+      case 'Balanced Diet':
+        return context.l10n.nutritionBalancedDiet;
+
+      default:
+        return value;
+    }
+  }
+
+  String _nutritionValueFromLabel(String label) {
+    for (final value in nutritionOptions) {
+      if (_nutritionLabel(value) == label) {
+        return value;
+      }
+    }
+
+    return label;
+  }
+
+  String _workoutLabel(String value) {
+    switch (value) {
+      case 'Home Workouts':
+        return context.l10n.workoutHome;
+
+      case 'Gym':
+        return context.l10n.workoutGym;
+
+      case 'Walking / Cardio':
+        return context.l10n.workoutWalkingCardio;
+
+      case 'Strength Training':
+        return context.l10n.workoutStrengthTraining;
+
+      default:
+        return value;
+    }
+  }
+
+  String _workoutValueFromLabel(String label) {
+    for (final value in workoutOptions) {
+      if (_workoutLabel(value) == label) {
+        return value;
+      }
+    }
+
+    return label;
   }
 
   Future<void> _savePreferences() async {
@@ -89,149 +259,296 @@ class _GoalsPreferencesScreenState extends State<GoalsPreferencesScreen> {
     });
 
     try {
-      await _profileRepository.updateUserPreferences({
-        'goal': selectedGoal,
-        'activityLevel': selectedActivity,
-        'nutritionPreference': selectedNutrition,
-        'workoutPreference': selectedWorkout,
-        'weight': weightController.text.trim().isEmpty
-            ? null
-            : int.tryParse(weightController.text.trim()),
-        'targetWeight': targetWeightController.text.trim().isEmpty
-            ? null
-            : int.tryParse(targetWeightController.text.trim()),
-        'calorieGoal': dailyCaloriesController.text.trim().isEmpty
-            ? null
-            : int.tryParse(dailyCaloriesController.text.trim()),
-      });
+      await _profileRepository.updateUserPreferences(
+        {
+          'goal': selectedGoal,
+          'activityLevel': selectedActivity,
+          'nutritionPreference': selectedNutrition,
+          'workoutPreference': selectedWorkout,
+
+          'weight': weightController.text.trim().isEmpty
+              ? null
+              : int.tryParse(
+            weightController.text.trim(),
+          ),
+
+          'targetWeight':
+          targetWeightController.text.trim().isEmpty
+              ? null
+              : int.tryParse(
+            targetWeightController.text.trim(),
+          ),
+
+          'calorieGoal':
+          dailyCaloriesController.text.trim().isEmpty
+              ? null
+              : int.tryParse(
+            dailyCaloriesController.text.trim(),
+          ),
+        },
+      );
 
       if (!mounted) return;
 
-      AppSnackbar.showSuccess(context, ProfileMessages.preferencesUpdated,
+      AppSnackbar.showSuccess(
+        context,
+        context.l10n.preferencesUpdated,
       );
 
-      Navigator.pop(context, true);
-    } catch (e) {
+      Navigator.pop(
+        context,
+        true,
+      );
+    } catch (_) {
       if (!mounted) return;
 
       setState(() {
         isSaving = false;
       });
 
-      AppSnackbar.showError(context, ProfileMessages.preferencesUpdateFailed,
+      AppSnackbar.showError(
+        context,
+        context.l10n.preferencesUpdateFailed,
       );
     }
   }
 
   @override
+  void dispose() {
+    weightController.dispose();
+    targetWeightController.dispose();
+    dailyCaloriesController.dispose();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth =
+        MediaQuery.of(context).size.width;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+    final localizedGoals =
+    goals.map(_goalLabel).toList();
+
+    final localizedActivities =
+    activities.map(_activityLabel).toList();
+
+    final localizedNutrition =
+    nutritionOptions.map(_nutritionLabel).toList();
+
+    final localizedWorkouts =
+    workoutOptions.map(_workoutLabel).toList();
+
+    return SystemNavigationBar(
+      color: Colors.white,
+      child: Scaffold(
         backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.homeBrown),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Goals & Preferences',
-          style: TextStyle(
-            color: AppColors.homeBrown,
-            fontWeight: FontWeight.w800,
-            fontSize: 20,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_new,
+              color: AppColors.homeBrown,
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
-        ),
-        centerTitle: true,
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(
-            screenWidth * 0.07,
-            18,
-            screenWidth * 0.07,
-            40,
+          title: Text(
+            context.l10n.goalsPreferences,
+            style: AppTextStyles.titleMedium.copyWith(
+              color: AppColors.homeBrown,
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+            ),
           ),
-          child: Column(
-            children: [
-              SettingsCard(
-                title: 'Body Goals',
-                children: [
-                  ProfileInput(
-                    controller: weightController,
-                    hintText: 'Current weight (kg)',
-                    icon: Icons.monitor_weight_outlined,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  ),
-                  const SizedBox(height: 14),
-                  ProfileInput(
-                    controller: targetWeightController,
-                    hintText: 'Target weight (kg)',
-                    icon: Icons.track_changes,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  ),
-                  const SizedBox(height: 14),
-                  ProfileInput(
-                    controller: dailyCaloriesController,
-                    hintText: 'Daily calorie goal',
-                    icon: Icons.local_fire_department_outlined,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  ),
-                ],
-              ),
+          centerTitle: true,
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              screenWidth * 0.07,
+              18,
+              screenWidth * 0.07,
+              40,
+            ),
+            child: Column(
+              children: [
+                SettingsCard(
+                  title: context.l10n.bodyGoals,
+                  children: [
+                    ProfileInput(
+                      controller: weightController,
+                      hintText:
+                      context.l10n.currentWeightKg,
+                      icon:
+                      Icons.monitor_weight_outlined,
+                      keyboardType:
+                      TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter
+                            .digitsOnly,
+                      ],
+                    ),
 
-              const SizedBox(height: 22),
+                    const SizedBox(height: 14),
 
-              SettingsCard(
-                title: 'Preferences',
-                children: [
-                  ProfileDropdownField(
-                    value: selectedGoal,
-                    items: goals,
-                    icon: Icons.flag_outlined,
-                    onChanged: (value) => setState(() => selectedGoal = value),
-                  ),
-                  const SizedBox(height: 14),
-                  ProfileDropdownField(
-                    value: selectedActivity,
-                    items: activities,
-                    icon: Icons.directions_run_outlined,
-                    onChanged: (value) => setState(() => selectedActivity = value),
-                  ),
-                  const SizedBox(height: 14),
-                  ProfileDropdownField(
-                    value: selectedNutrition,
-                    items: nutritionOptions,
-                    icon: Icons.restaurant_menu_outlined,
-                    onChanged: (value) => setState(() => selectedNutrition = value),
-                  ),
-                  const SizedBox(height: 14),
-                  ProfileDropdownField(
-                    value: selectedWorkout,
-                    items: workoutOptions,
-                    icon: Icons.fitness_center_outlined,
-                    onChanged: (value) => setState(() => selectedWorkout = value),
-                  ),
-                ],
-              ),
+                    ProfileInput(
+                      controller:
+                      targetWeightController,
+                      hintText:
+                      context.l10n.targetWeightKg,
+                      icon: Icons.track_changes,
+                      keyboardType:
+                      TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter
+                            .digitsOnly,
+                      ],
+                    ),
 
-              const SizedBox(height: 30),
+                    const SizedBox(height: 14),
 
-              CustomButton(
-                text: isSaving ? 'Saving...' : 'Save changes',
-                onPressed: isSaving || isLoading ? null : _savePreferences,
-                backgroundColor: AppColors.authButtonGreen,
-                textColor: Colors.white,
-                height: 54,
-                width: screenWidth * 0.72,
-                fontSize: 20,
-              ),
-            ],
+                    ProfileInput(
+                      controller:
+                      dailyCaloriesController,
+                      hintText:
+                      context.l10n.dailyCalorieGoal,
+                      icon: Icons
+                          .local_fire_department_outlined,
+                      keyboardType:
+                      TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter
+                            .digitsOnly,
+                      ],
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 22),
+
+                SettingsCard(
+                  title:
+                  context.l10n.preferencesTitle,
+                  children: [
+                    ProfileDropdownField(
+                      value: selectedGoal == null
+                          ? null
+                          : _goalLabel(
+                        selectedGoal!,
+                      ),
+                      items: localizedGoals,
+                      icon: Icons.flag_outlined,
+                      onChanged: (value) {
+                        if (value == null) return;
+
+                        setState(() {
+                          selectedGoal =
+                              _goalValueFromLabel(
+                                value,
+                              );
+                        });
+                      },
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    ProfileDropdownField(
+                      value:
+                      selectedActivity == null
+                          ? null
+                          : _activityLabel(
+                        selectedActivity!,
+                      ),
+                      items:
+                      localizedActivities,
+                      icon: Icons
+                          .directions_run_outlined,
+                      onChanged: (value) {
+                        if (value == null) return;
+
+                        setState(() {
+                          selectedActivity =
+                              _activityValueFromLabel(
+                                value,
+                              );
+                        });
+                      },
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    ProfileDropdownField(
+                      value:
+                      selectedNutrition == null
+                          ? null
+                          : _nutritionLabel(
+                        selectedNutrition!,
+                      ),
+                      items:
+                      localizedNutrition,
+                      icon: Icons
+                          .restaurant_menu_outlined,
+                      onChanged: (value) {
+                        if (value == null) return;
+
+                        setState(() {
+                          selectedNutrition =
+                              _nutritionValueFromLabel(
+                                value,
+                              );
+                        });
+                      },
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    ProfileDropdownField(
+                      value:
+                      selectedWorkout == null
+                          ? null
+                          : _workoutLabel(
+                        selectedWorkout!,
+                      ),
+                      items:
+                      localizedWorkouts,
+                      icon: Icons
+                          .fitness_center_outlined,
+                      onChanged: (value) {
+                        if (value == null) return;
+
+                        setState(() {
+                          selectedWorkout =
+                              _workoutValueFromLabel(
+                                value,
+                              );
+                        });
+                      },
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 30),
+
+                CustomButton(
+                  text:
+                  context.l10n.saveChanges,
+                  onPressed:
+                  isSaving || isLoading
+                      ? null
+                      : _savePreferences,
+                  backgroundColor:
+                  AppColors.authButtonGreen,
+                  textColor: Colors.white,
+                  height: 54,
+                  width:
+                  screenWidth * 0.72,
+                  fontSize: 17,
+                ),
+              ],
+            ),
           ),
         ),
       ),

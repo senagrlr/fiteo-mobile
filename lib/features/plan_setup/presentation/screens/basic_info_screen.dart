@@ -6,6 +6,7 @@ import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/common/widgets/custom_text_field.dart';
+import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/setup_progress_indicator.dart';
 
 class BasicInfoScreen extends StatefulWidget {
@@ -25,7 +26,8 @@ class BasicInfoScreen extends StatefulWidget {
   });
 
   @override
-  State<BasicInfoScreen> createState() => _BasicInfoScreenState();
+  State<BasicInfoScreen> createState() =>
+      _BasicInfoScreenState();
 }
 
 class _BasicInfoScreenState extends State<BasicInfoScreen> {
@@ -130,173 +132,185 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
       ),
     ];
 
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: AppColors.onboardingBackground,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.only(
-            left: screenWidth * 0.10,
-            right: screenWidth * 0.10,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-          ),
-          child: Column(
-            children: [
-              const SizedBox(height: 18),
+    return SystemNavigationBar(
+      color: AppColors.onboardingBackground,
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        backgroundColor: AppColors.onboardingBackground,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.only(
+              left: screenWidth * 0.10,
+              right: screenWidth * 0.10,
+              bottom:
+              MediaQuery.of(context).viewInsets.bottom + 24,
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: 18),
 
-              const SetupProgressIndicator(
-                currentStep: 2,
-                totalSteps: 7,
-              ),
-
-              const SizedBox(height: 25),
-
-              Align(
-                alignment: Alignment.centerLeft,
-                child: GestureDetector(
-                  onTap: widget.onBack,
-                  child: const Icon(
-                    Icons.arrow_back_ios_new,
-                    size: 24,
-                    color: AppColors.authText,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 60),
-
-              Text(
-                context.l10n.planSetupAboutYourselfTitle,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.headingLarge.copyWith(
-                  color: AppColors.authText,
-                ),
-              ),
-
-              const SizedBox(height: 36),
-
-              CustomTextField(
-                hintText: context.l10n.age,
-                fillColor: Colors.white,
-                controller: ageController,
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              if (selectedHeightUnit == 'cm')
-                _ValueWithUnitField(
-                  controller: heightCmController,
-                  hintText: context.l10n.height,
-                  selectedUnit: selectedHeightUnit,
-                  units: const ['cm', 'ft/in'],
-                  onUnitChanged: (value) {
-                    setState(() {
-                      selectedHeightUnit = value;
-                    });
-                  },
-                )
-              else
-                _FeetInchesField(
-                  feetController: heightFeetController,
-                  inchController: heightInchController,
-                  selectedUnit: selectedHeightUnit,
-                  onUnitChanged: (value) {
-                    setState(() {
-                      selectedHeightUnit = value;
-                    });
-                  },
+                const SetupProgressIndicator(
+                  currentStep: 2,
+                  totalSteps: 7,
                 ),
 
-              const SizedBox(height: 16),
+                const SizedBox(height: 25),
 
-              _ValueWithUnitField(
-                controller: weightController,
-                hintText: context.l10n.weight,
-                selectedUnit: selectedWeightUnit,
-                units: const ['kg', 'lb'],
-                allowDecimal: true,
-                onUnitChanged: (value) {
-                  setState(() {
-                    selectedWeightUnit = value;
-                  });
-                },
-              ),
-
-              const SizedBox(height: 16),
-
-              DropdownButtonFormField<String>(
-                initialValue: selectedGender,
-                dropdownColor: Colors.white,
-                icon: const Icon(
-                  Icons.keyboard_arrow_down,
-                  color: AppColors.authText,
-                ),
-                decoration: InputDecoration(
-                  labelText: context.l10n.gender,
-                  floatingLabelBehavior: FloatingLabelBehavior.never,
-                  labelStyle: AppTextStyles.bodyLarge.copyWith(
-                    color: AppColors.authText,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 28,
-                    vertical: 14,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                style: AppTextStyles.bodyLarge.copyWith(
-                  color: AppColors.authText,
-                ),
-                items: genderOptions.map((gender) {
-                  return DropdownMenuItem<String>(
-                    value: gender.value,
-                    child: Text(
-                      gender.label,
-                      style: AppTextStyles.bodyLarge.copyWith(
-                        color: AppColors.authText,
-                      ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: GestureDetector(
+                    onTap: widget.onBack,
+                    child: const Icon(
+                      Icons.arrow_back_ios_new,
+                      size: 24,
+                      color: AppColors.authText,
                     ),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedGender = value;
-                  });
-                },
-              ),
+                  ),
+                ),
 
-              const SizedBox(height: 150),
+                const SizedBox(height: 60),
 
-              CustomButton(
-                text: context.l10n.continueText,
-                onPressed:
-                selectedGender == null ? null : _continue,
-                backgroundColor: AppColors.authButtonGreen,
-                textColor: Colors.white,
-                height: 54,
-                width: screenWidth * 0.72,
-                fontSize: 22,
-              ),
+                Text(
+                  context.l10n.planSetupAboutYourselfTitle,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.headingLarge.copyWith(
+                    color: AppColors.authText,
+                  ),
+                ),
 
-              const SizedBox(height: 36),
-            ],
+                const SizedBox(height: 36),
+
+                CustomTextField(
+                  hintText: context.l10n.age,
+                  fillColor: Colors.white,
+                  controller: ageController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+
+                if (selectedHeightUnit == 'cm')
+                  _ValueWithUnitField(
+                    controller: heightCmController,
+                    hintText: context.l10n.height,
+                    selectedUnit: selectedHeightUnit,
+                    units: const ['cm', 'ft/in'],
+                    onUnitChanged: (value) {
+                      setState(() {
+                        selectedHeightUnit = value;
+                      });
+                    },
+                  )
+                else
+                  _FeetInchesField(
+                    feetController: heightFeetController,
+                    inchController: heightInchController,
+                    selectedUnit: selectedHeightUnit,
+                    onUnitChanged: (value) {
+                      setState(() {
+                        selectedHeightUnit = value;
+                      });
+                    },
+                  ),
+
+                const SizedBox(height: 16),
+
+                _ValueWithUnitField(
+                  controller: weightController,
+                  hintText: context.l10n.weight,
+                  selectedUnit: selectedWeightUnit,
+                  units: const ['kg', 'lb'],
+                  allowDecimal: true,
+                  onUnitChanged: (value) {
+                    setState(() {
+                      selectedWeightUnit = value;
+                    });
+                  },
+                ),
+
+                const SizedBox(height: 16),
+
+                DropdownButtonFormField<String>(
+                  initialValue: selectedGender,
+                  dropdownColor: Colors.white,
+                  icon: const Icon(
+                    Icons.keyboard_arrow_down,
+                    color: AppColors.authText,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.gender,
+                    floatingLabelBehavior:
+                    FloatingLabelBehavior.never,
+                    labelStyle:
+                    AppTextStyles.bodyLarge.copyWith(
+                      color: AppColors.authText,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding:
+                    const EdgeInsets.symmetric(
+                      horizontal: 28,
+                      vertical: 14,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius:
+                      BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius:
+                      BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius:
+                      BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    color: AppColors.authText,
+                  ),
+                  items: genderOptions.map((gender) {
+                    return DropdownMenuItem<String>(
+                      value: gender.value,
+                      child: Text(
+                        gender.label,
+                        style:
+                        AppTextStyles.bodyLarge.copyWith(
+                          color: AppColors.authText,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedGender = value;
+                    });
+                  },
+                ),
+
+                const SizedBox(height: 150),
+
+                CustomButton(
+                  text: context.l10n.continueText,
+                  onPressed:
+                  selectedGender == null ? null : _continue,
+                  backgroundColor:
+                  AppColors.authButtonGreen,
+                  textColor: Colors.white,
+                  height: 54,
+                  width: screenWidth * 0.72,
+                  fontSize: 22,
+                ),
+
+                const SizedBox(height: 36),
+              ],
+            ),
           ),
         ),
       ),
@@ -356,7 +370,8 @@ class _ValueWithUnitField extends StatelessWidget {
                   fontWeight: FontWeight.w400,
                 ),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(
+                contentPadding:
+                const EdgeInsets.symmetric(
                   horizontal: 28,
                   vertical: 16,
                 ),

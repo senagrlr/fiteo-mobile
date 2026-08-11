@@ -4,6 +4,7 @@ import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
+import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/setup_progress_indicator.dart';
 
 class GoalWeightScreen extends StatefulWidget {
@@ -84,14 +85,16 @@ class _GoalWeightScreenState
   void initState() {
     super.initState();
 
-    selectedWeightKg = widget.initialWeightKg.clamp(
-      _minimumKg,
-      _maximumKg,
-    );
+    selectedWeightKg =
+        widget.initialWeightKg.clamp(
+          _minimumKg,
+          _maximumKg,
+        );
 
     _scrollController = ScrollController();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) {
       _jumpToSelectedWeight();
     });
   }
@@ -201,8 +204,7 @@ class _GoalWeightScreenState
             .position
             .maxScrollExtent,
       ),
-      duration:
-      const Duration(
+      duration: const Duration(
         milliseconds: 180,
       ),
       curve: Curves.easeOut,
@@ -221,7 +223,8 @@ class _GoalWeightScreenState
       _isControllerReady = false;
     });
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) {
       _jumpToSelectedWeight();
     });
   }
@@ -248,267 +251,262 @@ class _GoalWeightScreenState
     final screenWidth =
         MediaQuery.sizeOf(context).width;
 
-    return Scaffold(
-      backgroundColor:
-      AppColors.onboardingBackground,
-      body: SafeArea(
-        child: Padding(
-          padding:
-          EdgeInsets.symmetric(
-            horizontal:
-            screenWidth * 0.10,
-          ),
-          child: Column(
-            children: [
-              const SizedBox(height: 24),
+    return SystemNavigationBar(
+      color: AppColors.onboardingBackground,
+      child: Scaffold(
+        backgroundColor:
+        AppColors.onboardingBackground,
+        body: SafeArea(
+          child: Padding(
+            padding:
+            EdgeInsets.symmetric(
+              horizontal:
+              screenWidth * 0.10,
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: 24),
 
-              const SetupProgressIndicator(
-                currentStep: 6,
-                totalSteps: 7,
-              ),
-
-              const SizedBox(height: 25),
-
-              Align(
-                alignment:
-                Alignment.centerLeft,
-                child: GestureDetector(
-                  onTap: widget.onBack,
-                  behavior:
-                  HitTestBehavior.opaque,
-                  child: const Padding(
-                    padding:
-                    EdgeInsets.all(4),
-                    child: Icon(
-                      Icons
-                          .arrow_back_ios_new,
-                      size: 24,
-                      color:
-                      AppColors.authText,
-                    ),
-                  ),
+                const SetupProgressIndicator(
+                  currentStep: 6,
+                  totalSteps: 7,
                 ),
-              ),
 
-              const SizedBox(height: 54),
+                const SizedBox(height: 25),
 
-              Text(
-                context
-                    .l10n
-                    .goalWeightTitle,
-                textAlign:
-                TextAlign.center,
-                style: AppTextStyles
-                    .headingLarge
-                    .copyWith(
-                  color:
-                  AppColors.authText,
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              _UnitSelector(
-                selectedUnit:
-                selectedUnit,
-                onChanged:
-                _changeUnit,
-              ),
-
-              const SizedBox(height: 52),
-
-              Row(
-                mainAxisAlignment:
-                MainAxisAlignment
-                    .center,
-                crossAxisAlignment:
-                CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    _formattedWeight(),
-                    style: AppTextStyles
-                        .displayMedium
-                        .copyWith(
-                      color:
-                      AppColors.authText,
-                      fontSize: 38,
-                      height: 1,
-                      fontWeight:
-                      FontWeight.w800,
-                    ),
-                  ),
-
-                  const SizedBox(width: 5),
-
-                  Padding(
-                    padding:
-                    const EdgeInsets
-                        .only(
-                      bottom: 3,
-                    ),
-                    child: Text(
-                      selectedUnit,
-                      style: AppTextStyles
-                          .labelMedium
-                          .copyWith(
-                        color: AppColors
-                            .authText
-                            .withValues(
-                          alpha: 0.65,
-                        ),
-                        fontWeight:
-                        FontWeight.w700,
+                Align(
+                  alignment:
+                  Alignment.centerLeft,
+                  child: GestureDetector(
+                    onTap: widget.onBack,
+                    behavior:
+                    HitTestBehavior.opaque,
+                    child: const Padding(
+                      padding:
+                      EdgeInsets.all(4),
+                      child: Icon(
+                        Icons
+                            .arrow_back_ios_new,
+                        size: 24,
+                        color:
+                        AppColors.authText,
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
 
-              const SizedBox(height: 26),
+                const SizedBox(height: 54),
 
-              SizedBox(
-                height: 74,
-                child: LayoutBuilder(
-                  builder:
-                      (context, constraints) {
-                    final sidePadding =
-                        (constraints
-                            .maxWidth -
-                            _itemWidth) /
-                            2;
+                Text(
+                  context.l10n.goalWeightTitle,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles
+                      .headingLarge
+                      .copyWith(
+                    color:
+                    AppColors.authText,
+                  ),
+                ),
 
-                    return Stack(
-                      alignment:
-                      Alignment
-                          .topCenter,
-                      children: [
-                        NotificationListener<
-                            ScrollNotification>(
-                          onNotification:
-                              (notification) {
-                            if (notification
-                            is ScrollUpdateNotification) {
-                              _updateWeightFromScroll();
-                            }
+                const SizedBox(height: 24),
 
-                            if (notification
-                            is ScrollEndNotification) {
-                              _snapToNearestValue();
-                            }
+                _UnitSelector(
+                  selectedUnit:
+                  selectedUnit,
+                  onChanged:
+                  _changeUnit,
+                ),
 
-                            return false;
-                          },
-                          child:
-                          ListView.builder(
-                            controller:
-                            _scrollController,
-                            scrollDirection:
-                            Axis.horizontal,
-                            physics:
-                            const ClampingScrollPhysics(),
-                            padding:
-                            EdgeInsets.symmetric(
-                              horizontal:
-                              sidePadding,
-                            ),
-                            itemCount:
-                            totalRulerItems,
-                            itemExtent:
-                            _itemWidth,
-                            itemBuilder:
-                                (context,
-                                index) {
-                              final isWholeNumber =
-                                  index % 10 ==
-                                      0;
+                const SizedBox(height: 52),
 
-                              final isHalfNumber =
-                                  index % 5 ==
-                                      0;
+                Row(
+                  mainAxisAlignment:
+                  MainAxisAlignment.center,
+                  crossAxisAlignment:
+                  CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      _formattedWeight(),
+                      style: AppTextStyles
+                          .displayMedium
+                          .copyWith(
+                        color:
+                        AppColors.authText,
+                        fontSize: 38,
+                        height: 1,
+                        fontWeight:
+                        FontWeight.w800,
+                      ),
+                    ),
 
-                              final tickHeight =
-                              isWholeNumber
-                                  ? 34.0
-                                  : isHalfNumber
-                                  ? 26.0
-                                  : 18.0;
+                    const SizedBox(width: 5),
 
-                              return Align(
-                                alignment:
-                                Alignment
-                                    .topCenter,
-                                child:
-                                Container(
-                                  width:
-                                  isWholeNumber
-                                      ? 2
-                                      : 1,
-                                  height:
-                                  tickHeight,
-                                  decoration:
-                                  BoxDecoration(
-                                    color:
-                                    AppColors
-                                        .authText
-                                        .withValues(
-                                      alpha:
-                                      isWholeNumber
-                                          ? 0.65
-                                          : 0.40,
-                                    ),
-                                    borderRadius:
-                                    BorderRadius.circular(
-                                      2,
+                    Padding(
+                      padding:
+                      const EdgeInsets.only(
+                        bottom: 3,
+                      ),
+                      child: Text(
+                        selectedUnit,
+                        style: AppTextStyles
+                            .labelMedium
+                            .copyWith(
+                          color: AppColors
+                              .authText
+                              .withValues(
+                            alpha: 0.65,
+                          ),
+                          fontWeight:
+                          FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 26),
+
+                SizedBox(
+                  height: 74,
+                  child: LayoutBuilder(
+                    builder:
+                        (context, constraints) {
+                      final sidePadding =
+                          (constraints
+                              .maxWidth -
+                              _itemWidth) /
+                              2;
+
+                      return Stack(
+                        alignment:
+                        Alignment.topCenter,
+                        children: [
+                          NotificationListener<
+                              ScrollNotification>(
+                            onNotification:
+                                (notification) {
+                              if (notification
+                              is ScrollUpdateNotification) {
+                                _updateWeightFromScroll();
+                              }
+
+                              if (notification
+                              is ScrollEndNotification) {
+                                _snapToNearestValue();
+                              }
+
+                              return false;
+                            },
+                            child:
+                            ListView.builder(
+                              controller:
+                              _scrollController,
+                              scrollDirection:
+                              Axis.horizontal,
+                              physics:
+                              const ClampingScrollPhysics(),
+                              padding:
+                              EdgeInsets.symmetric(
+                                horizontal:
+                                sidePadding,
+                              ),
+                              itemCount:
+                              totalRulerItems,
+                              itemExtent:
+                              _itemWidth,
+                              itemBuilder:
+                                  (context,
+                                  index) {
+                                final isWholeNumber =
+                                    index % 10 ==
+                                        0;
+
+                                final isHalfNumber =
+                                    index % 5 ==
+                                        0;
+
+                                final tickHeight =
+                                isWholeNumber
+                                    ? 34.0
+                                    : isHalfNumber
+                                    ? 26.0
+                                    : 18.0;
+
+                                return Align(
+                                  alignment:
+                                  Alignment
+                                      .topCenter,
+                                  child:
+                                  Container(
+                                    width:
+                                    isWholeNumber
+                                        ? 2
+                                        : 1,
+                                    height:
+                                    tickHeight,
+                                    decoration:
+                                    BoxDecoration(
+                                      color: AppColors
+                                          .authText
+                                          .withValues(
+                                        alpha:
+                                        isWholeNumber
+                                            ? 0.65
+                                            : 0.40,
+                                      ),
+                                      borderRadius:
+                                      BorderRadius
+                                          .circular(
+                                        2,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
-                        ),
 
-                        IgnorePointer(
-                          child: Container(
-                            width: 3,
-                            height: 48,
-                            decoration:
-                            BoxDecoration(
-                              color: AppColors
-                                  .authButtonGreen,
-                              borderRadius:
-                              BorderRadius
-                                  .circular(
-                                3,
+                          IgnorePointer(
+                            child: Container(
+                              width: 3,
+                              height: 48,
+                              decoration:
+                              BoxDecoration(
+                                color: AppColors
+                                    .authButtonGreen,
+                                borderRadius:
+                                BorderRadius
+                                    .circular(
+                                  3,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    );
-                  },
+                        ],
+                      );
+                    },
+                  ),
                 ),
-              ),
 
-              const Spacer(),
+                const Spacer(),
 
-              CustomButton(
-                text: context
-                    .l10n
-                    .continueText,
-                onPressed: _continue,
-                backgroundColor:
-                AppColors
-                    .authButtonGreen,
-                textColor:
-                Colors.white,
-                height: 54,
-                width:
-                screenWidth * 0.72,
-                fontSize: 22,
-              ),
+                CustomButton(
+                  text:
+                  context.l10n.continueText,
+                  onPressed: _continue,
+                  backgroundColor:
+                  AppColors.authButtonGreen,
+                  textColor:
+                  Colors.white,
+                  height: 54,
+                  width:
+                  screenWidth * 0.72,
+                  fontSize: 22,
+                ),
 
-              const SizedBox(height: 36),
-            ],
+                const SizedBox(height: 36),
+              ],
+            ),
           ),
         ),
       ),
@@ -529,17 +527,16 @@ class _UnitSelector
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding:
-      const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white
-            .withValues(alpha: 0.55),
+        color: Colors.white.withValues(
+          alpha: 0.55,
+        ),
         borderRadius:
         BorderRadius.circular(24),
       ),
       child: Row(
-        mainAxisSize:
-        MainAxisSize.min,
+        mainAxisSize: MainAxisSize.min,
         children: [
           _UnitButton(
             title: 'LB',
@@ -564,8 +561,7 @@ class _UnitSelector
   }
 }
 
-class _UnitButton
-    extends StatelessWidget {
+class _UnitButton extends StatelessWidget {
   final String title;
   final bool isSelected;
   final VoidCallback onTap;
@@ -580,39 +576,31 @@ class _UnitButton
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      behavior:
-      HitTestBehavior.opaque,
+      behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
-        duration:
-        const Duration(
+        duration: const Duration(
           milliseconds: 180,
         ),
         width: 58,
         height: 30,
-        alignment:
-        Alignment.center,
+        alignment: Alignment.center,
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors
-              .authButtonGreen
+              ? AppColors.authButtonGreen
               : Colors.white,
           borderRadius:
           BorderRadius.circular(18),
         ),
         child: Text(
           title,
-          style: AppTextStyles
-              .labelMedium
-              .copyWith(
+          style:
+          AppTextStyles.labelMedium.copyWith(
             color: isSelected
                 ? Colors.white
-                : AppColors
-                .authText
-                .withValues(
+                : AppColors.authText.withValues(
               alpha: 0.60,
             ),
-            fontWeight:
-            FontWeight.w700,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),

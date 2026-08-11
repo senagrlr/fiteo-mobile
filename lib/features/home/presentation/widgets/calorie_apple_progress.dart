@@ -1,7 +1,10 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 
 class CalorieAppleProgress extends StatelessWidget {
   const CalorieAppleProgress({
@@ -19,13 +22,15 @@ class CalorieAppleProgress extends StatelessWidget {
     return consumedCalories / calorieGoal;
   }
 
-  int get remainingCalories => calorieGoal - consumedCalories;
+  int get remainingCalories =>
+      calorieGoal - consumedCalories;
 
   bool get isOverGoal => progress > 1;
 
   @override
   Widget build(BuildContext context) {
-    final clampedProgress = progress.clamp(0.0, 1.0);
+    final clampedProgress =
+    progress.clamp(0.0, 1.0);
 
     return Row(
       children: [
@@ -39,24 +44,30 @@ class CalorieAppleProgress extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 22),
+
+        const SizedBox(width: 18),
+
         Expanded(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+            CrossAxisAlignment.start,
             children: [
               _InfoLine(
-                title: 'Remaining',
+                title: context.l10n.remaining,
                 value: remainingCalories >= 0
                     ? '$remainingCalories kcal'
-                    : '${remainingCalories.abs()} kcal over',
-                valueColor: isOverGoal
-                    ? AppColors.appleOverGoal
-                    : AppColors.calorieText,
+                    : context.l10n.caloriesOverGoal(
+                  remainingCalories.abs(),
+                ),
               ),
+
               const SizedBox(height: 14),
+
               _InfoLine(
-                title: 'Calorie Goal',
-                value: '$calorieGoal kcal/day',
+                title: context.l10n.calorieGoal,
+                value: context.l10n.caloriesPerDay(
+                  calorieGoal,
+                ),
               ),
             ],
           ),
@@ -70,34 +81,32 @@ class _InfoLine extends StatelessWidget {
   const _InfoLine({
     required this.title,
     required this.value,
-    this.valueColor,
   });
 
   final String title;
   final String value;
-  final Color? valueColor;
 
   @override
   Widget build(BuildContext context) {
     return RichText(
       text: TextSpan(
-        style: const TextStyle(
-          color: AppColors.calorieText,
-          fontSize: 16,
-          height: 1.3,
-        ),
         children: [
           TextSpan(
             text: '$title: ',
-            style: const TextStyle(
+            style: AppTextStyles.titleMedium.copyWith(
+              color: AppColors.homeBrown,
+              fontSize: 16,
               fontWeight: FontWeight.w800,
+              height: 1.3,
             ),
           ),
           TextSpan(
             text: value,
-            style: TextStyle(
-              color: valueColor ?? AppColors.calorieText,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.homeSecondaryValue,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
+              height: 1.3,
             ),
           ),
         ],
@@ -116,18 +125,26 @@ class AppleProgressPainter extends CustomPainter {
   final bool isOverGoal;
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final applePath = _createApplePath(size);
+  void paint(
+      Canvas canvas,
+      Size size,
+      ) {
+    final applePath =
+    _createApplePath(size);
 
     final backgroundPaint = Paint()
-      ..color = AppColors.appleProgressBackground
+      ..color =
+          AppColors.appleProgressBackground
       ..style = PaintingStyle.stroke
       ..strokeWidth = 10
       ..strokeCap = StrokeCap.butt
       ..strokeJoin = StrokeJoin.round
       ..isAntiAlias = true;
 
-    canvas.drawPath(applePath, backgroundPaint);
+    canvas.drawPath(
+      applePath,
+      backgroundPaint,
+    );
 
     _drawProgressPath(
       canvas: canvas,
@@ -141,14 +158,19 @@ class AppleProgressPainter extends CustomPainter {
       );
     }
 
-    _drawStemAndLeaf(canvas, size);
+    _drawStemAndLeaf(
+      canvas,
+      size,
+    );
   }
 
   void _drawProgressPath({
     required Canvas canvas,
     required Path applePath,
   }) {
-    if (progress <= 0) return;
+    if (progress <= 0) {
+      return;
+    }
 
     final progressPaint = Paint()
       ..color = isOverGoal
@@ -160,10 +182,13 @@ class AppleProgressPainter extends CustomPainter {
       ..strokeJoin = StrokeJoin.round
       ..isAntiAlias = true;
 
-    for (final metric in applePath.computeMetrics()) {
-      final progressLength = metric.length * progress;
+    for (final metric
+    in applePath.computeMetrics()) {
+      final progressLength =
+          metric.length * progress;
 
-      final extractedPath = metric.extractPath(
+      final extractedPath =
+      metric.extractPath(
         0,
         progressLength,
       );
@@ -175,7 +200,9 @@ class AppleProgressPainter extends CustomPainter {
     }
   }
 
-  Path _createApplePath(Size size) {
+  Path _createApplePath(
+      Size size,
+      ) {
     final width = size.width;
     final height = size.height;
 
@@ -235,7 +262,10 @@ class AppleProgressPainter extends CustomPainter {
       ..close();
   }
 
-  void _drawStemAndLeaf(Canvas canvas, Size size) {
+  void _drawStemAndLeaf(
+      Canvas canvas,
+      Size size,
+      ) {
     final stemPaint = Paint()
       ..color = AppColors.appleStem
       ..style = PaintingStyle.stroke
@@ -276,7 +306,9 @@ class AppleProgressPainter extends CustomPainter {
       leafRect.center.dy,
     );
 
-    canvas.rotate(-math.pi / 7);
+    canvas.rotate(
+      -math.pi / 7,
+    );
 
     canvas.translate(
       -leafRect.center.dx,
@@ -296,7 +328,8 @@ class AppleProgressPainter extends CustomPainter {
     required Path applePath,
   }) {
     final glowPaint = Paint()
-      ..color = AppColors.appleOverGoalGlow
+      ..color =
+          AppColors.appleOverGoalGlow
       ..style = PaintingStyle.stroke
       ..strokeWidth = 21
       ..strokeCap = StrokeCap.round
@@ -310,7 +343,9 @@ class AppleProgressPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant AppleProgressPainter oldDelegate) {
+  bool shouldRepaint(
+      covariant AppleProgressPainter oldDelegate,
+      ) {
     return oldDelegate.progress != progress ||
         oldDelegate.isOverGoal != isOverGoal;
   }

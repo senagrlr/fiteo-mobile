@@ -1,6 +1,9 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 
 class DeleteHeader extends StatelessWidget {
   const DeleteHeader({super.key});
@@ -19,7 +22,9 @@ class DeleteHeader extends StatelessWidget {
             height: 110,
             fit: BoxFit.contain,
           ),
+
           const SizedBox(width: 8),
+
           const Expanded(
             child: _DeleteSpeechBubble(),
           ),
@@ -45,14 +50,15 @@ class _DeleteSpeechBubble extends StatelessWidget {
             horizontal: 16,
           ),
           decoration: BoxDecoration(
-            color: const Color(0xFFF3F1EC),
+            color: AppColors.speechBubbleBackground,
             borderRadius: BorderRadius.circular(20),
           ),
           alignment: Alignment.center,
-          child: const _TypewriterBubbleText(
-            text: 'Sorry to see you go',
+          child: _TypewriterBubbleText(
+            text: context.l10n.sorryToSeeYouGo,
           ),
         ),
+
         Positioned(
           left: -11,
           child: CustomPaint(
@@ -90,6 +96,11 @@ class _TypewriterBubbleTextState
     timer = Timer.periodic(
       const Duration(milliseconds: 45),
           (timer) {
+        if (!mounted) {
+          timer.cancel();
+          return;
+        }
+
         if (index < widget.text.length) {
           setState(() {
             visibleText += widget.text[index];
@@ -113,10 +124,10 @@ class _TypewriterBubbleTextState
     return Text(
       visibleText,
       textAlign: TextAlign.center,
-      style: const TextStyle(
+      style: AppTextStyles.titleMedium.copyWith(
         color: AppColors.homeBrown,
-        fontSize: 13,
-        fontWeight: FontWeight.w700,
+        fontSize: 14,
+        fontWeight: FontWeight.w800,
       ),
     );
   }
@@ -126,7 +137,7 @@ class _SpeechBubbleTailPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFFF3F1EC)
+      ..color = AppColors.speechBubbleBackground
       ..style = PaintingStyle.fill;
 
     final path = Path()

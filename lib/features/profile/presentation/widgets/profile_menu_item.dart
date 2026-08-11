@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 
 class ProfileMenuItem extends StatelessWidget {
   final IconData icon;
@@ -28,13 +30,15 @@ class ProfileMenuItem extends StatelessWidget {
               color: color,
               size: 22,
             ),
+
             const SizedBox(width: 16),
+
             Text(
               title,
-              style: TextStyle(
+              style: AppTextStyles.titleSmall.copyWith(
                 color: color,
                 fontSize: 17,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],

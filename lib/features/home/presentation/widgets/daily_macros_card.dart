@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 
 class DailyMacrosCard extends StatelessWidget {
   const DailyMacrosCard({
@@ -24,7 +27,12 @@ class DailyMacrosCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 14, 12, 13),
+      padding: const EdgeInsets.fromLTRB(
+        14,
+        14,
+        12,
+        13,
+      ),
       decoration: BoxDecoration(
         color: AppColors.dailyGoalCardBackground,
         borderRadius: BorderRadius.circular(17),
@@ -32,31 +40,39 @@ class DailyMacrosCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Today’s Macros',
-            style: TextStyle(
+          Text(
+            context.l10n.todaysMacros,
+            style: AppTextStyles.titleLarge.copyWith(
               color: AppColors.dailyGoalText,
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
+              fontSize: 17,
+              fontWeight: FontWeight.w900,
+              height: 1,
+              letterSpacing: -0.2,
             ),
           ),
-          const SizedBox(height: 10),
+
+          const SizedBox(height: 15),
+
           MacroProgressBar(
-            label: 'protein',
+            label: context.l10n.protein,
             consumed: protein,
             goal: proteinGoal,
             color: AppColors.proteinProgress,
           ),
+
           const SizedBox(height: 14),
+
           MacroProgressBar(
-            label: 'fat',
+            label: context.l10n.fat,
             consumed: fat,
             goal: fatGoal,
             color: AppColors.fatProgress,
           ),
+
           const SizedBox(height: 14),
+
           MacroProgressBar(
-            label: 'carbs',
+            label: context.l10n.carbs,
             consumed: carbs,
             goal: carbsGoal,
             color: AppColors.carbsProgress,
@@ -84,7 +100,10 @@ class MacroProgressBar extends StatelessWidget {
   double get progress {
     if (goal <= 0) return 0;
 
-    return (consumed / goal).clamp(0.0, 1.0);
+    return (consumed / goal).clamp(
+      0.0,
+      1.0,
+    );
   }
 
   String _formatNumber(double value) {
@@ -95,13 +114,20 @@ class MacroProgressBar extends StatelessWidget {
     return value.toStringAsFixed(1);
   }
 
-  void _showGoal(BuildContext context) {
-    showModalBottomSheet<void>(
+  void _showGoal(
+      BuildContext context,
+      ) {
+    showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (_) {
         return Container(
-          padding: const EdgeInsets.fromLTRB(24, 18, 24, 32),
+          padding: const EdgeInsets.fromLTRB(
+            24,
+            18,
+            24,
+            32,
+          ),
           decoration: const BoxDecoration(
             color: AppColors.bottomSheetBackground,
             borderRadius: BorderRadius.vertical(
@@ -121,31 +147,44 @@ class MacroProgressBar extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                 ),
+
                 const SizedBox(height: 22),
+
                 Text(
-                  '${label[0].toUpperCase()}${label.substring(1)} Goal',
-                  style: const TextStyle(
+                  context.l10n.macroGoalTitle(
+                    label,
+                  ),
+                  style: AppTextStyles.titleLarge.copyWith(
                     color: AppColors.dailyGoalText,
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
+
                 const SizedBox(height: 10),
+
                 Text(
-                  '${_formatNumber(consumed)} g / ${_formatNumber(goal)} g',
-                  style: const TextStyle(
+                  '${_formatNumber(consumed)} g / '
+                      '${_formatNumber(goal)} g',
+                  style: AppTextStyles.bodyMedium.copyWith(
                     color: AppColors.bottomSheetSecondaryText,
                     fontSize: 16,
                   ),
                 ),
+
                 const SizedBox(height: 18),
+
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 12,
-                    backgroundColor: AppColors.macroProgressBackground,
-                    valueColor: AlwaysStoppedAnimation<Color>(color),
+                    backgroundColor:
+                    AppColors.macroProgressBackground,
+                    valueColor:
+                    AlwaysStoppedAnimation<Color>(
+                      color,
+                    ),
                   ),
                 ),
               ],
@@ -170,17 +209,23 @@ class MacroProgressBar extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: progress,
                 minHeight: 14,
-                backgroundColor: AppColors.macroProgressBackground,
-                valueColor: AlwaysStoppedAnimation<Color>(color),
+                backgroundColor:
+                AppColors.macroProgressBackground,
+                valueColor:
+                AlwaysStoppedAnimation<Color>(
+                  color,
+                ),
               ),
             ),
           ),
+
           const SizedBox(width: 12),
+
           Expanded(
             child: Text(
               '${_formatNumber(consumed)}g $label',
-              style: const TextStyle(
-                color: AppColors.dailyGoalText,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.homeSecondaryValue,
                 fontSize: 12.5,
                 fontWeight: FontWeight.w600,
               ),

@@ -87,7 +87,8 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
     );
 
     _waterController = TextEditingController(
-      text: (widget.initialPlan.waterMl / 1000).toStringAsFixed(1),
+      text: (widget.initialPlan.waterMl / 1000)
+          .toStringAsFixed(1),
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -128,7 +129,9 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
     );
 
     final waterLiters = double.tryParse(
-      _waterController.text.trim().replaceAll(',', '.'),
+      _waterController.text
+          .trim()
+          .replaceAll(',', '.'),
     );
 
     if (calories == null ||
@@ -205,10 +208,12 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
                       width: 48,
                       height: 5,
                       decoration: BoxDecoration(
-                        color: AppColors.authText.withValues(
+                        color:
+                        AppColors.authText.withValues(
                           alpha: 0.22,
                         ),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius:
+                        BorderRadius.circular(20),
                       ),
                     ),
 
@@ -218,7 +223,8 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
                       width: 72,
                       height: 72,
                       decoration: BoxDecoration(
-                        color: AppColors.authButtonGreen.withValues(
+                        color: AppColors.authButtonGreen
+                            .withValues(
                           alpha: 0.18,
                         ),
                         shape: BoxShape.circle,
@@ -235,7 +241,8 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
                     Text(
                       context.l10n.aiPlanReadyTitle,
                       textAlign: TextAlign.center,
-                      style: AppTextStyles.headingLarge.copyWith(
+                      style:
+                      AppTextStyles.headingLarge.copyWith(
                         color: AppColors.authText,
                         fontSize: 27,
                         height: 1.15,
@@ -248,8 +255,10 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
                     Text(
                       context.l10n.aiPlanReadyDescription,
                       textAlign: TextAlign.center,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.authText.withValues(
+                      style:
+                      AppTextStyles.bodyMedium.copyWith(
+                        color:
+                        AppColors.authText.withValues(
                           alpha: 0.72,
                         ),
                         height: 1.45,
@@ -268,21 +277,27 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(26),
+                        borderRadius:
+                        BorderRadius.circular(26),
                       ),
                       child: Column(
                         crossAxisAlignment:
                         CrossAxisAlignment.start,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(
+                            padding:
+                            const EdgeInsets.only(
                               left: 4,
                             ),
                             child: Text(
                               context.l10n.dailyTargets,
-                              style: AppTextStyles.titleMedium.copyWith(
-                                color: AppColors.authText,
-                                fontWeight: FontWeight.w800,
+                              style: AppTextStyles
+                                  .titleMedium
+                                  .copyWith(
+                                color:
+                                AppColors.authText,
+                                fontWeight:
+                                FontWeight.w800,
                               ),
                             ),
                           ),
@@ -290,37 +305,49 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
                           const SizedBox(height: 16),
 
                           _PlanValueField(
-                            icon: Icons.local_fire_department_rounded,
-                            label: context.l10n.calories,
-                            controller: _caloriesController,
+                            icon: Icons
+                                .local_fire_department_rounded,
+                            label:
+                            context.l10n.calories,
+                            controller:
+                            _caloriesController,
                             suffix: 'kcal',
                           ),
 
                           _PlanValueField(
-                            icon: Icons.fitness_center_rounded,
-                            label: context.l10n.protein,
-                            controller: _proteinController,
+                            icon: Icons
+                                .fitness_center_rounded,
+                            label:
+                            context.l10n.protein,
+                            controller:
+                            _proteinController,
                             suffix: 'g',
                           ),
 
                           _PlanValueField(
                             icon: Icons.grain_rounded,
-                            label: context.l10n.carbohydrates,
-                            controller: _carbsController,
+                            label: context
+                                .l10n.carbohydrates,
+                            controller:
+                            _carbsController,
                             suffix: 'g',
                           ),
 
                           _PlanValueField(
                             icon: Icons.opacity_rounded,
                             label: context.l10n.fats,
-                            controller: _fatsController,
+                            controller:
+                            _fatsController,
                             suffix: 'g',
                           ),
 
                           _PlanValueField(
-                            icon: Icons.local_drink_outlined,
-                            label: context.l10n.water,
-                            controller: _waterController,
+                            icon: Icons
+                                .local_drink_outlined,
+                            label:
+                            context.l10n.water,
+                            controller:
+                            _waterController,
                             suffix: 'L',
                             allowDecimal: true,
                             showBottomDivider: false,
@@ -332,9 +359,11 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
                     const SizedBox(height: 24),
 
                     CustomButton(
-                      text: context.l10n.startMyJourney,
+                      text:
+                      context.l10n.startMyJourney,
                       onPressed: _submit,
-                      backgroundColor: AppColors.authButtonGreen,
+                      backgroundColor:
+                      AppColors.authButtonGreen,
                       textColor: Colors.white,
                       height: 54,
                       width: screenWidth * 0.72,
@@ -351,7 +380,8 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
           top: 0,
           child: IgnorePointer(
             child: ConfettiWidget(
-              confettiController: _confettiController,
+              confettiController:
+              _confettiController,
               blastDirectionality:
               BlastDirectionality.explosive,
               shouldLoop: false,
@@ -363,8 +393,8 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
               colors: const [
                 AppColors.authButtonGreen,
                 AppColors.authText,
-                Color(0xFFCAD499),
-                Color(0xFFFFD98E),
+                AppColors.confettiLightGreen,
+                AppColors.confettiGold,
                 Colors.white,
               ],
             ),
@@ -402,7 +432,8 @@ class _PlanValueField extends StatelessWidget {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: AppColors.authButtonGreen.withValues(
+                color: AppColors.authButtonGreen
+                    .withValues(
                   alpha: 0.15,
                 ),
                 shape: BoxShape.circle,
@@ -419,7 +450,8 @@ class _PlanValueField extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: AppTextStyles.bodyMedium.copyWith(
+                style:
+                AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.authText,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -437,32 +469,39 @@ class _PlanValueField extends StatelessWidget {
                 ),
                 inputFormatters: allowDecimal
                     ? [
-                  FilteringTextInputFormatter.allow(
+                  FilteringTextInputFormatter
+                      .allow(
                     RegExp(
                       r'^\d*[.,]?\d{0,1}',
                     ),
                   ),
                 ]
                     : [
-                  FilteringTextInputFormatter.digitsOnly,
+                  FilteringTextInputFormatter
+                      .digitsOnly,
                 ],
                 textAlign: TextAlign.end,
-                style: AppTextStyles.bodyMedium.copyWith(
+                style:
+                AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.authText,
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
                 ),
                 decoration: InputDecoration(
                   suffixText: suffix,
-                  suffixStyle: AppTextStyles.labelSmall.copyWith(
-                    color: AppColors.authText.withValues(
+                  suffixStyle: AppTextStyles
+                      .labelSmall
+                      .copyWith(
+                    color:
+                    AppColors.authText.withValues(
                       alpha: 0.58,
                     ),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
                   filled: true,
-                  fillColor: AppColors.onboardingBackground,
+                  fillColor:
+                  AppColors.onboardingBackground,
                   isDense: true,
                   contentPadding:
                   const EdgeInsets.symmetric(
@@ -470,17 +509,22 @@ class _PlanValueField extends StatelessWidget {
                     vertical: 10,
                   ),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius:
+                    BorderRadius.circular(16),
                     borderSide: BorderSide.none,
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius:
+                    BorderRadius.circular(16),
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(
-                      color: AppColors.authButtonGreen,
+                    borderRadius:
+                    BorderRadius.circular(16),
+                    borderSide:
+                    const BorderSide(
+                      color:
+                      AppColors.authButtonGreen,
                       width: 1.2,
                     ),
                   ),
@@ -498,7 +542,8 @@ class _PlanValueField extends StatelessWidget {
             child: Divider(
               height: 1,
               thickness: 1,
-              color: AppColors.authText.withValues(
+              color:
+              AppColors.authText.withValues(
                 alpha: 0.08,
               ),
             ),

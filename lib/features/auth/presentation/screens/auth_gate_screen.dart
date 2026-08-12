@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:fiteo_myapp/app/router/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:fiteo_myapp/app/router/app_routes.dart';
+import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
 
 class AuthGateScreen extends StatelessWidget {
   const AuthGateScreen({super.key});
@@ -43,10 +45,16 @@ class AuthGateScreen extends StatelessWidget {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, authSnapshot) {
-        if (authSnapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            backgroundColor: Colors.white,
-            body: Center(child: CircularProgressIndicator()),
+        if (authSnapshot.connectionState ==
+            ConnectionState.waiting) {
+          return const SystemNavigationBar(
+            color: Colors.white,
+            child: Scaffold(
+              backgroundColor: Colors.white,
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
           );
         }
 
@@ -58,21 +66,33 @@ class AuthGateScreen extends StatelessWidget {
             builder: (context, routeSnapshot) {
               if (routeSnapshot.connectionState ==
                   ConnectionState.waiting) {
-                return const Scaffold(
-                  backgroundColor: Colors.white,
-                  body: Center(child: CircularProgressIndicator()),
+                return const SystemNavigationBar(
+                  color: Colors.white,
+                  child: Scaffold(
+                    backgroundColor: Colors.white,
+                    body: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
                 );
               }
 
-              final route = routeSnapshot.data ?? AppRoutes.main;
+              final route =
+                  routeSnapshot.data ?? AppRoutes.main;
 
               Future.microtask(() {
-                Navigator.pushReplacementNamed(context, route);
+                Navigator.pushReplacementNamed(
+                  context,
+                  route,
+                );
               });
 
-              return const Scaffold(
-                backgroundColor: Colors.white,
-                body: SizedBox.shrink(),
+              return const SystemNavigationBar(
+                color: Colors.white,
+                child: Scaffold(
+                  backgroundColor: Colors.white,
+                  body: SizedBox.shrink(),
+                ),
               );
             },
           );
@@ -83,21 +103,33 @@ class AuthGateScreen extends StatelessWidget {
           builder: (context, routeSnapshot) {
             if (routeSnapshot.connectionState ==
                 ConnectionState.waiting) {
-              return const Scaffold(
-                backgroundColor: Colors.white,
-                body: Center(child: CircularProgressIndicator()),
+              return const SystemNavigationBar(
+                color: Colors.white,
+                child: Scaffold(
+                  backgroundColor: Colors.white,
+                  body: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
               );
             }
 
-            final route = routeSnapshot.data ?? AppRoutes.login;
+            final route =
+                routeSnapshot.data ?? AppRoutes.login;
 
             Future.microtask(() {
-              Navigator.pushReplacementNamed(context, route);
+              Navigator.pushReplacementNamed(
+                context,
+                route,
+              );
             });
 
-            return const Scaffold(
-              backgroundColor: Colors.white,
-              body: SizedBox.shrink(),
+            return const SystemNavigationBar(
+              color: Colors.white,
+              child: Scaffold(
+                backgroundColor: Colors.white,
+                body: SizedBox.shrink(),
+              ),
             );
           },
         );

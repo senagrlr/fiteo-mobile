@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 
 class CookMessageInput extends StatelessWidget {
   final TextEditingController controller;
@@ -26,7 +29,10 @@ class CookMessageInput extends StatelessWidget {
       ),
       child: Container(
         height: 50,
-        padding: const EdgeInsets.only(left: 20, right: 6),
+        padding: const EdgeInsets.only(
+          left: 20,
+          right: 6,
+        ),
         decoration: BoxDecoration(
           color: AppColors.onboardingBackground,
           borderRadius: BorderRadius.circular(28),
@@ -36,15 +42,16 @@ class CookMessageInput extends StatelessWidget {
             Expanded(
               child: TextField(
                 controller: controller,
-                style: const TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.homeBrown,
                   fontSize: 15,
                 ),
-                decoration: const InputDecoration(
-                  hintText: 'Enter ingredients',
-                  hintStyle: TextStyle(
-                    color: AppColors.homeBrown,
+                decoration: InputDecoration(
+                  hintText: context.l10n.enterIngredients,
+                  hintStyle: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.homeSecondaryValue,
                     fontSize: 15,
+                    fontWeight: FontWeight.w400,
                   ),
                   border: InputBorder.none,
                 ),

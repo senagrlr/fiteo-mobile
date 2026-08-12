@@ -11,6 +11,7 @@ import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
+import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/plan_ready_sheet.dart';
 
 class AiPlanLoadingScreen extends StatefulWidget {
@@ -27,7 +28,8 @@ class AiPlanLoadingScreen extends StatefulWidget {
   }
 }
 
-class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
+class _AiPlanLoadingScreenState
+    extends State<AiPlanLoadingScreen> {
   Timer? _statusTimer;
 
   int currentStatusIndex = 0;
@@ -63,13 +65,17 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
     );
 
     final gender =
-    (widget.userPreferences['gender'] ?? 'Female').toString();
+    (widget.userPreferences['gender'] ?? 'Female')
+        .toString();
 
     final goal =
-    (widget.userPreferences['goal'] ?? 'Maintain Fitness').toString();
+    (widget.userPreferences['goal'] ??
+        'Maintain Fitness')
+        .toString();
 
     final activityLevel =
-    (widget.userPreferences['activityLevel'] ?? 'Moderately Active')
+    (widget.userPreferences['activityLevel'] ??
+        'Moderately Active')
         .toString();
 
     final bmr = gender == 'Male'
@@ -82,7 +88,8 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
         (5 * age) -
         161;
 
-    final activityMultiplier = switch (activityLevel) {
+    final activityMultiplier =
+    switch (activityLevel) {
       'Sedentary' => 1.20,
       'Lightly Active' => 1.375,
       'Moderately Active' => 1.55,
@@ -90,7 +97,8 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
       _ => 1.45,
     };
 
-    double calories = bmr * activityMultiplier;
+    double calories =
+        bmr * activityMultiplier;
 
     if (goal == 'Lose Weight') {
       calories -= 350;
@@ -111,7 +119,9 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
 
     final carbCalories = math.max(
       0,
-      calories - fatCalories - proteinCalories,
+      calories -
+          fatCalories -
+          proteinCalories,
     );
 
     final carbs = carbCalories / 4;
@@ -143,7 +153,8 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
     }
 
     if (value is String) {
-      return double.tryParse(value) ?? fallback;
+      return double.tryParse(value) ??
+          fallback;
     }
 
     return fallback;
@@ -173,7 +184,8 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
           const Duration(milliseconds: 500),
         );
 
-        if (!mounted || didOpenPlanSheet) {
+        if (!mounted ||
+            didOpenPlanSheet) {
           return;
         }
 
@@ -185,7 +197,9 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
   }
 
   Future<void> _showPlanReadySheet() async {
-    final result = await showModalBottomSheet<AiNutritionPlan>(
+    final result =
+    await showModalBottomSheet<
+        AiNutritionPlan>(
       context: context,
       isDismissible: false,
       enableDrag: false,
@@ -207,7 +221,8 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
     }
   }
 
-  Future<void> _savePlanAndContinue() async {
+  Future<void>
+  _savePlanAndContinue() async {
     if (isSaving) return;
 
     setState(() {
@@ -215,22 +230,31 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
     });
 
     try {
-      final user = FirebaseAuth.instance.currentUser;
+      final user =
+          FirebaseAuth.instance.currentUser;
 
       if (user == null) {
-        throw Exception('User not logged in');
+        throw Exception(
+          'User not logged in',
+        );
       }
 
-      final updatedPreferences = Map<String, dynamic>.from(
+      final updatedPreferences =
+      Map<String, dynamic>.from(
         widget.userPreferences,
       );
 
       updatedPreferences.addAll({
-        'calorieGoal': generatedPlan.calories,
-        'proteinGoal': generatedPlan.proteinGrams,
-        'carbsGoal': generatedPlan.carbsGrams,
-        'fatGoal': generatedPlan.fatsGrams,
-        'waterGoalMl': generatedPlan.waterMl,
+        'calorieGoal':
+        generatedPlan.calories,
+        'proteinGoal':
+        generatedPlan.proteinGrams,
+        'carbsGoal':
+        generatedPlan.carbsGrams,
+        'fatGoal':
+        generatedPlan.fatsGrams,
+        'waterGoalMl':
+        generatedPlan.waterMl,
       });
 
       await FirebaseFirestore.instance
@@ -238,18 +262,27 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
           .doc(user.uid)
           .set(
         {
-          'userPreferences': updatedPreferences,
+          'userPreferences':
+          updatedPreferences,
           'nutritionPlan': {
-            'dailyCalories': generatedPlan.calories,
-            'proteinGrams': generatedPlan.proteinGrams,
-            'carbsGrams': generatedPlan.carbsGrams,
-            'fatsGrams': generatedPlan.fatsGrams,
-            'waterMl': generatedPlan.waterMl,
-            'createdAt': FieldValue.serverTimestamp(),
-            'updatedAt': FieldValue.serverTimestamp(),
+            'dailyCalories':
+            generatedPlan.calories,
+            'proteinGrams':
+            generatedPlan.proteinGrams,
+            'carbsGrams':
+            generatedPlan.carbsGrams,
+            'fatsGrams':
+            generatedPlan.fatsGrams,
+            'waterMl':
+            generatedPlan.waterMl,
+            'createdAt':
+            FieldValue.serverTimestamp(),
+            'updatedAt':
+            FieldValue.serverTimestamp(),
           },
           'isOnboardingCompleted': true,
-          'updatedAt': FieldValue.serverTimestamp(),
+          'updatedAt':
+          FieldValue.serverTimestamp(),
         },
         SetOptions(merge: true),
       );
@@ -279,12 +312,16 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
     }
   }
 
-  List<String> _localizedStatuses(BuildContext context) {
+  List<String> _localizedStatuses(
+      BuildContext context,
+      ) {
     return [
       context.l10n.analyzingGoals,
       context.l10n.calculatingCalories,
-      context.l10n.buildingMealSuggestions,
-      context.l10n.designingWorkoutRoadmap,
+      context.l10n
+          .buildingMealSuggestions,
+      context.l10n
+          .designingWorkoutRoadmap,
     ];
   }
 
@@ -296,122 +333,170 @@ class _AiPlanLoadingScreenState extends State<AiPlanLoadingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    final screenHeight = MediaQuery.sizeOf(context).height;
+    final screenWidth =
+        MediaQuery.sizeOf(context).width;
 
-    final statuses = _localizedStatuses(context);
+    final screenHeight =
+        MediaQuery.sizeOf(context).height;
 
-    return PopScope(
-      canPop: false,
-      child: Scaffold(
-        backgroundColor: AppColors.onboardingBackground,
-        body: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: screenWidth * 0.10,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(
-                  height: screenHeight * 0.14,
-                ),
+    final statuses =
+    _localizedStatuses(context);
 
-                Center(
-                  child: Transform.translate(
-                    offset: const Offset(10, 0),
-                    child: SizedBox(
-                      width: 250,
-                      height: 250,
-                      child: Lottie.asset(
-                        'assets/animations/customize_plan.json',
-                        repeat: true,
-                        fit: BoxFit.contain,
-                        alignment: Alignment.center,
-                      ),
-                    ),
+    return SystemNavigationBar(
+      color: AppColors.onboardingBackground,
+      child: PopScope(
+        canPop: false,
+        child: Scaffold(
+          backgroundColor:
+          AppColors.onboardingBackground,
+          body: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal:
+                screenWidth * 0.10,
+              ),
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(
+                    height:
+                    screenHeight * 0.14,
                   ),
-                ),
 
-                const SizedBox(height: 26),
-
-                Center(
-                  child: Text(
-                    context.l10n.customizeYourPlan,
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.headingLarge.copyWith(
-                      color: AppColors.authText,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                Center(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 350),
-                    layoutBuilder: (
-                        currentChild,
-                        previousChildren,
-                        ) {
-                      return Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          ...previousChildren,
-                          if (currentChild != null) currentChild,
-                        ],
-                      );
-                    },
-                    transitionBuilder: (
-                        child,
-                        animation,
-                        ) {
-                      return FadeTransition(
-                        opacity: animation,
-                        child: SlideTransition(
-                          position: Tween<Offset>(
-                            begin: const Offset(0, 0.20),
-                            end: Offset.zero,
-                          ).animate(animation),
-                          child: child,
+                  Center(
+                    child:
+                    Transform.translate(
+                      offset:
+                      const Offset(10, 0),
+                      child: SizedBox(
+                        width: 250,
+                        height: 250,
+                        child: Lottie.asset(
+                          'assets/animations/customize_plan.json',
+                          repeat: true,
+                          fit: BoxFit.contain,
+                          alignment:
+                          Alignment.center,
                         ),
-                      );
-                    },
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 26),
+
+                  Center(
                     child: Text(
-                      isCreatingPlan
-                          ? statuses[currentStatusIndex]
-                          : context.l10n.yourPlanIsReady,
-                      key: ValueKey(
+                      context.l10n
+                          .customizeYourPlan,
+                      textAlign:
+                      TextAlign.center,
+                      style: AppTextStyles
+                          .headingLarge
+                          .copyWith(
+                        color:
+                        AppColors.authText,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  Center(
+                    child: AnimatedSwitcher(
+                      duration:
+                      const Duration(
+                        milliseconds: 350,
+                      ),
+                      layoutBuilder: (
+                          currentChild,
+                          previousChildren,
+                          ) {
+                        return Stack(
+                          alignment:
+                          Alignment.center,
+                          children: [
+                            ...previousChildren,
+                            if (currentChild !=
+                                null)
+                              currentChild,
+                          ],
+                        );
+                      },
+                      transitionBuilder: (
+                          child,
+                          animation,
+                          ) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child:
+                          SlideTransition(
+                            position:
+                            Tween<Offset>(
+                              begin:
+                              const Offset(
+                                0,
+                                0.20,
+                              ),
+                              end:
+                              Offset.zero,
+                            ).animate(
+                              animation,
+                            ),
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: Text(
                         isCreatingPlan
-                            ? currentStatusIndex
-                            : -1,
-                      ),
-                      textAlign: TextAlign.center,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.onboardingText,
-                        fontWeight: FontWeight.w500,
+                            ? statuses[
+                        currentStatusIndex]
+                            : context.l10n
+                            .yourPlanIsReady,
+                        key: ValueKey(
+                          isCreatingPlan
+                              ? currentStatusIndex
+                              : -1,
+                        ),
+                        textAlign:
+                        TextAlign.center,
+                        style: AppTextStyles
+                            .bodyMedium
+                            .copyWith(
+                          color: AppColors
+                              .onboardingText,
+                          fontWeight:
+                          FontWeight.w500,
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                const Spacer(),
+                  const Spacer(),
 
-                Center(
-                  child: Text(
-                    isSaving
-                        ? context.l10n.savingPersonalizedPlan
-                        : context.l10n.thisMayTakeFewSeconds,
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w400,
+                  Center(
+                    child: Text(
+                      isSaving
+                          ? context.l10n
+                          .savingPersonalizedPlan
+                          : context.l10n
+                          .thisMayTakeFewSeconds,
+                      textAlign:
+                      TextAlign.center,
+                      style: AppTextStyles
+                          .caption
+                          .copyWith(
+                        color: AppColors
+                            .textSecondary,
+                        fontWeight:
+                        FontWeight.w400,
+                      ),
                     ),
                   ),
-                ),
 
-                const SizedBox(height: 34),
-              ],
+                  const SizedBox(height: 34),
+                ],
+              ),
             ),
           ),
         ),

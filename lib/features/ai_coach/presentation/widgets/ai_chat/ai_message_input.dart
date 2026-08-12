@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 
 class AiMessageInput extends StatelessWidget {
   final TextEditingController controller;
@@ -28,7 +31,10 @@ class AiMessageInput extends StatelessWidget {
         ),
         child: Container(
           height: 50,
-          padding: const EdgeInsets.only(left: 20, right: 6),
+          padding: const EdgeInsets.only(
+            left: 20,
+            right: 6,
+          ),
           decoration: BoxDecoration(
             color: AppColors.onboardingBackground,
             borderRadius: BorderRadius.circular(28),
@@ -38,15 +44,16 @@ class AiMessageInput extends StatelessWidget {
               Expanded(
                 child: TextField(
                   controller: controller,
-                  style: const TextStyle(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     color: AppColors.homeBrown,
                     fontSize: 15,
                   ),
-                  decoration: const InputDecoration(
-                    hintText: 'Tell me your goal, I’ll guide you',
-                    hintStyle: TextStyle(
-                      color: AppColors.homeBrown,
-                      fontSize: 15,
+                  decoration: InputDecoration(
+                    hintText: context.l10n.aiMessageInputHint,
+                    hintStyle: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.homeSecondaryValue,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
                     ),
                     border: InputBorder.none,
                   ),

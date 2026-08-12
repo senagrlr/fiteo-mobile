@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
+import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/goal_option_card.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/setup_progress_indicator.dart';
 
@@ -21,12 +23,14 @@ class ActivityLevelScreen extends StatefulWidget {
       _ActivityLevelScreenState();
 }
 
-class _ActivityLevelScreenState extends State<ActivityLevelScreen> {
+class _ActivityLevelScreenState
+    extends State<ActivityLevelScreen> {
   String? selectedActivity;
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth =
+        MediaQuery.of(context).size.width;
 
     final activities = [
       (
@@ -47,85 +51,92 @@ class _ActivityLevelScreenState extends State<ActivityLevelScreen> {
       ),
     ];
 
-    return Scaffold(
-      backgroundColor: AppColors.onboardingBackground,
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: screenWidth * 0.10,
-          ),
-          child: Column(
-            children: [
-              const SizedBox(height: 18),
+    return SystemNavigationBar(
+      color: AppColors.onboardingBackground,
+      child: Scaffold(
+        backgroundColor:
+        AppColors.onboardingBackground,
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: screenWidth * 0.10,
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: 18),
 
-              const SetupProgressIndicator(
-                currentStep: 3,
-                totalSteps: 7,
-              ),
+                const SetupProgressIndicator(
+                  currentStep: 3,
+                  totalSteps: 7,
+                ),
 
-              const SizedBox(height: 25),
+                const SizedBox(height: 25),
 
-              Align(
-                alignment: Alignment.centerLeft,
-                child: GestureDetector(
-                  onTap: widget.onBack,
-                  child: const Icon(
-                    Icons.arrow_back_ios_new,
-                    size: 24,
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: GestureDetector(
+                    onTap: widget.onBack,
+                    child: const Icon(
+                      Icons.arrow_back_ios_new,
+                      size: 24,
+                      color: AppColors.authText,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 60),
+
+                Text(
+                  context.l10n.activityLevelTitle,
+                  textAlign: TextAlign.center,
+                  style:
+                  AppTextStyles.headingLarge.copyWith(
                     color: AppColors.authText,
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 60),
+                const SizedBox(height: 42),
 
-              Text(
-                context.l10n.activityLevelTitle,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.headingLarge.copyWith(
-                  color: AppColors.authText,
-                ),
-              ),
-
-              const SizedBox(height: 42),
-
-              ...activities.map(
-                    (activity) => Padding(
-                  padding: const EdgeInsets.only(
-                    bottom: 16,
-                  ),
-                  child: GoalOptionCard(
-                    title: activity.label,
-                    isSelected:
-                    selectedActivity == activity.value,
-                    onTap: () {
-                      setState(() {
-                        selectedActivity = activity.value;
-                      });
-                    },
+                ...activities.map(
+                      (activity) => Padding(
+                    padding: const EdgeInsets.only(
+                      bottom: 16,
+                    ),
+                    child: GoalOptionCard(
+                      title: activity.label,
+                      isSelected:
+                      selectedActivity ==
+                          activity.value,
+                      onTap: () {
+                        setState(() {
+                          selectedActivity =
+                              activity.value;
+                        });
+                      },
+                    ),
                   ),
                 ),
-              ),
 
-              const Spacer(),
+                const Spacer(),
 
-              CustomButton(
-                text: context.l10n.continueText,
-                onPressed: selectedActivity == null
-                    ? null
-                    : () => widget.onContinue(
-                  selectedActivity!,
+                CustomButton(
+                  text: context.l10n.continueText,
+                  onPressed: selectedActivity == null
+                      ? null
+                      : () => widget.onContinue(
+                    selectedActivity!,
+                  ),
+                  backgroundColor:
+                  AppColors.authButtonGreen,
+                  textColor: Colors.white,
+                  height: 54,
+                  width: screenWidth * 0.72,
+                  fontSize: 22,
                 ),
-                backgroundColor:
-                AppColors.authButtonGreen,
-                textColor: Colors.white,
-                height: 54,
-                width: screenWidth * 0.72,
-                fontSize: 22,
-              ),
 
-              const SizedBox(height: 36),
-            ],
+                const SizedBox(height: 36),
+              ],
+            ),
           ),
         ),
       ),

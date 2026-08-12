@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 
 class AiModeSwitch extends StatelessWidget {
@@ -23,15 +24,16 @@ class AiModeSwitch extends StatelessWidget {
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
           color: isCookMode
-              ? const Color(0xFF6F7F32)
+              ? AppColors.aiCookModeSwitch
               : AppColors.authButtonGreen,
           borderRadius: BorderRadius.circular(30),
         ),
         child: AnimatedAlign(
           duration: const Duration(milliseconds: 280),
           curve: Curves.easeOutBack,
-          alignment:
-          isCookMode ? Alignment.centerRight : Alignment.centerLeft,
+          alignment: isCookMode
+              ? Alignment.centerRight
+              : Alignment.centerLeft,
           child: Container(
             width: 24,
             height: 24,

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/router/app_routes.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
@@ -8,17 +9,21 @@ import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
 import 'package:fiteo_myapp/common/widgets/common_app_bar.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
+import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
 import 'package:fiteo_myapp/features/auth/data/auth_repository.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
   const VerifyEmailScreen({super.key});
 
   @override
-  State<VerifyEmailScreen> createState() => _VerifyEmailScreenState();
+  State<VerifyEmailScreen> createState() =>
+      _VerifyEmailScreenState();
 }
 
-class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
-  final AuthRepository _authRepository = AuthRepository();
+class _VerifyEmailScreenState
+    extends State<VerifyEmailScreen> {
+  final AuthRepository _authRepository =
+  AuthRepository();
 
   bool _isChecking = false;
   bool _canResend = false;
@@ -64,7 +69,8 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     });
 
     final isVerified =
-    await _authRepository.isCurrentUserEmailVerified();
+    await _authRepository
+        .isCurrentUserEmailVerified();
 
     if (!mounted) return;
 
@@ -94,7 +100,8 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     if (!_canResend) return;
 
     try {
-      await _authRepository.sendEmailVerification();
+      await _authRepository
+          .sendEmailVerification();
 
       if (!mounted) return;
 
@@ -119,7 +126,10 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     final remainingSeconds = seconds % 60;
 
     final secondsStr =
-    remainingSeconds.toString().padLeft(2, '0');
+    remainingSeconds.toString().padLeft(
+      2,
+      '0',
+    );
 
     return '$minutes:$secondsStr';
   }
@@ -132,101 +142,125 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth =
+        MediaQuery.of(context).size.width;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: const CommonAppBar(),
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: screenWidth * 0.10,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 80),
+    return SystemNavigationBar(
+      color: Colors.white,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: const CommonAppBar(),
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: screenWidth * 0.10,
+            ),
+            child: Column(
+              crossAxisAlignment:
+              CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 80),
 
-              SizedBox(
-                width: double.infinity,
-                child: Text(
-                  context.l10n.verifyEmailTitle,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.displayMedium.copyWith(
-                    color: AppColors.authText,
+                SizedBox(
+                  width: double.infinity,
+                  child: Text(
+                    context.l10n.verifyEmailTitle,
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles
+                        .displayMedium
+                        .copyWith(
+                      color: AppColors.authText,
+                    ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 40),
+                const SizedBox(height: 40),
 
-              Container(
-                width: 150,
-                height: 150,
-                decoration: const BoxDecoration(
-                  color: AppColors.onboardingBackground,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Image.asset(
-                    'assets/images/mail_icon.png',
-                    width: 100,
-                    height: 100,
-                    fit: BoxFit.contain,
+                Container(
+                  width: 150,
+                  height: 150,
+                  decoration:
+                  const BoxDecoration(
+                    color: AppColors
+                        .onboardingBackground,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Image.asset(
+                      'assets/images/mail_icon.png',
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 40),
+                const SizedBox(height: 40),
 
-              SizedBox(
-                width: double.infinity,
-                child: Text(
-                  context.l10n.verifyEmailDescription,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
-                    height: 1.6,
+                SizedBox(
+                  width: double.infinity,
+                  child: Text(
+                    context.l10n
+                        .verifyEmailDescription,
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles
+                        .bodyMedium
+                        .copyWith(
+                      color:
+                      AppColors.textSecondary,
+                      height: 1.6,
+                    ),
                   ),
                 ),
-              ),
 
-              const Spacer(),
+                const Spacer(),
 
-              GestureDetector(
-                onTap: _canResend ? _resendEmail : null,
-                child: Text(
-                  _canResend
-                      ? context.l10n.resendEmail
-                      : context.l10n.resendEmailWithTime(
-                    _formatTime(_secondsLeft),
-                  ),
-                  style: AppTextStyles.bodyLarge.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: _canResend
-                        ? AppColors.authText
-                        : Colors.grey,
+                GestureDetector(
+                  onTap: _canResend
+                      ? _resendEmail
+                      : null,
+                  child: Text(
+                    _canResend
+                        ? context.l10n.resendEmail
+                        : context.l10n
+                        .resendEmailWithTime(
+                      _formatTime(
+                        _secondsLeft,
+                      ),
+                    ),
+                    style: AppTextStyles
+                        .bodyLarge
+                        .copyWith(
+                      fontWeight:
+                      FontWeight.w500,
+                      color: _canResend
+                          ? AppColors.authText
+                          : AppColors
+                          .homeSecondaryValue,
+                    ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              CustomButton(
-                text: _isChecking
-                    ? context.l10n.checking
-                    : context.l10n.verify,
-                onPressed:
-                _isChecking ? null : _checkEmailVerification,
-                backgroundColor: AppColors.authButtonGreen,
-                textColor: Colors.white,
-                height: 56,
-                width: screenWidth * 0.72,
-                fontSize: 22,
-              ),
+                CustomButton(
+                  text: _isChecking
+                      ? context.l10n.checking
+                      : context.l10n.verify,
+                  onPressed: _isChecking
+                      ? null
+                      : _checkEmailVerification,
+                  backgroundColor:
+                  AppColors.authButtonGreen,
+                  textColor: Colors.white,
+                  height: 56,
+                  width: screenWidth * 0.72,
+                  fontSize: 22,
+                ),
 
-              const SizedBox(height: 40),
-            ],
+                const SizedBox(height: 40),
+              ],
+            ),
           ),
         ),
       ),

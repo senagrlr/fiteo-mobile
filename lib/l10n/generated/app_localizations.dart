@@ -263,61 +263,61 @@ abstract class AppLocalizations {
   /// No description provided for @verifyEmailTitle.
   ///
   /// In en, this message translates to:
-  /// **'E-postanı Doğrula'**
+  /// **'Verify your email'**
   String get verifyEmailTitle;
 
   /// No description provided for @verifyEmailDescription.
   ///
   /// In en, this message translates to:
-  /// **'E-posta adresine bir doğrulama bağlantısı gönderdik. Devam etmek için gelen kutunu kontrol et ve bağlantıya dokun.'**
+  /// **'We’ve sent a verification link to your email address. Please check your inbox and tap the link to continue.'**
   String get verifyEmailDescription;
 
   /// No description provided for @resendEmail.
   ///
   /// In en, this message translates to:
-  /// **'E-postayı Tekrar Gönder'**
+  /// **'Resend Email'**
   String get resendEmail;
 
   /// No description provided for @resendEmailWithTime.
   ///
   /// In en, this message translates to:
-  /// **'E-postayı Tekrar Gönder ({time})'**
+  /// **'Resend Email ({time})'**
   String resendEmailWithTime(String time);
 
   /// No description provided for @checking.
   ///
   /// In en, this message translates to:
-  /// **'Kontrol Ediliyor...'**
+  /// **'Checking...'**
   String get checking;
 
   /// No description provided for @verify.
   ///
   /// In en, this message translates to:
-  /// **'Doğrula'**
+  /// **'Verify'**
   String get verify;
 
   /// No description provided for @emailVerifiedSuccessfully.
   ///
   /// In en, this message translates to:
-  /// **'E-posta adresin başarıyla doğrulandı.'**
+  /// **'Your email has been verified successfully.'**
   String get emailVerifiedSuccessfully;
 
   /// No description provided for @emailNotVerifiedYet.
   ///
   /// In en, this message translates to:
-  /// **'E-posta adresin henüz doğrulanmadı.'**
+  /// **'Your email has not been verified yet.'**
   String get emailNotVerifiedYet;
 
   /// No description provided for @verificationEmailSentAgain.
   ///
   /// In en, this message translates to:
-  /// **'Doğrulama e-postası tekrar gönderildi.'**
+  /// **'Verification email sent again.'**
   String get verificationEmailSentAgain;
 
   /// No description provided for @verificationEmailCouldNotSend.
   ///
   /// In en, this message translates to:
-  /// **'Doğrulama e-postası gönderilemedi. Lütfen tekrar dene.'**
+  /// **'Verification email could not be sent. Please try again.'**
   String get verificationEmailCouldNotSend;
 
   /// No description provided for @forgotPassword.
@@ -355,6 +355,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please enter a valid email address.'**
   String get invalidEmail;
+
+  /// No description provided for @sendResetLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Reset Link'**
+  String get sendResetLink;
+
+  /// No description provided for @sendLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Link'**
+  String get sendLink;
+
+  /// No description provided for @sending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending...'**
+  String get sending;
+
+  /// No description provided for @resetLinkSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset link sent. Check your email.'**
+  String get resetLinkSent;
+
+  /// No description provided for @resetLinkCouldNotSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset link could not be sent. Please try again.'**
+  String get resetLinkCouldNotSend;
+
+  /// No description provided for @passwordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Password is required.'**
+  String get passwordRequired;
+
+  /// No description provided for @somethingWentWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get somethingWentWrong;
 
   /// No description provided for @onboardingPage1Title.
   ///
@@ -584,54 +626,6 @@ abstract class AppLocalizations {
   /// **'Create my plan'**
   String get createMyPlan;
 
-  /// No description provided for @planProgressOverTime.
-  ///
-  /// In en, this message translates to:
-  /// **'Your progress over time'**
-  String get planProgressOverTime;
-
-  /// No description provided for @fiteoPlan.
-  ///
-  /// In en, this message translates to:
-  /// **'Fiteo plan'**
-  String get fiteoPlan;
-
-  /// No description provided for @genericPlan.
-  ///
-  /// In en, this message translates to:
-  /// **'Generic plan'**
-  String get genericPlan;
-
-  /// No description provided for @chartStart.
-  ///
-  /// In en, this message translates to:
-  /// **'Start'**
-  String get chartStart;
-
-  /// No description provided for @chartEarly.
-  ///
-  /// In en, this message translates to:
-  /// **'Early'**
-  String get chartEarly;
-
-  /// No description provided for @chartMid.
-  ///
-  /// In en, this message translates to:
-  /// **'Mid'**
-  String get chartMid;
-
-  /// No description provided for @chartGoal.
-  ///
-  /// In en, this message translates to:
-  /// **'Goal'**
-  String get chartGoal;
-
-  /// No description provided for @yourGoal.
-  ///
-  /// In en, this message translates to:
-  /// **'Your goal'**
-  String get yourGoal;
-
   /// No description provided for @customizeYourPlan.
   ///
   /// In en, this message translates to:
@@ -776,48 +770,6 @@ abstract class AppLocalizations {
   /// **'Your goal'**
   String get planChartYourGoal;
 
-  /// No description provided for @sendResetLink.
-  ///
-  /// In en, this message translates to:
-  /// **'Send Reset Link'**
-  String get sendResetLink;
-
-  /// No description provided for @sendLink.
-  ///
-  /// In en, this message translates to:
-  /// **'Send Link'**
-  String get sendLink;
-
-  /// No description provided for @sending.
-  ///
-  /// In en, this message translates to:
-  /// **'Sending...'**
-  String get sending;
-
-  /// No description provided for @resetLinkSent.
-  ///
-  /// In en, this message translates to:
-  /// **'Password reset link sent. Check your email.'**
-  String get resetLinkSent;
-
-  /// No description provided for @resetLinkCouldNotSend.
-  ///
-  /// In en, this message translates to:
-  /// **'Password reset link could not be sent. Please try again.'**
-  String get resetLinkCouldNotSend;
-
-  /// No description provided for @passwordRequired.
-  ///
-  /// In en, this message translates to:
-  /// **'Password is required.'**
-  String get passwordRequired;
-
-  /// No description provided for @somethingWentWrong.
-  ///
-  /// In en, this message translates to:
-  /// **'Something went wrong. Please try again.'**
-  String get somethingWentWrong;
-
   /// No description provided for @dailySummary.
   ///
   /// In en, this message translates to:
@@ -848,11 +800,185 @@ abstract class AppLocalizations {
   /// **'Fat'**
   String get fat;
 
+  /// No description provided for @foodIntake.
+  ///
+  /// In en, this message translates to:
+  /// **'Food Intake'**
+  String get foodIntake;
+
+  /// No description provided for @exerciseBurn.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise Burn'**
+  String get exerciseBurn;
+
+  /// No description provided for @netCalories.
+  ///
+  /// In en, this message translates to:
+  /// **'Net Calories'**
+  String get netCalories;
+
+  /// No description provided for @hydration.
+  ///
+  /// In en, this message translates to:
+  /// **'Hydration'**
+  String get hydration;
+
+  /// No description provided for @remaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining'**
+  String get remaining;
+
+  /// No description provided for @calorieGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Calorie Goal'**
+  String get calorieGoal;
+
+  /// No description provided for @caloriesOverGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'{calories} kcal over'**
+  String caloriesOverGoal(int calories);
+
+  /// No description provided for @caloriesPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{calories} kcal/day'**
+  String caloriesPerDay(int calories);
+
+  /// No description provided for @consumed.
+  ///
+  /// In en, this message translates to:
+  /// **'Consumed'**
+  String get consumed;
+
+  /// No description provided for @burned.
+  ///
+  /// In en, this message translates to:
+  /// **'Burned'**
+  String get burned;
+
+  /// No description provided for @net.
+  ///
+  /// In en, this message translates to:
+  /// **'Net'**
+  String get net;
+
+  /// No description provided for @todaysMacros.
+  ///
+  /// In en, this message translates to:
+  /// **'Today’s Macros'**
+  String get todaysMacros;
+
+  /// No description provided for @macroGoalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{macro} Goal'**
+  String macroGoalTitle(String macro);
+
+  /// No description provided for @viewCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'View calendar'**
+  String get viewCalendar;
+
+  /// No description provided for @streakDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String streakDays(int count);
+
+  /// No description provided for @defaultAiFeedbackMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You’re building your routine step by step.'**
+  String get defaultAiFeedbackMessage;
+
+  /// No description provided for @defaultAiFeedbackSuggestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep tracking your meals and movement today to stay aware of your progress.'**
+  String get defaultAiFeedbackSuggestion;
+
+  /// No description provided for @drink.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink'**
+  String get drink;
+
+  /// No description provided for @enterWaterAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter water amount'**
+  String get enterWaterAmount;
+
   /// No description provided for @addFood.
   ///
   /// In en, this message translates to:
   /// **'Add Food'**
   String get addFood;
+
+  /// No description provided for @foodName.
+  ///
+  /// In en, this message translates to:
+  /// **'Food name'**
+  String get foodName;
+
+  /// No description provided for @amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get amount;
+
+  /// No description provided for @grams.
+  ///
+  /// In en, this message translates to:
+  /// **'Grams'**
+  String get grams;
+
+  /// No description provided for @pieces.
+  ///
+  /// In en, this message translates to:
+  /// **'Pieces'**
+  String get pieces;
+
+  /// No description provided for @calorieEstimateDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'( Calories are estimated based on\naverage nutritional values. )'**
+  String get calorieEstimateDisclaimer;
+
+  /// No description provided for @couldNotAddFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add food.'**
+  String get couldNotAddFood;
+
+  /// No description provided for @couldNotDeleteFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete food.'**
+  String get couldNotDeleteFood;
+
+  /// No description provided for @couldNotLoadMeals.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load meals.'**
+  String get couldNotLoadMeals;
+
+  /// No description provided for @deleteFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete food'**
+  String get deleteFood;
+
+  /// No description provided for @todaysMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Today’s {meal}'**
+  String todaysMeal(String meal);
 
   /// No description provided for @breakfast.
   ///
@@ -877,6 +1003,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Snack'**
   String get snack;
+
+  /// No description provided for @monthlyCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Calendar'**
+  String get monthlyCalendar;
 
   /// No description provided for @weeklyReport.
   ///
@@ -920,11 +1052,575 @@ abstract class AppLocalizations {
   /// **'Could not add recipe to meals.'**
   String get couldNotAddRecipeToMeals;
 
+  /// No description provided for @recipeCouldNotBeSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipe could not be saved.'**
+  String get recipeCouldNotBeSaved;
+
+  /// No description provided for @removeFromSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from saved'**
+  String get removeFromSaved;
+
+  /// No description provided for @saveRecipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Save recipe'**
+  String get saveRecipe;
+
+  /// No description provided for @addToIntake.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to intake'**
+  String get addToIntake;
+
+  /// No description provided for @ingredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredients'**
+  String get ingredients;
+
+  /// No description provided for @instructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Instructions'**
+  String get instructions;
+
+  /// No description provided for @nutrition.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutrition'**
+  String get nutrition;
+
+  /// No description provided for @servings.
+  ///
+  /// In en, this message translates to:
+  /// **'Servings'**
+  String get servings;
+
+  /// No description provided for @totalCalories.
+  ///
+  /// In en, this message translates to:
+  /// **'Total calories'**
+  String get totalCalories;
+
+  /// No description provided for @perServing.
+  ///
+  /// In en, this message translates to:
+  /// **'Per serving'**
+  String get perServing;
+
   /// No description provided for @dailyAiMessageLimitReached.
   ///
   /// In en, this message translates to:
   /// **'Daily AI message limit reached.'**
   String get dailyAiMessageLimitReached;
+
+  /// No description provided for @aiWelcomeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi, I’m Fiteo. Let’s improve your journey together. You can switch to cook mode.'**
+  String get aiWelcomeMessage;
+
+  /// No description provided for @aiMessageInputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell me your goal, I’ll guide you'**
+  String get aiMessageInputHint;
+
+  /// No description provided for @aiCouldNotRespond.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorry, I could not respond right now. Please try again later.'**
+  String get aiCouldNotRespond;
+
+  /// No description provided for @aiChatGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi, I’m Fiteo. Tell me your goal and I’ll guide you.'**
+  String get aiChatGreeting;
+
+  /// No description provided for @deleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete message'**
+  String get deleteMessage;
+
+  /// No description provided for @aiMessagesLeftToday.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} AI messages left today'**
+  String aiMessagesLeftToday(int count);
+
+  /// No description provided for @creatingRecipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating your recipe...\nPlease wait.'**
+  String get creatingRecipe;
+
+  /// No description provided for @enterIngredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter ingredients'**
+  String get enterIngredients;
+
+  /// No description provided for @cookWelcomeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Type ingredients, I’ll cook up the best recipe for you.'**
+  String get cookWelcomeMessage;
+
+  /// No description provided for @dailyRecipeLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily recipe limit reached.'**
+  String get dailyRecipeLimitReached;
+
+  /// No description provided for @recipeRequestsLeftToday.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} recipe requests left today'**
+  String recipeRequestsLeftToday(int count);
+
+  /// No description provided for @addExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Add exercise'**
+  String get addExercise;
+
+  /// No description provided for @exerciseName.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise name'**
+  String get exerciseName;
+
+  /// No description provided for @durationMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration (minutes)'**
+  String get durationMinutes;
+
+  /// No description provided for @intensity.
+  ///
+  /// In en, this message translates to:
+  /// **'Intensity'**
+  String get intensity;
+
+  /// No description provided for @intensityLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get intensityLow;
+
+  /// No description provided for @intensityMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get intensityMedium;
+
+  /// No description provided for @intensityHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get intensityHigh;
+
+  /// No description provided for @calculating.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculating...'**
+  String get calculating;
+
+  /// No description provided for @caloriesBurned.
+  ///
+  /// In en, this message translates to:
+  /// **'Calories burned'**
+  String get caloriesBurned;
+
+  /// No description provided for @metEstimateDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'( Calories are estimated using average\nMET values. )'**
+  String get metEstimateDisclaimer;
+
+  /// No description provided for @duration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get duration;
+
+  /// No description provided for @minutesShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String minutesShort(int minutes);
+
+  /// No description provided for @saveCalories.
+  ///
+  /// In en, this message translates to:
+  /// **'Save calories'**
+  String get saveCalories;
+
+  /// No description provided for @deleteExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete exercise'**
+  String get deleteExercise;
+
+  /// No description provided for @todaysExercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Today’s Exercises'**
+  String get todaysExercises;
+
+  /// No description provided for @couldNotAddExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add exercise.'**
+  String get couldNotAddExercise;
+
+  /// No description provided for @couldNotUpdateCalories.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update calories.'**
+  String get couldNotUpdateCalories;
+
+  /// No description provided for @couldNotDeleteExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete exercise.'**
+  String get couldNotDeleteExercise;
+
+  /// No description provided for @couldNotLoadExercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load exercises.'**
+  String get couldNotLoadExercises;
+
+  /// No description provided for @allergens.
+  ///
+  /// In en, this message translates to:
+  /// **'Allergens'**
+  String get allergens;
+
+  /// No description provided for @allergenDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'AI-generated allergen information. Always check ingredient labels before consuming.'**
+  String get allergenDisclaimer;
+
+  /// No description provided for @allergenGluten.
+  ///
+  /// In en, this message translates to:
+  /// **'Gluten'**
+  String get allergenGluten;
+
+  /// No description provided for @allergenDairy.
+  ///
+  /// In en, this message translates to:
+  /// **'Dairy'**
+  String get allergenDairy;
+
+  /// No description provided for @allergenEgg.
+  ///
+  /// In en, this message translates to:
+  /// **'Egg'**
+  String get allergenEgg;
+
+  /// No description provided for @allergenPeanuts.
+  ///
+  /// In en, this message translates to:
+  /// **'Peanuts'**
+  String get allergenPeanuts;
+
+  /// No description provided for @allergenTreeNuts.
+  ///
+  /// In en, this message translates to:
+  /// **'Tree nuts'**
+  String get allergenTreeNuts;
+
+  /// No description provided for @allergenSoy.
+  ///
+  /// In en, this message translates to:
+  /// **'Soy'**
+  String get allergenSoy;
+
+  /// No description provided for @allergenFish.
+  ///
+  /// In en, this message translates to:
+  /// **'Fish'**
+  String get allergenFish;
+
+  /// No description provided for @allergenShellfish.
+  ///
+  /// In en, this message translates to:
+  /// **'Shellfish'**
+  String get allergenShellfish;
+
+  /// No description provided for @allergenSesame.
+  ///
+  /// In en, this message translates to:
+  /// **'Sesame'**
+  String get allergenSesame;
+
+  /// No description provided for @deleteMyAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my account'**
+  String get deleteMyAccount;
+
+  /// No description provided for @sorryToSeeYouGo.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorry to see you go'**
+  String get sorryToSeeYouGo;
+
+  /// No description provided for @deleteAccountDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting your account will permanently remove your profile and personal data. This action cannot be undone.'**
+  String get deleteAccountDescription;
+
+  /// No description provided for @enterCurrentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your current password'**
+  String get enterCurrentPassword;
+
+  /// No description provided for @deleting.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting...'**
+  String get deleting;
+
+  /// No description provided for @confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirm;
+
+  /// No description provided for @currentPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password is required.'**
+  String get currentPasswordRequired;
+
+  /// No description provided for @currentPasswordIncorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password is incorrect.'**
+  String get currentPasswordIncorrect;
+
+  /// No description provided for @recentLoginRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please log in again before deleting your account.'**
+  String get recentLoginRequired;
+
+  /// No description provided for @accountDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete your account. Please try again.'**
+  String get accountDeleteFailed;
+
+  /// No description provided for @accountDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been deleted.'**
+  String get accountDeleted;
+
+  /// No description provided for @weeklyCalories.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Calories'**
+  String get weeklyCalories;
+
+  /// No description provided for @mondayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'MON'**
+  String get mondayShort;
+
+  /// No description provided for @tuesdayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'TUE'**
+  String get tuesdayShort;
+
+  /// No description provided for @wednesdayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'WED'**
+  String get wednesdayShort;
+
+  /// No description provided for @thursdayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'THU'**
+  String get thursdayShort;
+
+  /// No description provided for @fridayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'FRI'**
+  String get fridayShort;
+
+  /// No description provided for @saturdayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'SAT'**
+  String get saturdayShort;
+
+  /// No description provided for @sundayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'SUN'**
+  String get sundayShort;
+
+  /// No description provided for @editProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get editProfile;
+
+  /// No description provided for @chooseYourMascot.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your mascot'**
+  String get chooseYourMascot;
+
+  /// No description provided for @changePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Password'**
+  String get changePassword;
+
+  /// No description provided for @currentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get currentPassword;
+
+  /// No description provided for @newPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get newPassword;
+
+  /// No description provided for @confirmNewPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm new password'**
+  String get confirmNewPassword;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get saveChanges;
+
+  /// No description provided for @savedRecipes.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved Recipes'**
+  String get savedRecipes;
+
+  /// No description provided for @goalsPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Goals & Preferences'**
+  String get goalsPreferences;
+
+  /// No description provided for @logOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get logOut;
+
+  /// No description provided for @noSavedRecipesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved recipes yet.'**
+  String get noSavedRecipesYet;
+
+  /// No description provided for @bodyGoals.
+  ///
+  /// In en, this message translates to:
+  /// **'Body Goals'**
+  String get bodyGoals;
+
+  /// No description provided for @preferencesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get preferencesTitle;
+
+  /// No description provided for @currentWeightKg.
+  ///
+  /// In en, this message translates to:
+  /// **'Current weight (kg)'**
+  String get currentWeightKg;
+
+  /// No description provided for @targetWeightKg.
+  ///
+  /// In en, this message translates to:
+  /// **'Target weight (kg)'**
+  String get targetWeightKg;
+
+  /// No description provided for @dailyCalorieGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily calorie goal'**
+  String get dailyCalorieGoal;
+
+  /// No description provided for @preferencesUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences updated successfully.'**
+  String get preferencesUpdated;
+
+  /// No description provided for @preferencesUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences could not be updated. Please try again.'**
+  String get preferencesUpdateFailed;
+
+  /// No description provided for @usernameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Username is required.'**
+  String get usernameRequired;
+
+  /// No description provided for @passwordMinLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 8 characters.'**
+  String get passwordMinLength;
+
+  /// No description provided for @passwordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get passwordsDoNotMatch;
+
+  /// No description provided for @passwordUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Password could not be updated.'**
+  String get passwordUpdateFailed;
+
+  /// No description provided for @profileUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile could not be updated. Please try again.'**
+  String get profileUpdateFailed;
+
+  /// No description provided for @profileUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully.'**
+  String get profileUpdated;
 
   /// No description provided for @recipeAddedToMeal.
   ///

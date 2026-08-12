@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/features/meals/presentation/screens/meals_screen.dart';
 
 class FoodListItem extends StatelessWidget {
@@ -43,34 +46,43 @@ class FoodListItem extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
+
                 const SizedBox(height: 20),
+
                 Text(
                   item.name,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: AppTextStyles.titleLarge.copyWith(
                     color: AppColors.homeBrown,
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
+
                 const SizedBox(height: 22),
+
                 _NutritionRow(
-                  title: 'Calories',
+                  title: context.l10n.calories,
                   value: '${item.calories} kcal',
                 ),
+
                 _NutritionRow(
-                  title: 'Protein',
+                  title: context.l10n.protein,
                   value: '${item.protein} g',
                 ),
+
                 _NutritionRow(
-                  title: 'Fats',
+                  title: context.l10n.fats,
                   value: '${item.fats} g',
                 ),
+
                 _NutritionRow(
-                  title: 'Carbs',
+                  title: context.l10n.carbs,
                   value: '${item.carbs} g',
                 ),
+
                 const SizedBox(height: 12),
+
                 SizedBox(
                   width: double.infinity,
                   height: 48,
@@ -82,12 +94,17 @@ class FoodListItem extends StatelessWidget {
                     icon: const Icon(
                       Icons.delete_outline_rounded,
                     ),
-                    label: const Text('Delete food'),
+                    label: Text(
+                      context.l10n.deleteFood,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
-                      const Color(0xFFFFEEEE),
+                      AppColors.deleteFoodBackground,
                       foregroundColor:
-                      const Color(0xFFB94A48),
+                      AppColors.deleteFoodForeground,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius:
@@ -107,23 +124,30 @@ class FoodListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 9),
+      padding: const EdgeInsets.only(
+        bottom: 9,
+      ),
       child: Center(
         child: FractionallySizedBox(
           widthFactor: 0.84,
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () => _showFoodDetails(context),
-              borderRadius: BorderRadius.circular(20),
+              onTap: () =>
+                  _showFoodDetails(context),
+              borderRadius:
+              BorderRadius.circular(20),
               child: Ink(
                 height: 36,
-                padding: const EdgeInsets.symmetric(
+                padding:
+                const EdgeInsets.symmetric(
                   horizontal: 14,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.homeCardBackground,
-                  borderRadius: BorderRadius.circular(20),
+                  color:
+                  AppColors.homeCardBackground,
+                  borderRadius:
+                  BorderRadius.circular(20),
                 ),
                 child: Row(
                   children: [
@@ -131,28 +155,41 @@ class FoodListItem extends StatelessWidget {
                       child: Text(
                         item.name,
                         maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: AppColors.homeBrown,
+                        overflow:
+                        TextOverflow.ellipsis,
+                        style:
+                        AppTextStyles.bodySmall
+                            .copyWith(
+                          color:
+                          AppColors.homeBrown,
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontWeight:
+                          FontWeight.w600,
                         ),
                       ),
                     ),
+
                     Container(
                       width: 1,
                       height: 21,
-                      margin: const EdgeInsets.symmetric(
+                      margin:
+                      const EdgeInsets.symmetric(
                         horizontal: 11,
                       ),
-                      color: const Color(0xFFDCD9D1),
+                      color:
+                      AppColors.mealFieldDivider,
                     ),
+
                     Text(
                       '${item.calories} kcal',
-                      style: const TextStyle(
-                        color: AppColors.homeBrown,
+                      style:
+                      AppTextStyles.bodySmall
+                          .copyWith(
+                        color:
+                        AppColors.homeBrown,
                         fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                        fontWeight:
+                        FontWeight.w600,
                       ),
                     ),
                   ],
@@ -178,21 +215,27 @@ class _NutritionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.only(
+        bottom: 14,
+      ),
       child: Row(
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style:
+            AppTextStyles.bodyMedium.copyWith(
               color: AppColors.homeBrown,
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
           ),
+
           const Spacer(),
+
           Text(
             value,
-            style: const TextStyle(
+            style:
+            AppTextStyles.bodyMedium.copyWith(
               color: AppColors.homeBrown,
               fontSize: 16,
               fontWeight: FontWeight.w800,

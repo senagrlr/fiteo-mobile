@@ -3,7 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
+import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
 import 'package:fiteo_myapp/features/home/data/home_repository.dart';
 import 'package:fiteo_myapp/features/meals/data/meal_repository.dart';
 import 'package:fiteo_myapp/features/meals/presentation/widgets/add_food_form.dart';
@@ -14,19 +17,26 @@ class MealsScreen extends StatefulWidget {
   const MealsScreen({super.key});
 
   @override
-  State<MealsScreen> createState() => _MealsScreenState();
+  State<MealsScreen> createState() =>
+      _MealsScreenState();
 }
 
 class _MealsScreenState extends State<MealsScreen> {
-  final _mealRepository = MealRepository();
-  final _homeRepository = HomeRepository();
+  final MealRepository _mealRepository =
+  MealRepository();
 
-  final PageController _mealPageController = PageController();
+  final HomeRepository _homeRepository =
+  HomeRepository();
+
+  final PageController _mealPageController =
+  PageController();
 
   int selectedMealIndex = 0;
   int streakDays = 0;
   bool isLoading = true;
 
+  // Backend/internal key'ler.
+  // Firestore uyumluluğu için İngilizce kalıyor.
   final List<MealHeaderData> mealPages = const [
     MealHeaderData(
       name: 'Breakfast',
@@ -59,6 +69,28 @@ class _MealsScreenState extends State<MealsScreen> {
 
   List<FoodItem> get selectedFoods {
     return foodsByMeal[selectedMeal] ?? [];
+  }
+
+  String _localizedMealName(
+      BuildContext context,
+      String mealType,
+      ) {
+    switch (mealType) {
+      case 'Breakfast':
+        return context.l10n.breakfast;
+
+      case 'Lunch':
+        return context.l10n.lunch;
+
+      case 'Dinner':
+        return context.l10n.dinner;
+
+      case 'Snacks':
+        return context.l10n.snack;
+
+      default:
+        return mealType;
+    }
   }
 
   int get totalCalories {
@@ -126,13 +158,15 @@ class _MealsScreenState extends State<MealsScreen> {
 
       if (!mounted) return;
 
-      final index = foodsByMeal[mealType]!.indexOf(item);
+      final index =
+      foodsByMeal[mealType]!.indexOf(item);
 
       if (index != -1) {
         setState(() {
-          foodsByMeal[mealType]![index] = item.copyWith(
-            id: id,
-          );
+          foodsByMeal[mealType]![index] =
+              item.copyWith(
+                id: id,
+              );
         });
       }
 
@@ -146,7 +180,7 @@ class _MealsScreenState extends State<MealsScreen> {
 
       AppSnackbar.showError(
         context,
-        'Could not add food.',
+        context.l10n.couldNotAddFood,
       );
     }
   }
@@ -165,12 +199,10 @@ class _MealsScreenState extends State<MealsScreen> {
 
     final deletedItem = mealFoods[index];
 
-    // Önce arayüzden kaldırıyoruz.
     setState(() {
       mealFoods.removeAt(index);
     });
 
-    // Henüz Firestore'a kaydedilmemişse başka işlem gerekmiyor.
     if (deletedItem.id == null) {
       return;
     }
@@ -184,8 +216,8 @@ class _MealsScreenState extends State<MealsScreen> {
     } catch (_) {
       if (!mounted) return;
 
-      // Silme başarısız olursa eski yerine geri koyuyoruz.
-      final currentFoods = foodsByMeal[mealType];
+      final currentFoods =
+      foodsByMeal[mealType];
 
       if (currentFoods != null) {
         final safeIndex = index.clamp(
@@ -203,14 +235,15 @@ class _MealsScreenState extends State<MealsScreen> {
 
       AppSnackbar.showError(
         context,
-        'Could not delete food.',
+        context.l10n.couldNotDeleteFood,
       );
     }
   }
 
   Future<void> _loadTodayMeals() async {
     try {
-      final snapshot = await _mealRepository.getTodayMeals();
+      final snapshot =
+      await _mealRepository.getTodayMeals();
 
       final loadedFoods = {
         'Breakfast': <FoodItem>[],
@@ -223,7 +256,8 @@ class _MealsScreenState extends State<MealsScreen> {
         final data = doc.data();
 
         final mealType =
-            data['mealType'] as String? ?? 'Breakfast';
+            data['mealType'] as String? ??
+                'Breakfast';
 
         final calories =
             data['estimatedCalories'] as int? ?? 0;
@@ -235,26 +269,44 @@ class _MealsScreenState extends State<MealsScreen> {
 
         final item = FoodItem(
           id: doc.id,
-          name: data['mealName'] as String? ?? '',
-          amount: (data['amount'] ?? data['gram'] ?? '').toString(),
-          unit: data['unit'] as String? ?? 'Grams',
+          name:
+          data['mealName'] as String? ?? '',
+          amount:
+          (data['amount'] ??
+              data['gram'] ??
+              '')
+              .toString(),
+          unit:
+          data['unit'] as String? ?? 'Grams',
           calories: calories,
           protein: hasStoredMacros
-              ? (data['protein'] as num?)?.round() ?? 0
+              ? (data['protein'] as num?)
+              ?.round() ??
+              0
               : (calories * 0.07).round(),
           fats: hasStoredMacros
-              ? (data['fats'] as num?)?.round() ?? 0
+              ? (data['fats'] as num?)
+              ?.round() ??
+              0
               : (calories * 0.035).round(),
           carbs: hasStoredMacros
-              ? (data['carbs'] as num?)?.round() ?? 0
+              ? (data['carbs'] as num?)
+              ?.round() ??
+              0
               : (calories * 0.10).round(),
           nutritionSource:
           data['nutritionSource'] as String? ??
-              (hasStoredMacros ? 'unknown' : 'legacy'),
-          isEstimated: data['isEstimated'] as bool? ?? !hasStoredMacros,
+              (hasStoredMacros
+                  ? 'unknown'
+                  : 'legacy'),
+          isEstimated:
+          data['isEstimated'] as bool? ??
+              !hasStoredMacros,
         );
 
-        if (loadedFoods.containsKey(mealType)) {
+        if (loadedFoods.containsKey(
+          mealType,
+        )) {
           loadedFoods[mealType]!.add(item);
         }
       }
@@ -277,14 +329,16 @@ class _MealsScreenState extends State<MealsScreen> {
 
       AppSnackbar.showError(
         context,
-        'Could not load meals.',
+        context.l10n.couldNotLoadMeals,
       );
     }
   }
 
   Future<void> _loadStreak() async {
     try {
-      final streak = await _homeRepository.getCurrentStreak();
+      final streak =
+      await _homeRepository
+          .getCurrentStreak();
 
       if (!mounted) return;
 
@@ -297,126 +351,181 @@ class _MealsScreenState extends State<MealsScreen> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle(
-          statusBarColor: AppColors.calendarCompleted,
-          statusBarIconBrightness: Brightness.light,
-          statusBarBrightness: Brightness.dark,
-        ),
-        child: Scaffold(
-          backgroundColor: Colors.white,
-          body: Center(
-            child: CircularProgressIndicator(),
+      return const SystemNavigationBar(
+        color: AppColors.generalBackground,
+        child: AnnotatedRegion<
+            SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle(
+            statusBarColor:
+            AppColors.calendarCompleted,
+            statusBarIconBrightness:
+            Brightness.light,
+            statusBarBrightness:
+            Brightness.dark,
+          ),
+          child: Scaffold(
+            backgroundColor:
+            AppColors.generalBackground,
+            body: Center(
+              child:
+              CircularProgressIndicator(),
+            ),
           ),
         ),
       );
     }
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: AppColors.calendarCompleted,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        extendBodyBehindAppBar: true,
-        body: ScrollConfiguration(
-          behavior: const _NoOverscrollBehavior(),
-          child: SingleChildScrollView(
-            padding: EdgeInsets.zero,
-            physics: const ClampingScrollPhysics(),
-            child: Column(
-              children: [
-                MealSwipeHeader(
-                  selectedIndex: selectedMealIndex,
-                  pageController: _mealPageController,
-                  meals: mealPages,
-                  streakDays: streakDays,
-                  calories: totalCalories,
-                  fats: totalFats,
-                  carbs: totalCarbs,
-                  proteins: totalProtein,
-                  onPageChanged: (index) {
-                    setState(() {
-                      selectedMealIndex = index;
-                    });
-                  },
-                ),
+    final localizedSelectedMeal =
+    _localizedMealName(
+      context,
+      selectedMeal,
+    );
 
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    28,
-                    22,
-                    28,
-                    20,
+    return SystemNavigationBar(
+      color: AppColors.generalBackground,
+      child: AnnotatedRegion<
+          SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+          statusBarColor:
+          AppColors.calendarCompleted,
+          statusBarIconBrightness:
+          Brightness.light,
+          statusBarBrightness:
+          Brightness.dark,
+        ),
+        child: Scaffold(
+          backgroundColor:
+          AppColors.generalBackground,
+          extendBodyBehindAppBar: true,
+          body: ScrollConfiguration(
+            behavior:
+            const _NoOverscrollBehavior(),
+            child: SingleChildScrollView(
+              padding: EdgeInsets.zero,
+              physics:
+              const ClampingScrollPhysics(),
+              child: Column(
+                children: [
+                  MealSwipeHeader(
+                    selectedIndex:
+                    selectedMealIndex,
+                    pageController:
+                    _mealPageController,
+                    meals: mealPages,
+                    streakDays: streakDays,
+                    calories: totalCalories,
+                    fats: totalFats,
+                    carbs: totalCarbs,
+                    proteins: totalProtein,
+                    onPageChanged: (index) {
+                      setState(() {
+                        selectedMealIndex =
+                            index;
+                      });
+                    },
                   ),
-                  child: Column(
-                    children: [
-                      AddFoodForm(
-                        onAddFood: _addFood,
-                      ),
 
-                      const SizedBox(height: 38),
+                  Padding(
+                    padding:
+                    const EdgeInsets
+                        .fromLTRB(
+                      28,
+                      22,
+                      28,
+                      20,
+                    ),
+                    child: Column(
+                      children: [
+                        AddFoodForm(
+                          onAddFood: _addFood,
+                        ),
 
-                      Center(
-                        child: Text(
-                          'Today’s $selectedMeal',
-                          style: const TextStyle(
-                            color: AppColors.homeBrown,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
+                        const SizedBox(
+                          height: 38,
+                        ),
+
+                        Center(
+                          child: Text(
+                            context.l10n
+                                .todaysMeal(
+                              localizedSelectedMeal,
+                            ),
+                            style: AppTextStyles
+                                .titleLarge
+                                .copyWith(
+                              color: AppColors
+                                  .homeBrown,
+                              fontSize: 22,
+                              fontWeight:
+                              FontWeight
+                                  .w800,
+                            ),
                           ),
                         ),
-                      ),
 
-                      const SizedBox(height: 20),
+                        const SizedBox(
+                          height: 20,
+                        ),
 
-                      if (selectedFoods.isEmpty)
-                        SizedBox(
-                          height: 170,
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Positioned(
-                                top: -45,
-                                left: 20,
-                                right: 0,
-                                child: SizedBox(
-                                  width: 250,
-                                  height: 250,
-                                  child: Lottie.asset(
-                                    'assets/animations/empty.json',
-                                    repeat: true,
+                        if (selectedFoods
+                            .isEmpty)
+                          SizedBox(
+                            height: 170,
+                            child: Stack(
+                              clipBehavior:
+                              Clip.none,
+                              children: [
+                                Positioned(
+                                  top: -45,
+                                  left: 20,
+                                  right: 0,
+                                  child:
+                                  SizedBox(
+                                    width: 250,
+                                    height:
+                                    250,
+                                    child:
+                                    Lottie.asset(
+                                      'assets/animations/empty.json',
+                                      repeat:
+                                      true,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        )
-                      else
-                        ...List.generate(
-                          selectedFoods.length,
-                              (index) {
-                            final mealType = selectedMeal;
-                            final item =
-                            foodsByMeal[mealType]![index];
+                              ],
+                            ),
+                          )
+                        else
+                          ...List.generate(
+                            selectedFoods
+                                .length,
+                                (index) {
+                              final mealType =
+                                  selectedMeal;
 
-                            return FoodListItem(
-                              item: item,
-                              onDelete: () {
-                                _deleteFood(
-                                  mealType: mealType,
-                                  index: index,
-                                );
-                              },
-                            );
-                          },
-                        ),
-                    ],
+                              final item =
+                              foodsByMeal[
+                              mealType]![index];
+
+                              return FoodListItem(
+                                item: item,
+                                onDelete:
+                                    () {
+                                  _deleteFood(
+                                    mealType:
+                                    mealType,
+                                    index:
+                                    index,
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -425,7 +534,8 @@ class _MealsScreenState extends State<MealsScreen> {
   }
 }
 
-class _NoOverscrollBehavior extends ScrollBehavior {
+class _NoOverscrollBehavior
+    extends ScrollBehavior {
   const _NoOverscrollBehavior();
 
   @override
@@ -494,9 +604,11 @@ class FoodItem {
       fats: fats ?? this.fats,
       carbs: carbs ?? this.carbs,
       nutritionSource:
-      nutritionSource ?? this.nutritionSource,
+      nutritionSource ??
+          this.nutritionSource,
       isEstimated:
-      isEstimated ?? this.isEstimated,
+      isEstimated ??
+          this.isEstimated,
     );
   }
 }

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/features/ai_coach/data/cook_recipe_result.dart';
 import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/recipe_allergen_chips.dart';
 
 class CookRecipeDialog extends StatefulWidget {
   final CookRecipeResult recipe;
   final Future<void> Function() onAddToIntake;
-
   final Future<void> Function(bool isSaved)? onSavedChanged;
   final bool initiallySaved;
 
@@ -28,6 +29,7 @@ class CookRecipeDialog extends StatefulWidget {
 class _CookRecipeDialogState extends State<CookRecipeDialog>
     with SingleTickerProviderStateMixin {
   late bool isSaved;
+
   bool isSaving = false;
   bool isAddingToIntake = false;
 
@@ -42,38 +44,50 @@ class _CookRecipeDialogState extends State<CookRecipeDialog>
 
     _heartController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 320),
+      duration: const Duration(
+        milliseconds: 320,
+      ),
     );
 
-    _heartScale = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween<double>(
-          begin: 1,
-          end: 1.35,
-        ).chain(
-          CurveTween(curve: Curves.easeOut),
+    _heartScale = TweenSequence<double>(
+      [
+        TweenSequenceItem(
+          tween: Tween<double>(
+            begin: 1,
+            end: 1.35,
+          ).chain(
+            CurveTween(
+              curve: Curves.easeOut,
+            ),
+          ),
+          weight: 45,
         ),
-        weight: 45,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(
-          begin: 1.35,
-          end: 0.92,
-        ).chain(
-          CurveTween(curve: Curves.easeInOut),
+        TweenSequenceItem(
+          tween: Tween<double>(
+            begin: 1.35,
+            end: 0.92,
+          ).chain(
+            CurveTween(
+              curve: Curves.easeInOut,
+            ),
+          ),
+          weight: 30,
         ),
-        weight: 30,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(
-          begin: 0.92,
-          end: 1,
-        ).chain(
-          CurveTween(curve: Curves.easeOutBack),
+        TweenSequenceItem(
+          tween: Tween<double>(
+            begin: 0.92,
+            end: 1,
+          ).chain(
+            CurveTween(
+              curve: Curves.easeOutBack,
+            ),
+          ),
+          weight: 25,
         ),
-        weight: 25,
-      ),
-    ]).animate(_heartController);
+      ],
+    ).animate(
+      _heartController,
+    );
   }
 
   @override
@@ -93,10 +107,14 @@ class _CookRecipeDialogState extends State<CookRecipeDialog>
       isSaving = true;
     });
 
-    _heartController.forward(from: 0);
+    _heartController.forward(
+      from: 0,
+    );
 
     try {
-      await widget.onSavedChanged?.call(newValue);
+      await widget.onSavedChanged?.call(
+        newValue,
+      );
     } catch (_) {
       if (!mounted) return;
 
@@ -105,9 +123,9 @@ class _CookRecipeDialogState extends State<CookRecipeDialog>
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            'Recipe could not be saved.',
+            context.l10n.recipeCouldNotBeSaved,
           ),
         ),
       );
@@ -174,12 +192,16 @@ class _CookRecipeDialogState extends State<CookRecipeDialog>
                     );
                   },
                   child: IconButton(
-                    onPressed: isSaving ? null : _toggleSaved,
+                    onPressed: isSaving
+                        ? null
+                        : _toggleSaved,
                     tooltip: isSaved
-                        ? 'Remove from saved'
-                        : 'Save recipe',
+                        ? context.l10n.removeFromSaved
+                        : context.l10n.saveRecipe,
                     icon: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 180),
+                      duration: const Duration(
+                        milliseconds: 180,
+                      ),
                       child: Icon(
                         isSaved
                             ? Icons.favorite_rounded
@@ -198,6 +220,7 @@ class _CookRecipeDialogState extends State<CookRecipeDialog>
                   onPressed: () {
                     Navigator.pop(context);
                   },
+                  tooltip: context.l10n.close,
                   icon: const Icon(
                     Icons.close_rounded,
                     color: AppColors.homeBrown,
@@ -211,11 +234,12 @@ class _CookRecipeDialogState extends State<CookRecipeDialog>
             Flexible(
               child: SingleChildScrollView(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                  CrossAxisAlignment.start,
                   children: [
                     Text(
                       widget.recipe.recipeName,
-                      style: const TextStyle(
+                      style: AppTextStyles.titleLarge.copyWith(
                         color: AppColors.homeBrown,
                         fontSize: 24,
                         height: 1.2,
@@ -227,14 +251,15 @@ class _CookRecipeDialogState extends State<CookRecipeDialog>
                       const SizedBox(height: 20),
 
                       RecipeAllergenChips(
-                        allergens: widget.recipe.allergens,
+                        allergens:
+                        widget.recipe.allergens,
                       ),
                     ],
 
                     const SizedBox(height: 24),
 
-                    const _SectionTitle(
-                      title: 'Ingredients',
+                    _SectionTitle(
+                      title: context.l10n.ingredients,
                     ),
 
                     const SizedBox(height: 12),
@@ -249,8 +274,8 @@ class _CookRecipeDialogState extends State<CookRecipeDialog>
 
                     const SizedBox(height: 24),
 
-                    const _SectionTitle(
-                      title: 'Instructions',
+                    _SectionTitle(
+                      title: context.l10n.instructions,
                     ),
 
                     const SizedBox(height: 12),
@@ -268,19 +293,24 @@ class _CookRecipeDialogState extends State<CookRecipeDialog>
 
                     const SizedBox(height: 24),
 
-                    const _SectionTitle(
-                      title: 'Nutrition',
+                    _SectionTitle(
+                      title: context.l10n.nutrition,
                     ),
 
                     const SizedBox(height: 12),
 
                     _NutritionSummary(
                       servings: widget.recipe.servings,
-                      totalCalories: widget.recipe.totalCalories,
-                      caloriesPerServing: widget.recipe.caloriesPerServing,
-                      proteinPerServing: widget.recipe.proteinPerServing,
-                      fatPerServing: widget.recipe.fatPerServing,
-                      carbsPerServing: widget.recipe.carbsPerServing,
+                      totalCalories:
+                      widget.recipe.totalCalories,
+                      caloriesPerServing:
+                      widget.recipe.caloriesPerServing,
+                      proteinPerServing:
+                      widget.recipe.proteinPerServing,
+                      fatPerServing:
+                      widget.recipe.fatPerServing,
+                      carbsPerServing:
+                      widget.recipe.carbsPerServing,
                     ),
                   ],
                 ),
@@ -293,8 +323,9 @@ class _CookRecipeDialogState extends State<CookRecipeDialog>
               width: double.infinity,
               height: 52,
               child: ElevatedButton(
-                onPressed:
-                isAddingToIntake ? null : _addToIntake,
+                onPressed: isAddingToIntake
+                    ? null
+                    : _addToIntake,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.homeBrown,
                   foregroundColor: Colors.white,
@@ -304,7 +335,8 @@ class _CookRecipeDialogState extends State<CookRecipeDialog>
                   ),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius:
+                    BorderRadius.circular(30),
                   ),
                 ),
                 child: isAddingToIntake
@@ -316,9 +348,11 @@ class _CookRecipeDialogState extends State<CookRecipeDialog>
                     color: Colors.white,
                   ),
                 )
-                    : const Text(
-                  'Add to intake',
-                  style: TextStyle(
+                    : Text(
+                  context.l10n.addToIntake,
+                  style:
+                  AppTextStyles.titleMedium.copyWith(
+                    color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
                   ),
@@ -343,7 +377,7 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: const TextStyle(
+      style: AppTextStyles.titleMedium.copyWith(
         color: AppColors.homeBrown,
         fontSize: 17,
         fontWeight: FontWeight.w800,
@@ -364,9 +398,12 @@ class _IngredientRow extends StatelessWidget {
     final amount = ingredient.amount.trim();
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(
+        bottom: 10,
+      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
         children: [
           Container(
             width: 6,
@@ -380,23 +417,26 @@ class _IngredientRow extends StatelessWidget {
               shape: BoxShape.circle,
             ),
           ),
+
           Expanded(
             child: Text(
               amount.isEmpty
                   ? ingredient.name
                   : '$amount ${ingredient.name}',
-              style: const TextStyle(
-                color: AppColors.homeBrown,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.homeSecondaryValue,
                 fontSize: 14,
                 height: 1.35,
                 fontWeight: FontWeight.w600,
               ),
             ),
           ),
+
           const SizedBox(width: 10),
+
           Text(
             '${ingredient.calories} kcal',
-            style: TextStyle(
+            style: AppTextStyles.bodySmall.copyWith(
               color: AppColors.homeBrown.withValues(
                 alpha: 0.65,
               ),
@@ -422,9 +462,12 @@ class _InstructionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 13),
+      padding: const EdgeInsets.only(
+        bottom: 13,
+      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
         children: [
           Container(
             width: 25,
@@ -436,22 +479,24 @@ class _InstructionRow extends StatelessWidget {
             ),
             child: Text(
               '$number',
-              style: const TextStyle(
+              style: AppTextStyles.labelSmall.copyWith(
                 color: Colors.white,
                 fontSize: 12,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w900,
               ),
             ),
           ),
+
           const SizedBox(width: 11),
+
           Expanded(
             child: Text(
               instruction,
-              style: const TextStyle(
-                color: AppColors.homeBrown,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.homeSecondaryValue,
                 fontSize: 14,
                 height: 1.4,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -492,27 +537,27 @@ class _NutritionSummary extends StatelessWidget {
       child: Column(
         children: [
           _NutritionRow(
-            label: 'Servings',
+            label: context.l10n.servings,
             value: '$servings',
           ),
           _NutritionRow(
-            label: 'Total calories',
+            label: context.l10n.totalCalories,
             value: '$totalCalories kcal',
           ),
           _NutritionRow(
-            label: 'Per serving',
+            label: context.l10n.perServing,
             value: '$caloriesPerServing kcal',
           ),
           _NutritionRow(
-            label: 'Protein',
+            label: context.l10n.protein,
             value: '${proteinPerServing.round()} g',
           ),
           _NutritionRow(
-            label: 'Fats',
+            label: context.l10n.fats,
             value: '${fatPerServing.round()} g',
           ),
           _NutritionRow(
-            label: 'Carbs',
+            label: context.l10n.carbs,
             value: '${carbsPerServing.round()} g',
             showDivider: false,
           ),
@@ -541,16 +586,18 @@ class _NutritionRow extends StatelessWidget {
           children: [
             Text(
               label,
-              style: const TextStyle(
-                color: AppColors.homeBrown,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.homeSecondaryValue,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),
             ),
+
             const Spacer(),
+
             Text(
               value,
-              style: const TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.homeBrown,
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
@@ -558,6 +605,7 @@ class _NutritionRow extends StatelessWidget {
             ),
           ],
         ),
+
         if (showDivider)
           Padding(
             padding: const EdgeInsets.symmetric(

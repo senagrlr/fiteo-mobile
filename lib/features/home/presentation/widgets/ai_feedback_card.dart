@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 
 class AiFeedbackCard extends StatelessWidget {
   final String mainMessage;
@@ -49,8 +51,8 @@ class AiFeedbackCard extends StatelessWidget {
                   '$mainMessage\n\n$suggestion',
                   textAlign: TextAlign.center,
                   softWrap: true,
-                  style: TextStyle(
-                    color: AppColors.homeBrown,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.homeSecondaryValue,
                     fontSize: 13,
                     height: 1.4,
                     fontWeight: FontWeight.w500,
@@ -83,13 +85,25 @@ class _SpeechBubbleTailPainter extends CustomPainter {
 
     final path = Path()
       ..moveTo(size.width, 0)
-      ..lineTo(0, size.height / 2)
-      ..lineTo(size.width, size.height)
+      ..lineTo(
+        0,
+        size.height / 2,
+      )
+      ..lineTo(
+        size.width,
+        size.height,
+      )
       ..close();
 
-    canvas.drawPath(path, paint);
+    canvas.drawPath(
+      path,
+      paint,
+    );
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(
+      covariant CustomPainter oldDelegate,
+      ) =>
+      false;
 }

@@ -1,25 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:fiteo_myapp/app/theme/app_colors.dart';
-import 'package:fiteo_myapp/features/home/presentation/widgets/home_header.dart';
-import 'package:fiteo_myapp/features/workout/presentation/widgets/add_exercise_form.dart';
-import 'package:fiteo_myapp/features/workout/presentation/widgets/exercise_list_item.dart';
-import 'package:fiteo_myapp/features/workout/data/workout_repository.dart';
-import 'package:fiteo_myapp/features/home/data/home_repository.dart';
-import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
 import 'package:lottie/lottie.dart';
 
+import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
+import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
+import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
+import 'package:fiteo_myapp/features/home/data/home_repository.dart';
+import 'package:fiteo_myapp/features/home/presentation/widgets/home_header.dart';
+import 'package:fiteo_myapp/features/workout/data/workout_repository.dart';
+import 'package:fiteo_myapp/features/workout/presentation/widgets/add_exercise_form.dart';
+import 'package:fiteo_myapp/features/workout/presentation/widgets/exercise_list_item.dart';
+
 class WorkoutScreen extends StatefulWidget {
-  const WorkoutScreen({super.key});
+  const WorkoutScreen({
+    super.key,
+  });
 
   @override
-  State<WorkoutScreen> createState() => _WorkoutScreenState();
+  State<WorkoutScreen> createState() =>
+      _WorkoutScreenState();
 }
 
 class _WorkoutScreenState extends State<WorkoutScreen> {
   final List<ExerciseItem> exercises = [];
 
-  final _workoutRepository = WorkoutRepository();
-  final _homeRepository = HomeRepository();
+  final WorkoutRepository _workoutRepository =
+  WorkoutRepository();
+
+  final HomeRepository _homeRepository =
+  HomeRepository();
 
   bool isLoading = true;
   int streakDays = 0;
@@ -27,21 +37,26 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   @override
   void initState() {
     super.initState();
+
     _loadTodayWorkouts();
     _loadStreak();
   }
 
-  Future<void> _addExercise(ExerciseItem item) async {
+  Future<void> _addExercise(
+      ExerciseItem item,
+      ) async {
     setState(() {
       exercises.add(item);
     });
 
     try {
-      final id = await _workoutRepository.addWorkout(
+      final id =
+      await _workoutRepository.addWorkout(
         workoutName: item.name,
         durationMinutes: item.durationMinutes,
         intensity: item.intensity,
-        estimatedCaloriesBurned: item.caloriesBurned,
+        estimatedCaloriesBurned:
+        item.caloriesBurned,
       );
 
       if (!mounted) return;
@@ -50,7 +65,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
 
       if (index != -1) {
         setState(() {
-          exercises[index] = item.copyWith(id: id);
+          exercises[index] = item.copyWith(
+            id: id,
+          );
         });
       }
 
@@ -64,7 +81,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
 
       AppSnackbar.showError(
         context,
-        'Could not add exercise.',
+        context.l10n.couldNotAddExercise,
       );
     }
   }
@@ -73,7 +90,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     required int index,
     required int calories,
   }) async {
-    if (index < 0 || index >= exercises.length) {
+    if (index < 0 ||
+        index >= exercises.length) {
       return;
     }
 
@@ -99,25 +117,31 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     } catch (_) {
       if (!mounted) return;
 
-      final currentIndex = exercises.indexWhere(
-            (exercise) => exercise.id == oldItem.id,
+      final currentIndex =
+      exercises.indexWhere(
+            (exercise) =>
+        exercise.id == oldItem.id,
       );
 
       if (currentIndex != -1) {
         setState(() {
-          exercises[currentIndex] = oldItem;
+          exercises[currentIndex] =
+              oldItem;
         });
       }
 
       AppSnackbar.showError(
         context,
-        'Could not update calories.',
+        context.l10n.couldNotUpdateCalories,
       );
     }
   }
 
-  Future<void> _deleteExercise(int index) async {
-    if (index < 0 || index >= exercises.length) {
+  Future<void> _deleteExercise(
+      int index,
+      ) async {
+    if (index < 0 ||
+        index >= exercises.length) {
       return;
     }
 
@@ -132,7 +156,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     }
 
     try {
-      await _workoutRepository.deleteWorkout(item.id!);
+      await _workoutRepository.deleteWorkout(
+        item.id!,
+      );
 
       _loadStreak();
     } catch (_) {
@@ -144,12 +170,15 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       );
 
       setState(() {
-        exercises.insert(safeIndex, item);
+        exercises.insert(
+          safeIndex,
+          item,
+        );
       });
 
       AppSnackbar.showError(
         context,
-        'Could not delete exercise.',
+        context.l10n.couldNotDeleteExercise,
       );
     }
   }
@@ -157,9 +186,11 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   Future<void> _loadTodayWorkouts() async {
     try {
       final snapshot =
-      await _workoutRepository.getTodayWorkouts();
+      await _workoutRepository
+          .getTodayWorkouts();
 
-      final loadedExercises = <ExerciseItem>[];
+      final loadedExercises =
+      <ExerciseItem>[];
 
       for (final doc in snapshot.docs) {
         final data = doc.data();
@@ -167,13 +198,21 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         loadedExercises.add(
           ExerciseItem(
             id: doc.id,
-            name: data['workoutName'] as String? ?? '',
+            name:
+            data['workoutName']
+            as String? ??
+                '',
             durationMinutes:
-            data['durationMinutes'] as int? ?? 0,
+            data['durationMinutes']
+            as int? ??
+                0,
             intensity:
-            data['intensity'] as String? ?? '',
+            data['intensity']
+            as String? ??
+                '',
             caloriesBurned:
-            data['estimatedCaloriesBurned'] as int? ??
+            data['estimatedCaloriesBurned']
+            as int? ??
                 0,
           ),
         );
@@ -184,7 +223,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       setState(() {
         exercises
           ..clear()
-          ..addAll(loadedExercises);
+          ..addAll(
+            loadedExercises,
+          );
 
         isLoading = false;
       });
@@ -197,7 +238,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
 
       AppSnackbar.showError(
         context,
-        'Could not load exercises.',
+        context.l10n.couldNotLoadExercises,
       );
     }
   }
@@ -205,7 +246,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   Future<void> _loadStreak() async {
     try {
       final streak =
-      await _homeRepository.getCurrentStreak();
+      await _homeRepository
+          .getCurrentStreak();
 
       if (!mounted) return;
 
@@ -218,111 +260,124 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: CircularProgressIndicator(),
+      return const SystemNavigationBar(
+        color: Colors.white,
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
         ),
       );
     }
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
-            24,
-            22,
-            24,
-            20,
-          ),
-          child: Column(
-            crossAxisAlignment:
-            CrossAxisAlignment.start,
-            children: [
-              HomeHeader(
-                streakDays: streakDays,
-              ),
+    return SystemNavigationBar(
+      color: Colors.white,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+              24,
+              22,
+              24,
+              20,
+            ),
+            child: Column(
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
+              children: [
+                HomeHeader(
+                  streakDays: streakDays,
+                ),
 
-              const SizedBox(height: 42),
+                const SizedBox(height: 42),
 
-              Center(
-                child: SizedBox(
-                  width: 210,
-                  height: 170,
-                  child: Transform.scale(
-                    scale: 1.5,
-                    child: Image.asset(
-                      'assets/images/workout_equipment.png',
-                      fit: BoxFit.contain,
+                Center(
+                  child: SizedBox(
+                    width: 210,
+                    height: 170,
+                    child: Transform.scale(
+                      scale: 1.5,
+                      child: Image.asset(
+                        'assets/images/workout_equipment.png',
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 45),
+                const SizedBox(height: 45),
 
-              AddExerciseForm(
-                onAddExercise: _addExercise,
-              ),
+                AddExerciseForm(
+                  onAddExercise: _addExercise,
+                ),
 
-              const SizedBox(height: 42),
+                const SizedBox(height: 42),
 
-              const Center(
-                child: Text(
-                  'Today’s Exercises',
-                  style: TextStyle(
-                    color: AppColors.homeBrown,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
+                Center(
+                  child: Text(
+                    context.l10n.todaysExercises,
+                    style: AppTextStyles
+                        .titleMedium
+                        .copyWith(
+                      color: AppColors.homeBrown,
+                      fontSize: 18,
+                      fontWeight:
+                      FontWeight.w800,
+                    ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 14),
+                const SizedBox(height: 14),
 
-              if (exercises.isEmpty)
-                SizedBox(
-                  height: 170,
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Positioned(
-                        top: -45,
-                        left: 20,
-                        right: 0,
-                        child: SizedBox(
-                          width: 250,
-                          height: 250,
-                          child: Lottie.asset(
-                            'assets/animations/empty.json',
-                            repeat: true,
-                            fit: BoxFit.contain,
+                if (exercises.isEmpty)
+                  SizedBox(
+                    height: 170,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Positioned(
+                          top: -45,
+                          left: 20,
+                          right: 0,
+                          child: SizedBox(
+                            width: 250,
+                            height: 250,
+                            child: Lottie.asset(
+                              'assets/animations/empty.json',
+                              repeat: true,
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                  )
+                else
+                  ...List.generate(
+                    exercises.length,
+                        (index) {
+                      return ExerciseListItem(
+                        item: exercises[index],
+                        onUpdateCalories:
+                            (newCalories) {
+                          _updateCalories(
+                            index: index,
+                            calories:
+                            newCalories,
+                          );
+                        },
+                        onDelete: () {
+                          _deleteExercise(
+                            index,
+                          );
+                        },
+                      );
+                    },
                   ),
-                )
-              else
-                ...List.generate(
-                  exercises.length,
-                      (index) {
-                    return ExerciseListItem(
-                      item: exercises[index],
-                      onUpdateCalories: (newCalories) {
-                        _updateCalories(
-                          index: index,
-                          calories: newCalories,
-                        );
-                      },
-                      onDelete: () {
-                        _deleteExercise(index);
-                      },
-                    );
-                  },
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -356,10 +411,13 @@ class ExerciseItem {
       id: id ?? this.id,
       name: name ?? this.name,
       durationMinutes:
-      durationMinutes ?? this.durationMinutes,
-      intensity: intensity ?? this.intensity,
+      durationMinutes ??
+          this.durationMinutes,
+      intensity:
+      intensity ?? this.intensity,
       caloriesBurned:
-      caloriesBurned ?? this.caloriesBurned,
+      caloriesBurned ??
+          this.caloriesBurned,
     );
   }
 }

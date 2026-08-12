@@ -1,22 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:fiteo_myapp/app/theme/app_colors.dart';
-import 'package:fiteo_myapp/features/home/data/calendar_repository.dart';
+import 'package:intl/intl.dart';
+
 import 'package:fiteo_myapp/app/router/app_routes.dart';
+import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
+import 'package:fiteo_myapp/features/home/data/calendar_repository.dart';
 
 class WeekCalendarRow extends StatefulWidget {
-  const WeekCalendarRow({super.key});
+  const WeekCalendarRow({
+    super.key,
+  });
 
   @override
-  State<WeekCalendarRow> createState() => _WeekCalendarRowState();
+  State<WeekCalendarRow> createState() =>
+      _WeekCalendarRowState();
 }
 
 class _WeekCalendarRowState extends State<WeekCalendarRow> {
-  final _repo = CalendarRepository();
+  final CalendarRepository _repo =
+  CalendarRepository();
 
   final Set<String> completedDays = {};
 
-  String _format(DateTime d) {
-    return '${d.year}-${d.month}-${d.day}';
+  String _format(DateTime date) {
+    return '${date.year}-${date.month}-${date.day}';
   }
 
   @override
@@ -29,31 +37,38 @@ class _WeekCalendarRowState extends State<WeekCalendarRow> {
     final today = DateTime.now();
 
     for (int i = -2; i <= 2; i++) {
-      final date = today.add(Duration(days: i));
+      final date = today.add(
+        Duration(days: i),
+      );
 
-      final data = await _repo.getDayCalories(date);
+      final data =
+      await _repo.getDayCalories(date);
 
       if ((data['consumed'] ?? 0) > 0 ||
           (data['burned'] ?? 0) > 0) {
-        completedDays.add(_format(date));
+        completedDays.add(
+          _format(date),
+        );
       }
     }
 
     if (!mounted) return;
+
     setState(() {});
   }
 
-  String _dayName(int weekday) {
-    const days = [
-      'Mon',
-      'Tue',
-      'Wed',
-      'Thu',
-      'Fri',
-      'Sat',
-      'Sun',
-    ];
-    return days[weekday - 1];
+  String _dayName(
+      BuildContext context,
+      DateTime date,
+      ) {
+    final locale =
+    Localizations.localeOf(context)
+        .toLanguageTag();
+
+    return DateFormat(
+      'EEE',
+      locale,
+    ).format(date);
   }
 
   @override
@@ -62,45 +77,70 @@ class _WeekCalendarRowState extends State<WeekCalendarRow> {
 
     final dates = List.generate(
       5,
-          (index) => today.add(Duration(days: index - 2)),
+          (index) => today.add(
+        Duration(
+          days: index - 2,
+        ),
+      ),
     );
 
     bool isCompleted(DateTime date) {
-      return completedDays.contains(_format(date));
+      return completedDays.contains(
+        _format(date),
+      );
     }
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+      CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: dates.map((date) {
-            return _DayCard(
-              dayName: _dayName(date.weekday),
-              dayNumber: date.day,
-              isCompleted: isCompleted(date),
-            );
-          }).toList(),
+          mainAxisAlignment:
+          MainAxisAlignment.spaceBetween,
+          children: dates.map(
+                (date) {
+              return _DayCard(
+                dayName: _dayName(
+                  context,
+                  date,
+                ),
+                dayNumber: date.day,
+                isCompleted:
+                isCompleted(date),
+              );
+            },
+          ).toList(),
         ),
+
         const SizedBox(height: 12),
+
         GestureDetector(
           onTap: () {
-            Navigator.pushNamed(context, AppRoutes.monthlyCalendar);
+            Navigator.pushNamed(
+              context,
+              AppRoutes.monthlyCalendar,
+            );
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(
+            padding:
+            const EdgeInsets.symmetric(
               horizontal: 14,
               vertical: 5,
             ),
             decoration: BoxDecoration(
-              color: AppColors.calendarCompleted,
-              borderRadius: BorderRadius.circular(18),
+              color:
+              AppColors.calendarCompleted,
+              borderRadius:
+              BorderRadius.circular(18),
             ),
-            child: const Text(
-              'View calendar',
-              style: TextStyle(
+            child: Text(
+              context.l10n.viewCalendar,
+              style:
+              AppTextStyles.bodyMedium
+                  .copyWith(
                 fontSize: 15,
-                fontWeight: FontWeight.w700,
+                fontWeight:
+                FontWeight.w700,
                 color: Colors.white,
               ),
             ),
@@ -131,26 +171,40 @@ class _DayCard extends StatelessWidget {
         color: isCompleted
             ? AppColors.calendarCompleted
             : AppColors.calendarInactive,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius:
+        BorderRadius.circular(12),
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment:
+        MainAxisAlignment.center,
         children: [
           Text(
             dayName,
-            style: TextStyle(
+            style:
+            AppTextStyles.bodySmall
+                .copyWith(
               fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: isCompleted ? Colors.white : AppColors.blackText,
+              fontWeight:
+              FontWeight.w700,
+              color: isCompleted
+                  ? Colors.white
+                  : AppColors.blackText,
             ),
           ),
+
           const SizedBox(height: 2),
+
           Text(
             '$dayNumber',
-            style: TextStyle(
+            style:
+            AppTextStyles.titleLarge
+                .copyWith(
               fontSize: 20,
-              fontWeight: FontWeight.w900,
-              color: isCompleted ? Colors.white : AppColors.blackText,
+              fontWeight:
+              FontWeight.w900,
+              color: isCompleted
+                  ? Colors.white
+                  : AppColors.blackText,
             ),
           ),
         ],

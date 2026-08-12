@@ -4,6 +4,7 @@ import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
+import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/goal_option_card.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/setup_progress_indicator.dart';
 
@@ -26,7 +27,8 @@ class _GoalSelectionScreenState
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth =
+        MediaQuery.of(context).size.width;
 
     final goals = [
       (
@@ -51,72 +53,82 @@ class _GoalSelectionScreenState
       ),
     ];
 
-    return Scaffold(
-      backgroundColor: AppColors.onboardingBackground,
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: screenWidth * 0.10,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 24),
+    return SystemNavigationBar(
+      color: AppColors.onboardingBackground,
+      child: Scaffold(
+        backgroundColor:
+        AppColors.onboardingBackground,
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: screenWidth * 0.10,
+            ),
+            child: Column(
+              crossAxisAlignment:
+              CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 24),
 
-              const SetupProgressIndicator(
-                currentStep: 1,
-                totalSteps: 7,
-              ),
-
-              const SizedBox(height: 80),
-
-              Text(
-                context.l10n.planSetupMainGoalTitle,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.headingLarge.copyWith(
-                  color: AppColors.authText,
+                const SetupProgressIndicator(
+                  currentStep: 1,
+                  totalSteps: 7,
                 ),
-              ),
 
-              const SizedBox(height: 42),
+                const SizedBox(height: 80),
 
-              ...goals.map(
-                    (goal) => Padding(
-                  padding: const EdgeInsets.only(
-                    bottom: 16,
-                  ),
-                  child: GoalOptionCard(
-                    title: '${goal.emoji}  ${goal.label}',
-                    isSelected:
-                    selectedGoal == goal.value,
-                    onTap: () {
-                      setState(() {
-                        selectedGoal = goal.value;
-                      });
-                    },
+                Text(
+                  context.l10n.planSetupMainGoalTitle,
+                  textAlign: TextAlign.center,
+                  style:
+                  AppTextStyles.headingLarge.copyWith(
+                    color: AppColors.authText,
                   ),
                 ),
-              ),
 
-              const Spacer(),
+                const SizedBox(height: 42),
 
-              CustomButton(
-                text: context.l10n.continueText,
-                onPressed: selectedGoal == null
-                    ? null
-                    : () => widget.onContinue(
-                  selectedGoal!,
+                ...goals.map(
+                      (goal) => Padding(
+                    padding: const EdgeInsets.only(
+                      bottom: 16,
+                    ),
+                    child: GoalOptionCard(
+                      title:
+                      '${goal.emoji}  ${goal.label}',
+                      isSelected:
+                      selectedGoal ==
+                          goal.value,
+                      onTap: () {
+                        setState(() {
+                          selectedGoal =
+                              goal.value;
+                        });
+                      },
+                    ),
+                  ),
                 ),
-                backgroundColor:
-                AppColors.authButtonGreen,
-                textColor: Colors.white,
-                height: 54,
-                width: screenWidth * 0.72,
-                fontSize: 22,
-              ),
 
-              const SizedBox(height: 36),
-            ],
+                const Spacer(),
+
+                CustomButton(
+                  text:
+                  context.l10n.continueText,
+                  onPressed: selectedGoal == null
+                      ? null
+                      : () => widget.onContinue(
+                    selectedGoal!,
+                  ),
+                  backgroundColor:
+                  AppColors.authButtonGreen,
+                  textColor: Colors.white,
+                  height: 54,
+                  width: screenWidth * 0.72,
+                  fontSize: 22,
+                ),
+
+                const SizedBox(height: 36),
+              ],
+            ),
           ),
         ),
       ),

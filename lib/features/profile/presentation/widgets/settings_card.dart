@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 
 class SettingsCard extends StatelessWidget {
   final String title;
@@ -15,7 +17,12 @@ class SettingsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
+      padding: const EdgeInsets.fromLTRB(
+        18,
+        18,
+        18,
+        20,
+      ),
       decoration: BoxDecoration(
         color: AppColors.homeCardBackground,
         borderRadius: BorderRadius.circular(26),
@@ -25,13 +32,15 @@ class SettingsCard extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: AppTextStyles.titleMedium.copyWith(
               color: AppColors.homeBrown,
               fontSize: 18,
               fontWeight: FontWeight.w800,
             ),
           ),
+
           const SizedBox(height: 16),
+
           ...children,
         ],
       ),

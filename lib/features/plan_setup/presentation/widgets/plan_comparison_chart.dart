@@ -18,8 +18,6 @@ class PlanComparisonChart extends StatefulWidget {
 
 class _PlanComparisonChartState extends State<PlanComparisonChart>
     with SingleTickerProviderStateMixin {
-  static const Color _genericPlanColor = Color(0xFFD5D7D0);
-
   late final AnimationController _animationController;
   late final Animation<double> _animation;
 
@@ -60,7 +58,9 @@ class _PlanComparisonChartState extends State<PlanComparisonChart>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
-      _animationController.forward(from: 0);
+      _animationController.forward(
+        from: 0,
+      );
     });
   }
 
@@ -130,7 +130,7 @@ class _PlanComparisonChartState extends State<PlanComparisonChart>
 
               _LegendItem(
                 label: context.l10n.planChartGenericPlan,
-                color: _genericPlanColor,
+                color: AppColors.planGenericLine,
               ),
             ],
           ),
@@ -188,11 +188,13 @@ class _PlanComparisonChartState extends State<PlanComparisonChart>
             showTitles: false,
           ),
         ),
+
         rightTitles: const AxisTitles(
           sideTitles: SideTitles(
             showTitles: false,
           ),
         ),
+
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
@@ -223,6 +225,7 @@ class _PlanComparisonChartState extends State<PlanComparisonChart>
             },
           ),
         ),
+
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
@@ -281,8 +284,12 @@ class _PlanComparisonChartState extends State<PlanComparisonChart>
       ),
 
       lineBarsData: [
-        _genericPlanLine(animationValue),
-        _fiteoPlanLine(animationValue),
+        _genericPlanLine(
+          animationValue,
+        ),
+        _fiteoPlanLine(
+          animationValue,
+        ),
       ],
 
       extraLinesData: ExtraLinesData(
@@ -325,7 +332,7 @@ class _PlanComparisonChartState extends State<PlanComparisonChart>
       ),
       isCurved: true,
       curveSmoothness: 0.32,
-      color: _genericPlanColor,
+      color: AppColors.planGenericLine,
       barWidth: 4,
       isStrokeCapRound: true,
       isStrokeJoinRound: true,
@@ -344,7 +351,7 @@ class _PlanComparisonChartState extends State<PlanComparisonChart>
             radius: 5,
             color: Colors.white,
             strokeWidth: 3,
-            strokeColor: _genericPlanColor,
+            strokeColor: AppColors.planGenericLine,
           );
         },
       ),
@@ -371,7 +378,8 @@ class _PlanComparisonChartState extends State<PlanComparisonChart>
       dotData: FlDotData(
         show: animationValue > 0.96,
         checkToShowDot: (spot, barData) {
-          return spot.x == 0 || spot.x == 6;
+          return spot.x == 0 ||
+              spot.x == 6;
         },
         getDotPainter: (
             spot,
@@ -394,7 +402,8 @@ class _PlanComparisonChartState extends State<PlanComparisonChart>
           end: Alignment.bottomCenter,
           colors: [
             AppColors.authButtonGreen.withValues(
-              alpha: 0.22 * animationValue,
+              alpha:
+              0.22 * animationValue,
             ),
             AppColors.authButtonGreen.withValues(
               alpha: 0.02,

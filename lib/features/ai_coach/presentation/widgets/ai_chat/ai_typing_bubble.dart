@@ -1,13 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 
 class AiTypingBubble extends StatefulWidget {
   const AiTypingBubble({super.key});
 
   @override
-  State<AiTypingBubble> createState() => _AiTypingBubbleState();
+  State<AiTypingBubble> createState() =>
+      _AiTypingBubbleState();
 }
 
 class _AiTypingBubbleState extends State<AiTypingBubble> {
@@ -24,7 +27,9 @@ class _AiTypingBubbleState extends State<AiTypingBubble> {
         if (!mounted) return;
 
         setState(() {
-          dotCount = dotCount == 3 ? 1 : dotCount + 1;
+          dotCount = dotCount == 3
+              ? 1
+              : dotCount + 1;
         });
       },
     );
@@ -39,15 +44,20 @@ class _AiTypingBubbleState extends State<AiTypingBubble> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 270),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      constraints: const BoxConstraints(
+        maxWidth: 270,
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
+      ),
       decoration: BoxDecoration(
         color: AppColors.onboardingBackground,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Text(
         '.' * dotCount,
-        style: const TextStyle(
+        style: AppTextStyles.titleMedium.copyWith(
           color: AppColors.homeBrown,
           fontSize: 22,
           height: 1,

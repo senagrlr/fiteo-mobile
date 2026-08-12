@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 
 class ProfileInput extends StatelessWidget {
   final TextEditingController controller;
@@ -22,29 +24,37 @@ class ProfileInput extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 52,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
       ),
       child: Row(
         children: [
-          Icon(icon, color: AppColors.homeBrown, size: 21),
+          Icon(
+            icon,
+            color: AppColors.homeBrown,
+            size: 21,
+          ),
+
           const SizedBox(width: 12),
+
           Expanded(
             child: TextField(
               controller: controller,
               keyboardType: keyboardType,
               inputFormatters: inputFormatters,
-              style: const TextStyle(
+              style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.homeBrown,
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
               ),
               decoration: InputDecoration(
                 hintText: hintText,
-                hintStyle: const TextStyle(
-                  color: AppColors.homeBrown,
+                hintStyle: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.homeSecondaryValue,
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                 ),

@@ -16,7 +16,6 @@
   "login": "Log In",
   "welcomeBack": "Welcome Back",
   "loginSubtitle": "Log in to continue your journey.",
-
   "emailAndPasswordEmpty": "Please enter your email and password.",
   "wrongEmailOrPassword": "Incorrect email or password.",
   "or": "or",
@@ -34,16 +33,10 @@
   "emailAlreadyRegistered": "An account with this email already exists.",
   "signUpAgreement": "By signing up, you agree to our Terms of Service and Privacy Policy.",
 
-  "verifyEmailTitle": "E-postanı Doğrula",
-  "verifyEmailDescription": "E-posta adresine bir doğrulama bağlantısı gönderdik. Devam etmek için gelen kutunu kontrol et ve bağlantıya dokun.",
-  "resendEmail": "E-postayı Tekrar Gönder",
-  "resendEmailWithTime": "E-postayı Tekrar Gönder ({time})",
-  "checking": "Kontrol Ediliyor...",
-  "verify": "Doğrula",
-  "emailVerifiedSuccessfully": "E-posta adresin başarıyla doğrulandı.",
-  "emailNotVerifiedYet": "E-posta adresin henüz doğrulanmadı.",
-  "verificationEmailSentAgain": "Doğrulama e-postası tekrar gönderildi.",
-  "verificationEmailCouldNotSend": "Doğrulama e-postası gönderilemedi. Lütfen tekrar dene.",
+  "verifyEmailTitle": "Verify your email",
+  "verifyEmailDescription": "We’ve sent a verification link to your email address. Please check your inbox and tap the link to continue.",
+  "resendEmail": "Resend Email",
+  "resendEmailWithTime": "Resend Email ({time})",
   "@resendEmailWithTime": {
     "placeholders": {
       "time": {
@@ -51,14 +44,26 @@
       }
     }
   },
+  "checking": "Checking...",
+  "verify": "Verify",
+  "emailVerifiedSuccessfully": "Your email has been verified successfully.",
+  "emailNotVerifiedYet": "Your email has not been verified yet.",
+  "verificationEmailSentAgain": "Verification email sent again.",
+  "verificationEmailCouldNotSend": "Verification email could not be sent. Please try again.",
 
   "forgotPassword": "Forgot Password?",
   "forgotPasswordTitle": "Forgot Password",
   "forgotPasswordDescription": "Enter your email address and we'll send you instructions to reset your password.",
-
   "enterEmail": "Please enter your email address.",
   "emailRequired": "Email is required.",
   "invalidEmail": "Please enter a valid email address.",
+  "sendResetLink": "Send Reset Link",
+  "sendLink": "Send Link",
+  "sending": "Sending...",
+  "resetLinkSent": "Password reset link sent. Check your email.",
+  "resetLinkCouldNotSend": "Password reset link could not be sent. Please try again.",
+  "passwordRequired": "Password is required.",
+  "somethingWentWrong": "Something went wrong. Please try again.",
 
   "onboardingPage1Title": "A new you begins here but staying motivated isn't always easy.",
   "onboardingPage2Title": "You want to live healthier but tracking can be overwhelming.",
@@ -106,15 +111,6 @@
   "planPreviewDescription": "Generic plans often lose momentum over time. Fiteo adapts to your goals and lifestyle to help you keep progressing toward your goal.",
   "createMyPlan": "Create my plan",
 
-  "planProgressOverTime": "Your progress over time",
-  "fiteoPlan": "Fiteo plan",
-  "genericPlan": "Generic plan",
-  "chartStart": "Start",
-  "chartEarly": "Early",
-  "chartMid": "Mid",
-  "chartGoal": "Goal",
-  "yourGoal": "Your goal",
-
   "customizeYourPlan": "Customize your plan",
   "analyzingGoals": "Analyzing goals...",
   "calculatingCalories": "Calculating calories...",
@@ -142,29 +138,97 @@
   "planChartGoal": "Goal",
   "planChartYourGoal": "Your goal",
 
-  "sendResetLink": "Send Reset Link",
-  "sendLink": "Send Link",
-  "sending": "Sending...",
-
-  "resetLinkSent": "Password reset link sent. Check your email.",
-  "resetLinkCouldNotSend": "Password reset link could not be sent. Please try again.",
-
-  "passwordRequired": "Password is required.",
-  "somethingWentWrong": "Something went wrong. Please try again.",
-
   "dailySummary": "Daily Summary",
   "calories": "Calories",
   "protein": "Protein",
   "carbs": "Carbs",
   "fat": "Fat",
 
+  "foodIntake": "Food Intake",
+  "exerciseBurn": "Exercise Burn",
+  "netCalories": "Net Calories",
+  "hydration": "Hydration",
+
+  "remaining": "Remaining",
+  "calorieGoal": "Calorie Goal",
+
+  "caloriesOverGoal": "{calories} kcal over",
+  "@caloriesOverGoal": {
+    "placeholders": {
+      "calories": {
+        "type": "int"
+      }
+    }
+  },
+
+  "caloriesPerDay": "{calories} kcal/day",
+  "@caloriesPerDay": {
+    "placeholders": {
+      "calories": {
+        "type": "int"
+      }
+    }
+  },
+
+  "consumed": "Consumed",
+  "burned": "Burned",
+  "net": "Net",
+
+  "todaysMacros": "Today’s Macros",
+
+  "macroGoalTitle": "{macro} Goal",
+  "@macroGoalTitle": {
+    "placeholders": {
+      "macro": {
+        "type": "String"
+      }
+    }
+  },
+
+  "viewCalendar": "View calendar",
+
+  "streakDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "@streakDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "defaultAiFeedbackMessage": "You’re building your routine step by step.",
+  "defaultAiFeedbackSuggestion": "Keep tracking your meals and movement today to stay aware of your progress.",
+
+  "drink": "Drink",
+  "enterWaterAmount": "Enter water amount",
+
   "addFood": "Add Food",
+  "foodName": "Food name",
+  "amount": "Amount",
+  "grams": "Grams",
+  "pieces": "Pieces",
+  "calorieEstimateDisclaimer": "( Calories are estimated based on\naverage nutritional values. )",
+
+  "couldNotAddFood": "Could not add food.",
+  "couldNotDeleteFood": "Could not delete food.",
+  "couldNotLoadMeals": "Could not load meals.",
+  "deleteFood": "Delete food",
+
+  "todaysMeal": "Today’s {meal}",
+  "@todaysMeal": {
+    "placeholders": {
+      "meal": {
+        "type": "String"
+      }
+    }
+  },
 
   "breakfast": "Breakfast",
   "lunch": "Lunch",
   "dinner": "Dinner",
   "snack": "Snack",
 
+  "monthlyCalendar": "Monthly Calendar",
   "weeklyReport": "Weekly Report",
   "monthlyReport": "Monthly Report",
   "progress": "Progress",
@@ -173,7 +237,156 @@
 
   "recipeCouldNotBeCreated": "Recipe could not be created. Please try again.",
   "couldNotAddRecipeToMeals": "Could not add recipe to meals.",
+  "recipeCouldNotBeSaved": "Recipe could not be saved.",
+  "removeFromSaved": "Remove from saved",
+  "saveRecipe": "Save recipe",
+  "addToIntake": "Add to intake",
+
+  "ingredients": "Ingredients",
+  "instructions": "Instructions",
+  "nutrition": "Nutrition",
+
+  "servings": "Servings",
+  "totalCalories": "Total calories",
+  "perServing": "Per serving",
+
   "dailyAiMessageLimitReached": "Daily AI message limit reached.",
+
+  "aiWelcomeMessage": "Hi, I’m Fiteo. Let’s improve your journey together. You can switch to cook mode.",
+  "aiMessageInputHint": "Tell me your goal, I’ll guide you",
+  "aiCouldNotRespond": "Sorry, I could not respond right now. Please try again later.",
+  "aiChatGreeting": "Hi, I’m Fiteo. Tell me your goal and I’ll guide you.",
+  "deleteMessage": "Delete message",
+
+  "aiMessagesLeftToday": "{count} AI messages left today",
+  "@aiMessagesLeftToday": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "creatingRecipe": "Creating your recipe...\nPlease wait.",
+  "enterIngredients": "Enter ingredients",
+  "cookWelcomeMessage": "Type ingredients, I’ll cook up the best recipe for you.",
+
+  "dailyRecipeLimitReached": "Daily recipe limit reached.",
+
+  "recipeRequestsLeftToday": "{count} recipe requests left today",
+  "@recipeRequestsLeftToday": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "addExercise": "Add exercise",
+  "exerciseName": "Exercise name",
+  "durationMinutes": "Duration (minutes)",
+  "intensity": "Intensity",
+
+  "intensityLow": "Low",
+  "intensityMedium": "Medium",
+  "intensityHigh": "High",
+
+  "calculating": "Calculating...",
+  "caloriesBurned": "Calories burned",
+
+  "metEstimateDisclaimer": "( Calories are estimated using average\nMET values. )",
+
+  "duration": "Duration",
+
+  "minutesShort": "{minutes} min",
+  "@minutesShort": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+
+  "saveCalories": "Save calories",
+  "deleteExercise": "Delete exercise",
+
+  "todaysExercises": "Today’s Exercises",
+  "couldNotAddExercise": "Could not add exercise.",
+  "couldNotUpdateCalories": "Could not update calories.",
+  "couldNotDeleteExercise": "Could not delete exercise.",
+  "couldNotLoadExercises": "Could not load exercises.",
+
+  "allergens": "Allergens",
+  "allergenDisclaimer": "AI-generated allergen information. Always check ingredient labels before consuming.",
+
+  "allergenGluten": "Gluten",
+  "allergenDairy": "Dairy",
+  "allergenEgg": "Egg",
+  "allergenPeanuts": "Peanuts",
+  "allergenTreeNuts": "Tree nuts",
+  "allergenSoy": "Soy",
+  "allergenFish": "Fish",
+  "allergenShellfish": "Shellfish",
+  "allergenSesame": "Sesame",
+
+  "deleteMyAccount": "Delete My Account",
+  "sorryToSeeYouGo": "Sorry to see you go",
+  "deleteAccountDescription": "Deleting your account will permanently remove your profile and personal data. This action cannot be undone.",
+  "enterCurrentPassword": "Enter your current password",
+  "deleting": "Deleting...",
+  "confirm": "Confirm",
+
+  "currentPasswordRequired": "Please enter your current password.",
+  "currentPasswordIncorrect": "Your current password is incorrect.",
+  "recentLoginRequired": "Please log in again before deleting your account.",
+  "accountDeleteFailed": "Could not delete your account. Please try again.",
+  "accountDeleted": "Your account has been deleted.",
+
+  "weeklyCalories": "Weekly Calories",
+
+  "mondayShort": "MON",
+  "tuesdayShort": "TUE",
+  "wednesdayShort": "WED",
+  "thursdayShort": "THU",
+  "fridayShort": "FRI",
+  "saturdayShort": "SAT",
+  "sundayShort": "SUN",
+
+  "editProfile": "Edit Profile",
+  "chooseYourMascot": "Choose your mascot",
+  "changePassword": "Change Password",
+  "currentPassword": "Current password",
+  "newPassword": "New password",
+  "confirmNewPassword": "Confirm new password",
+  "saveChanges": "Save",
+
+  "editProfile": "Edit Profile",
+  "savedRecipes": "Saved Recipes",
+  "goalsPreferences": "Goals & Preferences",
+  "logOut": "Log out",
+  "deleteMyAccount": "Delete my account",
+
+  "noSavedRecipesYet": "No saved recipes yet.",
+
+  "goalsPreferences": "Goals & Preferences",
+  "bodyGoals": "Body Goals",
+  "preferencesTitle": "Preferences",
+
+  "currentWeightKg": "Current weight (kg)",
+  "targetWeightKg": "Target weight (kg)",
+  "dailyCalorieGoal": "Daily calorie goal",
+
+  "preferencesUpdated": "Preferences updated successfully.",
+  "preferencesUpdateFailed": "Preferences could not be updated. Please try again.",
+
+  "usernameRequired": "Username is required.",
+  "currentPasswordRequired": "Current password is required.",
+  "passwordMinLength": "Password must be at least 8 characters.",
+  "passwordsDoNotMatch": "Passwords do not match.",
+  "currentPasswordIncorrect": "Current password is incorrect.",
+  "passwordUpdateFailed": "Password could not be updated.",
+  "profileUpdateFailed": "Profile could not be updated. Please try again.",
+  "profileUpdated": "Profile updated successfully.",
 
   "recipeAddedToMeal": "{recipeName} added to {mealType}.",
   "@recipeAddedToMeal": {

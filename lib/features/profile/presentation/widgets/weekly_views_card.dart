@@ -1,13 +1,18 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/features/home/data/calendar_repository.dart';
 
 class WeeklyViewsCard extends StatefulWidget {
   const WeeklyViewsCard({super.key});
 
   @override
-  State<WeeklyViewsCard> createState() => _WeeklyViewsCardState();
+  State<WeeklyViewsCard> createState() =>
+      _WeeklyViewsCardState();
 }
 
 class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
@@ -15,8 +20,9 @@ class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
 
   final _calendarRepository = CalendarRepository();
 
-  List<double> values = List.filled(7, 0);
-  List<String> days = [];
+  List<double> values = List.filled(7, 0.0);
+  List<int> weekdays = [];
+
   bool isLoading = true;
 
   @override
@@ -27,35 +33,75 @@ class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
 
   Future<void> _loadWeeklyCalories() async {
     final today = DateTime.now();
-    final start = today.subtract(const Duration(days: 6));
+
+    final start = today.subtract(
+      const Duration(days: 6),
+    );
 
     final weeklyValues = <double>[];
-    final weeklyDays = <String>[];
+    final weeklyWeekdays = <int>[];
 
     for (int i = 0; i < 7; i++) {
-      final date = start.add(Duration(days: i));
-      final data = await _calendarRepository.getDayCalories(date);
+      final date = start.add(
+        Duration(days: i),
+      );
+
+      final data =
+      await _calendarRepository.getDayCalories(
+        date,
+      );
 
       final consumed = data['consumed'] ?? 0;
       final burned = data['burned'] ?? 0;
 
-      weeklyValues.add((consumed - burned).toDouble());
-      weeklyDays.add(_dayName(date.weekday));
+      weeklyValues.add(
+        (consumed - burned).toDouble(),
+      );
+
+      weeklyWeekdays.add(
+        date.weekday,
+      );
     }
 
     if (!mounted) return;
 
     setState(() {
       values = weeklyValues;
-      days = weeklyDays;
+      weekdays = weeklyWeekdays;
       selectedBarIndex = 6;
       isLoading = false;
     });
   }
 
-  String _dayName(int weekday) {
-    const names = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
-    return names[weekday - 1];
+  String _dayName(
+      BuildContext context,
+      int weekday,
+      ) {
+    switch (weekday) {
+      case DateTime.monday:
+        return context.l10n.mondayShort;
+
+      case DateTime.tuesday:
+        return context.l10n.tuesdayShort;
+
+      case DateTime.wednesday:
+        return context.l10n.wednesdayShort;
+
+      case DateTime.thursday:
+        return context.l10n.thursdayShort;
+
+      case DateTime.friday:
+        return context.l10n.fridayShort;
+
+      case DateTime.saturday:
+        return context.l10n.saturdayShort;
+
+      case DateTime.sunday:
+        return context.l10n.sundayShort;
+
+      default:
+        return '';
+    }
   }
 
   @override
@@ -66,22 +112,39 @@ class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
       );
     }
 
-    final positiveValues = values.map((v) => v < 0 ? 0.0 : v).toList();
-    final rawMax = positiveValues.isEmpty ? 0.0 : positiveValues.reduce(max);
+    final positiveValues = values
+        .map(
+          (value) => value < 0
+          ? 0.0
+          : value,
+    )
+        .toList();
+
+    final rawMax = positiveValues.isEmpty
+        ? 0.0
+        : positiveValues.reduce(max);
 
     final double maxValue = rawMax <= 0
         ? 500
-        : ((rawMax / 500).ceil() * 500).toDouble();
+        : ((rawMax / 500).ceil() * 500)
+        .toDouble();
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(22, 22, 22, 18),
+      padding: const EdgeInsets.fromLTRB(
+        22,
+        22,
+        22,
+        18,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(
+              alpha: 0.08,
+            ),
             blurRadius: 18,
             offset: const Offset(0, 6),
           ),
@@ -90,68 +153,118 @@ class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Row(
+          Row(
             children: [
               Expanded(
                 child: Text(
-                  'Weekly Calories',
-                  style: TextStyle(
+                  context.l10n.weeklyCalories,
+                  style:
+                  AppTextStyles.titleMedium
+                      .copyWith(
                     color: AppColors.homeBrown,
                     fontSize: 16,
-                    fontWeight: FontWeight.w800,
+                    fontWeight:
+                    FontWeight.w800,
                   ),
                 ),
               ),
             ],
           ),
+
           const SizedBox(height: 14),
-          const Divider(color: Color(0xFFE1DED6)),
+
+          const Divider(
+            color:
+            AppColors.weeklyChartDivider,
+          ),
+
           const SizedBox(height: 14),
+
           SizedBox(
             height: 165,
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment:
+              CrossAxisAlignment.end,
               children: [
-                _YAxisLabels(maxValue: maxValue),
+                _YAxisLabels(
+                  maxValue: maxValue,
+                ),
+
                 const SizedBox(width: 8),
+
                 Expanded(
                   child: Stack(
                     children: [
                       const _ChartGridLines(),
+
                       LayoutBuilder(
-                        builder: (context, constraints) {
+                        builder: (
+                            context,
+                            constraints,
+                            ) {
                           final itemWidth =
-                          (constraints.maxWidth / values.length)
-                              .clamp(28.0, 38.0);
+                          (constraints.maxWidth /
+                              values.length)
+                              .clamp(
+                            28.0,
+                            38.0,
+                          );
 
                           return Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                            crossAxisAlignment:
+                            CrossAxisAlignment
+                                .end,
                             mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween,
-                            children: List.generate(values.length, (index) {
-                              final safeValue =
-                              values[index] < 0 ? 0.0 : values[index];
+                            MainAxisAlignment
+                                .spaceBetween,
+                            children:
+                            List.generate(
+                              values.length,
+                                  (index) {
+                                final safeValue =
+                                values[index] <
+                                    0
+                                    ? 0.0
+                                    : values[
+                                index];
 
-                              final barHeight =
-                              ((safeValue / maxValue) * 60)
-                                  .clamp(4.0, 60.0);
+                                final barHeight =
+                                ((safeValue /
+                                    maxValue) *
+                                    60)
+                                    .clamp(
+                                  4.0,
+                                  60.0,
+                                );
 
-                              final isSelected =
-                                  selectedBarIndex == index;
+                                final isSelected =
+                                    selectedBarIndex ==
+                                        index;
 
-                              return _BarItem(
-                                width: itemWidth,
-                                day: days[index],
-                                height: barHeight,
-                                value: values[index].toInt(),
-                                isSelected: isSelected,
-                                onTap: () {
-                                  setState(() {
-                                    selectedBarIndex = index;
-                                  });
-                                },
-                              );
-                            }),
+                                return _BarItem(
+                                  width:
+                                  itemWidth,
+                                  day: _dayName(
+                                    context,
+                                    weekdays[
+                                    index],
+                                  ),
+                                  height:
+                                  barHeight,
+                                  value:
+                                  values[index]
+                                      .toInt(),
+                                  isSelected:
+                                  isSelected,
+                                  onTap: () {
+                                    setState(() {
+                                      selectedBarIndex =
+                                          index;
+                                    });
+                                  },
+                                );
+                              },
+                            ),
                           );
                         },
                       ),
@@ -174,8 +287,12 @@ class _YAxisLabels extends StatelessWidget {
     required this.maxValue,
   });
 
-  String _formatLabel(double value) {
-    if (value == 0) return '0';
+  String _formatLabel(
+      double value,
+      ) {
+    if (value == 0) {
+      return '0';
+    }
 
     final kValue = value / 1000;
 
@@ -190,28 +307,43 @@ class _YAxisLabels extends StatelessWidget {
   Widget build(BuildContext context) {
     final step = maxValue / 3;
 
+    final axisStyle =
+    AppTextStyles.bodySmall.copyWith(
+      color: AppColors.homeSecondaryValue,
+      fontSize: 10,
+      fontWeight: FontWeight.w500,
+    );
+
     return SizedBox(
       width: 44,
       height: 126,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment:
+        MainAxisAlignment.spaceBetween,
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
         children: [
-          Text(_formatLabel(maxValue), style: _axisStyle),
-          Text(_formatLabel(step * 2), style: _axisStyle),
-          Text(_formatLabel(step), style: _axisStyle),
-          const Text('0', style: _axisStyle),
+          Text(
+            _formatLabel(maxValue),
+            style: axisStyle,
+          ),
+          Text(
+            _formatLabel(step * 2),
+            style: axisStyle,
+          ),
+          Text(
+            _formatLabel(step),
+            style: axisStyle,
+          ),
+          Text(
+            '0',
+            style: axisStyle,
+          ),
         ],
       ),
     );
   }
 }
-
-const TextStyle _axisStyle = TextStyle(
-  color: AppColors.homeBrown,
-  fontSize: 10,
-  fontWeight: FontWeight.w500,
-);
 
 class _ChartGridLines extends StatelessWidget {
   const _ChartGridLines();
@@ -225,12 +357,14 @@ class _ChartGridLines extends StatelessWidget {
           bottom: 30,
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment:
+          MainAxisAlignment.spaceBetween,
           children: List.generate(
             4,
                 (_) => Container(
               height: 1,
-              color: const Color(0xFFE7E3EE),
+              color:
+              AppColors.weeklyChartGridLine,
             ),
           ),
         ),
@@ -263,9 +397,11 @@ class _BarItem extends StatelessWidget {
       height: double.infinity,
       child: GestureDetector(
         onTap: onTap,
-        behavior: HitTestBehavior.opaque,
+        behavior:
+        HitTestBehavior.opaque,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment:
+          MainAxisAlignment.end,
           children: [
             SizedBox(
               height: 26,
@@ -273,55 +409,91 @@ class _BarItem extends StatelessWidget {
                   ? OverflowBox(
                 minWidth: 0,
                 maxWidth: 72,
-                alignment: Alignment.center,
+                alignment:
+                Alignment.center,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
+                  padding:
+                  const EdgeInsets
+                      .symmetric(
                     horizontal: 7,
                     vertical: 3,
                   ),
-                  decoration: BoxDecoration(
-                    color: AppColors.homeBrown,
-                    borderRadius: BorderRadius.circular(12),
+                  decoration:
+                  BoxDecoration(
+                    color: AppColors
+                        .homeBrown,
+                    borderRadius:
+                    BorderRadius
+                        .circular(
+                      12,
+                    ),
                   ),
                   child: Text(
                     value.toString(),
                     maxLines: 1,
                     softWrap: false,
-                    overflow: TextOverflow.visible,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    overflow:
+                    TextOverflow
+                        .visible,
+                    style: AppTextStyles
+                        .bodySmall
+                        .copyWith(
+                      color:
+                      Colors.white,
                       fontSize: 11,
-                      fontWeight: FontWeight.w800,
+                      fontWeight:
+                      FontWeight
+                          .w800,
                     ),
                   ),
                 ),
               )
                   : null,
             ),
+
             const SizedBox(height: 4),
+
             AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
+              duration:
+              const Duration(
+                milliseconds: 250,
+              ),
               curve: Curves.easeOut,
               width: 18,
               height: height,
               decoration: BoxDecoration(
                 color: isSelected
-                    ? AppColors.calendarCompleted
-                    : AppColors.calendarCompleted.withOpacity(0.35),
-                borderRadius: BorderRadius.circular(14),
+                    ? AppColors
+                    .calendarCompleted
+                    : AppColors
+                    .calendarCompleted
+                    .withValues(
+                  alpha: 0.35,
+                ),
+                borderRadius:
+                BorderRadius.circular(
+                  14,
+                ),
               ),
             ),
+
             const SizedBox(height: 4),
+
             Text(
               day,
               maxLines: 1,
-              overflow: TextOverflow.clip,
-              style: TextStyle(
+              overflow:
+              TextOverflow.clip,
+              style: AppTextStyles
+                  .bodySmall
+                  .copyWith(
                 color: isSelected
                     ? AppColors.homeBrown
-                    : const Color(0xFFB1A887),
+                    : AppColors
+                    .homeSecondaryValue,
                 fontSize: 10,
-                fontWeight: FontWeight.w700,
+                fontWeight:
+                FontWeight.w700,
               ),
             ),
           ],

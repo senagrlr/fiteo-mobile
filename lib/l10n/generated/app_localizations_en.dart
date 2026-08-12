@@ -92,40 +92,39 @@ class AppLocalizationsEn extends AppLocalizations {
       'By signing up, you agree to our Terms of Service and Privacy Policy.';
 
   @override
-  String get verifyEmailTitle => 'E-postanı Doğrula';
+  String get verifyEmailTitle => 'Verify your email';
 
   @override
   String get verifyEmailDescription =>
-      'E-posta adresine bir doğrulama bağlantısı gönderdik. Devam etmek için gelen kutunu kontrol et ve bağlantıya dokun.';
+      'We’ve sent a verification link to your email address. Please check your inbox and tap the link to continue.';
 
   @override
-  String get resendEmail => 'E-postayı Tekrar Gönder';
+  String get resendEmail => 'Resend Email';
 
   @override
   String resendEmailWithTime(String time) {
-    return 'E-postayı Tekrar Gönder ($time)';
+    return 'Resend Email ($time)';
   }
 
   @override
-  String get checking => 'Kontrol Ediliyor...';
+  String get checking => 'Checking...';
 
   @override
-  String get verify => 'Doğrula';
+  String get verify => 'Verify';
 
   @override
   String get emailVerifiedSuccessfully =>
-      'E-posta adresin başarıyla doğrulandı.';
+      'Your email has been verified successfully.';
 
   @override
-  String get emailNotVerifiedYet => 'E-posta adresin henüz doğrulanmadı.';
+  String get emailNotVerifiedYet => 'Your email has not been verified yet.';
 
   @override
-  String get verificationEmailSentAgain =>
-      'Doğrulama e-postası tekrar gönderildi.';
+  String get verificationEmailSentAgain => 'Verification email sent again.';
 
   @override
   String get verificationEmailCouldNotSend =>
-      'Doğrulama e-postası gönderilemedi. Lütfen tekrar dene.';
+      'Verification email could not be sent. Please try again.';
 
   @override
   String get forgotPassword => 'Forgot Password?';
@@ -145,6 +144,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invalidEmail => 'Please enter a valid email address.';
+
+  @override
+  String get sendResetLink => 'Send Reset Link';
+
+  @override
+  String get sendLink => 'Send Link';
+
+  @override
+  String get sending => 'Sending...';
+
+  @override
+  String get resetLinkSent => 'Password reset link sent. Check your email.';
+
+  @override
+  String get resetLinkCouldNotSend =>
+      'Password reset link could not be sent. Please try again.';
+
+  @override
+  String get passwordRequired => 'Password is required.';
+
+  @override
+  String get somethingWentWrong => 'Something went wrong. Please try again.';
 
   @override
   String get onboardingPage1Title =>
@@ -266,30 +287,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createMyPlan => 'Create my plan';
 
   @override
-  String get planProgressOverTime => 'Your progress over time';
-
-  @override
-  String get fiteoPlan => 'Fiteo plan';
-
-  @override
-  String get genericPlan => 'Generic plan';
-
-  @override
-  String get chartStart => 'Start';
-
-  @override
-  String get chartEarly => 'Early';
-
-  @override
-  String get chartMid => 'Mid';
-
-  @override
-  String get chartGoal => 'Goal';
-
-  @override
-  String get yourGoal => 'Your goal';
-
-  @override
   String get customizeYourPlan => 'Customize your plan';
 
   @override
@@ -363,28 +360,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get planChartYourGoal => 'Your goal';
 
   @override
-  String get sendResetLink => 'Send Reset Link';
-
-  @override
-  String get sendLink => 'Send Link';
-
-  @override
-  String get sending => 'Sending...';
-
-  @override
-  String get resetLinkSent => 'Password reset link sent. Check your email.';
-
-  @override
-  String get resetLinkCouldNotSend =>
-      'Password reset link could not be sent. Please try again.';
-
-  @override
-  String get passwordRequired => 'Password is required.';
-
-  @override
-  String get somethingWentWrong => 'Something went wrong. Please try again.';
-
-  @override
   String get dailySummary => 'Daily Summary';
 
   @override
@@ -400,7 +375,113 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fat => 'Fat';
 
   @override
+  String get foodIntake => 'Food Intake';
+
+  @override
+  String get exerciseBurn => 'Exercise Burn';
+
+  @override
+  String get netCalories => 'Net Calories';
+
+  @override
+  String get hydration => 'Hydration';
+
+  @override
+  String get remaining => 'Remaining';
+
+  @override
+  String get calorieGoal => 'Calorie Goal';
+
+  @override
+  String caloriesOverGoal(int calories) {
+    return '$calories kcal over';
+  }
+
+  @override
+  String caloriesPerDay(int calories) {
+    return '$calories kcal/day';
+  }
+
+  @override
+  String get consumed => 'Consumed';
+
+  @override
+  String get burned => 'Burned';
+
+  @override
+  String get net => 'Net';
+
+  @override
+  String get todaysMacros => 'Today’s Macros';
+
+  @override
+  String macroGoalTitle(String macro) {
+    return '$macro Goal';
+  }
+
+  @override
+  String get viewCalendar => 'View calendar';
+
+  @override
+  String streakDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get defaultAiFeedbackMessage =>
+      'You’re building your routine step by step.';
+
+  @override
+  String get defaultAiFeedbackSuggestion =>
+      'Keep tracking your meals and movement today to stay aware of your progress.';
+
+  @override
+  String get drink => 'Drink';
+
+  @override
+  String get enterWaterAmount => 'Enter water amount';
+
+  @override
   String get addFood => 'Add Food';
+
+  @override
+  String get foodName => 'Food name';
+
+  @override
+  String get amount => 'Amount';
+
+  @override
+  String get grams => 'Grams';
+
+  @override
+  String get pieces => 'Pieces';
+
+  @override
+  String get calorieEstimateDisclaimer =>
+      '( Calories are estimated based on\naverage nutritional values. )';
+
+  @override
+  String get couldNotAddFood => 'Could not add food.';
+
+  @override
+  String get couldNotDeleteFood => 'Could not delete food.';
+
+  @override
+  String get couldNotLoadMeals => 'Could not load meals.';
+
+  @override
+  String get deleteFood => 'Delete food';
+
+  @override
+  String todaysMeal(String meal) {
+    return 'Today’s $meal';
+  }
 
   @override
   String get breakfast => 'Breakfast';
@@ -413,6 +494,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get snack => 'Snack';
+
+  @override
+  String get monthlyCalendar => 'Monthly Calendar';
 
   @override
   String get weeklyReport => 'Weekly Report';
@@ -437,7 +521,306 @@ class AppLocalizationsEn extends AppLocalizations {
   String get couldNotAddRecipeToMeals => 'Could not add recipe to meals.';
 
   @override
+  String get recipeCouldNotBeSaved => 'Recipe could not be saved.';
+
+  @override
+  String get removeFromSaved => 'Remove from saved';
+
+  @override
+  String get saveRecipe => 'Save recipe';
+
+  @override
+  String get addToIntake => 'Add to intake';
+
+  @override
+  String get ingredients => 'Ingredients';
+
+  @override
+  String get instructions => 'Instructions';
+
+  @override
+  String get nutrition => 'Nutrition';
+
+  @override
+  String get servings => 'Servings';
+
+  @override
+  String get totalCalories => 'Total calories';
+
+  @override
+  String get perServing => 'Per serving';
+
+  @override
   String get dailyAiMessageLimitReached => 'Daily AI message limit reached.';
+
+  @override
+  String get aiWelcomeMessage =>
+      'Hi, I’m Fiteo. Let’s improve your journey together. You can switch to cook mode.';
+
+  @override
+  String get aiMessageInputHint => 'Tell me your goal, I’ll guide you';
+
+  @override
+  String get aiCouldNotRespond =>
+      'Sorry, I could not respond right now. Please try again later.';
+
+  @override
+  String get aiChatGreeting =>
+      'Hi, I’m Fiteo. Tell me your goal and I’ll guide you.';
+
+  @override
+  String get deleteMessage => 'Delete message';
+
+  @override
+  String aiMessagesLeftToday(int count) {
+    return '$count AI messages left today';
+  }
+
+  @override
+  String get creatingRecipe => 'Creating your recipe...\nPlease wait.';
+
+  @override
+  String get enterIngredients => 'Enter ingredients';
+
+  @override
+  String get cookWelcomeMessage =>
+      'Type ingredients, I’ll cook up the best recipe for you.';
+
+  @override
+  String get dailyRecipeLimitReached => 'Daily recipe limit reached.';
+
+  @override
+  String recipeRequestsLeftToday(int count) {
+    return '$count recipe requests left today';
+  }
+
+  @override
+  String get addExercise => 'Add exercise';
+
+  @override
+  String get exerciseName => 'Exercise name';
+
+  @override
+  String get durationMinutes => 'Duration (minutes)';
+
+  @override
+  String get intensity => 'Intensity';
+
+  @override
+  String get intensityLow => 'Low';
+
+  @override
+  String get intensityMedium => 'Medium';
+
+  @override
+  String get intensityHigh => 'High';
+
+  @override
+  String get calculating => 'Calculating...';
+
+  @override
+  String get caloriesBurned => 'Calories burned';
+
+  @override
+  String get metEstimateDisclaimer =>
+      '( Calories are estimated using average\nMET values. )';
+
+  @override
+  String get duration => 'Duration';
+
+  @override
+  String minutesShort(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get saveCalories => 'Save calories';
+
+  @override
+  String get deleteExercise => 'Delete exercise';
+
+  @override
+  String get todaysExercises => 'Today’s Exercises';
+
+  @override
+  String get couldNotAddExercise => 'Could not add exercise.';
+
+  @override
+  String get couldNotUpdateCalories => 'Could not update calories.';
+
+  @override
+  String get couldNotDeleteExercise => 'Could not delete exercise.';
+
+  @override
+  String get couldNotLoadExercises => 'Could not load exercises.';
+
+  @override
+  String get allergens => 'Allergens';
+
+  @override
+  String get allergenDisclaimer =>
+      'AI-generated allergen information. Always check ingredient labels before consuming.';
+
+  @override
+  String get allergenGluten => 'Gluten';
+
+  @override
+  String get allergenDairy => 'Dairy';
+
+  @override
+  String get allergenEgg => 'Egg';
+
+  @override
+  String get allergenPeanuts => 'Peanuts';
+
+  @override
+  String get allergenTreeNuts => 'Tree nuts';
+
+  @override
+  String get allergenSoy => 'Soy';
+
+  @override
+  String get allergenFish => 'Fish';
+
+  @override
+  String get allergenShellfish => 'Shellfish';
+
+  @override
+  String get allergenSesame => 'Sesame';
+
+  @override
+  String get deleteMyAccount => 'Delete my account';
+
+  @override
+  String get sorryToSeeYouGo => 'Sorry to see you go';
+
+  @override
+  String get deleteAccountDescription =>
+      'Deleting your account will permanently remove your profile and personal data. This action cannot be undone.';
+
+  @override
+  String get enterCurrentPassword => 'Enter your current password';
+
+  @override
+  String get deleting => 'Deleting...';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get currentPasswordRequired => 'Current password is required.';
+
+  @override
+  String get currentPasswordIncorrect => 'Current password is incorrect.';
+
+  @override
+  String get recentLoginRequired =>
+      'Please log in again before deleting your account.';
+
+  @override
+  String get accountDeleteFailed =>
+      'Could not delete your account. Please try again.';
+
+  @override
+  String get accountDeleted => 'Your account has been deleted.';
+
+  @override
+  String get weeklyCalories => 'Weekly Calories';
+
+  @override
+  String get mondayShort => 'MON';
+
+  @override
+  String get tuesdayShort => 'TUE';
+
+  @override
+  String get wednesdayShort => 'WED';
+
+  @override
+  String get thursdayShort => 'THU';
+
+  @override
+  String get fridayShort => 'FRI';
+
+  @override
+  String get saturdayShort => 'SAT';
+
+  @override
+  String get sundayShort => 'SUN';
+
+  @override
+  String get editProfile => 'Edit Profile';
+
+  @override
+  String get chooseYourMascot => 'Choose your mascot';
+
+  @override
+  String get changePassword => 'Change Password';
+
+  @override
+  String get currentPassword => 'Current password';
+
+  @override
+  String get newPassword => 'New password';
+
+  @override
+  String get confirmNewPassword => 'Confirm new password';
+
+  @override
+  String get saveChanges => 'Save';
+
+  @override
+  String get savedRecipes => 'Saved Recipes';
+
+  @override
+  String get goalsPreferences => 'Goals & Preferences';
+
+  @override
+  String get logOut => 'Log out';
+
+  @override
+  String get noSavedRecipesYet => 'No saved recipes yet.';
+
+  @override
+  String get bodyGoals => 'Body Goals';
+
+  @override
+  String get preferencesTitle => 'Preferences';
+
+  @override
+  String get currentWeightKg => 'Current weight (kg)';
+
+  @override
+  String get targetWeightKg => 'Target weight (kg)';
+
+  @override
+  String get dailyCalorieGoal => 'Daily calorie goal';
+
+  @override
+  String get preferencesUpdated => 'Preferences updated successfully.';
+
+  @override
+  String get preferencesUpdateFailed =>
+      'Preferences could not be updated. Please try again.';
+
+  @override
+  String get usernameRequired => 'Username is required.';
+
+  @override
+  String get passwordMinLength => 'Password must be at least 8 characters.';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwords do not match.';
+
+  @override
+  String get passwordUpdateFailed => 'Password could not be updated.';
+
+  @override
+  String get profileUpdateFailed =>
+      'Profile could not be updated. Please try again.';
+
+  @override
+  String get profileUpdated => 'Profile updated successfully.';
 
   @override
   String recipeAddedToMeal(String recipeName, String mealType) {

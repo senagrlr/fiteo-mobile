@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 
 class AiBotBubble extends StatelessWidget {
   final String text;
@@ -12,15 +14,20 @@ class AiBotBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 270),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      constraints: const BoxConstraints(
+        maxWidth: 270,
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
+      ),
       decoration: BoxDecoration(
         color: AppColors.onboardingBackground,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Text(
         text,
-        style: const TextStyle(
+        style: AppTextStyles.bodyMedium.copyWith(
           color: AppColors.homeBrown,
           fontSize: 14,
           height: 1.4,

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 
 class CalendarDaySummaryCard extends StatelessWidget {
   final int selectedDay;
@@ -29,7 +32,6 @@ class CalendarDaySummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     const fatGoal = 70;
     const carbsGoal = 150;
     const proteinGoal = 90;
@@ -58,13 +60,15 @@ class CalendarDaySummaryCard extends StatelessWidget {
         children: [
           Text(
             '$selectedDay $monthName $year',
-            style: const TextStyle(
-              color: AppColors.calendarSummaryTitle,
+            style: AppTextStyles.titleMedium.copyWith(
+              color: AppColors.homeBrown,
               fontSize: 18,
               fontWeight: FontWeight.w800,
             ),
           ),
+
           const SizedBox(height: 24),
+
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -72,22 +76,26 @@ class CalendarDaySummaryCard extends StatelessWidget {
                 child: _SummaryInfoItem(
                   icon: Icons.restaurant_rounded,
                   iconColor: AppColors.calendarFoodIcon,
-                  label: 'Food Intake',
+                  label: context.l10n.foodIntake,
                   value: '$consumedCalories kcal',
                 ),
               ),
+
               const SizedBox(width: 18),
+
               Expanded(
                 child: _SummaryInfoItem(
                   icon: Icons.fitness_center_rounded,
                   iconColor: AppColors.calendarBurnIcon,
-                  label: 'Exercise Burn',
+                  label: context.l10n.exerciseBurn,
                   value: '$burnedCalories kcal',
                 ),
               ),
             ],
           ),
+
           const SizedBox(height: 18),
+
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -95,45 +103,53 @@ class CalendarDaySummaryCard extends StatelessWidget {
                 child: _SummaryInfoItem(
                   icon: Icons.local_fire_department_rounded,
                   iconColor: AppColors.calendarGoalIcon,
-                  label: 'Net Calories',
+                  label: context.l10n.netCalories,
                   value: '$netCalories kcal',
                 ),
               ),
-              SizedBox(width: 18),
+
+              const SizedBox(width: 18),
+
               Expanded(
                 child: _SummaryInfoItem(
                   icon: Icons.local_drink_rounded,
                   iconColor: AppColors.calendarWaterIcon,
-                  label: 'Hydration',
+                  label: context.l10n.hydration,
                   value: '$hydration ml',
                 ),
               ),
             ],
           ),
+
           const SizedBox(height: 26),
+
           Row(
             children: [
               Expanded(
                 child: _MacroSummaryItem(
-                  label: 'Protein',
+                  label: context.l10n.protein,
                   value: protein.round(),
                   goal: proteinGoal,
                   progressColor: AppColors.proteinProgress,
                 ),
               ),
+
               const SizedBox(width: 14),
+
               Expanded(
                 child: _MacroSummaryItem(
-                  label: 'Fats',
+                  label: context.l10n.fat,
                   value: fats.round(),
                   goal: fatGoal,
                   progressColor: AppColors.fatProgress,
                 ),
               ),
+
               const SizedBox(width: 14),
+
               Expanded(
                 child: _MacroSummaryItem(
-                  label: 'Carbs',
+                  label: context.l10n.carbs,
                   value: carbs.round(),
                   goal: carbsGoal,
                   progressColor: AppColors.carbsProgress,
@@ -170,7 +186,9 @@ class _SummaryInfoItem extends StatelessWidget {
           color: iconColor,
           size: 16,
         ),
+
         const SizedBox(width: 5),
+
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,16 +197,18 @@ class _SummaryInfoItem extends StatelessWidget {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppColors.calendarSummaryLabel,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.homeSecondaryValue,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
               ),
+
               const SizedBox(height: 3),
+
               Text(
                 value,
-                style: const TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.calendarSummaryValue,
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
@@ -219,20 +239,25 @@ class _MacroSummaryItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final progress = goal <= 0
         ? 0.0
-        : (value / goal).clamp(0.0, 1.0);
+        : (value / goal).clamp(
+      0.0,
+      1.0,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: AppTextStyles.bodySmall.copyWith(
             color: AppColors.calendarSummaryTitle,
             fontSize: 13,
             fontWeight: FontWeight.w700,
           ),
         ),
+
         const SizedBox(height: 5),
+
         ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child: LinearProgressIndicator(
@@ -244,11 +269,13 @@ class _MacroSummaryItem extends StatelessWidget {
             ),
           ),
         ),
+
         const SizedBox(height: 4),
+
         Text(
           '${value}g/${goal}g',
-          style: const TextStyle(
-            color: AppColors.calendarSummaryLabel,
+          style: AppTextStyles.labelSmall.copyWith(
+            color: AppColors.homeSecondaryValue,
             fontSize: 10,
             fontWeight: FontWeight.w600,
           ),

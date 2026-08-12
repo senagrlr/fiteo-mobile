@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
+import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/features/workout/presentation/screens/workout_screen.dart';
 
 class ExerciseListItem extends StatelessWidget {
@@ -29,15 +32,18 @@ class ExerciseListItem extends StatelessWidget {
             MediaQuery.viewInsetsOf(bottomSheetContext).bottom;
 
         return AnimatedPadding(
-            duration: const Duration(milliseconds: 180),
-            curve: Curves.easeOut,
-            padding: EdgeInsets.only(bottom: keyboardHeight),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight:
-                MediaQuery.sizeOf(bottomSheetContext).height * 0.85,
-              ),
-              child: Container(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          padding: EdgeInsets.only(
+            bottom: keyboardHeight,
+          ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight:
+              MediaQuery.sizeOf(bottomSheetContext).height *
+                  0.85,
+            ),
+            child: Container(
               padding: const EdgeInsets.fromLTRB(
                 28,
                 18,
@@ -56,142 +62,194 @@ class ExerciseListItem extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                  Container(
-                    width: 48,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: AppColors.homeCardBackground,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  Text(
-                    item.name,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: AppColors.homeBrown,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-
-                  const SizedBox(height: 22),
-
-                  _ExerciseDetailRow(
-                    title: 'Duration',
-                    value: '${item.durationMinutes} min',
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  TextField(
-                    controller: caloriesController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
-                    style: const TextStyle(
-                      color: AppColors.homeBrown,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    decoration: InputDecoration(
-                      labelText: 'Calories',
-                      suffixText: 'kcal',
-                      filled: true,
-                      fillColor: AppColors.homeCardBackground,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 15,
+                      Container(
+                        width: 48,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: AppColors.homeCardBackground,
+                          borderRadius:
+                          BorderRadius.circular(10),
+                        ),
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: const BorderSide(
+
+                      const SizedBox(height: 20),
+
+                      Text(
+                        item.name,
+                        textAlign: TextAlign.center,
+                        style:
+                        AppTextStyles.titleLarge.copyWith(
                           color: AppColors.homeBrown,
-                          width: 1.2,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
-                    ),
-                  ),
 
-                  const SizedBox(height: 22),
+                      const SizedBox(height: 22),
 
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        final calories = int.tryParse(
-                          caloriesController.text.trim(),
-                        );
-
-                        if (calories == null) {
-                          return;
-                        }
-
-                        Navigator.pop(bottomSheetContext);
-                        onUpdateCalories(calories);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.homeBrown,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                      _ExerciseDetailRow(
+                        title: context.l10n.duration,
+                        value: context.l10n.minutesShort(
+                          item.durationMinutes,
                         ),
                       ),
-                      child: const Text(
-                        'Save calories',
-                        style: TextStyle(
+
+                      const SizedBox(height: 32),
+
+                      TextField(
+                        controller: caloriesController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        style:
+                        AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.homeBrown,
                           fontSize: 15,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: context.l10n.calories,
+                          suffixText: 'kcal',
+
+                          labelStyle:
+                          AppTextStyles.bodySmall.copyWith(
+                            color:
+                            AppColors.homeSecondaryValue,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+
+                          suffixStyle:
+                          AppTextStyles.bodySmall.copyWith(
+                            color:
+                            AppColors.homeSecondaryValue,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+
+                          filled: true,
+                          fillColor:
+                          AppColors.homeCardBackground,
+
+                          contentPadding:
+                          const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 15,
+                          ),
+
+                          border: OutlineInputBorder(
+                            borderRadius:
+                            BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius:
+                            BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius:
+                            BorderRadius.circular(20),
+                            borderSide: const BorderSide(
+                              color: AppColors.homeBrown,
+                              width: 1.2,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
 
-                  const SizedBox(height: 10),
+                      const SizedBox(height: 22),
 
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(bottomSheetContext);
-                        onDelete();
-                      },
-                      icon: const Icon(
-                        Icons.delete_outline_rounded,
-                      ),
-                      label: const Text(
-                        'Delete exercise',
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFFEEEE),
-                        foregroundColor: const Color(0xFFB94A48),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            final calories = int.tryParse(
+                              caloriesController.text.trim(),
+                            );
+
+                            if (calories == null ||
+                                calories <= 0) {
+                              return;
+                            }
+
+                            Navigator.pop(
+                              bottomSheetContext,
+                            );
+
+                            onUpdateCalories(calories);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                            AppColors.homeBrown,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                              BorderRadius.circular(20),
+                            ),
+                          ),
+                          child: Text(
+                            context.l10n.saveCalories,
+                            style: AppTextStyles.bodyMedium
+                                .copyWith(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+
+                      const SizedBox(height: 10),
+
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.pop(
+                              bottomSheetContext,
+                            );
+
+                            onDelete();
+                          },
+                          icon: const Icon(
+                            Icons.delete_outline_rounded,
+                          ),
+                          label: Text(
+                            context.l10n.deleteExercise,
+                            style: AppTextStyles.bodyMedium
+                                .copyWith(
+                              color:
+                              const Color(0xFFB94A48),
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                            const Color(0xFFFFEEEE),
+                            foregroundColor:
+                            const Color(0xFFB94A48),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                              BorderRadius.circular(20),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
-            ),
-            ),
         );
       },
     );
@@ -200,7 +258,9 @@ class ExerciseListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 9),
+      padding: const EdgeInsets.only(
+        bottom: 9,
+      ),
       child: Center(
         child: FractionallySizedBox(
           widthFactor: 0.84,
@@ -225,13 +285,15 @@ class ExerciseListItem extends StatelessWidget {
                         item.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style:
+                        AppTextStyles.bodySmall.copyWith(
                           color: AppColors.homeBrown,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
+
                     Container(
                       width: 1,
                       height: 21,
@@ -240,9 +302,11 @@ class ExerciseListItem extends StatelessWidget {
                       ),
                       color: const Color(0xFFDCD9D1),
                     ),
+
                     Text(
                       '${item.caloriesBurned} kcal',
-                      style: const TextStyle(
+                      style:
+                      AppTextStyles.bodySmall.copyWith(
                         color: AppColors.homeBrown,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -271,21 +335,23 @@ class _ExerciseDetailRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            color: AppColors.homeBrown,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
+        Expanded(
+          child: Text(
+            title,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.homeSecondaryValue,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
 
-        const Spacer(),
+        const SizedBox(width: 16),
+
         Text(
           value,
-          style: const TextStyle(
+          style: AppTextStyles.bodyMedium.copyWith(
             color: AppColors.homeBrown,
             fontSize: 16,
             fontWeight: FontWeight.w800,

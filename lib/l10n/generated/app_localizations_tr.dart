@@ -536,7 +536,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get instructions => 'Hazırlanışı';
 
   @override
-  String get nutrition => 'Besin Değerleri';
+  String get nutrition => 'Beslenme';
 
   @override
   String get servings => 'Porsiyon';
@@ -819,6 +819,318 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get profileUpdated => 'Profil başarıyla güncellendi.';
+
+  @override
+  String get planTracking => 'Plan Takibi';
+
+  @override
+  String get overview => 'Genel Bakış';
+
+  @override
+  String get plan => 'Plan';
+
+  @override
+  String get fiteoScore => 'Fiteo Puanı';
+
+  @override
+  String get currentStreak => 'Mevcut Seri';
+
+  @override
+  String get goalAchievement => 'Hedef Başarısı';
+
+  @override
+  String get days => 'Gün';
+
+  @override
+  String get yourUniqueFeatures => 'Sana Özel Özellikler';
+
+  @override
+  String get longestStreak => 'En Uzun Seri';
+
+  @override
+  String get bestProtein => 'En İyi Protein';
+
+  @override
+  String get mostActiveDay => 'En Aktif Gün';
+
+  @override
+  String get sunday => 'Pazar';
+
+  @override
+  String get onTrack => 'Yolunda';
+
+  @override
+  String get reviewRecommended => 'Planı Gözden Geçir';
+
+  @override
+  String get notEnoughData => 'Yeterli Veri Yok';
+
+  @override
+  String get improveConsistencyFirst => 'Önce İstikrarı Artır';
+
+  @override
+  String get startWeight => 'Başlangıç';
+
+  @override
+  String get goalReachDate => 'Hedef Tarih';
+
+  @override
+  String get goalWeight => 'Hedef';
+
+  @override
+  String get weightProgress => 'Kilo İlerlemesi';
+
+  @override
+  String get actualWeight => 'Senin İlerlemen';
+
+  @override
+  String get expectedWeight => 'Planlanan İlerleme';
+
+  @override
+  String get april => 'Nisan';
+
+  @override
+  String get may => 'Mayıs';
+
+  @override
+  String get june => 'Haziran';
+
+  @override
+  String get july => 'Temmuz';
+
+  @override
+  String onTrackPlanNoteWithDate(String date) {
+    return 'Planına düzenli şekilde uyuyorsun ve ilerlemen beklediğimiz şekilde devam ediyor. Böyle devam edersen yaklaşık $date tarihinde hedefine ulaşman bekleniyor.';
+  }
+
+  @override
+  String get reviewRecommendedPlanNote =>
+      'Son ilerlemen mevcut planının artık sana en uygun seçenek olmayabileceğini gösteriyor. Güncel ilerlemene göre senin için yeni bir plan hazırladık.';
+
+  @override
+  String get notEnoughDataPlanNote =>
+      'İlerlemeni güvenilir şekilde değerlendirebilmek için henüz yeterli güncel veri yok. Planını daha doğru değerlendirebilmemiz için kilo, öğün ve aktivitelerini kaydetmeye devam et.';
+
+  @override
+  String get improveConsistencyPlanNote =>
+      'Son dönemde plana uyumun güvenilir bir değerlendirme yapmak için fazla düzensiz. Önce mevcut planına daha istikrarlı şekilde uymaya çalış, ardından planının değişmesi gerekip gerekmediğini tekrar değerlendirelim.';
+
+  @override
+  String get reviewNewPlan => 'Yeni Planı Görüntüle';
+
+  @override
+  String get fiteoOverviewNote =>
+      'Planına uyduğunda genellikle oldukça istikrarlı ilerliyorsun. En önemli şey süreklilik, buna dikkat etmeye devam et.';
+
+  @override
+  String get dailyAverage => 'Günlük Ortalama';
+
+  @override
+  String get target => 'Hedef';
+
+  @override
+  String get onTargetDays => 'Hedefteki Günler';
+
+  @override
+  String get totalWorkout => 'Toplam Egzersiz';
+
+  @override
+  String get activeDays => 'Aktif Günler';
+
+  @override
+  String get averageDuration => 'Ortalama Süre';
+
+  @override
+  String get totalChange => 'Toplam Değişim';
+
+  @override
+  String get weeklyRate => 'Haftalık Hız';
+
+  @override
+  String get days7 => '7 gün';
+
+  @override
+  String get days30 => '30 gün';
+
+  @override
+  String get days90 => '90 gün';
+
+  @override
+  String get days365 => '365 gün';
+
+  @override
+  String get dailyAverageCalories => 'Günlük Ortalama (kalori)';
+
+  @override
+  String get dailyAverageWater => 'Günlük Ortalama (litre)';
+
+  @override
+  String get addWithBarcode => 'Barkodla Ekle';
+
+  @override
+  String get enterBarcodeNumber => 'Barkod Numarası Yaz';
+
+  @override
+  String get barcodeNumber => 'Barkod Numarası';
+
+  @override
+  String get barcodeNumberHint => 'Barkod numarasını gir';
+
+  @override
+  String get barcodeSearch => 'Ara';
+
+  @override
+  String get barcodeCancel => 'Vazgeç';
+
+  @override
+  String get barcodeScanHint => 'Barkodu çerçevenin içine hizala';
+
+  @override
+  String get barcodeLookingUp => 'Ürün bilgileri aranıyor...';
+
+  @override
+  String get addScannedFood => 'Ekle';
+
+  @override
+  String get barcodeDemoProduct => 'Örnek Ürün';
+
+  @override
+  String get yourWeek => 'Haftan';
+
+  @override
+  String get activity => 'Aktivite';
+
+  @override
+  String weeklyScoreChange(int value) {
+    return 'Geçen haftaya göre %$value arttı';
+  }
+
+  @override
+  String get active => 'Aktif';
+
+  @override
+  String get bestDay => 'En İyi Gün';
+
+  @override
+  String get worstDay => 'En Zayıf Gün';
+
+  @override
+  String get aligned => 'uyumlu';
+
+  @override
+  String get weightAndPlan => 'Kilo & Plan';
+
+  @override
+  String get lastWeek => 'Geçen Hafta';
+
+  @override
+  String get now => 'Şimdi';
+
+  @override
+  String get planStatus => 'Plan Durumu';
+
+  @override
+  String get estimatedGoalDate => 'Tahmini Hedef Tarihi';
+
+  @override
+  String get yourWeekInReview => 'Haftanın Değerlendirmesi';
+
+  @override
+  String get nextWeek => 'Gelecek Hafta';
+
+  @override
+  String get yourMainFocus => 'Ana odağın';
+
+  @override
+  String get tryThis => 'Bunu Dene';
+
+  @override
+  String get nextWeekPlan => 'Gelecek Hafta Planı';
+
+  @override
+  String monthlyScoreChange(int value) {
+    return 'Geçen aya göre %$value arttı';
+  }
+
+  @override
+  String get whatChangedThisMonth => 'Bu Ay Neler Değişti?';
+
+  @override
+  String get strongestArea => 'En Güçlü Alan';
+
+  @override
+  String get weakestArea => 'En Zayıf Alan';
+
+  @override
+  String get achievements => 'Başarılar';
+
+  @override
+  String get consistency => 'Tutarlılık';
+
+  @override
+  String get trackingConsistency => 'Takip Tutarlılığı';
+
+  @override
+  String get goalConsistency => 'Hedef Tutarlılığı';
+
+  @override
+  String get daysTracked => 'gün takip edildi';
+
+  @override
+  String get perfectDays => 'Mükemmel Gün';
+
+  @override
+  String get perfectDayDefinition =>
+      'Uygulanabilir tüm temel hedeflerin karşılandığı gün.';
+
+  @override
+  String get weightPlanProgress => 'Kilo & Plan İlerlemesi';
+
+  @override
+  String get start => 'Başlangıç';
+
+  @override
+  String get thisMonth => 'Bu Ay';
+
+  @override
+  String get monthlyTarget => 'Aylık Hedef';
+
+  @override
+  String get progressAchieved => 'Hedef Gerçekleşmesi';
+
+  @override
+  String get goalPrediction => 'Hedef Tahmini';
+
+  @override
+  String daysEarlierThanLastMonth(int value) {
+    return 'Geçen ayki tahmine göre %$value gün daha erken';
+  }
+
+  @override
+  String daysLaterThanLastMonth(int value) {
+    return 'Geçen ayki tahmine göre %$value gün daha geç';
+  }
+
+  @override
+  String get patternsWeNoticed => 'Fark Ettiğimiz Örüntüler';
+
+  @override
+  String get yourMonthInReview => 'Ayının Değerlendirmesi';
+
+  @override
+  String get mainFocus => 'Ana Odak';
+
+  @override
+  String get keepDoing => 'Böyle Devam Et';
+
+  @override
+  String get improve => 'Geliştir';
+
+  @override
+  String get watch => 'Dikkat Et';
+
+  @override
+  String get watchAdEarnOneUse => 'Reklam izleyerek 1 hak kazanın';
 
   @override
   String recipeAddedToMeal(String recipeName, String mealType) {

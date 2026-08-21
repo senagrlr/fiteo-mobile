@@ -1622,6 +1622,600 @@ abstract class AppLocalizations {
   /// **'Profile updated successfully.'**
   String get profileUpdated;
 
+  /// No description provided for @planTracking.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan Tracking'**
+  String get planTracking;
+
+  /// No description provided for @overview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get overview;
+
+  /// No description provided for @plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan'**
+  String get plan;
+
+  /// No description provided for @fiteoScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Fiteo Score'**
+  String get fiteoScore;
+
+  /// No description provided for @currentStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Streak'**
+  String get currentStreak;
+
+  /// No description provided for @goalAchievement.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal Achievement'**
+  String get goalAchievement;
+
+  /// No description provided for @days.
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get days;
+
+  /// No description provided for @yourUniqueFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Unique Features'**
+  String get yourUniqueFeatures;
+
+  /// No description provided for @longestStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Longest Streak'**
+  String get longestStreak;
+
+  /// No description provided for @bestProtein.
+  ///
+  /// In en, this message translates to:
+  /// **'Best Protein'**
+  String get bestProtein;
+
+  /// No description provided for @mostActiveDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Most Active Day'**
+  String get mostActiveDay;
+
+  /// No description provided for @sunday.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get sunday;
+
+  /// No description provided for @onTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'On Track'**
+  String get onTrack;
+
+  /// No description provided for @reviewRecommended.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Recommended'**
+  String get reviewRecommended;
+
+  /// No description provided for @notEnoughData.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Enough Data'**
+  String get notEnoughData;
+
+  /// No description provided for @improveConsistencyFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Improve Consistency First'**
+  String get improveConsistencyFirst;
+
+  /// No description provided for @startWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get startWeight;
+
+  /// No description provided for @goalReachDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal Date'**
+  String get goalReachDate;
+
+  /// No description provided for @goalWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal'**
+  String get goalWeight;
+
+  /// No description provided for @weightProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight Progress'**
+  String get weightProgress;
+
+  /// No description provided for @actualWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Progress'**
+  String get actualWeight;
+
+  /// No description provided for @expectedWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned Progress'**
+  String get expectedWeight;
+
+  /// No description provided for @april.
+  ///
+  /// In en, this message translates to:
+  /// **'April'**
+  String get april;
+
+  /// No description provided for @may.
+  ///
+  /// In en, this message translates to:
+  /// **'May'**
+  String get may;
+
+  /// No description provided for @june.
+  ///
+  /// In en, this message translates to:
+  /// **'June'**
+  String get june;
+
+  /// No description provided for @july.
+  ///
+  /// In en, this message translates to:
+  /// **'July'**
+  String get july;
+
+  /// No description provided for @onTrackPlanNoteWithDate.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re following your plan consistently and your progress is moving as expected. If you keep going like this, you\'re estimated to reach your goal around {date}.'**
+  String onTrackPlanNoteWithDate(String date);
+
+  /// No description provided for @reviewRecommendedPlanNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your recent progress suggests that your current plan may no longer be the best fit for you. We\'ve prepared an updated plan based on your latest progress.'**
+  String get reviewRecommendedPlanNote;
+
+  /// No description provided for @notEnoughDataPlanNote.
+  ///
+  /// In en, this message translates to:
+  /// **'There isn\'t enough recent data to evaluate your progress reliably yet. Keep logging your weight, meals and activity so we can assess your plan more accurately.'**
+  String get notEnoughDataPlanNote;
+
+  /// No description provided for @improveConsistencyPlanNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your recent plan adherence is too inconsistent for a reliable evaluation. Follow your current plan more consistently first, then we\'ll reassess whether it needs to change.'**
+  String get improveConsistencyPlanNote;
+
+  /// No description provided for @reviewNewPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Review New Plan'**
+  String get reviewNewPlan;
+
+  /// No description provided for @fiteoOverviewNote.
+  ///
+  /// In en, this message translates to:
+  /// **'When you\'re on track, you usually stay fully committed. What matters most is consistency, so keep an eye on that.'**
+  String get fiteoOverviewNote;
+
+  /// No description provided for @dailyAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Average'**
+  String get dailyAverage;
+
+  /// No description provided for @target.
+  ///
+  /// In en, this message translates to:
+  /// **'Target'**
+  String get target;
+
+  /// No description provided for @onTargetDays.
+  ///
+  /// In en, this message translates to:
+  /// **'On-Target Days'**
+  String get onTargetDays;
+
+  /// No description provided for @totalWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Workout'**
+  String get totalWorkout;
+
+  /// No description provided for @activeDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Days'**
+  String get activeDays;
+
+  /// No description provided for @averageDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Average Duration'**
+  String get averageDuration;
+
+  /// No description provided for @totalChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Change'**
+  String get totalChange;
+
+  /// No description provided for @weeklyRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Rate'**
+  String get weeklyRate;
+
+  /// No description provided for @days7.
+  ///
+  /// In en, this message translates to:
+  /// **'7 days'**
+  String get days7;
+
+  /// No description provided for @days30.
+  ///
+  /// In en, this message translates to:
+  /// **'30 days'**
+  String get days30;
+
+  /// No description provided for @days90.
+  ///
+  /// In en, this message translates to:
+  /// **'90 days'**
+  String get days90;
+
+  /// No description provided for @days365.
+  ///
+  /// In en, this message translates to:
+  /// **'365 days'**
+  String get days365;
+
+  /// No description provided for @dailyAverageCalories.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Average (calorie)'**
+  String get dailyAverageCalories;
+
+  /// No description provided for @dailyAverageWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Average (liter)'**
+  String get dailyAverageWater;
+
+  /// No description provided for @addWithBarcode.
+  ///
+  /// In en, this message translates to:
+  /// **'Add by Barcode'**
+  String get addWithBarcode;
+
+  /// No description provided for @enterBarcodeNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Barcode'**
+  String get enterBarcodeNumber;
+
+  /// No description provided for @barcodeNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Barcode Number'**
+  String get barcodeNumber;
+
+  /// No description provided for @barcodeNumberHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter barcode number'**
+  String get barcodeNumberHint;
+
+  /// No description provided for @barcodeSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get barcodeSearch;
+
+  /// No description provided for @barcodeCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get barcodeCancel;
+
+  /// No description provided for @barcodeScanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Align the barcode inside the frame'**
+  String get barcodeScanHint;
+
+  /// No description provided for @barcodeLookingUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking up product...'**
+  String get barcodeLookingUp;
+
+  /// No description provided for @addScannedFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get addScannedFood;
+
+  /// No description provided for @barcodeDemoProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample Product'**
+  String get barcodeDemoProduct;
+
+  /// No description provided for @yourWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Week'**
+  String get yourWeek;
+
+  /// No description provided for @activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get activity;
+
+  /// No description provided for @weeklyScoreChange.
+  ///
+  /// In en, this message translates to:
+  /// **'%{value} from last week'**
+  String weeklyScoreChange(int value);
+
+  /// No description provided for @active.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get active;
+
+  /// No description provided for @bestDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Best Day'**
+  String get bestDay;
+
+  /// No description provided for @worstDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Worst Day'**
+  String get worstDay;
+
+  /// No description provided for @aligned.
+  ///
+  /// In en, this message translates to:
+  /// **'aligned'**
+  String get aligned;
+
+  /// No description provided for @weightAndPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight & Plan'**
+  String get weightAndPlan;
+
+  /// No description provided for @lastWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Week'**
+  String get lastWeek;
+
+  /// No description provided for @now.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get now;
+
+  /// No description provided for @planStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan Status'**
+  String get planStatus;
+
+  /// No description provided for @estimatedGoalDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated Goal Date'**
+  String get estimatedGoalDate;
+
+  /// No description provided for @yourWeekInReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Week in Review'**
+  String get yourWeekInReview;
+
+  /// No description provided for @nextWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Week'**
+  String get nextWeek;
+
+  /// No description provided for @yourMainFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Your main focus'**
+  String get yourMainFocus;
+
+  /// No description provided for @tryThis.
+  ///
+  /// In en, this message translates to:
+  /// **'Try This'**
+  String get tryThis;
+
+  /// No description provided for @nextWeekPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Week Plan'**
+  String get nextWeekPlan;
+
+  /// No description provided for @monthlyScoreChange.
+  ///
+  /// In en, this message translates to:
+  /// **'%{value} from last month'**
+  String monthlyScoreChange(int value);
+
+  /// No description provided for @whatChangedThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'What Changed This Month'**
+  String get whatChangedThisMonth;
+
+  /// No description provided for @strongestArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Strongest Area'**
+  String get strongestArea;
+
+  /// No description provided for @weakestArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Weakest Area'**
+  String get weakestArea;
+
+  /// No description provided for @achievements.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievements'**
+  String get achievements;
+
+  /// No description provided for @consistency.
+  ///
+  /// In en, this message translates to:
+  /// **'Consistency'**
+  String get consistency;
+
+  /// No description provided for @trackingConsistency.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking Consistency'**
+  String get trackingConsistency;
+
+  /// No description provided for @goalConsistency.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal Consistency'**
+  String get goalConsistency;
+
+  /// No description provided for @daysTracked.
+  ///
+  /// In en, this message translates to:
+  /// **'days tracked'**
+  String get daysTracked;
+
+  /// No description provided for @perfectDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Perfect Days'**
+  String get perfectDays;
+
+  /// No description provided for @perfectDayDefinition.
+  ///
+  /// In en, this message translates to:
+  /// **'A day where all applicable core goals were reached.'**
+  String get perfectDayDefinition;
+
+  /// No description provided for @weightPlanProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight & Plan Progress'**
+  String get weightPlanProgress;
+
+  /// No description provided for @start.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get start;
+
+  /// No description provided for @thisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This Month'**
+  String get thisMonth;
+
+  /// No description provided for @monthlyTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Target'**
+  String get monthlyTarget;
+
+  /// No description provided for @progressAchieved.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress Achieved'**
+  String get progressAchieved;
+
+  /// No description provided for @goalPrediction.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal Prediction'**
+  String get goalPrediction;
+
+  /// No description provided for @daysEarlierThanLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'%{value} days earlier than last month\'s prediction'**
+  String daysEarlierThanLastMonth(int value);
+
+  /// No description provided for @daysLaterThanLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'%{value} days later than last month\'s prediction'**
+  String daysLaterThanLastMonth(int value);
+
+  /// No description provided for @patternsWeNoticed.
+  ///
+  /// In en, this message translates to:
+  /// **'Patterns We Noticed'**
+  String get patternsWeNoticed;
+
+  /// No description provided for @yourMonthInReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Month in Review'**
+  String get yourMonthInReview;
+
+  /// No description provided for @mainFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Main Focus'**
+  String get mainFocus;
+
+  /// No description provided for @keepDoing.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Doing'**
+  String get keepDoing;
+
+  /// No description provided for @improve.
+  ///
+  /// In en, this message translates to:
+  /// **'Improve'**
+  String get improve;
+
+  /// No description provided for @watch.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch'**
+  String get watch;
+
+  /// No description provided for @watchAdEarnOneUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch an ad to earn 1 more use'**
+  String get watchAdEarnOneUse;
+
   /// No description provided for @recipeAddedToMeal.
   ///
   /// In en, this message translates to:

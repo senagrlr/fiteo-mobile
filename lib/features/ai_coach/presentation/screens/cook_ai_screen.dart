@@ -4,14 +4,19 @@ import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
-import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_welcome_view.dart';
-import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_message_input.dart';
-import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_loading_view.dart';
-import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_recipe_dialog.dart';
-import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/shared/ai_mode_switch.dart';
+
 import 'package:fiteo_myapp/features/ai_coach/data/ai_chat_repository.dart';
 import 'package:fiteo_myapp/features/ai_coach/data/cook_recipe_result.dart';
 import 'package:fiteo_myapp/features/ai_coach/data/cook_recipe_service.dart';
+
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_loading_view.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_message_input.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_recipe_dialog.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_welcome_view.dart';
+
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/shared/ad_reward_banner.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/shared/ai_mode_switch.dart';
+
 import 'package:fiteo_myapp/features/meals/data/meal_repository.dart';
 import 'package:fiteo_myapp/features/profile/data/saved_recipe_repository.dart';
 
@@ -54,9 +59,13 @@ class _CookAiScreenState extends State<CookAiScreen> {
 
   static const int dailyRecipeLimit = 2;
 
+  bool get _hasReachedDailyRecipeLimit =>
+      recipeCount >= dailyRecipeLimit;
+
   @override
   void initState() {
     super.initState();
+
     _loadRecipeCount();
   }
 
@@ -74,8 +83,13 @@ class _CookAiScreenState extends State<CookAiScreen> {
   @override
   void dispose() {
     _ingredientController.dispose();
+
     super.dispose();
   }
+
+  // ============================================================
+  // GENERATE RECIPE
+  // ============================================================
 
   Future<void> _sendIngredients() async {
     final text =
@@ -85,7 +99,7 @@ class _CookAiScreenState extends State<CookAiScreen> {
       return;
     }
 
-    if (recipeCount >= dailyRecipeLimit) {
+    if (_hasReachedDailyRecipeLimit) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -167,6 +181,26 @@ class _CookAiScreenState extends State<CookAiScreen> {
     _showRecipeDialog();
   }
 
+  // ============================================================
+  // REWARD AD
+  // ============================================================
+
+  void _onRewardAdTap() {
+    // Şimdilik UI callback.
+    //
+    // Reklam entegrasyonu yapıldığında:
+    //
+    // 1. Rewarded reklam açılır.
+    // 2. Kullanıcı reklamı tamamlar.
+    // 3. Cook AI için +1 kullanım hakkı verilir.
+    //
+    // UI tarafında banner hazır.
+  }
+
+  // ============================================================
+  // LOCALIZED MEAL TYPE
+  // ============================================================
+
   String _localizedMealType(
       BuildContext context,
       String mealType,
@@ -189,8 +223,13 @@ class _CookAiScreenState extends State<CookAiScreen> {
     }
   }
 
+  // ============================================================
+  // RECIPE DIALOG
+  // ============================================================
+
   void _showRecipeDialog() {
-    final recipe = generatedRecipeResult;
+    final recipe =
+        generatedRecipeResult;
 
     if (recipe == null) {
       return;
@@ -204,8 +243,10 @@ class _CookAiScreenState extends State<CookAiScreen> {
       builder: (dialogContext) {
         return CookRecipeDialog(
           recipe: recipe,
-          initiallySaved: savedRecipeId != null,
-          onSavedChanged: (isSaved) async {
+          initiallySaved:
+          savedRecipeId != null,
+          onSavedChanged:
+              (isSaved) async {
             if (isSaved) {
               final id =
               await _savedRecipeRepository
@@ -213,7 +254,8 @@ class _CookAiScreenState extends State<CookAiScreen> {
 
               savedRecipeId = id;
             } else {
-              final id = savedRecipeId;
+              final id =
+                  savedRecipeId;
 
               if (id != null) {
                 await _savedRecipeRepository
@@ -224,7 +266,9 @@ class _CookAiScreenState extends State<CookAiScreen> {
             }
           },
           onAddToIntake: () async {
-            Navigator.pop(dialogContext);
+            Navigator.pop(
+              dialogContext,
+            );
 
             final mealType =
             await _selectMealType();
@@ -235,17 +279,23 @@ class _CookAiScreenState extends State<CookAiScreen> {
 
             try {
               await _mealRepository.addMeal(
-                mealName: recipe.recipeName,
-                amount: 1,
+                mealName:
+                recipe.recipeName,
+
+                amount:
+                1,
 
                 // Backend/internal değer.
-                unit: 'Serving',
+                unit:
+                'Serving',
 
                 // Backend/internal değer.
-                mealType: mealType,
+                mealType:
+                mealType,
 
                 estimatedCalories:
                 recipe.caloriesPerServing,
+
                 protein:
                 recipe.proteinPerServing,
                 fats:
@@ -294,6 +344,10 @@ class _CookAiScreenState extends State<CookAiScreen> {
     );
   }
 
+  // ============================================================
+  // SELECT MEAL TYPE
+  // ============================================================
+
   Future<String?> _selectMealType() async {
     return showModalBottomSheet<String>(
       context: context,
@@ -313,8 +367,10 @@ class _CookAiScreenState extends State<CookAiScreen> {
 
         return SafeArea(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: mealTypes.map(
+            mainAxisSize:
+            MainAxisSize.min,
+            children:
+            mealTypes.map(
                   (mealType) {
                 return ListTile(
                   title: Text(
@@ -324,7 +380,8 @@ class _CookAiScreenState extends State<CookAiScreen> {
                     ),
                     style:
                     AppTextStyles.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w600,
+                      fontWeight:
+                      FontWeight.w600,
                     ),
                   ),
                   onTap: () {
@@ -342,6 +399,10 @@ class _CookAiScreenState extends State<CookAiScreen> {
     );
   }
 
+  // ============================================================
+  // BUILD
+  // ============================================================
+
   @override
   Widget build(BuildContext context) {
     final remainingRecipeRequests =
@@ -353,22 +414,35 @@ class _CookAiScreenState extends State<CookAiScreen> {
     return SystemNavigationBar(
       color: Colors.white,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor:
+        Colors.white,
         body: Stack(
           children: [
             SafeArea(
               child: Stack(
                 children: [
+                  // =================================================
+                  // MODE SWITCH
+                  // =================================================
+
                   Positioned(
                     top: 22,
                     right: 28,
-                    child: AiModeSwitch(
-                      isCookMode: true,
-                      onChanged: (_) {
-                        widget.onSwitchToCoach();
+                    child:
+                    AiModeSwitch(
+                      isCookMode:
+                      true,
+                      onChanged:
+                          (_) {
+                        widget
+                            .onSwitchToCoach();
                       },
                     ),
                   ),
+
+                  // =================================================
+                  // MAIN CONTENT
+                  // =================================================
 
                   Column(
                     children: [
@@ -383,7 +457,8 @@ class _CookAiScreenState extends State<CookAiScreen> {
                       ),
 
                       Text(
-                        remainingRecipeRequests > 0
+                        remainingRecipeRequests >
+                            0
                             ? context.l10n
                             .recipeRequestsLeftToday(
                           remainingRecipeRequests,
@@ -394,8 +469,10 @@ class _CookAiScreenState extends State<CookAiScreen> {
                         AppTextStyles.bodySmall.copyWith(
                           color:
                           AppColors.homeSecondaryValue,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                          fontSize:
+                          12,
+                          fontWeight:
+                          FontWeight.w500,
                         ),
                       ),
 
@@ -406,9 +483,12 @@ class _CookAiScreenState extends State<CookAiScreen> {
                       CookMessageInput(
                         controller:
                         _ingredientController,
-                        onSend: _sendIngredients,
-                        horizontalPadding: 28,
-                        bottomPadding: 0,
+                        onSend:
+                        _sendIngredients,
+                        horizontalPadding:
+                        28,
+                        bottomPadding:
+                        0,
                       ),
 
                       const Spacer(
@@ -416,24 +496,58 @@ class _CookAiScreenState extends State<CookAiScreen> {
                       ),
                     ],
                   ),
+
+                  // =================================================
+                  // REWARD AD
+                  //
+                  // Sadece günlük tarif hakkı bittiyse gösterilir.
+                  // Mockup'taki gibi ekranın alt tarafında.
+                  // =================================================
+
+                  if (_hasReachedDailyRecipeLimit)
+                    Positioned(
+                      left: 20,
+                      right: 20,
+                      bottom: 22,
+                      child: Center(
+                        child:
+                        AdRewardBanner(
+                          text:
+                          context
+                              .l10n
+                              .watchAdEarnOneUse,
+                          onTap:
+                          _onRewardAdTap,
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
 
+            // =====================================================
+            // LOADING
+            // =====================================================
+
             AnimatedSwitcher(
-              duration: const Duration(
+              duration:
+              const Duration(
                 milliseconds: 350,
               ),
-              switchInCurve: Curves.easeOut,
-              switchOutCurve: Curves.easeIn,
+              switchInCurve:
+              Curves.easeOut,
+              switchOutCurve:
+              Curves.easeIn,
               child: isGenerating
                   ? const CookLoadingView(
-                key: ValueKey(
+                key:
+                ValueKey(
                   'cook-loading',
                 ),
               )
                   : const SizedBox.shrink(
-                key: ValueKey(
+                key:
+                ValueKey(
                   'cook-empty',
                 ),
               ),

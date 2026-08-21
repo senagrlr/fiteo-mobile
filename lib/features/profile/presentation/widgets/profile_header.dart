@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
+import 'package:fiteo_myapp/features/profile/presentation/widgets/membership_badge.dart';
 
 class ProfileHeader extends StatelessWidget {
   final String username;
   final String email;
   final String? mascot;
+  final bool isPremium;
 
   const ProfileHeader({
     super.key,
     required this.username,
     required this.email,
     this.mascot,
+    this.isPremium = false,
   });
 
   @override
@@ -24,7 +27,7 @@ class ProfileHeader extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           Positioned(
-            top: -55,
+            top: -45,
             left: -35,
             right: -55,
             child: Image.asset(
@@ -36,7 +39,7 @@ class ProfileHeader extends StatelessWidget {
           ),
 
           Positioned(
-            top: 48,
+            top: 68,
             left: 0,
             right: 0,
             child: Column(
@@ -45,7 +48,7 @@ class ProfileHeader extends StatelessWidget {
                   width: 68,
                   height: 68,
                   decoration: const BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surfacePrimary,
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
@@ -54,8 +57,7 @@ class ProfileHeader extends StatelessWidget {
                     username.isNotEmpty
                         ? username[0].toUpperCase()
                         : 'U',
-                    style:
-                    AppTextStyles.titleLarge.copyWith(
+                    style: AppTextStyles.titleLarge.copyWith(
                       color: AppColors.homeBrown,
                       fontSize: 32,
                       fontWeight: FontWeight.w800,
@@ -91,6 +93,14 @@ class ProfileHeader extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+
+          Positioned(
+            top: 45,
+            right: 24,
+            child: MembershipBadge(
+              label: isPremium ? 'PREMIUM' : 'FREE',
             ),
           ),
         ],

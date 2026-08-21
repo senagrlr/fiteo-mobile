@@ -8,7 +8,12 @@ import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/features/home/data/calendar_repository.dart';
 
 class WeeklyViewsCard extends StatefulWidget {
-  const WeeklyViewsCard({super.key});
+  final VoidCallback? onArrowTap;
+
+  const WeeklyViewsCard({
+    super.key,
+    this.onArrowTap,
+  });
 
   @override
   State<WeeklyViewsCard> createState() =>
@@ -114,9 +119,7 @@ class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
 
     final positiveValues = values
         .map(
-          (value) => value < 0
-          ? 0.0
-          : value,
+          (value) => value < 0 ? 0.0 : value,
     )
         .toList();
 
@@ -138,7 +141,7 @@ class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
         18,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfacePrimary,
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
@@ -159,12 +162,24 @@ class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
                 child: Text(
                   context.l10n.weeklyCalories,
                   style:
-                  AppTextStyles.titleMedium
-                      .copyWith(
+                  AppTextStyles.titleMedium.copyWith(
                     color: AppColors.homeBrown,
                     fontSize: 16,
-                    fontWeight:
-                    FontWeight.w800,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+
+              // Sağ üst ok
+              InkWell(
+                onTap: widget.onArrowTap,
+                borderRadius: BorderRadius.circular(20),
+                child: const Padding(
+                  padding: EdgeInsets.all(4),
+                  child: Icon(
+                    Icons.chevron_right_rounded,
+                    size: 30,
+                    color: AppColors.homeBrown,
                   ),
                 ),
               ),
@@ -174,8 +189,7 @@ class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
           const SizedBox(height: 14),
 
           const Divider(
-            color:
-            AppColors.weeklyChartDivider,
+            color: AppColors.weeklyChartDivider,
           ),
 
           const SizedBox(height: 14),
@@ -212,21 +226,17 @@ class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
 
                           return Row(
                             crossAxisAlignment:
-                            CrossAxisAlignment
-                                .end,
+                            CrossAxisAlignment.end,
                             mainAxisAlignment:
                             MainAxisAlignment
                                 .spaceBetween,
-                            children:
-                            List.generate(
+                            children: List.generate(
                               values.length,
                                   (index) {
                                 final safeValue =
-                                values[index] <
-                                    0
+                                values[index] < 0
                                     ? 0.0
-                                    : values[
-                                index];
+                                    : values[index];
 
                                 final barHeight =
                                 ((safeValue /
@@ -242,17 +252,13 @@ class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
                                         index;
 
                                 return _BarItem(
-                                  width:
-                                  itemWidth,
+                                  width: itemWidth,
                                   day: _dayName(
                                     context,
-                                    weekdays[
-                                    index],
+                                    weekdays[index],
                                   ),
-                                  height:
-                                  barHeight,
-                                  value:
-                                  values[index]
+                                  height: barHeight,
+                                  value: values[index]
                                       .toInt(),
                                   isSelected:
                                   isSelected,
@@ -363,8 +369,7 @@ class _ChartGridLines extends StatelessWidget {
             4,
                 (_) => Container(
               height: 1,
-              color:
-              AppColors.weeklyChartGridLine,
+              color: AppColors.weeklyChartGridLine,
             ),
           ),
         ),
@@ -397,8 +402,7 @@ class _BarItem extends StatelessWidget {
       height: double.infinity,
       child: GestureDetector(
         onTap: onTap,
-        behavior:
-        HitTestBehavior.opaque,
+        behavior: HitTestBehavior.opaque,
         child: Column(
           mainAxisAlignment:
           MainAxisAlignment.end,
@@ -420,8 +424,8 @@ class _BarItem extends StatelessWidget {
                   ),
                   decoration:
                   BoxDecoration(
-                    color: AppColors
-                        .homeBrown,
+                    color:
+                    AppColors.homeBrown,
                     borderRadius:
                     BorderRadius
                         .circular(
@@ -435,15 +439,15 @@ class _BarItem extends StatelessWidget {
                     overflow:
                     TextOverflow
                         .visible,
-                    style: AppTextStyles
+                    style:
+                    AppTextStyles
                         .bodySmall
                         .copyWith(
-                      color:
-                      Colors.white,
+                      color: AppColors
+                          .onPrimary,
                       fontSize: 11,
                       fontWeight:
-                      FontWeight
-                          .w800,
+                      FontWeight.w800,
                     ),
                   ),
                 ),
@@ -454,8 +458,7 @@ class _BarItem extends StatelessWidget {
             const SizedBox(height: 4),
 
             AnimatedContainer(
-              duration:
-              const Duration(
+              duration: const Duration(
                 milliseconds: 250,
               ),
               curve: Curves.easeOut,
@@ -482,18 +485,15 @@ class _BarItem extends StatelessWidget {
             Text(
               day,
               maxLines: 1,
-              overflow:
-              TextOverflow.clip,
-              style: AppTextStyles
-                  .bodySmall
-                  .copyWith(
+              overflow: TextOverflow.clip,
+              style:
+              AppTextStyles.bodySmall.copyWith(
                 color: isSelected
                     ? AppColors.homeBrown
                     : AppColors
                     .homeSecondaryValue,
                 fontSize: 10,
-                fontWeight:
-                FontWeight.w700,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],

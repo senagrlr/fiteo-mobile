@@ -4,19 +4,26 @@ import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
+
 import 'package:fiteo_myapp/features/ai_coach/data/ai_chat_message.dart';
 import 'package:fiteo_myapp/features/ai_coach/data/ai_chat_repository.dart';
 import 'package:fiteo_myapp/features/ai_coach/data/ai_chat_service.dart';
-import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_chat/ai_message_input.dart';
-import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_chat/ai_welcome_view.dart';
-import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_chat/ai_bot_bubble.dart';
-import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_chat/ai_user_bubble.dart';
-import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_chat/ai_typing_bubble.dart';
-import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/shared/ai_mode_switch.dart';
+
 import 'package:fiteo_myapp/features/ai_coach/presentation/screens/cook_ai_screen.dart';
 
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_chat/ai_bot_bubble.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_chat/ai_message_input.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_chat/ai_typing_bubble.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_chat/ai_user_bubble.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_chat/ai_welcome_view.dart';
+
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/shared/ad_reward_banner.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/shared/ai_mode_switch.dart';
+
 class AiCoachScreen extends StatefulWidget {
-  const AiCoachScreen({super.key});
+  const AiCoachScreen({
+    super.key,
+  });
 
   @override
   State<AiCoachScreen> createState() =>
@@ -25,23 +32,30 @@ class AiCoachScreen extends StatefulWidget {
 
 class _AiCoachScreenState
     extends State<AiCoachScreen> {
-  final TextEditingController _messageController =
+  final TextEditingController
+  _messageController =
   TextEditingController();
 
-  final ScrollController _scrollController =
+  final ScrollController
+  _scrollController =
   ScrollController();
 
   final Set<String> hiddenMessageIds = {};
 
-  final AiChatRepository _chatRepository =
+  final AiChatRepository
+  _chatRepository =
   AiChatRepository();
 
-  final AiChatService _chatService =
+  final AiChatService
+  _chatService =
   AiChatService();
 
   bool isSending = false;
+
   bool showWelcomeInsteadOfChat = true;
+
   bool hasInitializedChatView = false;
+
   bool isCookMode = false;
 
   String? temporaryErrorMessage;
@@ -50,15 +64,24 @@ class _AiCoachScreenState
 
   static const int dailyLimit = 3;
 
+  // ============================================================
+  // DAILY LIMIT
+  // ============================================================
+
+  bool get _hasReachedDailyLimit =>
+      messageCount >= dailyLimit;
+
   @override
   void initState() {
     super.initState();
+
     _loadMessageCount();
   }
 
   Future<void> _loadMessageCount() async {
     final count =
-    await _chatRepository.getTodayMessageCount();
+    await _chatRepository
+        .getTodayMessageCount();
 
     if (!mounted) return;
 
@@ -67,15 +90,22 @@ class _AiCoachScreenState
     });
   }
 
+  // ============================================================
+  // SCROLL
+  // ============================================================
+
   void _scrollToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback(
+    WidgetsBinding.instance
+        .addPostFrameCallback(
           (_) async {
         if (!_scrollController.hasClients) {
           return;
         }
 
         await Future.delayed(
-          const Duration(milliseconds: 100),
+          const Duration(
+            milliseconds: 100,
+          ),
         );
 
         if (!_scrollController.hasClients) {
@@ -83,11 +113,17 @@ class _AiCoachScreenState
         }
 
         _scrollController.jumpTo(
-          _scrollController.position.maxScrollExtent,
+          _scrollController
+              .position
+              .maxScrollExtent,
         );
       },
     );
   }
+
+  // ============================================================
+  // MESSAGE OPTIONS
+  // ============================================================
 
   Future<void> _showMessageOptions(
       AiChatMessage message,
@@ -99,13 +135,17 @@ class _AiCoachScreenState
     final shouldDelete =
     await showModalBottomSheet<bool>(
       context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
+      backgroundColor:
+      Colors.white,
+      shape:
+      const RoundedRectangleBorder(
+        borderRadius:
+        BorderRadius.vertical(
           top: Radius.circular(22),
         ),
       ),
-      builder: (bottomSheetContext) {
+      builder:
+          (bottomSheetContext) {
         return SafeArea(
           child: ListTile(
             leading: const Icon(
@@ -117,7 +157,8 @@ class _AiCoachScreenState
               style:
               AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.red,
-                fontWeight: FontWeight.w600,
+                fontWeight:
+                FontWeight.w600,
               ),
             ),
             onTap: () {
@@ -140,6 +181,10 @@ class _AiCoachScreenState
     }
   }
 
+  // ============================================================
+  // SEND MESSAGE
+  // ============================================================
+
   Future<void> _sendMessage() async {
     final text =
     _messageController.text.trim();
@@ -148,8 +193,9 @@ class _AiCoachScreenState
       return;
     }
 
-    if (messageCount >= dailyLimit) {
-      ScaffoldMessenger.of(context).showSnackBar(
+    if (_hasReachedDailyLimit) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
         SnackBar(
           content: Text(
             context
@@ -166,8 +212,12 @@ class _AiCoachScreenState
 
     setState(() {
       isSending = true;
-      temporaryErrorMessage = null;
-      showWelcomeInsteadOfChat = false;
+
+      temporaryErrorMessage =
+      null;
+
+      showWelcomeInsteadOfChat =
+      false;
     });
 
     await _chatRepository.saveMessage(
@@ -176,29 +226,42 @@ class _AiCoachScreenState
     );
 
     final userPreferences =
-    await _chatRepository.getUserPreferences();
+    await _chatRepository
+        .getUserPreferences();
 
     final dailySummary =
-    await _chatRepository.getTodaySummary();
+    await _chatRepository
+        .getTodaySummary();
 
     final last7Summaries =
     await _chatRepository
         .getLast7DailySummaries();
 
     final recentMessages =
-    await _chatRepository.getRecentMessages(
+    await _chatRepository
+        .getRecentMessages(
       limit: 6,
     );
 
     final reply =
     await _chatService.sendMessage(
-      message: text,
-      userPreferences: userPreferences,
-      dailySummary: dailySummary,
-      last7Summaries: last7Summaries,
-      recentMessages: recentMessages
+      message:
+      text,
+
+      userPreferences:
+      userPreferences,
+
+      dailySummary:
+      dailySummary,
+
+      last7Summaries:
+      last7Summaries,
+
+      recentMessages:
+      recentMessages
           .map(
-            (message) => message.toJson(),
+            (message) =>
+            message.toJson(),
       )
           .toList(),
     );
@@ -229,36 +292,78 @@ class _AiCoachScreenState
     });
   }
 
+  // ============================================================
+  // REWARD AD
+  // ============================================================
+
+  void _onRewardAdTap() {
+    // Şimdilik sadece UI callback.
+    //
+    // Reklam sistemi bağlandığında:
+    //
+    // 1. Rewarded reklam açılacak
+    // 2. Kullanıcı reklamı tamamlayacak
+    // 3. Ek kullanım hakkı verilecek
+    //
+    // UI burada hazır kalacak.
+  }
+
+  // ============================================================
+  // BACK TO WELCOME
+  // ============================================================
+
   void _backToWelcome() {
     setState(() {
-      showWelcomeInsteadOfChat = true;
-      temporaryErrorMessage = null;
-      isSending = false;
+      showWelcomeInsteadOfChat =
+      true;
+
+      temporaryErrorMessage =
+      null;
+
+      isSending =
+      false;
+
       _messageController.clear();
     });
   }
 
+  // ============================================================
+  // DISPOSE
+  // ============================================================
+
   @override
   void dispose() {
     _messageController.dispose();
+
     _scrollController.dispose();
 
     super.dispose();
   }
 
+  // ============================================================
+  // BUILD
+  // ============================================================
+
   @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<List<AiChatMessage>>(
-      stream: _chatRepository.watchMessages(),
-      builder: (context, snapshot) {
+  Widget build(
+      BuildContext context,
+      ) {
+    return StreamBuilder<
+        List<AiChatMessage>>(
+      stream:
+      _chatRepository.watchMessages(),
+      builder:
+          (context, snapshot) {
         final allMessages =
             snapshot.data ?? [];
 
-        final messages = allMessages
+        final messages =
+        allMessages
             .where(
               (message) =>
           message.id == null ||
-              !hiddenMessageIds.contains(
+              !hiddenMessageIds
+                  .contains(
                 message.id,
               ),
         )
@@ -266,8 +371,11 @@ class _AiCoachScreenState
 
         if (!hasInitializedChatView &&
             messages.isNotEmpty) {
-          hasInitializedChatView = true;
-          showWelcomeInsteadOfChat = false;
+          hasInitializedChatView =
+          true;
+
+          showWelcomeInsteadOfChat =
+          false;
         }
 
         final hasMessages =
@@ -281,16 +389,24 @@ class _AiCoachScreenState
         return SystemNavigationBar(
           color: Colors.white,
           child: Scaffold(
-            backgroundColor: Colors.white,
+            backgroundColor:
+            Colors.white,
             body: SafeArea(
               child: isCookMode
                   ? CookAiScreen(
-                onSwitchToCoach: () {
+                onSwitchToCoach:
+                    () {
                   setState(() {
-                    isCookMode = false;
+                    isCookMode =
+                    false;
                   });
                 },
               )
+
+              // =================================================
+              // CHAT VIEW
+              // =================================================
+
                   : hasMessages
                   ? Column(
                 children: [
@@ -303,11 +419,13 @@ class _AiCoachScreenState
                       18,
                       0,
                     ),
-                    child: Align(
+                    child:
+                    Align(
                       alignment:
                       Alignment
                           .centerLeft,
-                      child: IconButton(
+                      child:
+                      IconButton(
                         icon:
                         const Icon(
                           Icons
@@ -315,7 +433,8 @@ class _AiCoachScreenState
                           color:
                           AppColors
                               .homeBrown,
-                          size: 24,
+                          size:
+                          24,
                         ),
                         onPressed:
                         _backToWelcome,
@@ -332,6 +451,30 @@ class _AiCoachScreenState
 
                   _buildLimitText(),
 
+                  // =======================================
+                  // REWARD AD
+                  // Sadece 3 hak bittiyse.
+                  // =======================================
+
+                  if (_hasReachedDailyLimit)
+                    Padding(
+                      padding:
+                      const EdgeInsets
+                          .only(
+                        top: 10,
+                        bottom: 3,
+                      ),
+                      child:
+                      AdRewardBanner(
+                        text:
+                        context
+                            .l10n
+                            .watchAdEarnOneUse,
+                        onTap:
+                        _onRewardAdTap,
+                      ),
+                    ),
+
                   AiMessageInput(
                     controller:
                     _messageController,
@@ -340,6 +483,11 @@ class _AiCoachScreenState
                   ),
                 ],
               )
+
+              // =================================================
+              // WELCOME VIEW
+              // =================================================
+
                   : Stack(
                 children: [
                   AiWelcomeView(
@@ -356,7 +504,8 @@ class _AiCoachScreenState
                     AiModeSwitch(
                       isCookMode:
                       false,
-                      onChanged: (_) {
+                      onChanged:
+                          (_) {
                         setState(() {
                           isCookMode =
                           true;
@@ -364,6 +513,32 @@ class _AiCoachScreenState
                       },
                     ),
                   ),
+
+                  // =========================================
+                  // REWARD AD
+                  //
+                  // Mockup'taki gibi ekranın alt tarafında,
+                  // bottom navigation'ın hemen üstünde.
+                  // =========================================
+
+                  if (_hasReachedDailyLimit)
+                    Positioned(
+                      left: 20,
+                      right: 20,
+                      bottom: 22,
+                      child:
+                      Center(
+                        child:
+                        AdRewardBanner(
+                          text:
+                          context
+                              .l10n
+                              .watchAdEarnOneUse,
+                          onTap:
+                          _onRewardAdTap,
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -372,6 +547,10 @@ class _AiCoachScreenState
       },
     );
   }
+
+  // ============================================================
+  // LIMIT TEXT
+  // ============================================================
 
   Widget _buildLimitText() {
     final remaining =
@@ -382,7 +561,8 @@ class _AiCoachScreenState
     );
 
     return Padding(
-      padding: const EdgeInsets.only(
+      padding:
+      const EdgeInsets.only(
         top: 12,
       ),
       child: Text(
@@ -404,12 +584,18 @@ class _AiCoachScreenState
     );
   }
 
+  // ============================================================
+  // CHAT VIEW
+  // ============================================================
+
   Widget _buildChatView(
       List<AiChatMessage> messages,
       ) {
     return ListView.builder(
-      controller: _scrollController,
-      padding: const EdgeInsets.fromLTRB(
+      controller:
+      _scrollController,
+      padding:
+      const EdgeInsets.fromLTRB(
         24,
         24,
         24,
@@ -419,10 +605,12 @@ class _AiCoachScreenState
       messages.length +
           1 +
           (isSending ? 1 : 0) +
-          (temporaryErrorMessage != null
+          (temporaryErrorMessage !=
+              null
               ? 1
               : 0),
-      itemBuilder: (context, index) {
+      itemBuilder:
+          (context, index) {
         if (index == 0) {
           return Padding(
             padding:
@@ -434,7 +622,9 @@ class _AiCoachScreenState
               Alignment.centerLeft,
               child: AiBotBubble(
                 text:
-                context.l10n.aiChatGreeting,
+                context
+                    .l10n
+                    .aiChatGreeting,
               ),
             ),
           );
@@ -447,7 +637,8 @@ class _AiCoachScreenState
             messages.length) {
           if (isSending) {
             return const Padding(
-              padding: EdgeInsets.only(
+              padding:
+              EdgeInsets.only(
                 bottom: 14,
               ),
               child: Align(
@@ -469,7 +660,8 @@ class _AiCoachScreenState
               child: Align(
                 alignment:
                 Alignment.centerLeft,
-                child: AiBotBubble(
+                child:
+                AiBotBubble(
                   text:
                   temporaryErrorMessage!,
                 ),
@@ -485,24 +677,30 @@ class _AiCoachScreenState
             message.role == 'user';
 
         return Padding(
-          padding: const EdgeInsets.only(
+          padding:
+          const EdgeInsets.only(
             bottom: 14,
           ),
           child: Align(
-            alignment: isUser
+            alignment:
+            isUser
                 ? Alignment.centerRight
                 : Alignment.centerLeft,
-            child: GestureDetector(
-              onLongPress: () =>
+            child:
+            GestureDetector(
+              onLongPress:
+                  () =>
                   _showMessageOptions(
                     message,
                   ),
               child: isUser
                   ? AiUserBubble(
-                text: message.text,
+                text:
+                message.text,
               )
                   : AiBotBubble(
-                text: message.text,
+                text:
+                message.text,
               ),
             ),
           ),

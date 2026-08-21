@@ -73,15 +73,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 isLoading ? '...' : email,
                 mascot:
                 isLoading ? null : mascot,
+
               ),
 
-              const SizedBox(height: 14),
+              const SizedBox(height: 30),
 
-              const Padding(
-                padding: EdgeInsets.symmetric(
+              Padding(
+                padding: const EdgeInsets.symmetric(
                   horizontal: 22,
                 ),
-                child: WeeklyViewsCard(),
+                child: WeeklyViewsCard(
+                  onArrowTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.progress,
+                    );
+                  },
+                ),
               ),
 
               const SizedBox(height: 50),
@@ -122,6 +130,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                     ),
 
+                    // PLAN TRACKING
+                    ProfileMenuItem(
+                      icon: Icons.timeline_rounded,
+                      title: context.l10n.planTracking,
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          AppRoutes.planTracking,
+                        );
+                      },
+                    ),
+
+
                     ProfileMenuItem(
                       icon: Icons.track_changes,
                       title: context
@@ -139,9 +160,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                     ),
 
+
                     ProfileMenuItem(
                       icon: Icons.logout,
-                      title: context.l10n.logOut,
+                      title:
+                      context.l10n.logOut,
                       onTap: () async {
                         await _profileRepository
                             .logout();

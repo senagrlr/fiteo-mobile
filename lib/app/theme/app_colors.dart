@@ -237,9 +237,41 @@ class AppColors {
   static const Color savedRecipeCaloriesBackground = _surfaceBubble;
 
   // ============================================================
+// MEMBERSHIP
+// ============================================================
+
+  // ============================================================
+// MEMBERSHIP
+// ============================================================
+
+  static const Color membershipSilverDark = Color(0xFF858585);
+  static const Color membershipSilver = Color(0xFFB7B7B7);
+  static const Color membershipSilverLight = Color(0xFFF4F4F4);
+
+  static const Color membershipPremiumDark = Color(0xFF9A7438);
+  static const Color membershipPremium = Color(0xFFD3B46F);
+  static const Color membershipPremiumLight = Color(0xFFFFEFC4);
+
+  // ============================================================
   // WEEKLY CHART
   // ============================================================
 
   static const Color weeklyChartDivider = Color(0xFFE1DED6);
   static const Color weeklyChartGridLine = Color(0xFFE7E3EE);
+
+  // ============================================================
+// PLAN TRACKING
+// ============================================================
+
+  static const Color planTrackingHeaderBackground = calendarCompleted;
+
+  static const Color planTrackingLabel = Color(0xFF947D79);
+  static const Color planTrackingSecondaryLabel = Color(0xFFABA4A3);
+
+  static const Color planTrackingTabSelectedBackground = Color(0x40FFFFFF);
+  static const Color planTrackingTabInactive = Color(0xFFDEDEDE);
+  static const Color planTrackingStreakBadge = Color(0xFFE54749);
+  static const Color planTrackingProteinBadge = _brandGreen;
+  static const Color planTrackingActiveDayBadge = Color(0xFFA4CDFF);
+  static const Color planTrackingNoteBackground = calendarCompleted;
 }

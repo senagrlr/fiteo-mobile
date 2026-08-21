@@ -823,6 +823,318 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileUpdated => 'Profile updated successfully.';
 
   @override
+  String get planTracking => 'Plan Tracking';
+
+  @override
+  String get overview => 'Overview';
+
+  @override
+  String get plan => 'Plan';
+
+  @override
+  String get fiteoScore => 'Fiteo Score';
+
+  @override
+  String get currentStreak => 'Current Streak';
+
+  @override
+  String get goalAchievement => 'Goal Achievement';
+
+  @override
+  String get days => 'Days';
+
+  @override
+  String get yourUniqueFeatures => 'Your Unique Features';
+
+  @override
+  String get longestStreak => 'Longest Streak';
+
+  @override
+  String get bestProtein => 'Best Protein';
+
+  @override
+  String get mostActiveDay => 'Most Active Day';
+
+  @override
+  String get sunday => 'Sunday';
+
+  @override
+  String get onTrack => 'On Track';
+
+  @override
+  String get reviewRecommended => 'Review Recommended';
+
+  @override
+  String get notEnoughData => 'Not Enough Data';
+
+  @override
+  String get improveConsistencyFirst => 'Improve Consistency First';
+
+  @override
+  String get startWeight => 'Start';
+
+  @override
+  String get goalReachDate => 'Goal Date';
+
+  @override
+  String get goalWeight => 'Goal';
+
+  @override
+  String get weightProgress => 'Weight Progress';
+
+  @override
+  String get actualWeight => 'Your Progress';
+
+  @override
+  String get expectedWeight => 'Planned Progress';
+
+  @override
+  String get april => 'April';
+
+  @override
+  String get may => 'May';
+
+  @override
+  String get june => 'June';
+
+  @override
+  String get july => 'July';
+
+  @override
+  String onTrackPlanNoteWithDate(String date) {
+    return 'You\'re following your plan consistently and your progress is moving as expected. If you keep going like this, you\'re estimated to reach your goal around $date.';
+  }
+
+  @override
+  String get reviewRecommendedPlanNote =>
+      'Your recent progress suggests that your current plan may no longer be the best fit for you. We\'ve prepared an updated plan based on your latest progress.';
+
+  @override
+  String get notEnoughDataPlanNote =>
+      'There isn\'t enough recent data to evaluate your progress reliably yet. Keep logging your weight, meals and activity so we can assess your plan more accurately.';
+
+  @override
+  String get improveConsistencyPlanNote =>
+      'Your recent plan adherence is too inconsistent for a reliable evaluation. Follow your current plan more consistently first, then we\'ll reassess whether it needs to change.';
+
+  @override
+  String get reviewNewPlan => 'Review New Plan';
+
+  @override
+  String get fiteoOverviewNote =>
+      'When you\'re on track, you usually stay fully committed. What matters most is consistency, so keep an eye on that.';
+
+  @override
+  String get dailyAverage => 'Daily Average';
+
+  @override
+  String get target => 'Target';
+
+  @override
+  String get onTargetDays => 'On-Target Days';
+
+  @override
+  String get totalWorkout => 'Total Workout';
+
+  @override
+  String get activeDays => 'Active Days';
+
+  @override
+  String get averageDuration => 'Average Duration';
+
+  @override
+  String get totalChange => 'Total Change';
+
+  @override
+  String get weeklyRate => 'Weekly Rate';
+
+  @override
+  String get days7 => '7 days';
+
+  @override
+  String get days30 => '30 days';
+
+  @override
+  String get days90 => '90 days';
+
+  @override
+  String get days365 => '365 days';
+
+  @override
+  String get dailyAverageCalories => 'Daily Average (calorie)';
+
+  @override
+  String get dailyAverageWater => 'Daily Average (liter)';
+
+  @override
+  String get addWithBarcode => 'Add by Barcode';
+
+  @override
+  String get enterBarcodeNumber => 'Enter Barcode';
+
+  @override
+  String get barcodeNumber => 'Barcode Number';
+
+  @override
+  String get barcodeNumberHint => 'Enter barcode number';
+
+  @override
+  String get barcodeSearch => 'Search';
+
+  @override
+  String get barcodeCancel => 'Cancel';
+
+  @override
+  String get barcodeScanHint => 'Align the barcode inside the frame';
+
+  @override
+  String get barcodeLookingUp => 'Looking up product...';
+
+  @override
+  String get addScannedFood => 'Add';
+
+  @override
+  String get barcodeDemoProduct => 'Sample Product';
+
+  @override
+  String get yourWeek => 'Your Week';
+
+  @override
+  String get activity => 'Activity';
+
+  @override
+  String weeklyScoreChange(int value) {
+    return '%$value from last week';
+  }
+
+  @override
+  String get active => 'Active';
+
+  @override
+  String get bestDay => 'Best Day';
+
+  @override
+  String get worstDay => 'Worst Day';
+
+  @override
+  String get aligned => 'aligned';
+
+  @override
+  String get weightAndPlan => 'Weight & Plan';
+
+  @override
+  String get lastWeek => 'Last Week';
+
+  @override
+  String get now => 'Now';
+
+  @override
+  String get planStatus => 'Plan Status';
+
+  @override
+  String get estimatedGoalDate => 'Estimated Goal Date';
+
+  @override
+  String get yourWeekInReview => 'Your Week in Review';
+
+  @override
+  String get nextWeek => 'Next Week';
+
+  @override
+  String get yourMainFocus => 'Your main focus';
+
+  @override
+  String get tryThis => 'Try This';
+
+  @override
+  String get nextWeekPlan => 'Next Week Plan';
+
+  @override
+  String monthlyScoreChange(int value) {
+    return '%$value from last month';
+  }
+
+  @override
+  String get whatChangedThisMonth => 'What Changed This Month';
+
+  @override
+  String get strongestArea => 'Strongest Area';
+
+  @override
+  String get weakestArea => 'Weakest Area';
+
+  @override
+  String get achievements => 'Achievements';
+
+  @override
+  String get consistency => 'Consistency';
+
+  @override
+  String get trackingConsistency => 'Tracking Consistency';
+
+  @override
+  String get goalConsistency => 'Goal Consistency';
+
+  @override
+  String get daysTracked => 'days tracked';
+
+  @override
+  String get perfectDays => 'Perfect Days';
+
+  @override
+  String get perfectDayDefinition =>
+      'A day where all applicable core goals were reached.';
+
+  @override
+  String get weightPlanProgress => 'Weight & Plan Progress';
+
+  @override
+  String get start => 'Start';
+
+  @override
+  String get thisMonth => 'This Month';
+
+  @override
+  String get monthlyTarget => 'Monthly Target';
+
+  @override
+  String get progressAchieved => 'Progress Achieved';
+
+  @override
+  String get goalPrediction => 'Goal Prediction';
+
+  @override
+  String daysEarlierThanLastMonth(int value) {
+    return '%$value days earlier than last month\'s prediction';
+  }
+
+  @override
+  String daysLaterThanLastMonth(int value) {
+    return '%$value days later than last month\'s prediction';
+  }
+
+  @override
+  String get patternsWeNoticed => 'Patterns We Noticed';
+
+  @override
+  String get yourMonthInReview => 'Your Month in Review';
+
+  @override
+  String get mainFocus => 'Main Focus';
+
+  @override
+  String get keepDoing => 'Keep Doing';
+
+  @override
+  String get improve => 'Improve';
+
+  @override
+  String get watch => 'Watch';
+
+  @override
+  String get watchAdEarnOneUse => 'Watch an ad to earn 1 more use';
+
+  @override
   String recipeAddedToMeal(String recipeName, String mealType) {
     return '$recipeName added to $mealType.';
   }

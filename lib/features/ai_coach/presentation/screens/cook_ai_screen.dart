@@ -297,19 +297,13 @@ class _CookAiScreenState extends State<CookAiScreen> {
                 recipe.caloriesPerServing,
 
                 protein:
-                recipe.proteinPerServing.round(),
-
+                recipe.proteinPerServing,
                 fats:
-                recipe.fatPerServing.round(),
-
+                recipe.fatPerServing,
                 carbs:
-                recipe.carbsPerServing.round(),
-
-                nutritionSource:
-                'ai_recipe',
-
-                isEstimated:
-                true,
+                recipe.carbsPerServing,
+                nutritionSource: 'ai_recipe',
+                isEstimated: true,
               );
 
               if (!mounted) return;

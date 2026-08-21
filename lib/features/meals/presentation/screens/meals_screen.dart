@@ -100,23 +100,23 @@ class _MealsScreenState extends State<MealsScreen> {
     );
   }
 
-  int get totalProtein {
-    return selectedFoods.fold(
-      0,
+  double get totalProtein {
+    return selectedFoods.fold<double>(
+      0.0,
           (total, item) => total + item.protein,
     );
   }
 
-  int get totalFats {
-    return selectedFoods.fold(
-      0,
+  double get totalFats {
+    return selectedFoods.fold<double>(
+      0.0,
           (total, item) => total + item.fats,
     );
   }
 
-  int get totalCarbs {
-    return selectedFoods.fold(
-      0,
+  double get totalCarbs {
+    return selectedFoods.fold<double>(
+      0.0,
           (total, item) => total + item.carbs,
     );
   }
@@ -269,31 +269,21 @@ class _MealsScreenState extends State<MealsScreen> {
 
         final item = FoodItem(
           id: doc.id,
-          name:
-          data['mealName'] as String? ?? '',
-          amount:
-          (data['amount'] ??
-              data['gram'] ??
-              '')
-              .toString(),
-          unit:
-          data['unit'] as String? ?? 'Grams',
+          name: data['mealName'] as String? ?? '',
+          amount: (data['amount'] ?? data['gram'] ?? '').toString(),
+          unit: data['unit'] as String? ?? 'Grams',
           calories: calories,
           protein: hasStoredMacros
-              ? (data['protein'] as num?)
-              ?.round() ??
-              0
-              : (calories * 0.07).round(),
+              ? (data['protein'] as num?)?.toDouble() ?? 0.0
+              : calories * 0.07,
+
           fats: hasStoredMacros
-              ? (data['fats'] as num?)
-              ?.round() ??
-              0
-              : (calories * 0.035).round(),
+              ? (data['fats'] as num?)?.toDouble() ?? 0.0
+              : calories * 0.035,
+
           carbs: hasStoredMacros
-              ? (data['carbs'] as num?)
-              ?.round() ??
-              0
-              : (calories * 0.10).round(),
+              ? (data['carbs'] as num?)?.toDouble() ?? 0.0
+              : calories * 0.10,
           nutritionSource:
           data['nutritionSource'] as String? ??
               (hasStoredMacros
@@ -562,9 +552,9 @@ class FoodItem {
   final String unit;
 
   final int calories;
-  final int protein;
-  final int fats;
-  final int carbs;
+  final double protein;
+  final double fats;
+  final double carbs;
 
   final String nutritionSource;
   final bool isEstimated;
@@ -575,9 +565,9 @@ class FoodItem {
     required this.amount,
     required this.unit,
     required this.calories,
-    this.protein = 0,
-    this.fats = 0,
-    this.carbs = 0,
+    this.protein = 0.0,
+    this.fats = 0.0,
+    this.carbs = 0.0,
     this.nutritionSource = 'unknown',
     this.isEstimated = false,
   });
@@ -588,9 +578,9 @@ class FoodItem {
     String? amount,
     String? unit,
     int? calories,
-    int? protein,
-    int? fats,
-    int? carbs,
+    double? protein,
+    double? fats,
+    double? carbs,
     String? nutritionSource,
     bool? isEstimated,
   }) {

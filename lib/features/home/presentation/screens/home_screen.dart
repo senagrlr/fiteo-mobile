@@ -680,56 +680,35 @@ class _HomeScreenState extends State<HomeScreen> {
                 // MACROS + WATER
                 // =================================================
 
-                SizedBox(
-                  height: 170,
-                  child: Row(
-                    crossAxisAlignment:
-                    CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        flex: 6,
-                        child:
-                        DailyMacrosCard(
-                          protein:
-                          proteinConsumed,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 6,
+                      child: DailyMacrosCard(
+                        protein: proteinConsumed,
+                        proteinGoal: proteinGoal,
+                        fat: fatConsumed,
+                        fatGoal: fatGoal,
+                        carbs: carbsConsumed,
+                        carbsGoal: carbsGoal,
+                      ),
+                    ),
 
-                          proteinGoal:
-                          proteinGoal,
+                    const SizedBox(width: 14),
 
-                          fat:
-                          fatConsumed,
-
-                          fatGoal:
-                          fatGoal,
-
-                          carbs:
-                          carbsConsumed,
-
-                          carbsGoal:
-                          carbsGoal,
+                    Expanded(
+                      flex: 4,
+                      child: SizedBox(
+                        height: 170,
+                        child: WaterProgressCard(
+                          consumedMl: waterConsumedMl,
+                          goalMl: waterGoalMl,
+                          onWaterAdded: _addWater,
                         ),
                       ),
-
-                      const SizedBox(
-                        width: 14,
-                      ),
-
-                      Expanded(
-                        flex: 4,
-                        child:
-                        WaterProgressCard(
-                          consumedMl:
-                          waterConsumedMl,
-
-                          goalMl:
-                          waterGoalMl,
-
-                          onWaterAdded:
-                          _addWater,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),

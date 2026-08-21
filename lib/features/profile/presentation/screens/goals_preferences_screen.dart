@@ -29,6 +29,8 @@ class _GoalsPreferencesScreenState
   String? selectedNutrition = 'High Protein';
   String? selectedWorkout = 'Home Workouts';
 
+  String weightUnit = 'kg';
+
   final weightController = TextEditingController();
   final targetWeightController = TextEditingController();
   final dailyCaloriesController = TextEditingController();
@@ -74,6 +76,22 @@ class _GoalsPreferencesScreenState
     _loadPreferences();
   }
 
+  double _kgToDisplay(double kg) {
+    return weightUnit == 'lb'
+        ? kg * 2.2046226218
+        : kg;
+  }
+
+  double _displayToKg(double value) {
+    return weightUnit == 'lb'
+        ? value * 0.45359237
+        : value;
+  }
+
+  String _formatWeight(double value) {
+    return value.toStringAsFixed(1);
+  }
+
   Future<void> _loadPreferences() async {
     try {
       final doc =
@@ -101,13 +119,32 @@ class _GoalsPreferencesScreenState
         preferences['workoutPreference']
         as String?;
 
+        weightUnit =
+            (preferences['weightUnit'] ?? 'kg')
+                .toString()
+                .toLowerCase();
+
+        final weightKg =
+        (preferences['weight'] as num?)
+            ?.toDouble();
+
+        final targetWeightKg =
+        (preferences['targetWeight'] as num?)
+            ?.toDouble();
+
         weightController.text =
-            preferences['weight']?.toString() ?? '';
+        weightKg == null
+            ? ''
+            : _formatWeight(
+          _kgToDisplay(weightKg),
+        );
 
         targetWeightController.text =
-            preferences['targetWeight']
-                ?.toString() ??
-                '';
+        targetWeightKg == null
+            ? ''
+            : _formatWeight(
+          _kgToDisplay(targetWeightKg),
+        );
 
         dailyCaloriesController.text =
             preferences['calorieGoal']
@@ -268,16 +305,36 @@ class _GoalsPreferencesScreenState
 
           'weight': weightController.text.trim().isEmpty
               ? null
-              : int.tryParse(
+              : double.tryParse(
             weightController.text.trim(),
+          ) ==
+              null
+              ? null
+              : double.parse(
+            _displayToKg(
+              double.parse(
+                weightController.text.trim(),
+              ),
+            ).toStringAsFixed(1),
           ),
 
           'targetWeight':
           targetWeightController.text.trim().isEmpty
               ? null
-              : int.tryParse(
+              : double.tryParse(
             targetWeightController.text.trim(),
+          ) ==
+              null
+              ? null
+              : double.parse(
+            _displayToKg(
+              double.parse(
+                targetWeightController.text.trim(),
+              ),
+            ).toStringAsFixed(1),
           ),
+
+          'weightUnit': weightUnit,
 
           'calorieGoal':
           dailyCaloriesController.text.trim().isEmpty
@@ -380,31 +437,35 @@ class _GoalsPreferencesScreenState
                   children: [
                     ProfileInput(
                       controller: weightController,
-                      hintText:
-                      context.l10n.currentWeightKg,
-                      icon:
-                      Icons.monitor_weight_outlined,
-                      keyboardType:
-                      TextInputType.number,
+                      hintText: weightUnit == 'lb'
+                          ? 'Current Weight (lb)'
+                          : context.l10n.currentWeightKg,
+                      icon: Icons.monitor_weight_outlined,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       inputFormatters: [
-                        FilteringTextInputFormatter
-                            .digitsOnly,
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d{0,1}'),
+                        ),
                       ],
                     ),
 
                     const SizedBox(height: 14),
 
                     ProfileInput(
-                      controller:
-                      targetWeightController,
-                      hintText:
-                      context.l10n.targetWeightKg,
+                      controller: targetWeightController,
+                      hintText: weightUnit == 'lb'
+                          ? 'Target Weight (lb)'
+                          : context.l10n.targetWeightKg,
                       icon: Icons.track_changes,
-                      keyboardType:
-                      TextInputType.number,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       inputFormatters: [
-                        FilteringTextInputFormatter
-                            .digitsOnly,
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d{0,1}'),
+                        ),
                       ],
                     ),
 

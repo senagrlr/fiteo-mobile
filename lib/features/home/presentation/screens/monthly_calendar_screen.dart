@@ -61,6 +61,13 @@ class _MonthlyCalendarScreenState
     return firstDay.weekday % 7;
   }
 
+  bool _isCurrentMonth(DateTime month) {
+    final now = DateTime.now();
+
+    return month.year == now.year &&
+        month.month == now.month;
+  }
+
   String _localizedMonthName(
       BuildContext context,
       ) {
@@ -74,13 +81,18 @@ class _MonthlyCalendarScreenState
   }
 
   void previousMonth() {
-    setState(() {
-      currentMonth = DateTime(
-        currentMonth.year,
-        currentMonth.month - 1,
-      );
+    final newMonth = DateTime(
+      currentMonth.year,
+      currentMonth.month - 1,
+    );
 
-      selectedDay = 1;
+    setState(() {
+      currentMonth = newMonth;
+
+      selectedDay = _isCurrentMonth(newMonth)
+          ? DateTime.now().day
+          : 1;
+
       isLoading = true;
     });
 
@@ -88,13 +100,18 @@ class _MonthlyCalendarScreenState
   }
 
   void nextMonth() {
-    setState(() {
-      currentMonth = DateTime(
-        currentMonth.year,
-        currentMonth.month + 1,
-      );
+    final newMonth = DateTime(
+      currentMonth.year,
+      currentMonth.month + 1,
+    );
 
-      selectedDay = 1;
+    setState(() {
+      currentMonth = newMonth;
+
+      selectedDay = _isCurrentMonth(newMonth)
+          ? DateTime.now().day
+          : 1;
+
       isLoading = true;
     });
 

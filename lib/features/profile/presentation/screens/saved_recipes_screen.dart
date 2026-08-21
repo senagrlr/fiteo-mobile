@@ -197,12 +197,10 @@ class _SavedRecipesScreenState
 
             return SavedRecipeCard(
               recipeName:
-              recipe['recipeName']
-              as String? ??
+              recipe['recipeName'] as String? ??
                   '',
               calories:
-              (recipe['caloriesPerServing']
-              as num?)
+              (recipe['caloriesPerServing'] as num?)
                   ?.round() ??
                   0,
               onTap: () {
@@ -268,16 +266,13 @@ class _SavedRecipesScreenState
                               .caloriesPerServing,
                           protein:
                           savedRecipe
-                              .proteinPerServing
-                              .round(),
+                              .proteinPerServing,
                           fats:
                           savedRecipe
-                              .fatPerServing
-                              .round(),
+                              .fatPerServing,
                           carbs:
                           savedRecipe
-                              .carbsPerServing
-                              .round(),
+                              .carbsPerServing,
                           nutritionSource:
                           'ai_recipe',
                           isEstimated:

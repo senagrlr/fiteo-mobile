@@ -23,9 +23,9 @@ class MealSwipeHeader extends StatefulWidget {
   final List<MealHeaderData> meals;
   final int streakDays;
   final int calories;
-  final int fats;
-  final int carbs;
-  final int proteins;
+  final double fats;
+  final double carbs;
+  final double proteins;
   final ValueChanged<int> onPageChanged;
 
   const MealSwipeHeader({
@@ -449,9 +449,9 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
 
 class _MealMacroSummary extends StatelessWidget {
   final int calories;
-  final int fats;
-  final int carbs;
-  final int proteins;
+  final double fats;
+  final double carbs;
+  final double proteins;
 
   const _MealMacroSummary({
     required this.calories,
@@ -479,19 +479,19 @@ class _MealMacroSummary extends StatelessWidget {
             _divider(),
 
             _value(
-              '$proteins ${context.l10n.protein}',
+              '${proteins.toStringAsFixed(1)} ${context.l10n.protein}',
             ),
 
             _divider(),
 
             _value(
-              '$fats ${context.l10n.fat}',
+              '${fats.toStringAsFixed(1)} ${context.l10n.fat}',
             ),
 
             _divider(),
 
             _value(
-              '$carbs ${context.l10n.carbs}',
+              '${carbs.toStringAsFixed(1)} ${context.l10n.carbs}',
             ),
           ],
         ),

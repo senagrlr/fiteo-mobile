@@ -32,9 +32,9 @@ class CalendarDaySummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const fatGoal = 70;
-    const carbsGoal = 150;
-    const proteinGoal = 90;
+    const double fatGoal = 70.0;
+    const double carbsGoal = 150.0;
+    const double proteinGoal = 90.0;
 
     return Container(
       width: double.infinity,
@@ -128,7 +128,7 @@ class CalendarDaySummaryCard extends StatelessWidget {
               Expanded(
                 child: _MacroSummaryItem(
                   label: context.l10n.protein,
-                  value: protein.round(),
+                  value: protein,
                   goal: proteinGoal,
                   progressColor: AppColors.proteinProgress,
                 ),
@@ -139,7 +139,7 @@ class CalendarDaySummaryCard extends StatelessWidget {
               Expanded(
                 child: _MacroSummaryItem(
                   label: context.l10n.fat,
-                  value: fats.round(),
+                  value: fats,
                   goal: fatGoal,
                   progressColor: AppColors.fatProgress,
                 ),
@@ -150,7 +150,7 @@ class CalendarDaySummaryCard extends StatelessWidget {
               Expanded(
                 child: _MacroSummaryItem(
                   label: context.l10n.carbs,
-                  value: carbs.round(),
+                  value: carbs,
                   goal: carbsGoal,
                   progressColor: AppColors.carbsProgress,
                 ),
@@ -224,8 +224,8 @@ class _SummaryInfoItem extends StatelessWidget {
 
 class _MacroSummaryItem extends StatelessWidget {
   final String label;
-  final int value;
-  final int goal;
+  final double value;
+  final double goal;
   final Color progressColor;
 
   const _MacroSummaryItem({
@@ -234,6 +234,14 @@ class _MacroSummaryItem extends StatelessWidget {
     required this.goal,
     required this.progressColor,
   });
+
+  String _formatNumber(double value) {
+    if (value == value.roundToDouble()) {
+      return value.toInt().toString();
+    }
+
+    return value.toStringAsFixed(1);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -273,7 +281,7 @@ class _MacroSummaryItem extends StatelessWidget {
         const SizedBox(height: 4),
 
         Text(
-          '${value}g/${goal}g',
+          '${_formatNumber(value)}g/${_formatNumber(goal)}g',
           style: AppTextStyles.labelSmall.copyWith(
             color: AppColors.homeSecondaryValue,
             fontSize: 10,

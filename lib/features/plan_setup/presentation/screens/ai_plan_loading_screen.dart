@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'dart:math' as math;
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -44,154 +45,99 @@ class _AiPlanLoadingScreenState
   void initState() {
     super.initState();
 
-    generatedPlan = _createTemporaryPlan();
-    _startLoadingAnimation();
+    _generatePlan();
   }
 
-  AiNutritionPlan _createTemporaryPlan() {
-    final weight = _readDouble(
-      widget.userPreferences['weight'],
-      fallback: 70,
-    );
+  Future<void> _generatePlan() async {
+    try {
+      _startLoadingAnimation();
 
-    final height = _readDouble(
-      widget.userPreferences['height'],
-      fallback: 170,
-    );
+      final minimumDelay = Future.delayed(
+        const Duration(seconds: 3),
+      );
 
-    final age = _readDouble(
-      widget.userPreferences['age'],
-      fallback: 25,
-    );
+      final response = await http.post(
+        Uri.parse(
+          'https://us-central1-fiteo-app-39f91.cloudfunctions.net/generatePersonalizedPlan',
+        ),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'userPreferences': widget.userPreferences,
+        }),
+      );
 
-    final gender =
-    (widget.userPreferences['gender'] ?? 'Female')
-        .toString();
+      if (response.statusCode != 200) {
+        throw Exception('Plan generation failed');
+      }
 
-    final goal =
-    (widget.userPreferences['goal'] ??
-        'Maintain Fitness')
-        .toString();
+      final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+      final plan = decoded['plan'] as Map<String, dynamic>?;
+      final debug = decoded['debug'] as Map<String, dynamic>?;
 
-    final activityLevel =
-    (widget.userPreferences['activityLevel'] ??
-        'Moderately Active')
-        .toString();
+      print(
+        'PLAN DEBUG | '
+            'source=${plan?['source']} | '
+            'usedFallback=${debug?['usedFallback']} | '
+            'baseline=${debug?['baseline']} | '
+            'allowedRanges=${debug?['allowedRanges']} | '
+            'aiSelection=${debug?['aiSelection']}',
+      );
 
-    final bmr = gender == 'Male'
-        ? (10 * weight) +
-        (6.25 * height) -
-        (5 * age) +
-        5
-        : (10 * weight) +
-        (6.25 * height) -
-        (5 * age) -
-        161;
+      if (plan == null) {
+        throw Exception('Missing plan');
+      }
 
-    final activityMultiplier =
-    switch (activityLevel) {
-      'Sedentary' => 1.20,
-      'Lightly Active' => 1.375,
-      'Moderately Active' => 1.55,
-      'Very Active' => 1.725,
-      _ => 1.45,
-    };
+      generatedPlan = AiNutritionPlan(
+        calories: (plan['calories'] as num).round(),
+        proteinGrams: (plan['proteinGrams'] as num).round(),
+        carbsGrams: (plan['carbsGrams'] as num).round(),
+        fatsGrams: (plan['fatsGrams'] as num).round(),
+        waterMl: (plan['waterMl'] as num).round(),
+      );
 
-    double calories =
-        bmr * activityMultiplier;
+      await minimumDelay;
 
-    if (goal == 'Lose Weight') {
-      calories -= 350;
-    } else if (goal == 'Build Muscle') {
-      calories += 250;
+      if (!mounted) return;
+
+      setState(() {
+        isCreatingPlan = false;
+      });
+
+      await Future.delayed(
+        const Duration(milliseconds: 500),
+      );
+
+      if (!mounted || didOpenPlanSheet) return;
+
+      didOpenPlanSheet = true;
+      await _showPlanReadySheet();
+    } catch (_) {
+      if (!mounted) return;
+
+      AppSnackbar.showError(
+        context,
+        context.l10n.planCouldNotBeSaved,
+      );
+
+      Navigator.pop(context);
     }
-
-    calories = calories.clamp(1200, 4000);
-
-    final protein = goal == 'Build Muscle'
-        ? weight * 1.8
-        : weight * 1.5;
-
-    final fatCalories = calories * 0.28;
-    final fats = fatCalories / 9;
-
-    final proteinCalories = protein * 4;
-
-    final carbCalories = math.max(
-      0,
-      calories -
-          fatCalories -
-          proteinCalories,
-    );
-
-    final carbs = carbCalories / 4;
-
-    final waterMl = math.max(
-      1800,
-      weight * 35,
-    );
-
-    return AiNutritionPlan(
-      calories: calories.round(),
-      proteinGrams: protein.round(),
-      carbsGrams: carbs.round(),
-      fatsGrams: fats.round(),
-      waterMl: waterMl.round(),
-    );
-  }
-
-  double _readDouble(
-      dynamic value, {
-        required double fallback,
-      }) {
-    if (value is int) {
-      return value.toDouble();
-    }
-
-    if (value is double) {
-      return value;
-    }
-
-    if (value is String) {
-      return double.tryParse(value) ??
-          fallback;
-    }
-
-    return fallback;
   }
 
   void _startLoadingAnimation() {
     _statusTimer = Timer.periodic(
       const Duration(milliseconds: 1700),
-          (timer) async {
+          (timer) {
         if (!mounted) return;
 
         if (currentStatusIndex < 3) {
           setState(() {
             currentStatusIndex++;
           });
-
-          return;
+        } else {
+          timer.cancel();
         }
-
-        timer.cancel();
-
-        setState(() {
-          isCreatingPlan = false;
-        });
-
-        await Future.delayed(
-          const Duration(milliseconds: 500),
-        );
-
-        if (!mounted ||
-            didOpenPlanSheet) {
-          return;
-        }
-
-        didOpenPlanSheet = true;
-
-        await _showPlanReadySheet();
       },
     );
   }

@@ -23,9 +23,9 @@ class MealRepository {
     required String unit,
     required String mealType,
     int? estimatedCalories,
-    int protein = 0,
-    int fats = 0,
-    int carbs = 0,
+    double protein = 0.0,
+    double fats = 0.0,
+    double carbs = 0.0,
     String nutritionSource = 'unknown',
     bool isEstimated = false,
   }) async {
@@ -34,6 +34,12 @@ class MealRepository {
     if (user == null) {
       throw Exception('User not logged in');
     }
+
+    final expiresAt = Timestamp.fromDate(
+      DateTime.now().add(
+        const Duration(hours: 24),
+      ),
+    );
 
     final docRef = await _firestore
         .collection('users')
@@ -52,6 +58,7 @@ class MealRepository {
       'isEstimated': isEstimated,
       'date': _todayDate(),
       'createdAt': FieldValue.serverTimestamp(),
+      'expiresAt': expiresAt,
     });
 
     await _dailySummaryRepository.updateDailySummary();

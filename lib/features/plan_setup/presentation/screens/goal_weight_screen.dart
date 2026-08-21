@@ -9,12 +9,14 @@ import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/setup_progr
 
 class GoalWeightScreen extends StatefulWidget {
   final double initialWeightKg;
+  final String initialUnit;
   final ValueChanged<double> onContinue;
   final VoidCallback onBack;
 
   const GoalWeightScreen({
     super.key,
     required this.initialWeightKg,
+    required this.initialUnit,
     required this.onContinue,
     required this.onBack,
   });
@@ -37,7 +39,7 @@ class _GoalWeightScreenState
 
   late final ScrollController _scrollController;
 
-  String selectedUnit = 'KG';
+  late String selectedUnit;
   double selectedWeightKg = 70;
 
   bool _isControllerReady = false;
@@ -84,6 +86,8 @@ class _GoalWeightScreenState
   @override
   void initState() {
     super.initState();
+
+    selectedUnit = widget.initialUnit.toUpperCase() == 'LB' ? 'LB' : 'KG';
 
     selectedWeightKg =
         widget.initialWeightKg.clamp(

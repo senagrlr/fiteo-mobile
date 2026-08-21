@@ -2,8 +2,295 @@ const { onRequest } = require("firebase-functions/v2/https");
 const { defineSecret } = require("firebase-functions/params");
 const OpenAI = require("openai");
 
+const { createGeneratePersonalizedPlanHandler } = require("./personalized_plan");
+
 const usdaApiKey = defineSecret("USDA_API_KEY");
 const openaiApiKey = defineSecret("OPENAI_API_KEY");
+
+const fatSecretClientId = defineSecret("FATSECRET_CLIENT_ID");
+const fatSecretClientSecret = defineSecret("FATSECRET_CLIENT_SECRET");
+
+let fatSecretCachedAccessToken = null;
+let fatSecretAccessTokenExpiresAt = 0;
+let fatSecretTokenRequestPromise = null;
+
+const FATSECRET_TOKEN_EXPIRY_BUFFER_MS =
+  5 * 60 * 1000;
+
+async function requestNewFatSecretAccessToken() {
+   const credentials = Buffer.from(
+     `${fatSecretClientId.value()}:${fatSecretClientSecret.value()}`
+   ).toString("base64");
+
+   const response = await fetch(
+     "https://oauth.fatsecret.com/connect/token",
+     {
+       method: "POST",
+       headers: {
+         Authorization: `Basic ${credentials}`,
+         "Content-Type":
+           "application/x-www-form-urlencoded",
+       },
+       body: new URLSearchParams({
+         grant_type: "client_credentials",
+         scope: "premier",
+       }),
+     }
+   );
+
+   if (!response.ok) {
+     const errorText = await response.text();
+
+     throw new Error(
+       `FatSecret token request failed: ${response.status} ${errorText}`
+     );
+   }
+
+   const data = await response.json();
+
+   const accessToken = data.access_token;
+   const expiresInSeconds =
+     Number(data.expires_in) || 3600;
+
+   if (!accessToken) {
+     throw new Error(
+       "FatSecret token response did not include access_token"
+     );
+   }
+
+   fatSecretCachedAccessToken = accessToken;
+
+   fatSecretAccessTokenExpiresAt =
+     Date.now() +
+     expiresInSeconds * 1000;
+
+   console.log(
+     `FATSECRET TOKEN: new token cached for ${expiresInSeconds}s`
+   );
+
+   return accessToken;
+ }
+
+ async function getFatSecretAccessToken() {
+   const now = Date.now();
+
+   const hasValidCachedToken =
+     fatSecretCachedAccessToken &&
+     now <
+       fatSecretAccessTokenExpiresAt -
+         FATSECRET_TOKEN_EXPIRY_BUFFER_MS;
+
+   if (hasValidCachedToken) {
+     console.log(
+       "FATSECRET TOKEN: using cached token"
+     );
+
+     return fatSecretCachedAccessToken;
+   }
+
+   if (fatSecretTokenRequestPromise) {
+     console.log(
+       "FATSECRET TOKEN: waiting for existing token request"
+     );
+
+     return fatSecretTokenRequestPromise;
+   }
+
+   fatSecretTokenRequestPromise =
+     requestNewFatSecretAccessToken();
+
+   try {
+     return await fatSecretTokenRequestPromise;
+   } finally {
+     fatSecretTokenRequestPromise = null;
+   }
+ }
+
+exports.searchFatSecretFoods = onRequest(
+  {
+    secrets: [
+      fatSecretClientId,
+      fatSecretClientSecret,
+    ],
+    cors: true,
+  },
+  async (req, res) => {
+    try {
+      const query = String(
+        req.query.q || ""
+      ).trim();
+
+      if (!query) {
+        return res.status(400).json({
+          error: "Missing query",
+        });
+      }
+
+      const accessToken =
+        await getFatSecretAccessToken();
+
+      const url = new URL(
+        "https://platform.fatsecret.com/rest/foods/search/v5"
+      );
+
+      url.searchParams.set(
+        "search_expression",
+        query
+      );
+
+      url.searchParams.set(
+        "region",
+        "US"
+      );
+
+      url.searchParams.set(
+        "language",
+        "en"
+      );
+
+      url.searchParams.set(
+        "format",
+        "json"
+      );
+
+      url.searchParams.set(
+        "max_results",
+        "20"
+      );
+
+      url.searchParams.set(
+        "flag_default_serving",
+        "true"
+      );
+
+      const response = await fetch(
+        url.toString(),
+        {
+          method: "GET",
+          headers: {
+            Authorization:
+              `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText =
+          await response.text();
+
+        return res.status(500).json({
+          error:
+            "FatSecret search failed",
+          status: response.status,
+          details: errorText,
+        });
+      }
+
+      const data =
+        await response.json();
+
+      return res.status(200).json(data);
+    } catch (error) {
+      console.error(
+        "searchFatSecretFoods error:",
+        error
+      );
+
+      return res.status(500).json({
+        error:
+          "FatSecret request failed",
+      });
+    }
+  }
+);
+
+exports.getFatSecretFood = onRequest(
+  {
+    secrets: [
+      fatSecretClientId,
+      fatSecretClientSecret,
+    ],
+    cors: true,
+  },
+  async (req, res) => {
+    try {
+      const foodId = String(
+        req.query.foodId || ""
+      ).trim();
+
+      if (!foodId) {
+        return res.status(400).json({
+          error: "Missing foodId",
+        });
+      }
+
+      const accessToken =
+          await getFatSecretAccessToken();
+
+      const url = new URL(
+        "https://platform.fatsecret.com/rest/food/v5"
+      );
+
+      url.searchParams.set(
+        "food_id",
+        foodId
+      );
+
+      url.searchParams.set(
+        "region",
+        "US"
+      );
+
+      url.searchParams.set(
+        "language",
+        "en"
+      );
+
+      url.searchParams.set(
+        "format",
+        "json"
+      );
+
+      const response = await fetch(
+        url.toString(),
+        {
+          method: "GET",
+          headers: {
+            Authorization:
+              `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText =
+            await response.text();
+
+        return res.status(500).json({
+          error:
+              "FatSecret food request failed",
+          status: response.status,
+          details: errorText,
+        });
+      }
+
+      const data =
+          await response.json();
+
+      return res.status(200).json(data);
+    } catch (error) {
+      console.error(
+        "getFatSecretFood error:",
+        error
+      );
+
+      return res.status(500).json({
+        error:
+            "FatSecret request failed",
+      });
+    }
+  }
+);
 
 exports.searchFoodCalories = onRequest(
   {
@@ -807,4 +1094,12 @@ exports.generateRecipeFromIngredients = onRequest(
       });
     }
   }
+);
+
+exports.generatePersonalizedPlan = onRequest(
+  {
+    secrets: [openaiApiKey],
+    cors: true,
+  },
+  createGeneratePersonalizedPlanHandler(openaiApiKey)
 );

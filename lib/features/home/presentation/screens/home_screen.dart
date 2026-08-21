@@ -250,45 +250,35 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 const SizedBox(height: 34),
 
-                SizedBox(
-                  height: 170,
-                  child: Row(
-                    crossAxisAlignment:
-                    CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        flex: 6,
-                        child: DailyMacrosCard(
-                          protein:
-                          proteinConsumed,
-                          proteinGoal:
-                          proteinGoal,
-                          fat:
-                          fatConsumed,
-                          fatGoal:
-                          fatGoal,
-                          carbs:
-                          carbsConsumed,
-                          carbsGoal:
-                          carbsGoal,
-                        ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 6,
+                      child: DailyMacrosCard(
+                        protein: proteinConsumed,
+                        proteinGoal: proteinGoal,
+                        fat: fatConsumed,
+                        fatGoal: fatGoal,
+                        carbs: carbsConsumed,
+                        carbsGoal: carbsGoal,
                       ),
+                    ),
 
-                      const SizedBox(width: 14),
+                    const SizedBox(width: 14),
 
-                      Expanded(
-                        flex: 4,
+                    Expanded(
+                      flex: 4,
+                      child: SizedBox(
+                        height: 170,
                         child: WaterProgressCard(
-                          consumedMl:
-                          waterConsumedMl,
-                          goalMl:
-                          waterGoalMl,
-                          onWaterAdded:
-                          _addWater,
+                          consumedMl: waterConsumedMl,
+                          goalMl: waterGoalMl,
+                          onWaterAdded: _addWater,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),

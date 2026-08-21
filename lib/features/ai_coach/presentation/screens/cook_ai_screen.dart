@@ -247,11 +247,11 @@ class _CookAiScreenState extends State<CookAiScreen> {
                 estimatedCalories:
                 recipe.caloriesPerServing,
                 protein:
-                recipe.proteinPerServing.round(),
+                recipe.proteinPerServing,
                 fats:
-                recipe.fatPerServing.round(),
+                recipe.fatPerServing,
                 carbs:
-                recipe.carbsPerServing.round(),
+                recipe.carbsPerServing,
                 nutritionSource: 'ai_recipe',
                 isEstimated: true,
               );

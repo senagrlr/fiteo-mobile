@@ -42,9 +42,9 @@ class DailySummaryRepository {
     int consumedCalories = 0;
     int burnedCalories = 0;
 
-    double protein = 0;
-    double fats = 0;
-    double carbs = 0;
+    double protein = 0.0;
+    double fats = 0.0;
+    double carbs = 0.0;
 
     for (final doc in mealsSnapshot.docs) {
       final data = doc.data();

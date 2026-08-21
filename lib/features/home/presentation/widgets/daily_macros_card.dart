@@ -27,6 +27,9 @@ class DailyMacrosCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      constraints: const BoxConstraints(
+        minHeight: 170,
+      ),
       padding: const EdgeInsets.fromLTRB(
         14,
         14,
@@ -114,9 +117,7 @@ class MacroProgressBar extends StatelessWidget {
     return value.toStringAsFixed(1);
   }
 
-  void _showGoal(
-      BuildContext context,
-      ) {
+  void _showGoal(BuildContext context,) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -222,12 +223,16 @@ class MacroProgressBar extends StatelessWidget {
           const SizedBox(width: 12),
 
           Expanded(
-            child: Text(
-              '${_formatNumber(consumed)}g $label',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.homeSecondaryValue,
-                fontSize: 12.5,
-                fontWeight: FontWeight.w600,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                '${_formatNumber(consumed)}g $label',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.homeSecondaryValue,
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),

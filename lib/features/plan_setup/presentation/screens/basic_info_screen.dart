@@ -13,7 +13,8 @@ class BasicInfoScreen extends StatefulWidget {
   final void Function({
   required int age,
   required int height,
-  required int weight,
+  required double weight,
+  required String weightUnit,
   required String gender,
   }) onContinue;
 
@@ -80,17 +81,21 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
     return (totalInches * 2.54).round();
   }
 
-  int _weightInKg() {
+  double _weightInKg() {
     final value = double.tryParse(
-      weightController.text.trim(),
+      weightController.text
+          .trim()
+          .replaceAll(',', '.'),
     ) ??
-        0;
+        0.0;
 
-    if (selectedWeightUnit == 'kg') {
-      return value.round();
-    }
+    final weightKg = selectedWeightUnit == 'kg'
+        ? value
+        : value * 0.45359237;
 
-    return (value * 0.45359237).round();
+    return double.parse(
+      weightKg.toStringAsFixed(1),
+    );
   }
 
   void _continue() {
@@ -113,6 +118,7 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
       age: age,
       height: height,
       weight: weight,
+      weightUnit: selectedWeightUnit,
       gender: selectedGender!,
     );
   }

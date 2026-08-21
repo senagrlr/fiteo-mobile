@@ -1,15 +1,13 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
-import 'package:fiteo_myapp/features/meals/data/food_calorie_cache_repository.dart';
 import 'package:fiteo_myapp/features/meals/data/meal_calorie_service.dart';
-import 'package:fiteo_myapp/features/meals/domain/models/nutrition_food.dart';
 import 'package:fiteo_myapp/features/meals/presentation/screens/meals_screen.dart';
+import 'package:fiteo_myapp/core/constants/nutrition_market_resolver.dart';
+import 'package:fiteo_myapp/features/meals/data/serving_normalizer.dart';
 
 class AddFoodForm extends StatefulWidget {
   final ValueChanged<FoodItem> onAddFood;
@@ -27,134 +25,210 @@ class AddFoodForm extends StatefulWidget {
 class _AddFoodFormState extends State<AddFoodForm> {
   final foodController = TextEditingController();
   final amountController = TextEditingController();
+  MealCalorieService? _mealCalorieService;
+  String? _currentNutritionLanguageCode;
 
-  final _mealCalorieService = MealCalorieService();
-  final _foodCacheRepository =
-  FoodCalorieCacheRepository();
-
-  // Internal değerler İngilizce kalıyor.
-  final List<String> units = const [
-    'Grams',
-    'Pieces',
+  List<FoodServingOption> servingOptions = const [
+    FoodServingOption.grams(),
   ];
 
-  String selectedUnit = 'Grams';
+  String selectedServingKey = 'grams';
 
-  Timer? _debounce;
-  int _calorieRequestId = 0;
+  Timer? _foodLookupDebounce;
+  int _foodLookupRequestId = 0;
 
+  MealCalorieResult? _lookupResult;
   MealCalorieResult? lastCalorieResult;
 
   int estimatedCalories = 0;
-  int estimatedProtein = 0;
-  int estimatedFats = 0;
-  int estimatedCarbs = 0;
+  double estimatedProtein = 0;
+  double estimatedFats = 0;
+  double estimatedCarbs = 0;
 
   bool isEstimating = false;
 
-  String _localizedUnit(
-      BuildContext context,
-      String unit,
-      ) {
-    switch (unit) {
-      case 'Grams':
-        return context.l10n.grams;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
 
-      case 'Pieces':
-        return context.l10n.pieces;
+    final languageCode =
+        Localizations.localeOf(context).languageCode;
 
-      default:
-        return unit;
+    if (_currentNutritionLanguageCode == languageCode) {
+      return;
     }
+
+    final market =
+    NutritionMarketResolver.fromLanguageCode(
+      languageCode,
+    );
+
+    _mealCalorieService =
+        MealCalorieService(
+          market: market,
+        );
+
+    _currentNutritionLanguageCode = languageCode;
   }
 
-  void _estimateCalories() {
-    _debounce?.cancel();
+  void _loadFoodOptions() {
+    _foodLookupDebounce?.cancel();
 
-    final requestId = ++_calorieRequestId;
+    final requestId = ++_foodLookupRequestId;
+    final foodName = foodController.text.trim();
 
-    _debounce = Timer(
-      const Duration(milliseconds: 700),
+    _lookupResult = null;
+    lastCalorieResult = null;
+
+    if (foodName.isEmpty) {
+      _resetValues();
+      return;
+    }
+
+    setState(() {
+      servingOptions = const [
+        FoodServingOption.grams(),
+      ];
+      selectedServingKey = 'grams';
+
+      estimatedCalories = 0;
+      estimatedProtein = 0.0;
+      estimatedFats = 0.0;
+      estimatedCarbs = 0.0;
+    });
+
+    _foodLookupDebounce = Timer(
+      const Duration(milliseconds: 500),
           () async {
-        final foodName =
-        foodController.text.trim();
-
-        final amount =
-            int.tryParse(
-              amountController.text.trim(),
-            ) ??
-                0;
-
-        if (foodName.isEmpty || amount == 0) {
-          _resetValues();
-          return;
-        }
-
-        if (!mounted) return;
-
-        setState(() {
-          isEstimating = true;
-        });
-
         try {
-          final MealCalorieResult? result;
+          final result = await _mealCalorieService!.lookupFood(
+            foodName: foodName,
+          );
 
-          if (selectedUnit == 'Grams') {
-            result = await _mealCalorieService
-                .estimateForGrams(
-              foodName: foodName,
-              gram: amount,
-            );
-          } else {
-            result = await _mealCalorieService
-                .estimateForPieces(
-              foodName: foodName,
-              pieces: amount.toDouble(),
-            );
-          }
+          print(
+            'LOOKUP RESULT: ${result?.foodName} | '
+                'SOURCE: ${result?.source} | '
+                'SERVINGS: ${result?.servings.map((e) => e.description).toList()}',
+          );
 
-          if (!mounted ||
-              requestId != _calorieRequestId) {
-            return;
-          }
+          if (!mounted || requestId != _foodLookupRequestId) return;
+
+          final newServingOptions = ServingNormalizer.buildOptions(
+            result?.servings ?? const [],
+            foodName: result?.foodName,
+            hasPer100gServing: result?.hasPer100gServing ?? false,
+          );
+
+          print(
+            'SERVING OPTIONS: ${newServingOptions.map((e) => e.label).toList()}',
+          );
 
           setState(() {
-            lastCalorieResult = result;
+            _lookupResult = result;
+            servingOptions = newServingOptions;
 
-            estimatedCalories =
-                result?.estimatedCalories ?? 0;
-
-            estimatedProtein =
-                result?.protein.round() ?? 0;
-
-            estimatedFats =
-                result?.fat.round() ?? 0;
-
-            estimatedCarbs =
-                result?.carbs.round() ?? 0;
-
-            isEstimating = false;
+            if (servingOptions.isNotEmpty &&
+                !servingOptions.any(
+                      (option) => option.key == selectedServingKey,
+                )) {
+              selectedServingKey = servingOptions.first.key;
+            }
           });
-        } catch (_) {
-          if (!mounted ||
-              requestId != _calorieRequestId) {
-            return;
-          }
 
-          _resetValues();
+          _estimateCalories();
+        } catch (e) {
+          print('FOOD LOOKUP ERROR: $e');
+          if (!mounted || requestId != _foodLookupRequestId) return;
+
+          setState(() {
+            _lookupResult = null;
+            servingOptions = const [
+              FoodServingOption.grams(),
+            ];
+            selectedServingKey = 'grams';
+          });
         }
       },
     );
+  }
+
+  void _estimateCalories() {
+    final lookup = _lookupResult;
+    final amount = int.tryParse(amountController.text.trim()) ?? 0;
+
+    if (lookup == null || amount <= 0) {
+      if (!mounted) return;
+
+      setState(() {
+        estimatedCalories = 0;
+        estimatedProtein = 0;
+        estimatedFats = 0;
+        estimatedCarbs = 0;
+        isEstimating = false;
+        lastCalorieResult = null;
+      });
+
+      return;
+    }
+
+    final selectedOption = servingOptions.firstWhere(
+          (option) => option.key == selectedServingKey,
+      orElse: () => const FoodServingOption.grams(),
+    );
+
+    MealCalorieResult? result;
+
+    if (selectedOption.type == ServingType.grams) {
+      result = _mealCalorieService!.calculateLookupForGrams(
+        lookup: lookup,
+        gram: amount,
+      );
+    } else if (selectedOption.servingId != null) {
+      result = _mealCalorieService!.calculateLookupForServing(
+        lookup: lookup,
+        amount: amount.toDouble(),
+        servingId: selectedOption.servingId!,
+        isPiece: selectedOption.type == ServingType.piece,
+      );
+    }
+
+    if (!mounted) return;
+
+    print(
+      'NUTRITION SOURCE: ${result?.source} | '
+          'ESTIMATED: ${result?.isEstimated} | '
+          'CAL: ${result?.estimatedCalories} | '
+          'P: ${result?.protein} | '
+          'F: ${result?.fat} | '
+          'C: ${result?.carbs}',
+    );
+
+    setState(() {
+      lastCalorieResult = result;
+      estimatedCalories = result?.estimatedCalories ?? 0;
+      estimatedProtein = result?.protein ?? 0;
+      estimatedFats = result?.fat ?? 0;
+      estimatedCarbs = result?.carbs ?? 0;
+      isEstimating = false;
+    });
   }
 
   void _resetValues() {
     if (!mounted) return;
 
     setState(() {
+      _lookupResult = null;
+
+      servingOptions = const [
+        FoodServingOption.grams(),
+      ];
+
+      selectedServingKey = 'grams';
+
       estimatedCalories = 0;
-      estimatedProtein = 0;
-      estimatedFats = 0;
-      estimatedCarbs = 0;
+      estimatedProtein = 0.0;
+      estimatedFats = 0.0;
+      estimatedCarbs = 0.0;
       isEstimating = false;
       lastCalorieResult = null;
     });
@@ -167,66 +241,20 @@ class _AddFoodFormState extends State<AddFoodForm> {
     final amount =
     amountController.text.trim();
 
-    if (foodName.isEmpty ||
-        amount.isEmpty ||
-        estimatedCalories == 0 ||
-        lastCalorieResult == null) {
+    if (foodName.isEmpty || amount.isEmpty || lastCalorieResult == null) {
       return;
     }
 
-    if (selectedUnit == 'Grams') {
-      final amountValue =
-          int.tryParse(amount) ?? 0;
-
-      if (amountValue > 0) {
-        final proteinPer100g =
-            lastCalorieResult!.protein *
-                100 /
-                amountValue;
-
-        final fatPer100g =
-            lastCalorieResult!.fat *
-                100 /
-                amountValue;
-
-        final carbsPer100g =
-            lastCalorieResult!.carbs *
-                100 /
-                amountValue;
-
-        final food = NutritionFood(
-          id: lastCalorieResult!.normalizedName,
-          name: lastCalorieResult!.foodName,
-          caloriesPer100g:
-          lastCalorieResult!
-              .caloriesPer100g
-              .toDouble(),
-          proteinPer100g: proteinPer100g,
-          fatPer100g: fatPer100g,
-          carbsPer100g: carbsPer100g,
-          servings: const [],
-          source: lastCalorieResult!.source,
-          isEstimated:
-          lastCalorieResult!.isEstimated,
-          foodType:
-          lastCalorieResult!.foodType,
-          confidence:
-          lastCalorieResult!.confidence,
-        );
-
-        await _foodCacheRepository.saveFoodToCache(
-          normalizedName:
-          lastCalorieResult!.normalizedName,
-          food: food,
-        );
-      }
-    }
+    final selectedOption = servingOptions.firstWhere(
+          (option) => option.key == selectedServingKey,
+      orElse: () => const FoodServingOption.grams(),
+    );
 
     widget.onAddFood(
       FoodItem(
         name: foodName,
         amount: amount,
-        unit: selectedUnit,
+        unit: ServingNormalizer.labelForType(selectedOption.type),
         calories: estimatedCalories,
         protein: estimatedProtein,
         fats: estimatedFats,
@@ -238,19 +266,20 @@ class _AddFoodFormState extends State<AddFoodForm> {
       ),
     );
 
+    await _mealCalorieService!.confirmFoodAlias(
+      query: foodName,
+      result: lastCalorieResult!,
+    );
+
     foodController.clear();
     amountController.clear();
-
-    setState(() {
-      selectedUnit = 'Grams';
-    });
 
     _resetValues();
   }
 
   @override
   void dispose() {
-    _debounce?.cancel();
+    _foodLookupDebounce?.cancel();
     foodController.dispose();
     amountController.dispose();
 
@@ -292,24 +321,19 @@ class _AddFoodFormState extends State<AddFoodForm> {
         _MealInputField(
           controller: foodController,
           hintText: context.l10n.foodName,
-          onChanged: (_) => _estimateCalories(),
+          onChanged: (_) => _loadFoodOptions(),
         ),
 
         const SizedBox(height: 10),
 
         _MealAmountField(
           controller: amountController,
-          selectedUnit: selectedUnit,
-          units: units,
-          localizedUnit:
-              (unit) => _localizedUnit(
-            context,
-            unit,
-          ),
+          selectedServingKey: selectedServingKey,
+          options: servingOptions,
           amountHint: context.l10n.amount,
-          onUnitChanged: (value) {
+          onServingChanged: (value) {
             setState(() {
-              selectedUnit = value;
+              selectedServingKey = value;
             });
 
             _estimateCalories();
@@ -341,6 +365,7 @@ class _AddFoodFormState extends State<AddFoodForm> {
               title: context.l10n.protein,
               value: estimatedProtein,
               isLoading: isEstimating,
+              showValue: lastCalorieResult != null,
             ),
 
             const SizedBox(width: 8),
@@ -349,6 +374,7 @@ class _AddFoodFormState extends State<AddFoodForm> {
               title: context.l10n.fats,
               value: estimatedFats,
               isLoading: isEstimating,
+              showValue: lastCalorieResult != null,
             ),
 
             const SizedBox(width: 8),
@@ -357,6 +383,7 @@ class _AddFoodFormState extends State<AddFoodForm> {
               title: context.l10n.carbs,
               value: estimatedCarbs,
               isLoading: isEstimating,
+              showValue: lastCalorieResult != null,
             ),
           ],
         ),
@@ -369,6 +396,7 @@ class _AddFoodFormState extends State<AddFoodForm> {
           isLoading: isEstimating,
           wide: true,
           suffix: 'kcal',
+          showValue: lastCalorieResult != null,
         ),
       ],
     );
@@ -377,10 +405,11 @@ class _AddFoodFormState extends State<AddFoodForm> {
 
 class _MacroChip extends StatelessWidget {
   final String title;
-  final int value;
+  final num value;
   final bool isLoading;
   final bool wide;
   final String suffix;
+  final bool showValue;
 
   const _MacroChip({
     required this.title,
@@ -388,6 +417,7 @@ class _MacroChip extends StatelessWidget {
     required this.isLoading,
     this.wide = false,
     this.suffix = 'g',
+    this.showValue = false,
   });
 
   @override
@@ -396,8 +426,18 @@ class _MacroChip extends StatelessWidget {
 
     if (isLoading) {
       text = '...';
-    } else if (value > 0) {
-      text = '$value $suffix';
+    } else if (showValue) {
+      if (suffix == 'kcal') {
+        text = '${value.round()} $suffix';
+      } else {
+        final macroValue = value.toDouble();
+
+        final formattedValue = macroValue == 0
+            ? '0'
+            : macroValue.toStringAsFixed(1);
+
+        text = '$formattedValue $suffix';
+      }
     }
 
     return AnimatedContainer(
@@ -500,26 +540,18 @@ class _MealInputField extends StatelessWidget {
 
 class _MealAmountField extends StatelessWidget {
   final TextEditingController controller;
-  final String selectedUnit;
-  final List<String> units;
-
-  final String Function(String unit)
-  localizedUnit;
-
+  final String selectedServingKey;
+  final List<FoodServingOption> options;
   final String amountHint;
-
-  final ValueChanged<String>
-  onUnitChanged;
-
+  final ValueChanged<String> onServingChanged;
   final ValueChanged<String>? onChanged;
 
   const _MealAmountField({
     required this.controller,
-    required this.selectedUnit,
-    required this.units,
-    required this.localizedUnit,
+    required this.selectedServingKey,
+    required this.options,
     required this.amountHint,
-    required this.onUnitChanged,
+    required this.onServingChanged,
     this.onChanged,
   });
 
@@ -530,117 +562,84 @@ class _MealAmountField extends StatelessWidget {
       height: 38,
       decoration: BoxDecoration(
         color: AppColors.homeCardBackground,
-        borderRadius:
-        BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(22),
       ),
       child: Row(
         children: [
           Expanded(
             child: TextField(
               controller: controller,
-              keyboardType:
-              TextInputType.number,
+              keyboardType: TextInputType.number,
               inputFormatters: [
-                FilteringTextInputFormatter
-                    .digitsOnly,
+                FilteringTextInputFormatter.digitsOnly,
               ],
               onChanged: onChanged,
-              style:
-              AppTextStyles.bodyMedium
-                  .copyWith(
+              style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.homeBrown,
                 fontSize: 13,
                 height: 1,
               ),
               decoration: InputDecoration(
                 hintText: amountHint,
-                hintStyle:
-                AppTextStyles.bodyMedium
-                    .copyWith(
-                  color:
-                  AppColors.homeSecondaryValue,
+                hintStyle: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.homeSecondaryValue,
                   fontSize: 13,
-                  fontWeight:
-                  FontWeight.w400,
+                  fontWeight: FontWeight.w400,
                   height: 1,
                 ),
                 border: InputBorder.none,
                 isDense: true,
-                contentPadding:
-                const EdgeInsets.only(
+                contentPadding: const EdgeInsets.only(
                   left: 18,
                   right: 8,
                 ),
               ),
             ),
           ),
-
           Container(
             width: 1,
             height: 20,
-            color:
-            AppColors.mealFieldDivider,
+            color: AppColors.mealFieldDivider,
           ),
-
           SizedBox(
             width: 94,
-            child:
-            DropdownButtonHideUnderline(
+            child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                value: selectedUnit,
+                value: selectedServingKey,
                 isExpanded: true,
-                borderRadius:
-                BorderRadius.circular(18),
-                dropdownColor:
-                AppColors
-                    .homeCardBackground,
+                borderRadius: BorderRadius.circular(18),
+                dropdownColor: AppColors.homeCardBackground,
                 icon: const Icon(
-                  Icons
-                      .keyboard_arrow_down_rounded,
+                  Icons.keyboard_arrow_down_rounded,
                   size: 18,
-                  color:
-                  AppColors
-                      .homeSecondaryValue,
+                  color: AppColors.homeSecondaryValue,
                 ),
-                style:
-                AppTextStyles.bodySmall
-                    .copyWith(
-                  color:
-                  AppColors
-                      .homeSecondaryValue,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.homeSecondaryValue,
                   fontSize: 12,
-                  fontWeight:
-                  FontWeight.w600,
+                  fontWeight: FontWeight.w600,
                 ),
-                padding:
-                const EdgeInsets.only(
+                padding: const EdgeInsets.only(
                   left: 10,
                   right: 7,
                 ),
-                items: units.map(
-                      (unit) {
-                    return DropdownMenuItem<String>(
-                      value: unit,
-                      child: Text(
-                        localizedUnit(unit),
-                        overflow:
-                        TextOverflow.ellipsis,
-                        style:
-                        AppTextStyles.bodySmall
-                            .copyWith(
-                          color: AppColors
-                              .homeSecondaryValue,
-                          fontSize: 12,
-                          fontWeight:
-                          FontWeight.w600,
-                        ),
+                items: options.map((option) {
+                  return DropdownMenuItem<String>(
+                    value: option.key,
+                    child: Text(
+                      option.label,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.homeSecondaryValue,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
                       ),
-                    );
-                  },
-                ).toList(),
+                    ),
+                  );
+                }).toList(),
                 onChanged: (value) {
                   if (value != null) {
-                    onUnitChanged(value);
+                    onServingChanged(value);
                   }
                 },
               ),

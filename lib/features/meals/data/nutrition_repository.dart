@@ -1,14 +1,30 @@
 import 'package:fiteo_myapp/features/meals/data/providers/legacy_nutrition_provider.dart';
 import 'package:fiteo_myapp/features/meals/domain/models/nutrition_food.dart';
 import 'package:fiteo_myapp/features/meals/domain/providers/nutrition_provider.dart';
+import 'package:fiteo_myapp/core/constants/nutrition_market.dart';
+import 'package:fiteo_myapp/features/meals/data/providers/fatsecret_nutrition_provider.dart';
 
 class NutritionRepository {
   final NutritionProvider _provider;
+  final NutritionMarket market;
 
   NutritionRepository({
+    required this.market,
     NutritionProvider? provider,
   }) : _provider =
-      provider ?? LegacyNutritionProvider();
+      provider ?? _providerForMarket(market);
+
+  static NutritionProvider _providerForMarket(
+      NutritionMarket market,
+      ) {
+    switch (market) {
+      case NutritionMarket.us:
+        return FatSecretNutritionProvider();
+
+      case NutritionMarket.turkey:
+        return LegacyNutritionProvider();
+    }
+  }
 
   String get providerName => _provider.providerName;
 
@@ -29,13 +45,9 @@ class NutritionRepository {
   Future<NutritionFood?> findBestMatch({
     required String query,
   }) async {
-    final foods = await searchFoods(
-      query: query,
-    );
+    final foods = await searchFoods(query: query);
 
-    if (foods.isEmpty) {
-      return null;
-    }
+    if (foods.isEmpty) return null;
 
     return foods.first;
   }

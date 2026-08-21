@@ -6,7 +6,7 @@ class NutritionFood {
   final double proteinPer100g;
   final double fatPer100g;
   final double carbsPer100g;
-
+  final bool hasPer100gServing;
   final List<NutritionServing> servings;
 
   final String source;
@@ -21,6 +21,7 @@ class NutritionFood {
     required this.proteinPer100g,
     required this.fatPer100g,
     required this.carbsPer100g,
+    this.hasPer100gServing = true,
     this.servings = const [],
     required this.source,
     this.isEstimated = false,
@@ -47,6 +48,7 @@ class NutritionFood {
       'proteinPer100g': proteinPer100g,
       'fatPer100g': fatPer100g,
       'carbsPer100g': carbsPer100g,
+      'hasPer100gServing': hasPer100gServing,
       'servings': servings.map((serving) => serving.toMap()).toList(),
       'source': source,
       'isEstimated': isEstimated,
@@ -65,6 +67,7 @@ class NutritionFood {
       proteinPer100g: (map['proteinPer100g'] as num?)?.toDouble() ?? 0,
       fatPer100g: (map['fatPer100g'] as num?)?.toDouble() ?? 0,
       carbsPer100g: (map['carbsPer100g'] as num?)?.toDouble() ?? 0,
+      hasPer100gServing: map['hasPer100gServing'] as bool? ?? true,
       servings: servingsData
           .whereType<Map<String, dynamic>>()
           .map(NutritionServing.fromMap)

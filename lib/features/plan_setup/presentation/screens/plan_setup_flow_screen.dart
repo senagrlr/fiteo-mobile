@@ -102,11 +102,13 @@ class _PlanSetupFlowScreenState
             required age,
             required height,
             required weight,
+            required weightUnit,
             required gender,
           }) {
             userPreferences['age'] = age;
             userPreferences['height'] = height;
             userPreferences['weight'] = weight;
+            userPreferences['weightUnit'] = weightUnit;
             userPreferences['gender'] = gender;
 
             nextPage();
@@ -146,9 +148,9 @@ class _PlanSetupFlowScreenState
 
         GoalWeightScreen(
           initialWeightKg: _initialGoalWeight,
+          initialUnit: (userPreferences['weightUnit'] ?? 'kg').toString(),
           onContinue: (goalWeightKg) {
-            userPreferences['targetWeight'] =
-                goalWeightKg;
+            userPreferences['targetWeight'] = goalWeightKg;
 
             nextPage();
           },

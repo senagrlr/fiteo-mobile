@@ -6,10 +6,16 @@ import 'package:flutter/services.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
+
 import 'package:fiteo_myapp/features/meals/data/food_calorie_cache_repository.dart';
 import 'package:fiteo_myapp/features/meals/data/meal_calorie_service.dart';
+
+import 'package:fiteo_myapp/features/meals/domain/models/barcode_food_data.dart';
 import 'package:fiteo_myapp/features/meals/domain/models/nutrition_food.dart';
+
 import 'package:fiteo_myapp/features/meals/presentation/screens/meals_screen.dart';
+
+import 'package:fiteo_myapp/features/meals/presentation/widgets/barcode_add_button.dart';
 
 class AddFoodForm extends StatefulWidget {
   final ValueChanged<FoodItem> onAddFood;
@@ -160,6 +166,10 @@ class _AddFoodFormState extends State<AddFoodForm> {
     });
   }
 
+  // ============================================================
+  // MANUEL YEMEK EKLEME
+  // ============================================================
+
   Future<void> _addFood() async {
     final foodName =
     foodController.text.trim();
@@ -214,7 +224,8 @@ class _AddFoodFormState extends State<AddFoodForm> {
           lastCalorieResult!.confidence,
         );
 
-        await _foodCacheRepository.saveFoodToCache(
+        await _foodCacheRepository
+            .saveFoodToCache(
           normalizedName:
           lastCalorieResult!.normalizedName,
           food: food,
@@ -248,9 +259,34 @@ class _AddFoodFormState extends State<AddFoodForm> {
     _resetValues();
   }
 
+  // ============================================================
+  // BARKODDAN YEMEK EKLEME
+  // ============================================================
+
+  void _addBarcodeFood(
+      BarcodeFoodData data,
+      ) {
+    widget.onAddFood(
+      FoodItem(
+        name: data.name,
+        amount: data.amount,
+        unit: data.unit,
+        calories: data.calories,
+        protein: data.protein,
+        fats: data.fats,
+        carbs: data.carbs,
+        nutritionSource:
+        data.nutritionSource,
+        isEstimated:
+        data.isEstimated,
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _debounce?.cancel();
+
     foodController.dispose();
     amountController.dispose();
 
@@ -261,41 +297,68 @@ class _AddFoodFormState extends State<AddFoodForm> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // ======================================================
+        // MANUEL YEMEK EKLE
+        // ======================================================
+
         Center(
           child: GestureDetector(
             onTap: _addFood,
             child: Container(
-              padding: const EdgeInsets.symmetric(
+              padding:
+              const EdgeInsets.symmetric(
                 horizontal: 26,
                 vertical: 8,
               ),
               decoration: BoxDecoration(
-                color: AppColors.calendarCompleted,
+                color:
+                AppColors.calendarCompleted,
                 borderRadius:
                 BorderRadius.circular(22),
               ),
               child: Text(
                 context.l10n.addFood,
                 style:
-                AppTextStyles.titleMedium.copyWith(
+                AppTextStyles.titleMedium
+                    .copyWith(
                   color: Colors.white,
                   fontSize: 18,
-                  fontWeight: FontWeight.w800,
+                  fontWeight:
+                  FontWeight.w800,
                 ),
               ),
             ),
           ),
         ),
 
+        // ======================================================
+        // BARKODLA EKLE
+        // ======================================================
+
+        const SizedBox(height: 12),
+
+        BarcodeAddButton(
+          onFoodFound: _addBarcodeFood,
+        ),
+
         const SizedBox(height: 18),
+
+        // ======================================================
+        // YEMEK ADI
+        // ======================================================
 
         _MealInputField(
           controller: foodController,
           hintText: context.l10n.foodName,
-          onChanged: (_) => _estimateCalories(),
+          onChanged: (_) =>
+              _estimateCalories(),
         ),
 
         const SizedBox(height: 10),
+
+        // ======================================================
+        // MİKTAR + BİRİM
+        // ======================================================
 
         _MealAmountField(
           controller: amountController,
@@ -314,17 +377,22 @@ class _AddFoodFormState extends State<AddFoodForm> {
 
             _estimateCalories();
           },
-          onChanged: (_) => _estimateCalories(),
+          onChanged: (_) =>
+              _estimateCalories(),
         ),
 
         const SizedBox(height: 18),
 
         Text(
-          context.l10n.calorieEstimateDisclaimer,
+          context
+              .l10n
+              .calorieEstimateDisclaimer,
           textAlign: TextAlign.center,
           style:
-          AppTextStyles.labelSmall.copyWith(
-            color: AppColors.waterCardInactiveText,
+          AppTextStyles.labelSmall
+              .copyWith(
+            color:
+            AppColors.waterCardInactiveText,
             fontSize: 10,
             height: 1.3,
             fontWeight: FontWeight.w400,
@@ -333,12 +401,17 @@ class _AddFoodFormState extends State<AddFoodForm> {
 
         const SizedBox(height: 18),
 
+        // ======================================================
+        // MAKROLAR
+        // ======================================================
+
         Row(
           mainAxisAlignment:
           MainAxisAlignment.center,
           children: [
             _MacroChip(
-              title: context.l10n.protein,
+              title:
+              context.l10n.protein,
               value: estimatedProtein,
               isLoading: isEstimating,
             ),
@@ -346,7 +419,8 @@ class _AddFoodFormState extends State<AddFoodForm> {
             const SizedBox(width: 8),
 
             _MacroChip(
-              title: context.l10n.fats,
+              title:
+              context.l10n.fats,
               value: estimatedFats,
               isLoading: isEstimating,
             ),
@@ -354,7 +428,8 @@ class _AddFoodFormState extends State<AddFoodForm> {
             const SizedBox(width: 8),
 
             _MacroChip(
-              title: context.l10n.carbs,
+              title:
+              context.l10n.carbs,
               value: estimatedCarbs,
               isLoading: isEstimating,
             ),
@@ -364,7 +439,8 @@ class _AddFoodFormState extends State<AddFoodForm> {
         const SizedBox(height: 8),
 
         _MacroChip(
-          title: context.l10n.calories,
+          title:
+          context.l10n.calories,
           value: estimatedCalories,
           isLoading: isEstimating,
           wide: true,
@@ -374,6 +450,10 @@ class _AddFoodFormState extends State<AddFoodForm> {
     );
   }
 }
+
+// ============================================================
+// MACRO CHIP
+// ============================================================
 
 class _MacroChip extends StatelessWidget {
   final String title;
@@ -407,7 +487,8 @@ class _MacroChip extends StatelessWidget {
       height: 38,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: AppColors.homeCardBackground,
+        color:
+        AppColors.homeCardBackground,
         borderRadius:
         BorderRadius.circular(20),
       ),
@@ -418,7 +499,8 @@ class _MacroChip extends StatelessWidget {
           text,
           key: ValueKey(text),
           style:
-          AppTextStyles.bodyMedium.copyWith(
+          AppTextStyles.bodyMedium
+              .copyWith(
             color: AppColors.homeBrown,
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -428,6 +510,10 @@ class _MacroChip extends StatelessWidget {
     );
   }
 }
+
+// ============================================================
+// YEMEK ADI FIELD
+// ============================================================
 
 class _MealInputField extends StatelessWidget {
   final TextEditingController controller;
@@ -454,16 +540,21 @@ class _MealInputField extends StatelessWidget {
         controller: controller,
         keyboardType: keyboardType,
         onChanged: onChanged,
-        inputFormatters: inputFormatters,
-        style: AppTextStyles.bodyMedium.copyWith(
+        inputFormatters:
+        inputFormatters,
+        style:
+        AppTextStyles.bodyMedium
+            .copyWith(
           color: AppColors.homeBrown,
           fontSize: 13,
         ),
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle:
-          AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.homeSecondaryValue,
+          AppTextStyles.bodyMedium
+              .copyWith(
+            color:
+            AppColors.homeSecondaryValue,
             fontSize: 13,
             fontWeight: FontWeight.w400,
           ),
@@ -498,7 +589,12 @@ class _MealInputField extends StatelessWidget {
   }
 }
 
-class _MealAmountField extends StatelessWidget {
+// ============================================================
+// MİKTAR + BİRİM FIELD
+// ============================================================
+
+class _MealAmountField
+    extends StatelessWidget {
   final TextEditingController controller;
   final String selectedUnit;
   final List<String> units;
@@ -529,7 +625,8 @@ class _MealAmountField extends StatelessWidget {
       width: 230,
       height: 38,
       decoration: BoxDecoration(
-        color: AppColors.homeCardBackground,
+        color:
+        AppColors.homeCardBackground,
         borderRadius:
         BorderRadius.circular(22),
       ),
@@ -548,17 +645,19 @@ class _MealAmountField extends StatelessWidget {
               style:
               AppTextStyles.bodyMedium
                   .copyWith(
-                color: AppColors.homeBrown,
+                color:
+                AppColors.homeBrown,
                 fontSize: 13,
                 height: 1,
               ),
-              decoration: InputDecoration(
+              decoration:
+              InputDecoration(
                 hintText: amountHint,
                 hintStyle:
                 AppTextStyles.bodyMedium
                     .copyWith(
-                  color:
-                  AppColors.homeSecondaryValue,
+                  color: AppColors
+                      .homeSecondaryValue,
                   fontSize: 13,
                   fontWeight:
                   FontWeight.w400,
@@ -586,11 +685,14 @@ class _MealAmountField extends StatelessWidget {
             width: 94,
             child:
             DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
+              child:
+              DropdownButton<String>(
                 value: selectedUnit,
                 isExpanded: true,
                 borderRadius:
-                BorderRadius.circular(18),
+                BorderRadius.circular(
+                  18,
+                ),
                 dropdownColor:
                 AppColors
                     .homeCardBackground,
@@ -598,15 +700,13 @@ class _MealAmountField extends StatelessWidget {
                   Icons
                       .keyboard_arrow_down_rounded,
                   size: 18,
-                  color:
-                  AppColors
+                  color: AppColors
                       .homeSecondaryValue,
                 ),
                 style:
                 AppTextStyles.bodySmall
                     .copyWith(
-                  color:
-                  AppColors
+                  color: AppColors
                       .homeSecondaryValue,
                   fontSize: 12,
                   fontWeight:
@@ -619,14 +719,16 @@ class _MealAmountField extends StatelessWidget {
                 ),
                 items: units.map(
                       (unit) {
-                    return DropdownMenuItem<String>(
+                    return DropdownMenuItem<
+                        String>(
                       value: unit,
                       child: Text(
                         localizedUnit(unit),
                         overflow:
-                        TextOverflow.ellipsis,
-                        style:
-                        AppTextStyles.bodySmall
+                        TextOverflow
+                            .ellipsis,
+                        style: AppTextStyles
+                            .bodySmall
                             .copyWith(
                           color: AppColors
                               .homeSecondaryValue,

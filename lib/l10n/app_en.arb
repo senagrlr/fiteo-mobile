@@ -388,6 +388,218 @@
   "profileUpdateFailed": "Profile could not be updated. Please try again.",
   "profileUpdated": "Profile updated successfully.",
 
+  "planTracking": "Plan Tracking",
+  "overview": "Overview",
+  "plan": "Plan",
+
+  "fiteoScore": "Fiteo Score",
+
+  "currentStreak": "Current Streak",
+  "goalAchievement": "Goal Achievement",
+  "days": "Days",
+
+  "yourUniqueFeatures": "Your Unique Features",
+  "longestStreak": "Longest Streak",
+  "bestProtein": "Best Protein",
+  "mostActiveDay": "Most Active Day",
+
+  "sunday": "Sunday",
+
+  "onTrack": "On Track",
+  "reviewRecommended": "Review Recommended",
+  "notEnoughData": "Not Enough Data",
+  "improveConsistencyFirst": "Improve Consistency First",
+
+  "startWeight": "Start",
+  "goalReachDate": "Goal Date",
+  "goalWeight": "Goal",
+
+  "weightProgress": "Weight Progress",
+  "actualWeight": "Your Progress",
+  "expectedWeight": "Planned Progress",
+
+  "april": "April",
+  "may": "May",
+  "june": "June",
+  "july": "July",
+
+  "onTrackPlanNoteWithDate": "You're following your plan consistently and your progress is moving as expected. If you keep going like this, you're estimated to reach your goal around {date}.",
+  "@onTrackPlanNoteWithDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+
+  "reviewRecommendedPlanNote": "Your recent progress suggests that your current plan may no longer be the best fit for you. We've prepared an updated plan based on your latest progress.",
+  "notEnoughDataPlanNote": "There isn't enough recent data to evaluate your progress reliably yet. Keep logging your weight, meals and activity so we can assess your plan more accurately.",
+  "improveConsistencyPlanNote": "Your recent plan adherence is too inconsistent for a reliable evaluation. Follow your current plan more consistently first, then we'll reassess whether it needs to change.",
+  "reviewNewPlan": "Review New Plan",
+  "fiteoOverviewNote": "When you're on track, you usually stay fully committed. What matters most is consistency, so keep an eye on that.",
+
+  "progress": "Progress",
+  "nutrition": "Nutrition",
+  "water": "Water",
+  "weight": "Weight",
+  "workout": "Workout",
+
+  "dailyAverage": "Daily Average",
+  "target": "Target",
+  "onTargetDays": "On-Target Days",
+
+  "totalWorkout": "Total Workout",
+  "activeDays": "Active Days",
+  "averageDuration": "Average Duration",
+
+  "totalChange": "Total Change",
+  "weeklyRate": "Weekly Rate",
+  "remaining": "Remaining",
+
+  "days7": "7 days",
+  "days30": "30 days",
+  "days90": "90 days",
+  "days365": "365 days",
+
+  "dailyAverageCalories": "Daily Average (calorie)",
+  "dailyAverageWater": "Daily Average (liter)",
+
+  "addWithBarcode": "Add by Barcode",
+  "enterBarcodeNumber": "Enter Barcode",
+  "barcodeNumber": "Barcode Number",
+  "barcodeNumberHint": "Enter barcode number",
+  "barcodeSearch": "Search",
+  "barcodeCancel": "Cancel",
+  "barcodeScanHint": "Align the barcode inside the frame",
+  "barcodeLookingUp": "Looking up product...",
+  "addScannedFood": "Add",
+  "barcodeDemoProduct": "Sample Product",
+
+  "weeklyReport": "Weekly Report",
+  "yourWeek": "Your Week",
+  "hydration": "Hydration",
+  "activity": "Activity",
+  "weeklyScoreChange": "%{value} from last week",
+  "@weeklyScoreChange": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+
+  "yourWeek": "Haftan",
+  "hydration": "Su Tüketimi",
+  "activity": "Aktivite",
+  "active": "Aktif",
+  "bestDay": "En İyi Gün",
+  "worstDay": "En Zayıf Gün",
+  "aligned": "uyumlu",
+  "weightAndPlan": "Kilo & Plan",
+  "lastWeek": "Geçen Hafta",
+  "now": "Şimdi",
+  "planStatus": "Plan Durumu",
+  "estimatedGoalDate": "Tahmini Hedef Tarihi",
+  "yourWeekInReview": "Haftanın Değerlendirmesi",
+  "nextWeek": "Gelecek Hafta",
+  "yourMainFocus": "Ana odağın",
+  "tryThis": "Bunu Dene",
+  "weeklyReport": "Haftalık Rapor",
+  "weeklyScoreChange": "Geçen haftaya göre %{value} arttı",
+  "@weeklyScoreChange": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+
+  "yourWeek": "Your Week",
+  "hydration": "Hydration",
+  "activity": "Activity",
+  "active": "Active",
+  "bestDay": "Best Day",
+  "worstDay": "Worst Day",
+  "aligned": "aligned",
+  "weightAndPlan": "Weight & Plan",
+  "lastWeek": "Last Week",
+  "now": "Now",
+  "planStatus": "Plan Status",
+  "estimatedGoalDate": "Estimated Goal Date",
+  "yourWeekInReview": "Your Week in Review",
+  "nextWeek": "Next Week",
+  "nextWeekPlan": "Next Week Plan",
+  "yourMainFocus": "Your main focus",
+  "tryThis": "Try This",
+  "weeklyReport": "Weekly Report",
+  "weeklyScoreChange": "%{value} from last week",
+  "@weeklyScoreChange": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+
+  "monthlyReport": "Monthly Report",
+  "monthlyScoreChange": "%{value} from last month",
+  "@monthlyScoreChange": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+
+  "whatChangedThisMonth": "What Changed This Month",
+  "strongestArea": "Strongest Area",
+  "weakestArea": "Weakest Area",
+  "achievements": "Achievements",
+
+  "consistency": "Consistency",
+  "trackingConsistency": "Tracking Consistency",
+  "goalConsistency": "Goal Consistency",
+  "daysTracked": "days tracked",
+  "longestStreak": "Longest Streak",
+  "perfectDays": "Perfect Days",
+  "perfectDayDefinition": "A day where all applicable core goals were reached.",
+
+  "weightPlanProgress": "Weight & Plan Progress",
+  "start": "Start",
+  "thisMonth": "This Month",
+  "monthlyTarget": "Monthly Target",
+  "progressAchieved": "Progress Achieved",
+  "goalPrediction": "Goal Prediction",
+
+  "daysEarlierThanLastMonth": "%{value} days earlier than last month's prediction",
+  "@daysEarlierThanLastMonth": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+
+  "daysLaterThanLastMonth": "%{value} days later than last month's prediction",
+  "@daysLaterThanLastMonth": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+
+  "patternsWeNoticed": "Patterns We Noticed",
+  "yourMonthInReview": "Your Month in Review",
+
+  "mainFocus": "Main Focus",
+  "keepDoing": "Keep Doing",
+  "improve": "Improve",
+  "watch": "Watch",
+
+  "watchAdEarnOneUse": "Watch an ad to earn 1 more use",
+
+
   "recipeAddedToMeal": "{recipeName} added to {mealType}.",
   "@recipeAddedToMeal": {
     "placeholders": {

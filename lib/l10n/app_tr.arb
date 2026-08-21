@@ -387,6 +387,190 @@
   "profileUpdateFailed": "Profil güncellenemedi. Lütfen tekrar dene.",
   "profileUpdated": "Profil başarıyla güncellendi.",
 
+  "planTracking": "Plan Takibi",
+  "overview": "Genel Bakış",
+  "plan": "Plan",
+
+  "fiteoScore": "Fiteo Puanı",
+
+  "currentStreak": "Mevcut Seri",
+  "goalAchievement": "Hedef Başarısı",
+  "days": "Gün",
+
+  "yourUniqueFeatures": "Sana Özel Özellikler",
+  "longestStreak": "En Uzun Seri",
+  "bestProtein": "En İyi Protein",
+  "mostActiveDay": "En Aktif Gün",
+
+  "sunday": "Pazar",
+
+  "onTrack": "Yolunda",
+  "reviewRecommended": "Planı Gözden Geçir",
+  "notEnoughData": "Yeterli Veri Yok",
+  "improveConsistencyFirst": "Önce İstikrarı Artır",
+
+  "startWeight": "Başlangıç",
+  "goalReachDate": "Hedef Tarih",
+  "goalWeight": "Hedef",
+
+  "weightProgress": "Kilo İlerlemesi",
+  "actualWeight": "Senin İlerlemen",
+  "expectedWeight": "Planlanan İlerleme",
+
+  "april": "Nisan",
+  "may": "Mayıs",
+  "june": "Haziran",
+  "july": "Temmuz",
+
+  "onTrackPlanNoteWithDate": "Planına düzenli şekilde uyuyorsun ve ilerlemen beklediğimiz şekilde devam ediyor. Böyle devam edersen yaklaşık {date} tarihinde hedefine ulaşman bekleniyor.",
+  "@onTrackPlanNoteWithDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+
+  "reviewRecommendedPlanNote": "Son ilerlemen mevcut planının artık sana en uygun seçenek olmayabileceğini gösteriyor. Güncel ilerlemene göre senin için yeni bir plan hazırladık.",
+  "notEnoughDataPlanNote": "İlerlemeni güvenilir şekilde değerlendirebilmek için henüz yeterli güncel veri yok. Planını daha doğru değerlendirebilmemiz için kilo, öğün ve aktivitelerini kaydetmeye devam et.",
+  "improveConsistencyPlanNote": "Son dönemde plana uyumun güvenilir bir değerlendirme yapmak için fazla düzensiz. Önce mevcut planına daha istikrarlı şekilde uymaya çalış, ardından planının değişmesi gerekip gerekmediğini tekrar değerlendirelim.",
+  "reviewNewPlan": "Yeni Planı Görüntüle",
+  "fiteoOverviewNote": "Planına uyduğunda genellikle oldukça istikrarlı ilerliyorsun. En önemli şey süreklilik, buna dikkat etmeye devam et.",
+
+  "progress": "İlerleme",
+  "nutrition": "Beslenme",
+  "water": "Su",
+  "weight": "Kilo",
+  "workout": "Egzersiz",
+
+  "dailyAverage": "Günlük Ortalama",
+  "target": "Hedef",
+  "onTargetDays": "Hedefteki Günler",
+
+  "totalWorkout": "Toplam Egzersiz",
+  "activeDays": "Aktif Günler",
+  "averageDuration": "Ortalama Süre",
+
+  "totalChange": "Toplam Değişim",
+  "weeklyRate": "Haftalık Hız",
+  "remaining": "Kalan",
+
+  "days7": "7 gün",
+  "days30": "30 gün",
+  "days90": "90 gün",
+  "days365": "365 gün",
+
+  "dailyAverageCalories": "Günlük Ortalama (kalori)",
+  "dailyAverageWater": "Günlük Ortalama (litre)",
+
+  "addWithBarcode": "Barkodla Ekle",
+  "enterBarcodeNumber": "Barkod Numarası Yaz",
+  "barcodeNumber": "Barkod Numarası",
+  "barcodeNumberHint": "Barkod numarasını gir",
+  "barcodeSearch": "Ara",
+  "barcodeCancel": "Vazgeç",
+  "barcodeScanHint": "Barkodu çerçevenin içine hizala",
+  "barcodeLookingUp": "Ürün bilgileri aranıyor...",
+  "addScannedFood": "Ekle",
+  "barcodeDemoProduct": "Örnek Ürün",
+
+  "weeklyReport": "Haftalık Rapor",
+  "yourWeek": "Haftan",
+  "hydration": "Su Tüketimi",
+  "activity": "Aktivite",
+  "weeklyScoreChange": "Geçen haftaya göre %{value} arttı",
+  "@weeklyScoreChange": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+
+  "yourWeek": "Haftan",
+  "hydration": "Su Tüketimi",
+  "activity": "Aktivite",
+  "active": "Aktif",
+  "bestDay": "En İyi Gün",
+  "worstDay": "En Zayıf Gün",
+  "aligned": "uyumlu",
+  "weightAndPlan": "Kilo & Plan",
+  "lastWeek": "Geçen Hafta",
+  "now": "Şimdi",
+  "planStatus": "Plan Durumu",
+  "estimatedGoalDate": "Tahmini Hedef Tarihi",
+  "yourWeekInReview": "Haftanın Değerlendirmesi",
+  "nextWeek": "Gelecek Hafta",
+  "nextWeekPlan": "Gelecek Hafta Planı",
+  "yourMainFocus": "Ana odağın",
+  "tryThis": "Bunu Dene",
+  "weeklyReport": "Haftalık Rapor",
+  "weeklyScoreChange": "Geçen haftaya göre %{value} arttı",
+  "@weeklyScoreChange": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+
+  "monthlyReport": "Aylık Rapor",
+  "monthlyScoreChange": "Geçen aya göre %{value} arttı",
+  "@monthlyScoreChange": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+
+  "whatChangedThisMonth": "Bu Ay Neler Değişti?",
+  "strongestArea": "En Güçlü Alan",
+  "weakestArea": "En Zayıf Alan",
+  "achievements": "Başarılar",
+
+  "consistency": "Tutarlılık",
+  "trackingConsistency": "Takip Tutarlılığı",
+  "goalConsistency": "Hedef Tutarlılığı",
+  "daysTracked": "gün takip edildi",
+  "longestStreak": "En Uzun Seri",
+  "perfectDays": "Mükemmel Gün",
+  "perfectDayDefinition": "Uygulanabilir tüm temel hedeflerin karşılandığı gün.",
+
+  "weightPlanProgress": "Kilo & Plan İlerlemesi",
+  "start": "Başlangıç",
+  "thisMonth": "Bu Ay",
+  "monthlyTarget": "Aylık Hedef",
+  "progressAchieved": "Hedef Gerçekleşmesi",
+  "goalPrediction": "Hedef Tahmini",
+
+  "daysEarlierThanLastMonth": "Geçen ayki tahmine göre %{value} gün daha erken",
+  "@daysEarlierThanLastMonth": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+
+  "daysLaterThanLastMonth": "Geçen ayki tahmine göre %{value} gün daha geç",
+  "@daysLaterThanLastMonth": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+
+  "watchAdEarnOneUse": "Reklam izleyerek 1 hak kazanın",
+  "patternsWeNoticed": "Fark Ettiğimiz Örüntüler",
+  "yourMonthInReview": "Ayının Değerlendirmesi",
+
+  "mainFocus": "Ana Odak",
+  "keepDoing": "Böyle Devam Et",
+  "improve": "Geliştir",
+  "watch": "Dikkat Et",
+
   "recipeAddedToMeal": "{recipeName}, {mealType} öğününe eklendi.",
   "@recipeAddedToMeal": {
     "placeholders": {

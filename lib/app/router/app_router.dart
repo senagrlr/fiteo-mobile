@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:fiteo_myapp/app/router/app_routes.dart';
 import 'package:fiteo_myapp/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:fiteo_myapp/features/auth/presentation/screens/login_screen.dart';
@@ -13,21 +14,55 @@ import 'package:fiteo_myapp/features/profile/presentation/screens/delete_account
 import 'package:fiteo_myapp/features/home/presentation/screens/monthly_calendar_screen.dart';
 import 'package:fiteo_myapp/features/auth/presentation/screens/auth_gate_screen.dart';
 import 'package:fiteo_myapp/features/profile/presentation/screens/saved_recipes_screen.dart';
+import 'package:fiteo_myapp/features/profile/presentation/screens/plan_tracking_screen.dart';
+import 'package:fiteo_myapp/features/profile/presentation/screens/progress_screen.dart';
 
 class AppRouter {
   static Map<String, WidgetBuilder> routes = {
-    AppRoutes.authGate: (context) => const AuthGateScreen(),
-    AppRoutes.onboarding: (context) => const OnboardingScreen(),
-    AppRoutes.login: (context) => const LoginScreen(),
-    AppRoutes.signup: (context) => const SignUpScreen(),
-    AppRoutes.forgotPassword: (context) => const ForgotPasswordScreen(),
-    AppRoutes.verifyEmail: (context) => const VerifyEmailScreen(),
-    AppRoutes.planSetup: (context) => const PlanSetupFlowScreen(),
-    AppRoutes.main: (context) => const MainNavigationScreen(),
-    AppRoutes.editProfile: (context) => const EditProfileScreen(),
-    AppRoutes.goalsPreferences: (context) => const GoalsPreferencesScreen(),
-    AppRoutes.deleteAccount: (context) => const DeleteAccountScreen(),
-    AppRoutes.monthlyCalendar: (context) => const MonthlyCalendarScreen(),
-    AppRoutes.savedRecipes: (context) => const SavedRecipesScreen(),
+    AppRoutes.authGate:
+        (context) => const AuthGateScreen(),
+
+    AppRoutes.onboarding:
+        (context) => const OnboardingScreen(),
+
+    AppRoutes.login:
+        (context) => const LoginScreen(),
+
+    AppRoutes.signup:
+        (context) => const SignUpScreen(),
+
+    AppRoutes.forgotPassword:
+        (context) => const ForgotPasswordScreen(),
+
+    AppRoutes.verifyEmail:
+        (context) => const VerifyEmailScreen(),
+
+    AppRoutes.planSetup:
+        (context) => const PlanSetupFlowScreen(),
+
+    AppRoutes.main:
+        (context) => const MainNavigationScreen(),
+
+    AppRoutes.editProfile:
+        (context) => const EditProfileScreen(),
+
+    AppRoutes.goalsPreferences:
+        (context) => const GoalsPreferencesScreen(),
+
+    AppRoutes.deleteAccount:
+        (context) => const DeleteAccountScreen(),
+
+    AppRoutes.monthlyCalendar:
+        (context) => const MonthlyCalendarScreen(),
+
+    AppRoutes.savedRecipes:
+        (context) => const SavedRecipesScreen(),
+
+    AppRoutes.planTracking:
+        (context) => const PlanTrackingScreen(),
+
+    AppRoutes.progress:
+        (context) => const ProgressScreen(),
+
   };
 }

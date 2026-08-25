@@ -1,6 +1,7 @@
 import 'package:fiteo_myapp/features/reports/models/monthly_report_cache.dart';
 import 'package:fiteo_myapp/features/reports/models/monthly_report_calculation.dart';
 import 'package:fiteo_myapp/features/reports/models/report_period_stats.dart';
+import 'package:fiteo_myapp/features/reports/models/report_comparison_basis.dart';
 
 class MonthlyReportCacheBuilder {
   const MonthlyReportCacheBuilder();
@@ -41,7 +42,7 @@ class MonthlyReportCacheBuilder {
       reviewParagraphs: reviewParagraphs,
       patterns: patterns,
       nextMonth: nextMonth,
-      comparisonBasis: MonthlyComparisonBasis(
+      comparisonBasis: ReportComparisonBasis(
         score: stats.fiteoScore,
         trackingConsistency: stats.trackingConsistency,
         goalConsistency: stats.goalConsistency,

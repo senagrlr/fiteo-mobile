@@ -19,6 +19,10 @@ import 'package:fiteo_myapp/features/home/presentation/widgets/home_loading_skel
 
 import 'package:fiteo_myapp/features/reports/models/monthly_report_data.dart';
 import 'package:fiteo_myapp/features/reports/presentation/popups/monthly_report_popup.dart';
+import 'package:fiteo_myapp/features/reports/data/report_repository.dart';
+import 'package:fiteo_myapp/features/reports/presentation/mappers/monthly_report_mapper.dart';
+import 'package:fiteo_myapp/features/reports/presentation/mappers/weekly_report_mapper.dart';
+import 'package:fiteo_myapp/features/reports/presentation/popups/weekly_report_popup.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -34,13 +38,17 @@ class _HomeScreenState extends State<HomeScreen> {
   final HomeRepository _homeRepository =
   HomeRepository();
 
-  final DailyFeedbackService
-  _dailyFeedbackService =
+  final DailyFeedbackService _dailyFeedbackService =
   DailyFeedbackService();
 
-  final DailySummaryRepository
-  _dailySummaryRepository =
+  final DailySummaryRepository _dailySummaryRepository =
   DailySummaryRepository();
+
+  final ReportRepository _reportRepository =
+  ReportRepository();
+
+  final WeeklyReportMapper _weeklyReportMapper =
+  const WeeklyReportMapper();
 
   DailyFeedbackResult? dailyFeedback;
 
@@ -70,6 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // ============================================================
 
   bool _monthlyReportShown = false;
+  bool _weeklyReportShown = false;
 
   @override
   void initState() {
@@ -222,14 +231,118 @@ class _HomeScreenState extends State<HomeScreen> {
         isLoading = false;
       });
 
-      // Şimdilik sadece Monthly Report UI test.
-      _showMonthlyReportForTest();
+      final weeklyShown = await _tryShowWeeklyReport();
+
+      if (!weeklyShown) {
+        final monthlyShown = await _tryShowMonthlyReport();
+
+        if (!monthlyShown) {
+          _showMonthlyReportForTest();
+        }
+      }
+
     } catch (_) {
       if (!mounted) return;
 
       setState(() {
         isLoading = false;
       });
+    }
+  }
+
+  Future<bool> _tryShowMonthlyReport() async {
+    if (_monthlyReportShown || !mounted) {
+      return false;
+    }
+
+    try {
+      final cache = await _reportRepository.getMonthlyReport();
+
+      if (!mounted || _monthlyReportShown) {
+        return false;
+      }
+
+      if (cache == null ||
+          !cache.isAvailable ||
+          cache.dismissed) {
+        return false;
+      }
+
+      final data = const MonthlyReportMapper().toPresentation(
+        context: context,
+        cache: cache,
+      );
+
+      _monthlyReportShown = true;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+
+        await showMonthlyReportPopup(
+          context,
+          data,
+        );
+
+        if (!mounted) return;
+
+        try {
+          await _reportRepository.dismissMonthlyReport();
+        } catch (_) {
+          // Report dismissal failure should not break Home.
+        }
+      });
+
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> _tryShowWeeklyReport() async {
+    if (_weeklyReportShown || !mounted) {
+      return false;
+    }
+
+    try {
+      final cache = await _reportRepository.getWeeklyReport();
+
+      if (cache == null ||
+          !cache.isAvailable ||
+          cache.dismissed) {
+        return false;
+      }
+
+      if (!mounted) {
+        return false;
+      }
+
+      final data = _weeklyReportMapper.toPresentation(
+        context: context,
+        cache: cache,
+      );
+
+      _weeklyReportShown = true;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+
+        await showWeeklyReportPopup(
+          context,
+          data,
+        );
+
+        if (!mounted) return;
+
+        try {
+          await _reportRepository.dismissWeeklyReport();
+        } catch (_) {
+          // Report dismissal failure should not break Home.
+        }
+      });
+
+      return true;
+    } catch (_) {
+      return false;
     }
   }
 

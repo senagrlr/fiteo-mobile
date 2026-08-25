@@ -1,5 +1,6 @@
 import 'package:fiteo_myapp/features/reports/models/monthly_report_calculation.dart';
 import 'package:fiteo_myapp/features/reports/models/report_performance_level.dart';
+import 'package:fiteo_myapp/features/reports/models/report_comparison_basis.dart';
 
 class MonthlyReportCache {
   final int schemaVersion;
@@ -34,7 +35,7 @@ class MonthlyReportCache {
   final List<MonthlyPatternCache> patterns;
   final MonthlyNextMonthCache nextMonth;
 
-  final MonthlyComparisonBasis comparisonBasis;
+  final ReportComparisonBasis comparisonBasis;
 
   const MonthlyReportCache({
     required this.schemaVersion,
@@ -106,48 +107,5 @@ class MonthlyNextMonthCache {
     required this.keepDoing,
     required this.improve,
     required this.watch,
-  });
-}
-
-class MonthlyComparisonBasis {
-  final int score;
-
-  final double trackingConsistency;
-  final double goalConsistency;
-
-  final double calorieAdherence;
-  final int calorieTargetDays;
-
-  final double proteinAdherence;
-  final int proteinTargetDays;
-
-  final double carbsAdherence;
-  final int carbsTargetDays;
-
-  final double fatAdherence;
-  final int fatTargetDays;
-
-  final double hydrationAdherence;
-  final int hydrationTargetDays;
-
-  final double activityScore;
-  final int activeDays;
-
-  const MonthlyComparisonBasis({
-    required this.score,
-    required this.trackingConsistency,
-    required this.goalConsistency,
-    required this.calorieAdherence,
-    required this.calorieTargetDays,
-    required this.proteinAdherence,
-    required this.proteinTargetDays,
-    required this.carbsAdherence,
-    required this.carbsTargetDays,
-    required this.fatAdherence,
-    required this.fatTargetDays,
-    required this.hydrationAdherence,
-    required this.hydrationTargetDays,
-    required this.activityScore,
-    required this.activeDays,
   });
 }

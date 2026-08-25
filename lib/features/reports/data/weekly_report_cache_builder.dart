@@ -1,6 +1,7 @@
 import 'package:fiteo_myapp/features/reports/models/report_period_stats.dart';
 import 'package:fiteo_myapp/features/reports/models/weekly_report_cache.dart';
 import 'package:fiteo_myapp/features/reports/models/weekly_report_calculation.dart';
+import 'package:fiteo_myapp/features/reports/models/report_comparison_basis.dart';
 
 class WeeklyReportCacheBuilder {
   const WeeklyReportCacheBuilder();
@@ -38,7 +39,8 @@ class WeeklyReportCacheBuilder {
       weightPlan: weightPlan,
       reviewParagraphs: reviewParagraphs,
       nextWeek: nextWeek,
-      comparisonBasis: WeeklyComparisonBasis(
+      comparisonBasis: ReportComparisonBasis(
+        score: stats.fiteoScore,
         trackingConsistency: stats.trackingConsistency,
         goalConsistency: stats.goalConsistency,
         calorieAdherence: stats.calorieAdherence,

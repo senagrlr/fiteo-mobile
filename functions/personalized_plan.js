@@ -401,6 +401,7 @@ function createGeneratePersonalizedPlanHandler(openaiApiKey) {
       return res.status(200).json({
         plan: {
           ...finalPlan,
+          tdee: calculation.baseline.tdee,
           expectedWeeklyWeightChangeKg,
         },
         debug: {

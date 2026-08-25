@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/features/reports/models/weekly_report_data.dart';
+import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 
 class WeeklyWeightPlanCard extends StatelessWidget {
   final WeeklyWeightPlanData data;
@@ -64,14 +65,14 @@ class WeeklyWeightPlanCard extends StatelessWidget {
               Expanded(
                 child: _WeightValue(
                   value: startWeightText,
-                  label: 'Başlangıç',
+                  label: context.l10n.start,
                 ),
               ),
 
               Expanded(
                 child: _WeightValue(
                   value: currentWeightText,
-                  label: 'Şimdi',
+                  label: context.l10n.now,
                   alignRight: true,
                 ),
               ),

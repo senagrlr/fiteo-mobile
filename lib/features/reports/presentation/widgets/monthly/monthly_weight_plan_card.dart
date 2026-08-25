@@ -200,18 +200,6 @@ class MonthlyWeightPlanCard extends StatelessWidget {
               ),
             ),
           ],
-
-          if (data.statusDescription != null &&
-              data.statusDescription!.isNotEmpty)
-            Text(
-              data.statusDescription!,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.homeBrown,
-                fontSize: 14,
-                height: 1.5,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
         ],
       ),
     );

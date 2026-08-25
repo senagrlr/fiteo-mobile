@@ -5,6 +5,7 @@ import 'package:fiteo_myapp/features/profile/data/plan_tracking_calculator.dart'
 import 'package:fiteo_myapp/features/profile/presentation/models/plan_status.dart';
 import 'package:fiteo_myapp/features/profile/presentation/models/plan_tracking_stats.dart';
 import 'package:fiteo_myapp/features/profile/data/adherence_calculator.dart';
+import 'package:fiteo_myapp/features/reports/data/monthly_target_accumulator_repository.dart';
 
 class PlanTrackingRepository {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -16,7 +17,64 @@ class PlanTrackingRepository {
   final AdherenceCalculator _adherenceCalculator =
   const AdherenceCalculator();
 
+  final MonthlyTargetAccumulatorRepository _monthlyTargetAccumulatorRepository =
+  MonthlyTargetAccumulatorRepository();
+
   static const int schemaVersion = 1;
+
+  Future<void> initializeNewPlan({
+    required double expectedWeeklyWeightChangeKg,
+  }) async {
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception('User not logged in');
+    }
+
+    final today = _dateOnly(DateTime.now());
+
+    await _monthlyTargetAccumulatorRepository
+        .closeCurrentPlanSegment(
+      newPlanActivatedAt: today,
+    );
+
+    final userRef = _firestore.collection('users').doc(user.uid);
+    final trackingRef = userRef.collection('planTracking').doc('current');
+
+    final userDoc = await userRef.get();
+    final userData = userDoc.data() ?? <String, dynamic>{};
+
+    final userPreferences =
+        userData['userPreferences'] as Map<String, dynamic>? ?? {};
+
+    final currentWeight =
+    (userPreferences['weight'] as num?)?.toDouble();
+
+    final targetWeight =
+    (userPreferences['targetWeight'] as num?)?.toDouble();
+
+    if (currentWeight == null || currentWeight <= 0) {
+      throw Exception('Missing current weight');
+    }
+
+    if (targetWeight == null || targetWeight <= 0) {
+      throw Exception('Missing target weight');
+    }
+
+    final cache = _createInitialCache(
+      userData: userData,
+      currentWeight: currentWeight,
+      targetWeight: targetWeight,
+      expectedWeeklyWeightChangeKg: expectedWeeklyWeightChangeKg,
+      today: today,
+    );
+
+    await trackingRef.set({
+      ...cache,
+      'schemaVersion': schemaVersion,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
 
   Future<PlanTrackingStats> loadPlanTracking() async {
     final user = _auth.currentUser;
@@ -46,9 +104,6 @@ class PlanTrackingRepository {
     final userPreferences =
         userData['userPreferences'] as Map<String, dynamic>? ?? {};
 
-    final nutritionPlan =
-        userData['nutritionPlan'] as Map<String, dynamic>? ?? {};
-
     final currentWeight =
     (userPreferences['weight'] as num?)?.toDouble();
 
@@ -66,11 +121,6 @@ class PlanTrackingRepository {
       throw Exception('Missing target weight');
     }
 
-    final expectedWeeklyWeightChangeKg =
-        (nutritionPlan['expectedWeeklyWeightChangeKg'] as num?)
-            ?.toDouble() ??
-            0;
-
     Map<String, dynamic> cache;
 
     final needsBootstrap =
@@ -82,7 +132,7 @@ class PlanTrackingRepository {
         userData: userData,
         currentWeight: currentWeight,
         targetWeight: targetWeight,
-        expectedWeeklyWeightChangeKg: expectedWeeklyWeightChangeKg,
+        expectedWeeklyWeightChangeKg: 0,
         today: today,
       );
 

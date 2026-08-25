@@ -749,6 +749,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sundayShort => 'SUN';
 
   @override
+  String get januaryShort => 'J';
+
+  @override
+  String get februaryShort => 'F';
+
+  @override
+  String get marchShort => 'M';
+
+  @override
+  String get aprilShort => 'A';
+
+  @override
+  String get mayShort => 'M';
+
+  @override
+  String get juneShort => 'J';
+
+  @override
+  String get julyShort => 'J';
+
+  @override
+  String get augustShort => 'A';
+
+  @override
+  String get septemberShort => 'S';
+
+  @override
+  String get octoberShort => 'O';
+
+  @override
+  String get novemberShort => 'N';
+
+  @override
+  String get decemberShort => 'D';
+
+  @override
+  String get weekShort => 'W';
+
+  @override
+  String get minuteUnitShort => 'min';
+
+  @override
   String get editProfile => 'Edit Profile';
 
   @override
@@ -838,6 +880,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get currentStreak => 'Current Streak';
 
   @override
+  String get trackingConsistency => 'Tracking Consistency';
+
+  @override
   String get goalAchievement => 'Goal Achievement';
 
   @override
@@ -854,6 +899,98 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mostActiveDay => 'Most Active Day';
+
+  @override
+  String get achievementLongestStreak => 'Longest Streak';
+
+  @override
+  String get achievementLongestStreakDescription =>
+      'Your longest streak of consecutive days with meaningful tracking.';
+
+  @override
+  String get achievementBestProtein => 'Best Protein';
+
+  @override
+  String get achievementBestProteinDescription =>
+      'The day your protein intake matched your protein goal most closely.';
+
+  @override
+  String get achievementMostActiveDay => 'Most Active Day';
+
+  @override
+  String get achievementMostActiveDayDescription =>
+      'The day of the week where you have accumulated the most workout time.';
+
+  @override
+  String get achievementHydrationHero => 'Hydration Hero';
+
+  @override
+  String get achievementHydrationHeroDescription =>
+      'Your overall adherence to your daily hydration goal.';
+
+  @override
+  String get achievementNutritionPro => 'Nutrition Pro';
+
+  @override
+  String get achievementNutritionProDescription =>
+      'Your overall adherence across calories, protein, carbs, and fat.';
+
+  @override
+  String get achievementBalancedDays => 'Balanced Days';
+
+  @override
+  String get achievementBalancedDaysDescription =>
+      'Days where calories, protein, carbs, and fat were all close to their targets.';
+
+  @override
+  String get achievementActiveChampion => 'Active Champion';
+
+  @override
+  String get achievementActiveChampionDescription =>
+      'Your overall performance based on days with at least 20 minutes of exercise.';
+
+  @override
+  String get achievementGoalKeeper => 'Goal Keeper';
+
+  @override
+  String get achievementGoalKeeperDescription =>
+      'The goal you have successfully reached most often.';
+
+  @override
+  String get achievementCalorieCompass => 'Calorie Compass';
+
+  @override
+  String get achievementCalorieCompassDescription =>
+      'How consistently your net calories stay close to your calorie goal.';
+
+  @override
+  String get achievementHydrationStreak => 'Hydration Streak';
+
+  @override
+  String get achievementHydrationStreakDescription =>
+      'Your longest streak of consecutive days reaching your hydration goal.';
+
+  @override
+  String get overviewNoAchievements =>
+      'Keep tracking to discover your strengths.';
+
+  @override
+  String get monday => 'Monday';
+
+  @override
+  String get tuesday => 'Tuesday';
+
+  @override
+  String get wednesday => 'Wednesday';
+
+  @override
+  String get thursday => 'Thursday';
+
+  @override
+  String get friday => 'Friday';
+
+  @override
+  String get saturday => 'Saturday';
 
   @override
   String get sunday => 'Sunday';
@@ -1003,11 +1140,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activity => 'Activity';
 
   @override
-  String weeklyScoreChange(int value) {
-    return '%$value from last week';
-  }
-
-  @override
   String get active => 'Active';
 
   @override
@@ -1041,13 +1173,124 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nextWeek => 'Next Week';
 
   @override
+  String get nextWeekPlan => 'Next Week Plan';
+
+  @override
   String get yourMainFocus => 'Your main focus';
 
   @override
   String get tryThis => 'Try This';
 
   @override
-  String get nextWeekPlan => 'Next Week Plan';
+  String weeklyScoreChange(int value) {
+    return '%$value from last week';
+  }
+
+  @override
+  String get reportStatusStrong => 'Strong';
+
+  @override
+  String get reportStatusGood => 'Good';
+
+  @override
+  String get reportStatusNeedsFocus => 'Needs Focus';
+
+  @override
+  String get reportStatusNeedsImprovement => 'Needs Improvement';
+
+  @override
+  String get weeklyScoreStrong => 'Strong Week';
+
+  @override
+  String get weeklyScoreGood => 'Good Week';
+
+  @override
+  String get weeklyScoreNeedsFocus => 'Needs Focus';
+
+  @override
+  String get weeklyScoreNeedsImprovement => 'Needs Improvement';
+
+  @override
+  String reportTargetDays(int reached, int total) {
+    return '$reached/$total on target';
+  }
+
+  @override
+  String reportWorkoutTime(int minutes) {
+    return '$minutes min total';
+  }
+
+  @override
+  String get monthlyScoreStrong => 'Strong Month';
+
+  @override
+  String get monthlyScoreGood => 'Good Month';
+
+  @override
+  String get monthlyScoreNeedsFocus => 'Needs Focus';
+
+  @override
+  String get monthlyScoreNeedsImprovement => 'Needs Improvement';
+
+  @override
+  String get reportAreaCalories => 'Calories';
+
+  @override
+  String get reportAreaProtein => 'Protein';
+
+  @override
+  String get reportAreaCarbs => 'Carbs';
+
+  @override
+  String get reportAreaFat => 'Fat';
+
+  @override
+  String get reportAreaHydration => 'Hydration';
+
+  @override
+  String get reportAreaActivity => 'Activity';
+
+  @override
+  String get reportAreaTracking => 'Tracking';
+
+  @override
+  String get reportAreaWeekends => 'Weekends';
+
+  @override
+  String reportStrongAreaTargetDays(int reached, int total) {
+    return '$reached/$total days on target';
+  }
+
+  @override
+  String reportWeakAreaScore(int score) {
+    return '$score% alignment';
+  }
+
+  @override
+  String reportWeekendDifference(int value) {
+    return '$value% lower than weekdays';
+  }
+
+  @override
+  String get reportGoalConsistencyPeriod => 'Goal consistency this month';
+
+  @override
+  String get monthlyChangeTrackingConsistency => 'Tracking Consistency';
+
+  @override
+  String get monthlyChangeGoalConsistency => 'Goal Consistency';
+
+  @override
+  String get monthlyChangeCalories => 'Calories';
+
+  @override
+  String get monthlyChangeProtein => 'Protein';
+
+  @override
+  String get monthlyChangeHydration => 'Hydration';
+
+  @override
+  String get monthlyChangeActivity => 'Active Days';
 
   @override
   String monthlyScoreChange(int value) {
@@ -1068,9 +1311,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get consistency => 'Consistency';
-
-  @override
-  String get trackingConsistency => 'Tracking Consistency';
 
   @override
   String get goalConsistency => 'Goal Consistency';

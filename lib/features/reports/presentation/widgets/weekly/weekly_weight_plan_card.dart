@@ -14,13 +14,23 @@ class WeeklyWeightPlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final change =
-        data.currentWeight - data.lastWeekWeight;
+    final hasWeightData =
+        data.startWeight != null && data.currentWeight != null;
 
-    final lostWeight = change < 0;
+    final change = hasWeightData
+        ? data.currentWeight! - data.startWeight!
+        : null;
 
-    final unchanged =
-        change.abs() < 0.01;
+    final lostWeight = change != null && change < 0;
+    final unchanged = change == null || change.abs() < 0.01;
+
+    final startWeightText = data.startWeight == null
+        ? '-'
+        : '${data.startWeight!.toStringAsFixed(1)} kg';
+
+    final currentWeightText = data.currentWeight == null
+        ? '-'
+        : '${data.currentWeight!.toStringAsFixed(1)} kg';
 
     return Container(
       width: double.infinity,
@@ -53,16 +63,14 @@ class WeeklyWeightPlanCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _WeightValue(
-                  value:
-                  '${data.lastWeekWeight.toStringAsFixed(1)} kg',
-                  label: 'Geçen Hafta',
+                  value: startWeightText,
+                  label: 'Başlangıç',
                 ),
               ),
 
               Expanded(
                 child: _WeightValue(
-                  value:
-                  '${data.currentWeight.toStringAsFixed(1)} kg',
+                  value: currentWeightText,
                   label: 'Şimdi',
                   alignRight: true,
                 ),
@@ -91,7 +99,9 @@ class WeeklyWeightPlanCard extends StatelessWidget {
                   const SizedBox(width: 4),
 
                 Text(
-                  '${change.abs().toStringAsFixed(1)} kg',
+                  change == null
+                      ? '-'
+                      : '${change.abs().toStringAsFixed(1)} kg',
                   style:
                   AppTextStyles.titleMedium.copyWith(
                     color: AppColors.homeBrown,
@@ -138,17 +148,20 @@ class WeeklyWeightPlanCard extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 13),
+          if (data.statusDescription != null &&
+              data.statusDescription!.isNotEmpty) ...[
+            const SizedBox(height: 13),
 
-          Text(
-            data.statusDescription,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.homeBrown,
-              fontSize: 14,
-              height: 1.5,
-              fontWeight: FontWeight.w500,
+            Text(
+              data.statusDescription!,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.homeBrown,
+                fontSize: 14,
+                height: 1.5,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );

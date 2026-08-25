@@ -95,6 +95,8 @@ class _AiPlanLoadingScreenState
         carbsGrams: (plan['carbsGrams'] as num).round(),
         fatsGrams: (plan['fatsGrams'] as num).round(),
         waterMl: (plan['waterMl'] as num).round(),
+        expectedWeeklyWeightChangeKg:
+        (plan['expectedWeeklyWeightChangeKg'] as num?)?.toDouble() ?? 0,
       );
 
       await minimumDelay;
@@ -185,23 +187,9 @@ class _AiPlanLoadingScreenState
         );
       }
 
-      final updatedPreferences =
-      Map<String, dynamic>.from(
+      final updatedPreferences = Map<String, dynamic>.from(
         widget.userPreferences,
       );
-
-      updatedPreferences.addAll({
-        'calorieGoal':
-        generatedPlan.calories,
-        'proteinGoal':
-        generatedPlan.proteinGrams,
-        'carbsGoal':
-        generatedPlan.carbsGrams,
-        'fatGoal':
-        generatedPlan.fatsGrams,
-        'waterGoalMl':
-        generatedPlan.waterMl,
-      });
 
       await FirebaseFirestore.instance
           .collection('users')
@@ -211,20 +199,15 @@ class _AiPlanLoadingScreenState
           'userPreferences':
           updatedPreferences,
           'nutritionPlan': {
-            'dailyCalories':
-            generatedPlan.calories,
-            'proteinGrams':
-            generatedPlan.proteinGrams,
-            'carbsGrams':
-            generatedPlan.carbsGrams,
-            'fatsGrams':
-            generatedPlan.fatsGrams,
-            'waterMl':
-            generatedPlan.waterMl,
-            'createdAt':
-            FieldValue.serverTimestamp(),
-            'updatedAt':
-            FieldValue.serverTimestamp(),
+            'dailyCalories': generatedPlan.calories,
+            'proteinGrams': generatedPlan.proteinGrams,
+            'carbsGrams': generatedPlan.carbsGrams,
+            'fatsGrams': generatedPlan.fatsGrams,
+            'waterMl': generatedPlan.waterMl,
+            'expectedWeeklyWeightChangeKg':
+            generatedPlan.expectedWeeklyWeightChangeKg,
+            'createdAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
           },
           'isOnboardingCompleted': true,
           'updatedAt':

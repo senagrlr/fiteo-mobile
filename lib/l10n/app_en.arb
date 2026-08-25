@@ -352,6 +352,22 @@
   "saturdayShort": "SAT",
   "sundayShort": "SUN",
 
+  "januaryShort": "J",
+  "februaryShort": "F",
+  "marchShort": "M",
+  "aprilShort": "A",
+  "mayShort": "M",
+  "juneShort": "J",
+  "julyShort": "J",
+  "augustShort": "A",
+  "septemberShort": "S",
+  "octoberShort": "O",
+  "novemberShort": "N",
+  "decemberShort": "D",
+
+  "weekShort": "W",
+  "minuteUnitShort": "min",
+
   "editProfile": "Edit Profile",
   "chooseYourMascot": "Choose your mascot",
   "changePassword": "Change Password",
@@ -395,6 +411,7 @@
   "fiteoScore": "Fiteo Score",
 
   "currentStreak": "Current Streak",
+  "trackingConsistency": "Tracking Consistency",
   "goalAchievement": "Goal Achievement",
   "days": "Days",
 
@@ -403,6 +420,44 @@
   "bestProtein": "Best Protein",
   "mostActiveDay": "Most Active Day",
 
+  "achievementLongestStreak": "Longest Streak",
+  "achievementLongestStreakDescription": "Your longest streak of consecutive days with meaningful tracking.",
+
+  "achievementBestProtein": "Best Protein",
+  "achievementBestProteinDescription": "The day your protein intake matched your protein goal most closely.",
+
+  "achievementMostActiveDay": "Most Active Day",
+  "achievementMostActiveDayDescription": "The day of the week where you have accumulated the most workout time.",
+
+  "achievementHydrationHero": "Hydration Hero",
+  "achievementHydrationHeroDescription": "Your overall adherence to your daily hydration goal.",
+
+  "achievementNutritionPro": "Nutrition Pro",
+  "achievementNutritionProDescription": "Your overall adherence across calories, protein, carbs, and fat.",
+
+  "achievementBalancedDays": "Balanced Days",
+  "achievementBalancedDaysDescription": "Days where calories, protein, carbs, and fat were all close to their targets.",
+
+  "achievementActiveChampion": "Active Champion",
+  "achievementActiveChampionDescription": "Your overall performance based on days with at least 20 minutes of exercise.",
+
+  "achievementGoalKeeper": "Goal Keeper",
+  "achievementGoalKeeperDescription": "The goal you have successfully reached most often.",
+
+  "achievementCalorieCompass": "Calorie Compass",
+  "achievementCalorieCompassDescription": "How consistently your net calories stay close to your calorie goal.",
+
+  "achievementHydrationStreak": "Hydration Streak",
+  "achievementHydrationStreakDescription": "Your longest streak of consecutive days reaching your hydration goal.",
+
+  "overviewNoAchievements": "Keep tracking to discover your strengths.",
+
+  "monday": "Monday",
+  "tuesday": "Tuesday",
+  "wednesday": "Wednesday",
+  "thursday": "Thursday",
+  "friday": "Friday",
+  "saturday": "Saturday",
   "sunday": "Sunday",
 
   "onTrack": "On Track",
@@ -479,44 +534,6 @@
   "yourWeek": "Your Week",
   "hydration": "Hydration",
   "activity": "Activity",
-  "weeklyScoreChange": "%{value} from last week",
-  "@weeklyScoreChange": {
-    "placeholders": {
-      "value": {
-        "type": "int"
-      }
-    }
-  },
-
-  "yourWeek": "Haftan",
-  "hydration": "Su Tüketimi",
-  "activity": "Aktivite",
-  "active": "Aktif",
-  "bestDay": "En İyi Gün",
-  "worstDay": "En Zayıf Gün",
-  "aligned": "uyumlu",
-  "weightAndPlan": "Kilo & Plan",
-  "lastWeek": "Geçen Hafta",
-  "now": "Şimdi",
-  "planStatus": "Plan Durumu",
-  "estimatedGoalDate": "Tahmini Hedef Tarihi",
-  "yourWeekInReview": "Haftanın Değerlendirmesi",
-  "nextWeek": "Gelecek Hafta",
-  "yourMainFocus": "Ana odağın",
-  "tryThis": "Bunu Dene",
-  "weeklyReport": "Haftalık Rapor",
-  "weeklyScoreChange": "Geçen haftaya göre %{value} arttı",
-  "@weeklyScoreChange": {
-    "placeholders": {
-      "value": {
-        "type": "int"
-      }
-    }
-  },
-
-  "yourWeek": "Your Week",
-  "hydration": "Hydration",
-  "activity": "Activity",
   "active": "Active",
   "bestDay": "Best Day",
   "worstDay": "Worst Day",
@@ -531,7 +548,7 @@
   "nextWeekPlan": "Next Week Plan",
   "yourMainFocus": "Your main focus",
   "tryThis": "Try This",
-  "weeklyReport": "Weekly Report",
+
   "weeklyScoreChange": "%{value} from last week",
   "@weeklyScoreChange": {
     "placeholders": {
@@ -540,6 +557,90 @@
       }
     }
   },
+
+  "reportStatusStrong": "Strong",
+  "reportStatusGood": "Good",
+  "reportStatusNeedsFocus": "Needs Focus",
+  "reportStatusNeedsImprovement": "Needs Improvement",
+
+  "weeklyScoreStrong": "Strong Week",
+  "weeklyScoreGood": "Good Week",
+  "weeklyScoreNeedsFocus": "Needs Focus",
+  "weeklyScoreNeedsImprovement": "Needs Improvement",
+
+  "reportTargetDays": "{reached}/{total} on target",
+  "@reportTargetDays": {
+    "placeholders": {
+      "reached": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+
+  "reportWorkoutTime": "{minutes} min total",
+  "@reportWorkoutTime": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+
+  "monthlyScoreStrong": "Strong Month",
+  "monthlyScoreGood": "Good Month",
+  "monthlyScoreNeedsFocus": "Needs Focus",
+  "monthlyScoreNeedsImprovement": "Needs Improvement",
+
+  "reportAreaCalories": "Calories",
+  "reportAreaProtein": "Protein",
+  "reportAreaCarbs": "Carbs",
+  "reportAreaFat": "Fat",
+  "reportAreaHydration": "Hydration",
+  "reportAreaActivity": "Activity",
+  "reportAreaTracking": "Tracking",
+  "reportAreaWeekends": "Weekends",
+
+  "reportStrongAreaTargetDays": "{reached}/{total} days on target",
+  "@reportStrongAreaTargetDays": {
+    "placeholders": {
+      "reached": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+
+  "reportWeakAreaScore": "{score}% alignment",
+  "@reportWeakAreaScore": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+
+  "reportWeekendDifference": "{value}% lower than weekdays",
+  "@reportWeekendDifference": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+
+  "reportGoalConsistencyPeriod": "Goal consistency this month",
+
+  "monthlyChangeTrackingConsistency": "Tracking Consistency",
+  "monthlyChangeGoalConsistency": "Goal Consistency",
+  "monthlyChangeCalories": "Calories",
+  "monthlyChangeProtein": "Protein",
+  "monthlyChangeHydration": "Hydration",
+  "monthlyChangeActivity": "Active Days",
 
   "monthlyReport": "Monthly Report",
   "monthlyScoreChange": "%{value} from last month",

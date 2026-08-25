@@ -352,6 +352,22 @@
   "saturdayShort": "CMT",
   "sundayShort": "PAZ",
 
+  "januaryShort": "O",
+  "februaryShort": "Ş",
+  "marchShort": "M",
+  "aprilShort": "N",
+  "mayShort": "M",
+  "juneShort": "H",
+  "julyShort": "T",
+  "augustShort": "A",
+  "septemberShort": "E",
+  "octoberShort": "E",
+  "novemberShort": "K",
+  "decemberShort": "A",
+
+  "weekShort": "H",
+  "minuteUnitShort": "dk",
+
   "editProfile": "Profili Düzenle",
   "chooseYourMascot": "Maskotunu seç",
   "changePassword": "Şifreyi Değiştir",
@@ -394,6 +410,7 @@
   "fiteoScore": "Fiteo Puanı",
 
   "currentStreak": "Mevcut Seri",
+  "trackingConsistency": "Takip Tutarlılığı",
   "goalAchievement": "Hedef Başarısı",
   "days": "Gün",
 
@@ -402,6 +419,44 @@
   "bestProtein": "En İyi Protein",
   "mostActiveDay": "En Aktif Gün",
 
+  "achievementLongestStreak": "En Uzun Seri",
+  "achievementLongestStreakDescription": "Anlamlı takip yaptığın aralıksız en uzun gün serisi.",
+
+  "achievementBestProtein": "En İyi Protein",
+  "achievementBestProteinDescription": "Protein tüketiminin protein hedefine en yakın olduğu gün.",
+
+  "achievementMostActiveDay": "En Aktif Gün",
+  "achievementMostActiveDayDescription": "Toplam egzersiz sürenin en yüksek olduğu haftanın günü.",
+
+  "achievementHydrationHero": "Su Kahramanı",
+  "achievementHydrationHeroDescription": "Günlük su hedefine genel uyum seviyen.",
+
+  "achievementNutritionPro": "Beslenme Profesyoneli",
+  "achievementNutritionProDescription": "Kalori, protein, karbonhidrat ve yağ hedeflerine genel uyum seviyen.",
+
+  "achievementBalancedDays": "Dengeli Günler",
+  "achievementBalancedDaysDescription": "Kalori, protein, karbonhidrat ve yağ değerlerinin aynı gün hedeflerine yakın olduğu günler.",
+
+  "achievementActiveChampion": "Aktivite Şampiyonu",
+  "achievementActiveChampionDescription": "En az 20 dakika egzersiz yaptığın aktif günlerdeki genel performansın.",
+
+  "achievementGoalKeeper": "Hedef Koruyucu",
+  "achievementGoalKeeperDescription": "En sık başarıyla ulaştığın hedef türü.",
+
+  "achievementCalorieCompass": "Kalori Pusulası",
+  "achievementCalorieCompassDescription": "Net kalorinin kalori hedefinin çevresinde ne kadar tutarlı kaldığı.",
+
+  "achievementHydrationStreak": "Su Serisi",
+  "achievementHydrationStreakDescription": "Su hedefine arka arkaya ulaştığın en uzun gün serisi.",
+
+  "overviewNoAchievements": "Güçlü yönlerini keşfetmek için takibe devam et.",
+
+  "monday": "Pazartesi",
+  "tuesday": "Salı",
+  "wednesday": "Çarşamba",
+  "thursday": "Perşembe",
+  "friday": "Cuma",
+  "saturday": "Cumartesi",
   "sunday": "Pazar",
 
   "onTrack": "Yolunda",
@@ -478,18 +533,6 @@
   "yourWeek": "Haftan",
   "hydration": "Su Tüketimi",
   "activity": "Aktivite",
-  "weeklyScoreChange": "Geçen haftaya göre %{value} arttı",
-  "@weeklyScoreChange": {
-    "placeholders": {
-      "value": {
-        "type": "int"
-      }
-    }
-  },
-
-  "yourWeek": "Haftan",
-  "hydration": "Su Tüketimi",
-  "activity": "Aktivite",
   "active": "Aktif",
   "bestDay": "En İyi Gün",
   "worstDay": "En Zayıf Gün",
@@ -504,7 +547,7 @@
   "nextWeekPlan": "Gelecek Hafta Planı",
   "yourMainFocus": "Ana odağın",
   "tryThis": "Bunu Dene",
-  "weeklyReport": "Haftalık Rapor",
+
   "weeklyScoreChange": "Geçen haftaya göre %{value} arttı",
   "@weeklyScoreChange": {
     "placeholders": {
@@ -513,6 +556,90 @@
       }
     }
   },
+
+  "reportStatusStrong": "Güçlü",
+  "reportStatusGood": "İyi",
+  "reportStatusNeedsFocus": "Odak Gerekiyor",
+  "reportStatusNeedsImprovement": "Gelişim Gerekiyor",
+
+  "weeklyScoreStrong": "Güçlü Hafta",
+  "weeklyScoreGood": "İyi Hafta",
+  "weeklyScoreNeedsFocus": "Odak Gerekiyor",
+  "weeklyScoreNeedsImprovement": "Gelişim Gerekiyor",
+
+  "reportTargetDays": "{reached}/{total} hedefte",
+  "@reportTargetDays": {
+    "placeholders": {
+      "reached": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+
+  "reportWorkoutTime": "Toplam {minutes} dk",
+  "@reportWorkoutTime": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+
+  "monthlyScoreStrong": "Güçlü Ay",
+  "monthlyScoreGood": "İyi Ay",
+  "monthlyScoreNeedsFocus": "Odak Gerekiyor",
+  "monthlyScoreNeedsImprovement": "Gelişim Gerekiyor",
+
+  "reportAreaCalories": "Kalori",
+  "reportAreaProtein": "Protein",
+  "reportAreaCarbs": "Karbonhidrat",
+  "reportAreaFat": "Yağ",
+  "reportAreaHydration": "Su",
+  "reportAreaActivity": "Aktivite",
+  "reportAreaTracking": "Takip",
+  "reportAreaWeekends": "Hafta Sonları",
+
+  "reportStrongAreaTargetDays": "{reached}/{total} gün hedefte",
+  "@reportStrongAreaTargetDays": {
+    "placeholders": {
+      "reached": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+
+  "reportWeakAreaScore": "%{score} uyum",
+  "@reportWeakAreaScore": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+
+  "reportWeekendDifference": "Hafta içine göre %{value} daha düşük",
+  "@reportWeekendDifference": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+
+  "reportGoalConsistencyPeriod": "Bu ayki hedef tutarlılığın",
+
+  "monthlyChangeTrackingConsistency": "Takip Tutarlılığı",
+  "monthlyChangeGoalConsistency": "Hedef Tutarlılığı",
+  "monthlyChangeCalories": "Kalori",
+  "monthlyChangeProtein": "Protein",
+  "monthlyChangeHydration": "Su",
+  "monthlyChangeActivity": "Aktif Günler",
 
   "monthlyReport": "Aylık Rapor",
   "monthlyScoreChange": "Geçen aya göre %{value} arttı",

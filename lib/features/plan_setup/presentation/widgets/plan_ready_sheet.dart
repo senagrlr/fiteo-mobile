@@ -13,6 +13,7 @@ class AiNutritionPlan {
   final int carbsGrams;
   final int fatsGrams;
   final int waterMl;
+  final double expectedWeeklyWeightChangeKg;
 
   const AiNutritionPlan({
     required this.calories,
@@ -20,6 +21,7 @@ class AiNutritionPlan {
     required this.carbsGrams,
     required this.fatsGrams,
     required this.waterMl,
+    required this.expectedWeeklyWeightChangeKg,
   });
 
   AiNutritionPlan copyWith({
@@ -28,6 +30,7 @@ class AiNutritionPlan {
     int? carbsGrams,
     int? fatsGrams,
     int? waterMl,
+    double? expectedWeeklyWeightChangeKg,
   }) {
     return AiNutritionPlan(
       calories: calories ?? this.calories,
@@ -35,6 +38,8 @@ class AiNutritionPlan {
       carbsGrams: carbsGrams ?? this.carbsGrams,
       fatsGrams: fatsGrams ?? this.fatsGrams,
       waterMl: waterMl ?? this.waterMl,
+      expectedWeeklyWeightChangeKg:
+      expectedWeeklyWeightChangeKg ?? this.expectedWeeklyWeightChangeKg,
     );
   }
 }
@@ -158,6 +163,8 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
         carbsGrams: carbs,
         fatsGrams: fats,
         waterMl: (waterLiters * 1000).round(),
+        expectedWeeklyWeightChangeKg:
+        widget.initialPlan.expectedWeeklyWeightChangeKg,
       ),
     );
   }

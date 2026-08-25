@@ -747,6 +747,48 @@ class AppLocalizationsTr extends AppLocalizations {
   String get sundayShort => 'PAZ';
 
   @override
+  String get januaryShort => 'O';
+
+  @override
+  String get februaryShort => 'Ş';
+
+  @override
+  String get marchShort => 'M';
+
+  @override
+  String get aprilShort => 'N';
+
+  @override
+  String get mayShort => 'M';
+
+  @override
+  String get juneShort => 'H';
+
+  @override
+  String get julyShort => 'T';
+
+  @override
+  String get augustShort => 'A';
+
+  @override
+  String get septemberShort => 'E';
+
+  @override
+  String get octoberShort => 'E';
+
+  @override
+  String get novemberShort => 'K';
+
+  @override
+  String get decemberShort => 'A';
+
+  @override
+  String get weekShort => 'H';
+
+  @override
+  String get minuteUnitShort => 'dk';
+
+  @override
   String get editProfile => 'Profili Düzenle';
 
   @override
@@ -836,6 +878,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get currentStreak => 'Mevcut Seri';
 
   @override
+  String get trackingConsistency => 'Takip Tutarlılığı';
+
+  @override
   String get goalAchievement => 'Hedef Başarısı';
 
   @override
@@ -852,6 +897,98 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get mostActiveDay => 'En Aktif Gün';
+
+  @override
+  String get achievementLongestStreak => 'En Uzun Seri';
+
+  @override
+  String get achievementLongestStreakDescription =>
+      'Anlamlı takip yaptığın aralıksız en uzun gün serisi.';
+
+  @override
+  String get achievementBestProtein => 'En İyi Protein';
+
+  @override
+  String get achievementBestProteinDescription =>
+      'Protein tüketiminin protein hedefine en yakın olduğu gün.';
+
+  @override
+  String get achievementMostActiveDay => 'En Aktif Gün';
+
+  @override
+  String get achievementMostActiveDayDescription =>
+      'Toplam egzersiz sürenin en yüksek olduğu haftanın günü.';
+
+  @override
+  String get achievementHydrationHero => 'Su Kahramanı';
+
+  @override
+  String get achievementHydrationHeroDescription =>
+      'Günlük su hedefine genel uyum seviyen.';
+
+  @override
+  String get achievementNutritionPro => 'Beslenme Profesyoneli';
+
+  @override
+  String get achievementNutritionProDescription =>
+      'Kalori, protein, karbonhidrat ve yağ hedeflerine genel uyum seviyen.';
+
+  @override
+  String get achievementBalancedDays => 'Dengeli Günler';
+
+  @override
+  String get achievementBalancedDaysDescription =>
+      'Kalori, protein, karbonhidrat ve yağ değerlerinin aynı gün hedeflerine yakın olduğu günler.';
+
+  @override
+  String get achievementActiveChampion => 'Aktivite Şampiyonu';
+
+  @override
+  String get achievementActiveChampionDescription =>
+      'En az 20 dakika egzersiz yaptığın aktif günlerdeki genel performansın.';
+
+  @override
+  String get achievementGoalKeeper => 'Hedef Koruyucu';
+
+  @override
+  String get achievementGoalKeeperDescription =>
+      'En sık başarıyla ulaştığın hedef türü.';
+
+  @override
+  String get achievementCalorieCompass => 'Kalori Pusulası';
+
+  @override
+  String get achievementCalorieCompassDescription =>
+      'Net kalorinin kalori hedefinin çevresinde ne kadar tutarlı kaldığı.';
+
+  @override
+  String get achievementHydrationStreak => 'Su Serisi';
+
+  @override
+  String get achievementHydrationStreakDescription =>
+      'Su hedefine arka arkaya ulaştığın en uzun gün serisi.';
+
+  @override
+  String get overviewNoAchievements =>
+      'Güçlü yönlerini keşfetmek için takibe devam et.';
+
+  @override
+  String get monday => 'Pazartesi';
+
+  @override
+  String get tuesday => 'Salı';
+
+  @override
+  String get wednesday => 'Çarşamba';
+
+  @override
+  String get thursday => 'Perşembe';
+
+  @override
+  String get friday => 'Cuma';
+
+  @override
+  String get saturday => 'Cumartesi';
 
   @override
   String get sunday => 'Pazar';
@@ -1001,11 +1138,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get activity => 'Aktivite';
 
   @override
-  String weeklyScoreChange(int value) {
-    return 'Geçen haftaya göre %$value arttı';
-  }
-
-  @override
   String get active => 'Aktif';
 
   @override
@@ -1039,13 +1171,124 @@ class AppLocalizationsTr extends AppLocalizations {
   String get nextWeek => 'Gelecek Hafta';
 
   @override
+  String get nextWeekPlan => 'Gelecek Hafta Planı';
+
+  @override
   String get yourMainFocus => 'Ana odağın';
 
   @override
   String get tryThis => 'Bunu Dene';
 
   @override
-  String get nextWeekPlan => 'Gelecek Hafta Planı';
+  String weeklyScoreChange(int value) {
+    return 'Geçen haftaya göre %$value arttı';
+  }
+
+  @override
+  String get reportStatusStrong => 'Güçlü';
+
+  @override
+  String get reportStatusGood => 'İyi';
+
+  @override
+  String get reportStatusNeedsFocus => 'Odak Gerekiyor';
+
+  @override
+  String get reportStatusNeedsImprovement => 'Gelişim Gerekiyor';
+
+  @override
+  String get weeklyScoreStrong => 'Güçlü Hafta';
+
+  @override
+  String get weeklyScoreGood => 'İyi Hafta';
+
+  @override
+  String get weeklyScoreNeedsFocus => 'Odak Gerekiyor';
+
+  @override
+  String get weeklyScoreNeedsImprovement => 'Gelişim Gerekiyor';
+
+  @override
+  String reportTargetDays(int reached, int total) {
+    return '$reached/$total hedefte';
+  }
+
+  @override
+  String reportWorkoutTime(int minutes) {
+    return 'Toplam $minutes dk';
+  }
+
+  @override
+  String get monthlyScoreStrong => 'Güçlü Ay';
+
+  @override
+  String get monthlyScoreGood => 'İyi Ay';
+
+  @override
+  String get monthlyScoreNeedsFocus => 'Odak Gerekiyor';
+
+  @override
+  String get monthlyScoreNeedsImprovement => 'Gelişim Gerekiyor';
+
+  @override
+  String get reportAreaCalories => 'Kalori';
+
+  @override
+  String get reportAreaProtein => 'Protein';
+
+  @override
+  String get reportAreaCarbs => 'Karbonhidrat';
+
+  @override
+  String get reportAreaFat => 'Yağ';
+
+  @override
+  String get reportAreaHydration => 'Su';
+
+  @override
+  String get reportAreaActivity => 'Aktivite';
+
+  @override
+  String get reportAreaTracking => 'Takip';
+
+  @override
+  String get reportAreaWeekends => 'Hafta Sonları';
+
+  @override
+  String reportStrongAreaTargetDays(int reached, int total) {
+    return '$reached/$total gün hedefte';
+  }
+
+  @override
+  String reportWeakAreaScore(int score) {
+    return '%$score uyum';
+  }
+
+  @override
+  String reportWeekendDifference(int value) {
+    return 'Hafta içine göre %$value daha düşük';
+  }
+
+  @override
+  String get reportGoalConsistencyPeriod => 'Bu ayki hedef tutarlılığın';
+
+  @override
+  String get monthlyChangeTrackingConsistency => 'Takip Tutarlılığı';
+
+  @override
+  String get monthlyChangeGoalConsistency => 'Hedef Tutarlılığı';
+
+  @override
+  String get monthlyChangeCalories => 'Kalori';
+
+  @override
+  String get monthlyChangeProtein => 'Protein';
+
+  @override
+  String get monthlyChangeHydration => 'Su';
+
+  @override
+  String get monthlyChangeActivity => 'Aktif Günler';
 
   @override
   String monthlyScoreChange(int value) {
@@ -1066,9 +1309,6 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get consistency => 'Tutarlılık';
-
-  @override
-  String get trackingConsistency => 'Takip Tutarlılığı';
 
   @override
   String get goalConsistency => 'Hedef Tutarlılığı';

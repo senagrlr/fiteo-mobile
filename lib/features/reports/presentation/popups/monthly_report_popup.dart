@@ -114,12 +114,8 @@ class MonthlyReportPopup extends StatelessWidget {
                 // =================================================
 
                 MonthlyStrongestWeakestArea(
-                  strongestArea:
-                  data.strongestArea,
-                  weakestArea:
-                  data.weakestArea,
-                  achievements:
-                  data.achievements,
+                  strongestArea: data.strongestArea,
+                  weakestArea: data.weakestArea,
                 ),
 
                 const SizedBox(height: 28),

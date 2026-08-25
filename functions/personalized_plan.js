@@ -395,8 +395,14 @@ function createGeneratePersonalizedPlanHandler(openaiApiKey) {
         finalPlan = fallbackPlan;
       }
 
+      const expectedWeeklyWeightChangeKg =
+        ((finalPlan.calories - calculation.baseline.tdee) * 7) / 7700;
+
       return res.status(200).json({
-        plan: finalPlan,
+        plan: {
+          ...finalPlan,
+          expectedWeeklyWeightChangeKg,
+        },
         debug: {
           baseline: calculation.baseline,
           allowedRanges: calculation.allowedRanges,

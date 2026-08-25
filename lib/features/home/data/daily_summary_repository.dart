@@ -20,10 +20,45 @@ class DailySummaryRepository {
     final dateString = _formatDate(selectedDate);
 
     final userDoc = await _firestore.collection('users').doc(user.uid).get();
-    final userPreferences =
-    userDoc.data()?['userPreferences'] as Map<String, dynamic>?;
+    final userData = userDoc.data();
 
-    final calorieGoal = userPreferences?['calorieGoal'] as int?;
+    final userPreferences =
+    userData?['userPreferences']
+    as Map<String, dynamic>?;
+
+    final nutritionPlan =
+    userData?['nutritionPlan']
+    as Map<String, dynamic>?;
+
+    final calorieGoal = (
+        nutritionPlan?['calorieGoal'] ??
+            nutritionPlan?['dailyCalories'] ??
+            userPreferences?['calorieGoal']
+    ) as num?;
+
+    final proteinGoal = (
+        nutritionPlan?['proteinGoal'] ??
+            nutritionPlan?['proteinGrams'] ??
+            userPreferences?['proteinGoal']
+    ) as num?;
+
+    final carbsGoal = (
+        nutritionPlan?['carbsGoal'] ??
+            nutritionPlan?['carbsGrams'] ??
+            userPreferences?['carbsGoal']
+    ) as num?;
+
+    final fatGoal = (
+        nutritionPlan?['fatGoal'] ??
+            nutritionPlan?['fatsGrams'] ??
+            userPreferences?['fatGoal']
+    ) as num?;
+
+    final waterGoalMl = (
+        nutritionPlan?['waterGoalMl'] ??
+            nutritionPlan?['waterMl'] ??
+            userPreferences?['waterGoalMl']
+    ) as num?;
 
     final mealsSnapshot = await _firestore
         .collection('users')
@@ -41,6 +76,9 @@ class DailySummaryRepository {
 
     int consumedCalories = 0;
     int burnedCalories = 0;
+
+    int workoutMinutes = 0;
+    int workoutCount = 0;
 
     double protein = 0.0;
     double fats = 0.0;
@@ -63,8 +101,18 @@ class DailySummaryRepository {
     }
 
     for (final doc in workoutsSnapshot.docs) {
-      burnedCalories += (doc.data()['estimatedCaloriesBurned'] as int?) ?? 0;
+      final data = doc.data();
+
+      burnedCalories +=
+          (data['estimatedCaloriesBurned'] as num?)?.round() ?? 0;
+
+      workoutMinutes +=
+          (data['durationMinutes'] as num?)?.round() ?? 0;
+
+      workoutCount++;
     }
+
+    final isActiveDay = workoutMinutes >= 20;
 
     final netCalories = consumedCalories - burnedCalories;
 
@@ -75,14 +123,30 @@ class DailySummaryRepository {
         .doc(dateString)
         .set({
       'date': dateString,
+
       'consumedCalories': consumedCalories,
       'burnedCalories': burnedCalories,
       'netCalories': netCalories,
+
       'protein': protein,
       'fats': fats,
       'carbs': carbs,
-      'calorieGoal': calorieGoal,
-      'isGoalReached': calorieGoal == null ? false : netCalories >= calorieGoal,
+
+      'calorieGoal': calorieGoal?.round(),
+      'proteinGoal': proteinGoal?.toDouble(),
+      'carbsGoal': carbsGoal?.toDouble(),
+      'fatGoal': fatGoal?.toDouble(),
+      'waterGoalMl': waterGoalMl?.round(),
+
+      'workoutMinutes': workoutMinutes,
+      'workoutCount': workoutCount,
+      'isActiveDay': isActiveDay,
+
+      'isGoalReached':
+      calorieGoal == null
+          ? false
+          : netCalories >= calorieGoal,
+
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
   }
@@ -104,6 +168,21 @@ class DailySummaryRepository {
     final selectedDate = date ?? DateTime.now();
     final dateString = _formatDate(selectedDate);
 
+    final userDoc = await _firestore.collection('users').doc(user.uid).get();
+    final userData = userDoc.data();
+
+    final userPreferences =
+    userData?['userPreferences'] as Map<String, dynamic>?;
+
+    final nutritionPlan =
+    userData?['nutritionPlan'] as Map<String, dynamic>?;
+
+    final waterGoalMl = (
+        nutritionPlan?['waterGoalMl'] ??
+            nutritionPlan?['waterMl'] ??
+            userPreferences?['waterGoalMl']
+    ) as num?;
+
     final docRef = _firestore
         .collection('users')
         .doc(user.uid)
@@ -113,6 +192,7 @@ class DailySummaryRepository {
     await docRef.set({
       'date': dateString,
       'hydrationMl': FieldValue.increment(amountMl),
+      'waterGoalMl': waterGoalMl?.round(),
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
   }

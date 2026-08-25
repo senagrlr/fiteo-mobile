@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
-import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
 
+import 'package:fiteo_myapp/features/profile/data/overview_achievement_calculator.dart';
+import 'package:fiteo_myapp/features/profile/data/overview_repository.dart';
+import 'package:fiteo_myapp/features/profile/data/plan_tracking_repository.dart';
+
+import 'package:fiteo_myapp/features/profile/presentation/models/overview_achievement.dart';
+import 'package:fiteo_myapp/features/profile/presentation/models/overview_stats.dart';
 import 'package:fiteo_myapp/features/profile/presentation/models/plan_status.dart';
+import 'package:fiteo_myapp/features/profile/presentation/models/plan_tracking_stats.dart';
+
 import 'package:fiteo_myapp/features/profile/presentation/widgets/fiteo_overview_note_card.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/fiteo_score_header.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_status_header.dart';
@@ -14,6 +22,8 @@ import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_weight_pr
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_weight_summary_card.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/tracking_summary_card.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/unique_features_card.dart';
+import 'package:fiteo_myapp/features/profile/presentation/widgets/overview_loading_skeleton.dart';
+import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_loading_skeleton.dart';
 
 class PlanTrackingScreen extends StatefulWidget {
   const PlanTrackingScreen({
@@ -29,20 +39,149 @@ class _PlanTrackingScreenState
     extends State<PlanTrackingScreen> {
   int selectedTab = 0;
 
-  // Sadece UI testi.
-  // Burayı değiştirerek 4 durumu test edebilirsin.
-  final PlanStatus planStatus = PlanStatus.improveConsistencyFirst;
+  final OverviewRepository _overviewRepository =
+  OverviewRepository();
 
-  // Diğer durumlar:
-  //
-  // PlanStatus.reviewRecommended
-  // PlanStatus.notEnoughData
-  // PlanStatus.improveConsistencyFirst
+  final OverviewAchievementCalculator
+  _achievementCalculator =
+  const OverviewAchievementCalculator();
+
+  OverviewStats? _overviewStats;
+
+  List<OverviewAchievement> _achievements = const [];
+
+  bool _isOverviewLoading = true;
+  bool _overviewHasError = false;
+
+  final PlanTrackingRepository _planTrackingRepository =
+  PlanTrackingRepository();
+
+  PlanTrackingStats? _planTrackingStats;
+
+  bool _isPlanLoading = true;
+  bool _planHasError = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _loadOverview();
+    _loadPlanTracking();
+  }
+
+  Future<void> _loadOverview() async {
+    try {
+      final stats =
+      await _overviewRepository.loadOverview();
+
+      final achievements =
+      _achievementCalculator.topAchievements(
+        stats,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _overviewStats = stats;
+        _achievements = achievements;
+        _isOverviewLoading = false;
+        _overviewHasError = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _isOverviewLoading = false;
+        _overviewHasError = true;
+      });
+    }
+  }
+
+  Future<void> _loadPlanTracking() async {
+    try {
+      final stats =
+      await _planTrackingRepository.loadPlanTracking();
+
+      if (!mounted) return;
+
+      setState(() {
+        _planTrackingStats = stats;
+        _isPlanLoading = false;
+        _planHasError = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _isPlanLoading = false;
+        _planHasError = true;
+      });
+    }
+  }
 
   void _changeTab(int index) {
     setState(() {
       selectedTab = index;
     });
+  }
+
+  Widget _buildOverviewContent() {
+    if (_isOverviewLoading) {
+      return const OverviewLoadingContent();
+    }
+
+    if (_overviewHasError || _overviewStats == null) {
+      return Center(
+        child: IconButton(
+          onPressed: () {
+            setState(() {
+              _isOverviewLoading = true;
+              _overviewHasError = false;
+            });
+
+            _loadOverview();
+          },
+          icon: const Icon(
+            Icons.refresh_rounded,
+            color: AppColors.homeBrown,
+          ),
+        ),
+      );
+    }
+
+    return _OverviewContent(
+      stats: _overviewStats!,
+      achievements: _achievements,
+    );
+  }
+
+  Widget _buildPlanContent() {
+    if (_isPlanLoading) {
+      return const PlanLoadingContent();
+    }
+
+    if (_planHasError || _planTrackingStats == null) {
+      return Center(
+        child: IconButton(
+          onPressed: () {
+            setState(() {
+              _isPlanLoading = true;
+              _planHasError = false;
+            });
+
+            _loadPlanTracking();
+          },
+          icon: const Icon(
+            Icons.refresh_rounded,
+            color: AppColors.homeBrown,
+          ),
+        ),
+      );
+    }
+
+    return _PlanContent(
+      stats: _planTrackingStats!,
+    );
   }
 
   @override
@@ -65,24 +204,33 @@ class _PlanTrackingScreenState
           body: Column(
             children: [
               if (selectedTab == 0)
-                FiteoScoreHeader(
-                  score: 80,
+                _isOverviewLoading
+                    ? OverviewLoadingHeader(
+                  selectedTab: selectedTab,
+                  onTabChanged: _changeTab,
+                )
+                    : FiteoScoreHeader(
+                  score: _overviewStats?.fiteoScore ?? 0,
                   selectedTab: selectedTab,
                   onTabChanged: _changeTab,
                 )
               else
-                PlanStatusHeader(
-                  status: planStatus,
+                _isPlanLoading
+                    ? PlanLoadingHeader(
+                  selectedTab: selectedTab,
+                  onTabChanged: _changeTab,
+                )
+                    : PlanStatusHeader(
+                  status: _planTrackingStats?.planStatus ??
+                      PlanStatus.notEnoughData,
                   selectedTab: selectedTab,
                   onTabChanged: _changeTab,
                 ),
 
               Expanded(
                 child: selectedTab == 0
-                    ? const _OverviewContent()
-                    : _PlanContent(
-                  status: planStatus,
-                ),
+                    ? _buildOverviewContent()
+                    : _buildPlanContent(),
               ),
             ],
           ),
@@ -93,52 +241,12 @@ class _PlanTrackingScreenState
 }
 
 class _OverviewContent extends StatelessWidget {
-  const _OverviewContent();
+  final OverviewStats stats;
+  final List<OverviewAchievement> achievements;
 
-  @override
-  Widget build(BuildContext context) {
-    final screenWidth =
-        MediaQuery.of(context).size.width;
-
-    return SingleChildScrollView(
-      physics:
-      const ClampingScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(
-        screenWidth * 0.07,
-        26,
-        screenWidth * 0.07,
-        45,
-      ),
-      child: Column(
-        children: [
-          const TrackingSummaryCard(
-            streakDays: 12,
-            goalAchievement: 84,
-          ),
-
-          const SizedBox(height: 24),
-
-          UniqueFeaturesCard(
-            longestStreak: 12,
-            bestProtein: 134,
-            mostActiveDay:
-            context.l10n.sunday,
-          ),
-
-          const SizedBox(height: 30),
-
-          const FiteoOverviewNoteCard(),
-        ],
-      ),
-    );
-  }
-}
-
-class _PlanContent extends StatelessWidget {
-  final PlanStatus status;
-
-  const _PlanContent({
-    required this.status,
+  const _OverviewContent({
+    required this.stats,
+    required this.achievements,
   });
 
   @override
@@ -157,20 +265,87 @@ class _PlanContent extends StatelessWidget {
       ),
       child: Column(
         children: [
+          TrackingSummaryCard(
+            trackingConsistency:
+            stats.trackingConsistency.round(),
+            goalAchievement:
+            stats.goalAchievement.round(),
+          ),
+
+          const SizedBox(height: 24),
+
+          UniqueFeaturesCard(
+            achievements: achievements,
+          ),
+
+          const SizedBox(height: 30),
+
+          const FiteoOverviewNoteCard(),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlanContent extends StatelessWidget {
+  final PlanTrackingStats stats;
+
+  const _PlanContent({
+    required this.stats,
+  });
+
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}.'
+        '${date.month.toString().padLeft(2, '0')}.'
+        '${date.year}';
+  }
+
+  String _formatShortMonth(
+      BuildContext context,
+      DateTime date,
+      ) {
+    final locale =
+    Localizations.localeOf(context).toLanguageTag();
+
+    return DateFormat.MMM(locale).format(date);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth =
+        MediaQuery.of(context).size.width;
+
+    return SingleChildScrollView(
+      physics:
+      const ClampingScrollPhysics(),
+      padding: EdgeInsets.fromLTRB(
+        screenWidth * 0.07,
+        26,
+        screenWidth * 0.07,
+        45,
+      ),
+      child: Column(
+        children: [
           PlanWeightSummaryCard(
-            startWeight: 55,
-            startDate: '12.04.2026',
-
-            // UI test verisi
-            reachDay: 20,
-            reachMonth:
-            context.l10n.july,
-
-            // true  -> yeşil + yukarı ok
-            // false -> kırmızı + aşağı ok
-            isProjectionGood: true,
-
-            goalWeight: 50,
+            startWeight: stats.planStartWeight,
+            startDate: _formatDate(stats.planActivatedAt),
+            reachDay: stats.estimatedGoalDate?.day ?? 0,
+            reachMonth: stats.estimatedGoalDate == null
+                ? '-'
+                : _formatShortMonth(
+              context,
+              stats.estimatedGoalDate!,
+            ),
+            isProjectionGood:
+            stats.projectionDifferenceDays == null
+                ? null
+                : stats.projectionDifferenceDays! <= -3
+                ? true
+                : stats.projectionDifferenceDays! >= 3
+                ? false
+                : null,
+            goalWeight: stats.targetWeight,
+            weightUnit: stats.weightUnit,
           ),
 
           const SizedBox(height: 24),
@@ -180,15 +355,17 @@ class _PlanContent extends StatelessWidget {
           const SizedBox(height: 30),
 
           PlanStatusNoteCard(
-            status: status,
-            estimatedGoalDate:
-            '20 ${context.l10n.july} 2026',
+            status: stats.planStatus,
+            estimatedGoalDate: stats.estimatedGoalDate == null
+                ? '-'
+                : '${stats.estimatedGoalDate!.day} '
+                '${_formatShortMonth(
+              context,
+              stats.estimatedGoalDate!,
+            )} '
+                '${stats.estimatedGoalDate!.year}',
             onReviewPlan: () {
-              // Sadece Review Recommended
-              // durumunda buton görünür.
-              //
-              // Daha sonra yeni plan
-              // ekranına route bağlanacak.
+              // Review plan akışını AI entegrasyonunda bağlayacağız.
             },
           ),
         ],

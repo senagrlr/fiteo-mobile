@@ -88,11 +88,45 @@ class AiChatRepository {
 
     if (user == null) return {};
 
-    final doc = await _firestore.collection('users').doc(user.uid).get();
+    final doc = await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .get();
 
-    return Map<String, dynamic>.from(
-      doc.data()?['userPreferences'] ?? {},
+    final data = doc.data();
+
+    final preferences =
+    Map<String, dynamic>.from(
+      data?['userPreferences'] ?? {},
     );
+
+    final nutritionPlan =
+    data?['nutritionPlan']
+    as Map<String, dynamic>?;
+
+    return {
+      ...preferences,
+
+      'calorieGoal':
+      nutritionPlan?['calorieGoal'] ??
+          nutritionPlan?['dailyCalories'],
+
+      'proteinGoal':
+      nutritionPlan?['proteinGoal'] ??
+          nutritionPlan?['proteinGrams'],
+
+      'carbsGoal':
+      nutritionPlan?['carbsGoal'] ??
+          nutritionPlan?['carbsGrams'],
+
+      'fatGoal':
+      nutritionPlan?['fatGoal'] ??
+          nutritionPlan?['fatsGrams'],
+
+      'waterGoalMl':
+      nutritionPlan?['waterGoalMl'] ??
+          nutritionPlan?['waterMl'],
+    };
   }
 
   Future<Map<String, dynamic>> getTodaySummary() async {

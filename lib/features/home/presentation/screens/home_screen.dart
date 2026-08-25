@@ -15,6 +15,7 @@ import 'package:fiteo_myapp/features/home/presentation/widgets/daily_macros_card
 import 'package:fiteo_myapp/features/home/presentation/widgets/home_header.dart';
 import 'package:fiteo_myapp/features/home/presentation/widgets/water_progress_card.dart';
 import 'package:fiteo_myapp/features/home/presentation/widgets/week_calendar_row.dart';
+import 'package:fiteo_myapp/features/home/presentation/widgets/home_loading_skeleton.dart';
 
 import 'package:fiteo_myapp/features/reports/models/monthly_report_data.dart';
 import 'package:fiteo_myapp/features/reports/presentation/popups/monthly_report_popup.dart';
@@ -86,6 +87,9 @@ class _HomeScreenState extends State<HomeScreen> {
       final data =
       await _homeRepository.getTodaySummary();
 
+      final currentPlan =
+      await _homeRepository.getCurrentNutritionPlan();
+
       final streak =
       await _homeRepository.getCurrentStreak();
 
@@ -106,7 +110,8 @@ class _HomeScreenState extends State<HomeScreen> {
           data['netCalories'] as int? ?? 0;
 
       final todayGoal =
-          data['calorieGoal'] as int? ??
+          (data['calorieGoal'] as num?)?.round() ??
+              (currentPlan['calorieGoal'] as num?)?.round() ??
               2000;
 
       final todayProtein =
@@ -123,6 +128,26 @@ class _HomeScreenState extends State<HomeScreen> {
           (data['carbs'] as num?)
               ?.toDouble() ??
               0.0;
+
+      final todayProteinGoal =
+          (data['proteinGoal'] as num?)?.toDouble() ??
+              (currentPlan['proteinGoal'] as num?)?.toDouble() ??
+              70.0;
+
+      final todayFatGoal =
+          (data['fatGoal'] as num?)?.toDouble() ??
+              (currentPlan['fatGoal'] as num?)?.toDouble() ??
+              50.0;
+
+      final todayCarbsGoal =
+          (data['carbsGoal'] as num?)?.toDouble() ??
+              (currentPlan['carbsGoal'] as num?)?.toDouble() ??
+              120.0;
+
+      final todayWaterGoal =
+          (data['waterGoalMl'] as num?)?.round() ??
+              (currentPlan['waterGoalMl'] as num?)?.round() ??
+              2500;
 
       final todayGoalReached =
           data['isGoalReached'] as bool? ??
@@ -170,35 +195,29 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!mounted) return;
 
       setState(() {
-        consumed =
-            todayConsumed;
+        consumed = todayConsumed;
 
-        burned =
-            todayBurned;
+        burned = todayBurned;
 
-        net =
-            todayNet;
+        net = todayNet;
 
-        calorieGoal =
-            todayGoal;
+        calorieGoal = todayGoal;
 
-        streakDays =
-            streak;
+        streakDays = streak;
 
-        proteinConsumed =
-            todayProtein;
+        proteinConsumed = todayProtein;
+        proteinGoal = todayProteinGoal;
 
-        fatConsumed =
-            todayFats;
+        fatConsumed = todayFats;
+        fatGoal = todayFatGoal;
 
-        carbsConsumed =
-            todayCarbs;
+        carbsConsumed = todayCarbs;
+        carbsGoal = todayCarbsGoal;
 
-        waterConsumedMl =
-            todayWater;
+        waterConsumedMl = todayWater;
+        waterGoalMl = todayWaterGoal;
 
-        dailyFeedback =
-            feedback;
+        dailyFeedback = feedback;
 
         isLoading = false;
       });
@@ -316,8 +335,8 @@ class _HomeScreenState extends State<HomeScreen> {
             activeDays:
             '18 gün',
 
-            activityTargetDays:
-            '18/31 hedefte',
+            workoutTime:
+            'Toplam 420 dk',
 
             proteinAverage:
             '92 g',
@@ -365,45 +384,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           // ====================================================
-          // ACHIEVEMENTS
-          // ====================================================
-
-          achievements: [
-            MonthlyAchievementData(
-              type:
-              MonthlyAchievementType.trophy,
-
-              title:
-              'Yeni Kişisel Rekor',
-
-              description:
-              '%91 takip tutarlılığı',
-            ),
-
-            MonthlyAchievementData(
-              type:
-              MonthlyAchievementType.streak,
-
-              title:
-              'En Uzun Seri',
-
-              description:
-              '11 gün aralıksız',
-            ),
-
-            MonthlyAchievementData(
-              type:
-              MonthlyAchievementType.strength,
-
-              title:
-              'En Fazla Protein Hedefi',
-
-              description:
-              '24 gün — yeni rekor',
-            ),
-          ],
-
-          // ====================================================
           // CONSISTENCY
           // ====================================================
 
@@ -435,28 +415,14 @@ class _HomeScreenState extends State<HomeScreen> {
           // WEIGHT & PLAN
           // ====================================================
 
-          weightPlan:
-          MonthlyWeightPlanData(
-            startWeight:
-            82.4,
-
-            currentWeight:
-            80.6,
-
-            monthlyTargetChange:
-            -2.0,
-
-            statusLabel:
-            'Yolunda',
-
+          weightPlan: const MonthlyWeightPlanData(
+            startWeight: 82.4,
+            currentWeight: 80.6,
+            monthlyTargetChange: -2.0,
+            progressAchievedPercent: 90,
+            statusLabel: 'Yolunda',
             statusDescription:
             'Bu ay planlanan kilo verme hızına oldukça yakın ilerledin.',
-
-            goalPredictionDate:
-            '18 Ekim',
-
-            predictionDaysDifference:
-            7,
           ),
 
           // ====================================================
@@ -561,15 +527,10 @@ class _HomeScreenState extends State<HomeScreen> {
       ) {
     if (isLoading) {
       return const SystemNavigationBar(
-        color:
-        AppColors.generalBackground,
+        color: AppColors.generalBackground,
         child: Scaffold(
-          backgroundColor:
-          AppColors.generalBackground,
-          body: Center(
-            child:
-            CircularProgressIndicator(),
-          ),
+          backgroundColor: AppColors.generalBackground,
+          body: HomeLoadingContent(),
         ),
       );
     }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
+import 'package:fiteo_myapp/common/utils/weight_unit_converter.dart';
 
 class PlanWeightSummaryCard extends StatelessWidget {
   final double startWeight;
@@ -11,12 +12,10 @@ class PlanWeightSummaryCard extends StatelessWidget {
   final int reachDay;
   final String reachMonth;
 
-  // true  -> olumlu değişim
-  // false -> olumsuz değişim
-  // null  -> değişiklik yok
   final bool? isProjectionGood;
 
   final double goalWeight;
+  final String weightUnit;
 
   const PlanWeightSummaryCard({
     super.key,
@@ -26,15 +25,8 @@ class PlanWeightSummaryCard extends StatelessWidget {
     required this.reachMonth,
     required this.isProjectionGood,
     required this.goalWeight,
+    required this.weightUnit,
   });
-
-  String _formatWeight(double value) {
-    if (value == value.roundToDouble()) {
-      return value.toInt().toString();
-    }
-
-    return value.toStringAsFixed(1);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +67,13 @@ class PlanWeightSummaryCard extends StatelessWidget {
           Expanded(
             child: _WeightColumn(
               title: context.l10n.startWeight,
-              weight: _formatWeight(startWeight),
+              weight: WeightUnitConverter.format(
+                WeightUnitConverter.kgToDisplay(
+                  kg: startWeight,
+                  unit: weightUnit,
+                ),
+              ),
+              weightUnit: weightUnit,
               bottomText: startDate,
             ),
           ),
@@ -97,7 +95,13 @@ class PlanWeightSummaryCard extends StatelessWidget {
           Expanded(
             child: _WeightColumn(
               title: context.l10n.goalWeight,
-              weight: _formatWeight(goalWeight),
+              weight: WeightUnitConverter.format(
+                WeightUnitConverter.kgToDisplay(
+                  kg: goalWeight,
+                  unit: weightUnit,
+                ),
+              ),
+              weightUnit: weightUnit,
             ),
           ),
         ],
@@ -109,11 +113,13 @@ class PlanWeightSummaryCard extends StatelessWidget {
 class _WeightColumn extends StatelessWidget {
   final String title;
   final String weight;
+  final String weightUnit;
   final String? bottomText;
 
   const _WeightColumn({
     required this.title,
     required this.weight,
+    required this.weightUnit,
     this.bottomText,
   });
 
@@ -168,7 +174,7 @@ class _WeightColumn extends StatelessWidget {
                       bottom: 2,
                     ),
                     child: Text(
-                      'kg',
+                      weightUnit,
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors
                             .planTrackingSecondaryLabel,

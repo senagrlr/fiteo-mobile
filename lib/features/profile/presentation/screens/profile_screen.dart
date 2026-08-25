@@ -8,6 +8,7 @@ import 'package:fiteo_myapp/features/profile/data/profile_repository.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/profile_header.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/profile_menu_item.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/weekly_views_card.dart';
+import 'package:fiteo_myapp/features/profile/presentation/widgets/profile_header_loading.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -66,14 +67,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           child: Column(
             children: [
-              ProfileHeader(
-                username:
-                isLoading ? '...' : username,
-                email:
-                isLoading ? '...' : email,
-                mascot:
-                isLoading ? null : mascot,
-
+              isLoading
+                  ? const ProfileHeaderLoading()
+                  : ProfileHeader(
+                username: username,
+                email: email,
+                mascot: mascot,
               ),
 
               const SizedBox(height: 30),

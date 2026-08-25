@@ -119,9 +119,9 @@ class _BarcodeScannerScreenState
       amount: '100',
       unit: 'Grams',
       calories: 210,
-      protein: 8,
-      fats: 7,
-      carbs: 29,
+      protein: 8.0,
+      fats: 7.0,
+      carbs: 29.0,
       nutritionSource: 'barcode',
       isEstimated: false,
     );

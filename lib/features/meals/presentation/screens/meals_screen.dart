@@ -12,6 +12,7 @@ import 'package:fiteo_myapp/features/meals/data/meal_repository.dart';
 import 'package:fiteo_myapp/features/meals/presentation/widgets/add_food_form.dart';
 import 'package:fiteo_myapp/features/meals/presentation/widgets/food_list_item.dart';
 import 'package:fiteo_myapp/features/meals/presentation/widgets/meal_swipe_header.dart';
+import 'package:fiteo_myapp/features/meals/presentation/widgets/meals_loading_skeleton.dart';
 
 class MealsScreen extends StatefulWidget {
   const MealsScreen({super.key});
@@ -343,23 +344,16 @@ class _MealsScreenState extends State<MealsScreen> {
     if (isLoading) {
       return const SystemNavigationBar(
         color: AppColors.generalBackground,
-        child: AnnotatedRegion<
-            SystemUiOverlayStyle>(
+        child: AnnotatedRegion<SystemUiOverlayStyle>(
           value: SystemUiOverlayStyle(
-            statusBarColor:
-            AppColors.calendarCompleted,
-            statusBarIconBrightness:
-            Brightness.light,
-            statusBarBrightness:
-            Brightness.dark,
+            statusBarColor: AppColors.calendarCompleted,
+            statusBarIconBrightness: Brightness.light,
+            statusBarBrightness: Brightness.dark,
           ),
           child: Scaffold(
-            backgroundColor:
-            AppColors.generalBackground,
-            body: Center(
-              child:
-              CircularProgressIndicator(),
-            ),
+            backgroundColor: AppColors.generalBackground,
+            extendBodyBehindAppBar: true,
+            body: MealsLoadingContent(),
           ),
         ),
       );

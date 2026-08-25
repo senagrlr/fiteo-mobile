@@ -11,6 +11,7 @@ import 'package:fiteo_myapp/features/home/presentation/widgets/home_header.dart'
 import 'package:fiteo_myapp/features/workout/data/workout_repository.dart';
 import 'package:fiteo_myapp/features/workout/presentation/widgets/add_exercise_form.dart';
 import 'package:fiteo_myapp/features/workout/presentation/widgets/exercise_list_item.dart';
+import 'package:fiteo_myapp/features/workout/presentation/widgets/workout_loading_skeleton.dart';
 
 class WorkoutScreen extends StatefulWidget {
   const WorkoutScreen({
@@ -264,9 +265,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         color: Colors.white,
         child: Scaffold(
           backgroundColor: Colors.white,
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
+          body: WorkoutLoadingContent(),
         ),
       );
     }

@@ -63,7 +63,7 @@ class WeeklyMetricsData {
   final String caloriesTargetDays;
 
   final String activeDays;
-  final String activityTargetDays;
+  final String workoutTime;
 
   final String proteinAverage;
   final String proteinTargetDays;
@@ -72,7 +72,7 @@ class WeeklyMetricsData {
     required this.caloriesAverage,
     required this.caloriesTargetDays,
     required this.activeDays,
-    required this.activityTargetDays,
+    required this.workoutTime,
     required this.proteinAverage,
     required this.proteinTargetDays,
   });
@@ -85,10 +85,10 @@ class WeeklyMetricsData {
 class WeeklyDayData {
   final String dayLabel;
 
-  final bool caloriesAligned;
-  final bool activityAligned;
-  final bool waterAligned;
-  final bool proteinAligned;
+  final bool? caloriesAligned;
+  final bool? activityAligned;
+  final bool? waterAligned;
+  final bool? proteinAligned;
 
   final int alignmentPercent;
 
@@ -107,20 +107,17 @@ class WeeklyDayData {
 // ============================================================
 
 class WeeklyWeightPlanData {
-  final double lastWeekWeight;
-  final double currentWeight;
+  final double? startWeight;
+  final double? currentWeight;
 
   final String statusLabel;
-  final String statusDescription;
-
-  final String estimatedGoalDate;
+  final String? statusDescription;
 
   const WeeklyWeightPlanData({
-    required this.lastWeekWeight,
+    required this.startWeight,
     required this.currentWeight,
     required this.statusLabel,
     required this.statusDescription,
-    required this.estimatedGoalDate,
   });
 }
 

@@ -53,7 +53,7 @@ class MonthlyMetricsCard extends StatelessWidget {
               title: context.l10n.activity,
               value: data.activeDays,
               subtitle: context.l10n.active,
-              targetText: data.activityTargetDays,
+              targetText: data.workoutTime,
             ),
           ),
 

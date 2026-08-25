@@ -5,13 +5,7 @@ import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/features/meals/data/meal_calorie_service.dart';
-
-import 'package:fiteo_myapp/features/meals/data/food_calorie_cache_repository.dart';
-import 'package:fiteo_myapp/features/meals/data/meal_calorie_service.dart';
-
 import 'package:fiteo_myapp/features/meals/domain/models/barcode_food_data.dart';
-import 'package:fiteo_myapp/features/meals/domain/models/nutrition_food.dart';
-
 import 'package:fiteo_myapp/features/meals/presentation/screens/meals_screen.dart';
 import 'package:fiteo_myapp/core/constants/nutrition_market_resolver.dart';
 import 'package:fiteo_myapp/features/meals/data/serving_normalizer.dart';

@@ -98,9 +98,6 @@ class ReportCacheSerializer {
     final nextMonth =
     Map<String, dynamic>.from(data['nextMonth'] as Map? ?? {});
 
-    final patternsRaw =
-        data['patterns'] as List? ?? const [];
-
     final changesRaw =
         data['changes'] as List? ?? const [];
 
@@ -146,17 +143,6 @@ class ReportCacheSerializer {
       reviewParagraphs: List<String>.from(
         data['reviewParagraphs'] as List? ?? const [],
       ),
-      patterns: patternsRaw
-          .whereType<Map>()
-          .map((item) {
-        final map = Map<String, dynamic>.from(item);
-
-        return MonthlyPatternCache(
-          title: map['title'] as String? ?? '',
-          description: map['description'] as String? ?? '',
-        );
-      })
-          .toList(),
       nextMonth: MonthlyNextMonthCache(
         title: nextMonth['title'] as String? ?? '',
         mainFocus: nextMonth['mainFocus'] as String? ?? '',
@@ -200,14 +186,6 @@ class ReportCacheSerializer {
         'planStatusDescription': cache.weightPlan.planStatusDescription,
       },
       'reviewParagraphs': cache.reviewParagraphs,
-      'patterns': cache.patterns
-          .map(
-            (pattern) => {
-          'title': pattern.title,
-          'description': pattern.description,
-        },
-      )
-          .toList(),
       'nextMonth': {
         'title': cache.nextMonth.title,
         'mainFocus': cache.nextMonth.mainFocus,

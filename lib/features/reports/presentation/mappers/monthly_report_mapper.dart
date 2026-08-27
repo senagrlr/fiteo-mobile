@@ -66,16 +66,8 @@ class MonthlyReportMapper {
         statusLabel: cache.weightPlan.planStatus,
         statusDescription: cache.weightPlan.planStatusDescription,
       ),
-      patterns: cache.patterns
-          .map(
-            (pattern) => MonthlyPatternData(
-          title: pattern.title,
-          description: pattern.description,
-        ),
-      )
-          .toList(),
       reviewParagraphs: cache.reviewParagraphs,
-      plan: MonthlyPlanData(
+      nextMonth: MonthlyNextMonthData(
         title: cache.nextMonth.title,
         mainFocus: cache.nextMonth.mainFocus,
         keepDoing: cache.nextMonth.keepDoing,

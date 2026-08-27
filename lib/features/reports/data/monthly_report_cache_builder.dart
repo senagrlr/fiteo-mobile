@@ -13,7 +13,6 @@ class MonthlyReportCacheBuilder {
     required DateTime availableFrom,
     required MonthlyWeightPlanCache weightPlan,
     required List<String> reviewParagraphs,
-    required List<MonthlyPatternCache> patterns,
     required MonthlyNextMonthCache nextMonth,
     required DateTime calendarStart,
     required DateTime calendarEnd,
@@ -42,7 +41,6 @@ class MonthlyReportCacheBuilder {
       changes: calculation.changes,
       weightPlan: weightPlan,
       reviewParagraphs: reviewParagraphs,
-      patterns: patterns,
       nextMonth: nextMonth,
       comparisonBasis: ReportComparisonBasis(
         trackingConsistency: stats.trackingConsistency,

@@ -539,36 +539,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           // ====================================================
-          // PATTERNS WE NOTICED
-          // ====================================================
-
-          patterns: [
-            MonthlyPatternData(
-              title:
-              'Hafta Sonları',
-
-              description:
-              'Hedef tutarlılığın hafta sonlarında %21 daha düşüktü.',
-            ),
-
-            MonthlyPatternData(
-              title:
-              'Akşamlar',
-
-              description:
-              'Günlük kalorilerinin ortalama %46’sını akşam yemeğinde tükettin.',
-            ),
-
-            MonthlyPatternData(
-              title:
-              'Protein',
-
-              description:
-              'Sabah protein tüketimin günün ilerleyen öğünlerine göre düzenli olarak daha düşüktü.',
-            ),
-          ],
-
-          // ====================================================
           // YOUR MONTH IN REVIEW
           // ====================================================
 
@@ -582,8 +552,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // NEXT MONTH PLAN
           // ====================================================
 
-          plan:
-          MonthlyPlanData(
+          nextMonth: MonthlyNextMonthData(
             title:
             'Eylül Planın',
 

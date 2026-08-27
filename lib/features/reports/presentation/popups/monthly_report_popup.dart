@@ -11,7 +11,7 @@ import 'package:fiteo_myapp/features/reports/presentation/widgets/report_score_s
 import 'package:fiteo_myapp/features/reports/presentation/widgets/monthly/monthly_consistency_card.dart';
 import 'package:fiteo_myapp/features/reports/presentation/widgets/monthly/monthly_metrics_card.dart';
 import 'package:fiteo_myapp/features/reports/presentation/widgets/monthly/monthly_overview_card.dart';
-import 'package:fiteo_myapp/features/reports/presentation/widgets/monthly/monthly_plan_card.dart';
+import 'package:fiteo_myapp/features/reports/presentation/widgets/monthly/monthly_next_month_card.dart';
 import 'package:fiteo_myapp/features/reports/presentation/widgets/monthly/monthly_review_card.dart';
 import 'package:fiteo_myapp/features/reports/presentation/widgets/monthly/monthly_strongest_weakest_area.dart';
 import 'package:fiteo_myapp/features/reports/presentation/widgets/monthly/monthly_weight_plan_card.dart';
@@ -52,9 +52,6 @@ class MonthlyReportPopup extends StatelessWidget {
             ),
             child: Column(
               children: [
-                // =================================================
-                // HEADER
-                // =================================================
 
                 ReportHeader(
                   title:
@@ -67,10 +64,6 @@ class MonthlyReportPopup extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 16),
-
-                // =================================================
-                // SCORE
-                // =================================================
 
                 ReportScoreSection(
                   score:
@@ -87,20 +80,12 @@ class MonthlyReportPopup extends StatelessWidget {
 
                 const SizedBox(height: 28),
 
-                // =================================================
-                // WHAT CHANGED THIS MONTH
-                // =================================================
-
                 MonthlyOverviewCard(
                   data:
                   data.overview,
                 ),
 
                 const SizedBox(height: 22),
-
-                // =================================================
-                // CALORIES / ACTIVITY / WATER
-                // =================================================
 
                 MonthlyMetricsCard(
                   data:
@@ -109,20 +94,12 @@ class MonthlyReportPopup extends StatelessWidget {
 
                 const SizedBox(height: 26),
 
-                // =================================================
-                // STRONGEST / WEAKEST + ACHIEVEMENTS
-                // =================================================
-
                 MonthlyStrongestWeakestArea(
                   strongestArea: data.strongestArea,
                   weakestArea: data.weakestArea,
                 ),
 
                 const SizedBox(height: 28),
-
-                // =================================================
-                // CONSISTENCY
-                // =================================================
 
                 MonthlyConsistencyCard(
                   data:
@@ -131,10 +108,6 @@ class MonthlyReportPopup extends StatelessWidget {
 
                 const SizedBox(height: 28),
 
-                // =================================================
-                // WEIGHT & PLAN
-                // =================================================
-
                 MonthlyWeightPlanCard(
                   data:
                   data.weightPlan,
@@ -142,26 +115,14 @@ class MonthlyReportPopup extends StatelessWidget {
 
                 const SizedBox(height: 30),
 
-                // =================================================
-                // MONTH IN REVIEW + PATTERNS
-                // =================================================
-
                 MonthlyReviewCard(
-                  paragraphs:
-                  data.reviewParagraphs,
-                  patterns:
-                  data.patterns,
+                  paragraphs: data.reviewParagraphs,
                 ),
 
                 const SizedBox(height: 30),
 
-                // =================================================
-                // PLAN FOR NEXT MONTH
-                // =================================================
-
-                MonthlyPlanCard(
-                  data:
-                  data.plan,
+                MonthlyNextMonthCard(
+                  data: data.nextMonth,
                 ),
               ],
             ),
@@ -171,10 +132,6 @@ class MonthlyReportPopup extends StatelessWidget {
     );
   }
 }
-
-// ============================================================
-// POPUP AÇMA
-// ============================================================
 
 Future<void> showMonthlyReportPopup(
     BuildContext context,

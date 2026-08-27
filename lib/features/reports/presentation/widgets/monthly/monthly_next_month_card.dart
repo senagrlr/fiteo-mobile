@@ -5,10 +5,10 @@ import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/features/reports/models/monthly_report_data.dart';
 
-class MonthlyPlanCard extends StatelessWidget {
-  final MonthlyPlanData data;
+class MonthlyNextMonthCard extends StatelessWidget {
+  final MonthlyNextMonthData data;
 
-  const MonthlyPlanCard({
+  const MonthlyNextMonthCard({
     super.key,
     required this.data,
   });
@@ -43,9 +43,6 @@ class MonthlyPlanCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // =====================================================
-          // MONTHLY PLAN TITLE
-          // =====================================================
 
           Row(
             children: [
@@ -80,10 +77,6 @@ class MonthlyPlanCard extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // =====================================================
-          // MAIN FOCUS
-          // =====================================================
-
           Text(
             data.mainFocus,
             style: AppTextStyles.bodyMedium.copyWith(
@@ -93,10 +86,6 @@ class MonthlyPlanCard extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
-
-          // =====================================================
-          // TRY THIS
-          // =====================================================
 
           if (tips.isNotEmpty) ...[
             const SizedBox(height: 24),

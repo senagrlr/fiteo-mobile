@@ -37,7 +37,6 @@ class MonthlyReportGenerationService {
     required DateTime generatedAt,
     required DateTime availableFrom,
     List<String> reviewParagraphs = const [],
-    List<MonthlyPatternCache> patterns = const [],
     MonthlyNextMonthCache nextMonth = const MonthlyNextMonthCache(
       title: '',
       mainFocus: '',
@@ -86,7 +85,6 @@ class MonthlyReportGenerationService {
       previousReport?.comparisonBasis,
       previousScore: previousReport?.score,
       reviewParagraphs: reviewParagraphs,
-      patterns: patterns,
       nextMonth: nextMonth,
     );
 

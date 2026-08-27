@@ -32,7 +32,6 @@ class MonthlyReportCache {
   final MonthlyWeightPlanCache weightPlan;
 
   final List<String> reviewParagraphs;
-  final List<MonthlyPatternCache> patterns;
   final MonthlyNextMonthCache nextMonth;
 
   final ReportComparisonBasis comparisonBasis;
@@ -58,7 +57,6 @@ class MonthlyReportCache {
     required this.changes,
     required this.weightPlan,
     required this.reviewParagraphs,
-    required this.patterns,
     required this.nextMonth,
     required this.comparisonBasis,
   });
@@ -81,16 +79,6 @@ class MonthlyWeightPlanCache {
     required this.progressAchievedPercent,
     required this.planStatus,
     required this.planStatusDescription,
-  });
-}
-
-class MonthlyPatternCache {
-  final String title;
-  final String description;
-
-  const MonthlyPatternCache({
-    required this.title,
-    required this.description,
   });
 }
 

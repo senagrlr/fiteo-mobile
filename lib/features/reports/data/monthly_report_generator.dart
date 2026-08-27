@@ -46,7 +46,6 @@ class MonthlyReportGenerator {
     int? previousScore,
 
     required List<String> reviewParagraphs,
-    required List<MonthlyPatternCache> patterns,
     required MonthlyNextMonthCache nextMonth,
   }) {
     final stats = _aggregator.calculate(
@@ -83,7 +82,6 @@ class MonthlyReportGenerator {
       availableFrom: availableFrom,
       weightPlan: weightPlan,
       reviewParagraphs: reviewParagraphs,
-      patterns: patterns,
       nextMonth: nextMonth,
       previousScore: previousScore,
       calendarStart: period.calendarStart,

@@ -118,6 +118,24 @@ class ReportRepository {
     );
   }
 
+  Future<void> markWeeklyReportEmailSent() async {
+    await _updateReportState(
+      documentId: 'weeklyCurrent',
+      data: {
+        'emailSentAt': FieldValue.serverTimestamp(),
+      },
+    );
+  }
+
+  Future<void> markMonthlyReportEmailSent() async {
+    await _updateReportState(
+      documentId: 'monthlyCurrent',
+      data: {
+        'emailSentAt': FieldValue.serverTimestamp(),
+      },
+    );
+  }
+
   Future<void> _updateReportState({
     required String documentId,
     required Map<String, dynamic> data,

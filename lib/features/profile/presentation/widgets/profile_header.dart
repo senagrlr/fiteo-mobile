@@ -9,6 +9,7 @@ class ProfileHeader extends StatelessWidget {
   final String email;
   final String? mascot;
   final bool isPremium;
+  final VoidCallback? onMembershipTap;
 
   const ProfileHeader({
     super.key,
@@ -16,6 +17,7 @@ class ProfileHeader extends StatelessWidget {
     required this.email,
     this.mascot,
     this.isPremium = false,
+    this.onMembershipTap,
   });
 
   @override
@@ -101,6 +103,7 @@ class ProfileHeader extends StatelessWidget {
             right: 24,
             child: MembershipBadge(
               label: isPremium ? 'PREMIUM' : 'FREE',
+              onTap: onMembershipTap,
             ),
           ),
         ],

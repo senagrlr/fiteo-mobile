@@ -15,6 +15,7 @@ import 'package:fiteo_myapp/features/home/presentation/widgets/daily_macros_card
 import 'package:fiteo_myapp/features/home/presentation/widgets/home_header.dart';
 import 'package:fiteo_myapp/features/home/presentation/widgets/water_progress_card.dart';
 import 'package:fiteo_myapp/features/home/presentation/widgets/week_calendar_row.dart';
+import 'package:fiteo_myapp/features/home/presentation/widgets/weekly_weight_update_sheet.dart';
 
 import 'package:fiteo_myapp/features/reports/models/monthly_report_data.dart';
 import 'package:fiteo_myapp/features/reports/presentation/popups/monthly_report_popup.dart';
@@ -63,6 +64,25 @@ class _HomeScreenState extends State<HomeScreen> {
   int waterGoalMl = 2500;
 
   bool isLoading = true;
+
+  // ============================================================
+  // WEEKLY WEIGHT UPDATE - UI TEST
+  // ============================================================
+
+  bool _weeklyWeightUpdateShown = false;
+
+  // Daha sonra kullanıcının mevcut kilosu gelecek.
+  double currentWeightKg = 57.0;
+
+  // Daha sonra onboarding / profil tercihinden gelecek.
+  //
+  // KG testi:
+  // String weightUnit = 'KG';
+  //
+  // LB testi:
+  // String weightUnit = 'LB';
+
+  String weightUnit = 'KG';
 
   // ============================================================
   // MONTHLY REPORT TEST
@@ -203,8 +223,18 @@ class _HomeScreenState extends State<HomeScreen> {
         isLoading = false;
       });
 
-      // Şimdilik sadece Monthly Report UI test.
-      _showMonthlyReportForTest();
+      // ========================================================
+      // UI TEST
+      // ========================================================
+
+      // Ana sayfa açılınca haftalık kilo popup'ını göster.
+      _showWeeklyWeightUpdateForTest();
+
+      // Monthly Report test popup'ı şimdilik otomatik
+      // açılmıyor. İki modal üst üste binmesin diye
+      // yorum satırında bırakıyoruz.
+      //
+      // _showMonthlyReportForTest();
     } catch (_) {
       if (!mounted) return;
 
@@ -212,6 +242,84 @@ class _HomeScreenState extends State<HomeScreen> {
         isLoading = false;
       });
     }
+  }
+
+  // ============================================================
+  // WEEKLY WEIGHT UPDATE - UI TEST
+  // ============================================================
+
+  void _showWeeklyWeightUpdateForTest() {
+    if (_weeklyWeightUpdateShown ||
+        !mounted) {
+      return;
+    }
+
+    _weeklyWeightUpdateShown = true;
+
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      showModalBottomSheet<void>(
+        context: context,
+
+        // Sheet içerik kadar yükselir.
+        isScrollControlled: true,
+
+        backgroundColor:
+        Colors.transparent,
+
+        barrierColor:
+        Colors.black.withValues(
+          alpha: 0.25,
+        ),
+
+        // Dışarı dokununca kapanabilir.
+        isDismissible: true,
+
+        // Aşağı sürükleyerek kapanabilir.
+        enableDrag: true,
+
+        builder: (sheetContext) {
+          return WeeklyWeightUpdateSheet(
+            // ==================================================
+            // UI TEST - MEVCUT KİLO
+            // ==================================================
+
+            initialWeightKg:
+            currentWeightKg,
+
+            // ==================================================
+            // UI TEST - BİRİM
+            // ==================================================
+            //
+            // Kullanıcı onboarding'de KG seçtiyse KG,
+            // LB seçtiyse LB gelecek.
+            //
+            // Aynı anda ikisi gösterilmiyor.
+
+            unit:
+            weightUnit,
+
+            // ==================================================
+            // UI PLACEHOLDER
+            // ==================================================
+            //
+            // Daha sonra backend'deki haftalık kilo
+            // güncelleme işlemine bağlanacak.
+
+            onUpdate: (newWeightKg) {
+              if (!mounted) return;
+
+              setState(() {
+                currentWeightKg =
+                    newWeightKg;
+              });
+            },
+          );
+        },
+      );
+    });
   }
 
   // ============================================================
@@ -298,12 +406,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           // ====================================================
-          // CALORIES / ACTIVITY / WATER
+          // CALORIES / ACTIVITY / PROTEIN
           // ====================================================
-
-          // ====================================================
-// CALORIES / ACTIVITY / PROTEIN
-// ====================================================
 
           metrics:
           MonthlyMetricsData(

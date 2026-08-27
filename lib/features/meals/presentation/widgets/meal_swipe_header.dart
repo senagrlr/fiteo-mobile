@@ -47,14 +47,16 @@ class MealSwipeHeader extends StatefulWidget {
   }
 }
 
-class _MealSwipeHeaderState extends State<MealSwipeHeader> {
+class _MealSwipeHeaderState
+    extends State<MealSwipeHeader> {
   double currentPage = 0;
 
   @override
   void initState() {
     super.initState();
 
-    currentPage = widget.selectedIndex.toDouble();
+    currentPage =
+        widget.selectedIndex.toDouble();
 
     widget.pageController.addListener(
       _pageListener,
@@ -66,7 +68,8 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
       return;
     }
 
-    final page = widget.pageController.page;
+    final page =
+        widget.pageController.page;
 
     if (page == null || !mounted) {
       return;
@@ -83,7 +86,8 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
       ) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.pageController != widget.pageController) {
+    if (oldWidget.pageController !=
+        widget.pageController) {
       oldWidget.pageController.removeListener(
         _pageListener,
       );
@@ -94,8 +98,10 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
     }
 
     if (!widget.pageController.hasClients &&
-        widget.selectedIndex != currentPage.round()) {
-      currentPage = widget.selectedIndex.toDouble();
+        widget.selectedIndex !=
+            currentPage.round()) {
+      currentPage =
+          widget.selectedIndex.toDouble();
     }
   }
 
@@ -216,7 +222,8 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
             left: 24,
             child: Text(
               _formattedDate(context),
-              style: AppTextStyles.titleLarge.copyWith(
+              style:
+              AppTextStyles.titleLarge.copyWith(
                 color: Colors.white,
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -229,21 +236,25 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
             top: statusBarHeight + 10,
             right: 20,
             child: Container(
-              padding: const EdgeInsets.symmetric(
+              padding:
+              const EdgeInsets.symmetric(
                 horizontal: 14,
                 vertical: 8,
               ),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(
+                borderRadius:
+                BorderRadius.circular(
                   20,
                 ),
               ),
               child: Row(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisSize:
+                MainAxisSize.min,
                 children: [
                   const Icon(
-                    Icons.local_fire_department_rounded,
+                    Icons
+                        .local_fire_department_rounded,
                     color: AppColors.red,
                     size: 18,
                   ),
@@ -254,10 +265,14 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
                     context.l10n.streakDays(
                       widget.streakDays,
                     ),
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.homeBrown,
+                    style: AppTextStyles
+                        .bodyMedium
+                        .copyWith(
+                      color:
+                      AppColors.homeBrown,
                       fontSize: 14,
-                      fontWeight: FontWeight.w700,
+                      fontWeight:
+                      FontWeight.w700,
                     ),
                   ),
                 ],
@@ -268,7 +283,8 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
           // SWIPE ALANI
           Positioned.fill(
             child: PageView.builder(
-              controller: widget.pageController,
+              controller:
+              widget.pageController,
               physics:
               const ClampingScrollPhysics(),
               onPageChanged:
@@ -309,7 +325,8 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
                   children: [
                     Positioned(
                       top:
-                      statusBarHeight + 76,
+                      statusBarHeight +
+                          76,
                       left: 20,
                       right: 20,
                       child:
@@ -325,7 +342,8 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
                               Text(
                                 localizedMealName,
                                 textAlign:
-                                TextAlign.center,
+                                TextAlign
+                                    .center,
                                 style: AppTextStyles
                                     .displayMedium
                                     .copyWith(
@@ -333,7 +351,8 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
                                   Colors.white,
                                   fontSize: 38,
                                   fontWeight:
-                                  FontWeight.w900,
+                                  FontWeight
+                                      .w900,
                                   height: 1,
                                 ),
                               ),
@@ -344,13 +363,15 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
 
                               _MealMacroSummary(
                                 calories:
-                                widget.calories,
+                                widget
+                                    .calories,
                                 fats:
                                 widget.fats,
                                 carbs:
                                 widget.carbs,
                                 proteins:
-                                widget.proteins,
+                                widget
+                                    .proteins,
                               ),
                             ],
                           ),
@@ -360,6 +381,51 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
                   ],
                 );
               },
+            ),
+          ),
+
+          // MEAL INDICATOR
+          Positioned(
+            top: statusBarHeight + 180,
+            left: 0,
+            right: 0,
+            child: IgnorePointer(
+              child: Row(
+                mainAxisAlignment:
+                MainAxisAlignment.center,
+                children: List.generate(
+                  widget.meals.length,
+                      (index) {
+                    final isSelected =
+                        index ==
+                            _visibleMealIndex;
+
+                    return AnimatedContainer(
+                      duration:
+                      const Duration(
+                        milliseconds: 180,
+                      ),
+                      width: 7,
+                      height: 7,
+                      margin:
+                      const EdgeInsets
+                          .symmetric(
+                        horizontal: 3,
+                      ),
+                      decoration:
+                      BoxDecoration(
+                        shape:
+                        BoxShape.circle,
+                        color: isSelected
+                            ? Colors.white
+                            : const Color(
+                          0xFFD6D6D6,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
           ),
 
@@ -380,7 +446,8 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
                     scale: scale,
                     child: Center(
                       child: AnimatedSwitcher(
-                        duration: const Duration(
+                        duration:
+                        const Duration(
                           milliseconds: 220,
                         ),
                         switchInCurve:
@@ -393,7 +460,8 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
                             ) {
                           return FadeTransition(
                             opacity: animation,
-                            child: ScaleTransition(
+                            child:
+                            ScaleTransition(
                               scale:
                               Tween<double>(
                                 begin: 0.94,
@@ -417,7 +485,8 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
                             height: 300,
                             fit: BoxFit.contain,
                             filterQuality:
-                            FilterQuality.high,
+                            FilterQuality
+                                .high,
                             errorBuilder: (
                                 context,
                                 error,
@@ -425,9 +494,10 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
                                 ) {
                               return const Center(
                                 child: Icon(
-                                  Icons.restaurant_rounded,
-                                  color:
-                                  AppColors.homeBrown,
+                                  Icons
+                                      .restaurant_rounded,
+                                  color: AppColors
+                                      .homeBrown,
                                   size: 90,
                                 ),
                               );
@@ -447,7 +517,8 @@ class _MealSwipeHeaderState extends State<MealSwipeHeader> {
   }
 }
 
-class _MealMacroSummary extends StatelessWidget {
+class _MealMacroSummary
+    extends StatelessWidget {
   final int calories;
   final int fats;
   final int carbs;
@@ -463,7 +534,8 @@ class _MealMacroSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
+      padding:
+      const EdgeInsets.symmetric(
         horizontal: 18,
       ),
       child: FittedBox(
@@ -504,7 +576,8 @@ class _MealMacroSummary extends StatelessWidget {
       ) {
     return Text(
       value,
-      style: AppTextStyles.bodyMedium.copyWith(
+      style:
+      AppTextStyles.bodyMedium.copyWith(
         color: Colors.white,
         fontSize: 15,
         fontWeight: FontWeight.w700,
@@ -516,7 +589,8 @@ class _MealMacroSummary extends StatelessWidget {
     return Container(
       width: 1.2,
       height: 24,
-      margin: const EdgeInsets.symmetric(
+      margin:
+      const EdgeInsets.symmetric(
         horizontal: 14,
       ),
       color: Colors.white.withValues(
@@ -526,7 +600,8 @@ class _MealMacroSummary extends StatelessWidget {
   }
 }
 
-class _MealHeaderClipper extends CustomClipper<Path> {
+class _MealHeaderClipper
+    extends CustomClipper<Path> {
   @override
   Path getClip(
       Size size,

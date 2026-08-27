@@ -8,19 +8,22 @@ import 'package:fiteo_myapp/features/reports/models/report_comparison_basis.dart
 import 'package:fiteo_myapp/features/reports/data/report_period_resolver.dart';
 
 class MonthlyReportGenerator {
-  const MonthlyReportGenerator();
+  const MonthlyReportGenerator({
+    ReportPeriodAggregator aggregator = const ReportPeriodAggregator(),
+    MonthlyReportCalculator calculator = const MonthlyReportCalculator(),
+    MonthlyReportCacheBuilder cacheBuilder =
+    const MonthlyReportCacheBuilder(),
+    MonthlyWeightPlanBuilder weightPlanBuilder =
+    const MonthlyWeightPlanBuilder(),
+  })  : _aggregator = aggregator,
+        _calculator = calculator,
+        _cacheBuilder = cacheBuilder,
+        _weightPlanBuilder = weightPlanBuilder;
 
-  static const ReportPeriodAggregator _aggregator =
-  ReportPeriodAggregator();
-
-  static const MonthlyReportCalculator _calculator =
-  MonthlyReportCalculator();
-
-  static const MonthlyReportCacheBuilder _cacheBuilder =
-  MonthlyReportCacheBuilder();
-
-  static const MonthlyWeightPlanBuilder _weightPlanBuilder =
-  MonthlyWeightPlanBuilder();
+  final ReportPeriodAggregator _aggregator;
+  final MonthlyReportCalculator _calculator;
+  final MonthlyReportCacheBuilder _cacheBuilder;
+  final MonthlyWeightPlanBuilder _weightPlanBuilder;
 
   MonthlyReportCache generate({
     required ReportPeriod period,

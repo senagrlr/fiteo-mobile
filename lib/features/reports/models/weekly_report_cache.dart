@@ -1,6 +1,5 @@
 import 'package:fiteo_myapp/features/reports/models/report_performance_level.dart';
 import 'package:fiteo_myapp/features/reports/models/weekly_report_calculation.dart';
-import 'package:fiteo_myapp/features/reports/models/report_comparison_basis.dart';
 
 class WeeklyReportCache {
   final int schemaVersion;
@@ -32,8 +31,6 @@ class WeeklyReportCache {
   final List<String> reviewParagraphs;
   final WeeklyNextWeekCache nextWeek;
 
-  final ReportComparisonBasis comparisonBasis;
-
   const WeeklyReportCache({
     required this.schemaVersion,
     required this.periodStart,
@@ -55,7 +52,6 @@ class WeeklyReportCache {
     required this.weightPlan,
     required this.reviewParagraphs,
     required this.nextWeek,
-    required this.comparisonBasis,
   });
 }
 

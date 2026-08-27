@@ -41,7 +41,6 @@ class ReportCacheSerializer {
         'focusDescription': cache.nextWeek.focusDescription,
         'tips': cache.nextWeek.tips,
       },
-      'comparisonBasis': _comparisonBasisToMap(cache.comparisonBasis),
     };
   }
 
@@ -88,9 +87,6 @@ class ReportCacheSerializer {
         tips: List<String>.from(
           nextWeek['tips'] as List? ?? const [],
         ),
-      ),
-      comparisonBasis: _comparisonBasisFromMap(
-        data['comparisonBasis'],
       ),
     );
   }
@@ -328,20 +324,11 @@ class ReportCacheSerializer {
       ReportComparisonBasis basis,
       ) {
     return {
-      'score': basis.score,
       'trackingConsistency': basis.trackingConsistency,
       'goalConsistency': basis.goalConsistency,
-      'calorieAdherence': basis.calorieAdherence,
       'calorieTargetDays': basis.calorieTargetDays,
-      'proteinAdherence': basis.proteinAdherence,
       'proteinTargetDays': basis.proteinTargetDays,
-      'carbsAdherence': basis.carbsAdherence,
-      'carbsTargetDays': basis.carbsTargetDays,
-      'fatAdherence': basis.fatAdherence,
-      'fatTargetDays': basis.fatTargetDays,
-      'hydrationAdherence': basis.hydrationAdherence,
       'hydrationTargetDays': basis.hydrationTargetDays,
-      'activityScore': basis.activityScore,
       'activeDays': basis.activeDays,
     };
   }
@@ -487,33 +474,16 @@ class ReportCacheSerializer {
     final data = Map<String, dynamic>.from(raw as Map? ?? {});
 
     return ReportComparisonBasis(
-      score: (data['score'] as num?)?.round() ?? 0,
       trackingConsistency:
       (data['trackingConsistency'] as num?)?.toDouble() ?? 0,
       goalConsistency:
       (data['goalConsistency'] as num?)?.toDouble() ?? 0,
-      calorieAdherence:
-      (data['calorieAdherence'] as num?)?.toDouble() ?? 0,
       calorieTargetDays:
       (data['calorieTargetDays'] as num?)?.round() ?? 0,
-      proteinAdherence:
-      (data['proteinAdherence'] as num?)?.toDouble() ?? 0,
       proteinTargetDays:
       (data['proteinTargetDays'] as num?)?.round() ?? 0,
-      carbsAdherence:
-      (data['carbsAdherence'] as num?)?.toDouble() ?? 0,
-      carbsTargetDays:
-      (data['carbsTargetDays'] as num?)?.round() ?? 0,
-      fatAdherence:
-      (data['fatAdherence'] as num?)?.toDouble() ?? 0,
-      fatTargetDays:
-      (data['fatTargetDays'] as num?)?.round() ?? 0,
-      hydrationAdherence:
-      (data['hydrationAdherence'] as num?)?.toDouble() ?? 0,
       hydrationTargetDays:
       (data['hydrationTargetDays'] as num?)?.round() ?? 0,
-      activityScore:
-      (data['activityScore'] as num?)?.toDouble() ?? 0,
       activeDays:
       (data['activeDays'] as num?)?.round() ?? 0,
     );

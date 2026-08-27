@@ -211,32 +211,73 @@ class MonthlyReportCalculator {
       return const [];
     }
 
-    return [
+    final changes = [
       _change(
         type: MonthlyChangeType.trackingConsistency,
-        difference: stats.trackingConsistency - previous.trackingConsistency,
+        difference:
+        stats.trackingConsistency - previous.trackingConsistency,
       ),
       _change(
         type: MonthlyChangeType.goalConsistency,
-        difference: stats.goalConsistency - previous.goalConsistency,
+        difference:
+        stats.goalConsistency - previous.goalConsistency,
       ),
       _change(
         type: MonthlyChangeType.calorieTargetDays,
-        difference: (stats.calorieTargetDays - previous.calorieTargetDays).toDouble(),
+        difference:
+        (stats.calorieTargetDays - previous.calorieTargetDays)
+            .toDouble(),
       ),
       _change(
         type: MonthlyChangeType.proteinTargetDays,
-        difference: (stats.proteinTargetDays - previous.proteinTargetDays).toDouble(),
+        difference:
+        (stats.proteinTargetDays - previous.proteinTargetDays)
+            .toDouble(),
       ),
       _change(
         type: MonthlyChangeType.hydrationTargetDays,
-        difference: (stats.waterTargetDays - previous.hydrationTargetDays).toDouble(),
+        difference:
+        (stats.waterTargetDays - previous.hydrationTargetDays)
+            .toDouble(),
       ),
       _change(
         type: MonthlyChangeType.activeDays,
-        difference: (stats.activeDays - previous.activeDays).toDouble(),
+        difference:
+        (stats.activeDays - previous.activeDays).toDouble(),
       ),
     ];
+
+    final changed = changes
+        .where(
+          (item) =>
+      item.direction != MonthlyCalculationChangeDirection.same,
+    )
+        .toList();
+
+    final unchanged = changes
+        .where(
+          (item) =>
+      item.direction == MonthlyCalculationChangeDirection.same,
+    )
+        .toList();
+
+    changed.sort(
+          (a, b) => b.difference.abs().compareTo(
+        a.difference.abs(),
+      ),
+    );
+
+    final selected = <MonthlyChangeCalculation>[
+      ...changed.take(5),
+    ];
+
+    if (selected.length < 5) {
+      selected.addAll(
+        unchanged.take(5 - selected.length),
+      );
+    }
+
+    return selected;
   }
 
   MonthlyChangeCalculation _change({

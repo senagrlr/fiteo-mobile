@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
-import 'package:fiteo_myapp/features/reports/models/monthly_report_data.dart';
 
 class MonthlyReviewCard extends StatelessWidget {
   final List<String> paragraphs;

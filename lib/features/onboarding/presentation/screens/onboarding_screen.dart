@@ -58,14 +58,15 @@ class _OnboardingScreenState
         ),
         OnboardingPageModel(
           asset:
-          'assets/images/onboarding_3.png',
+          'assets/animations/onboarding_4.json',
           headerTitle:
           context.l10n.onboardingMeetFiteo,
           title:
           context.l10n.onboardingPage4Title,
           mediaHeightFactor: 0.44,
-          isLottie: false,
+          isLottie: true,
           headerSpacing: 0.005,
+          topSpacing: 0.15,
         ),
       ];
 
@@ -89,10 +90,12 @@ class _OnboardingScreenState
     final screenWidth =
         MediaQuery.of(context).size.width;
 
-    final pages = _pages(context);
+    final pages =
+    _pages(context);
 
     return SystemNavigationBar(
-      color: AppColors.onboardingBackground,
+      color:
+      AppColors.onboardingBackground,
       child: Scaffold(
         backgroundColor:
         AppColors.onboardingBackground,
@@ -100,12 +103,17 @@ class _OnboardingScreenState
           child: Stack(
             children: [
               PageView.builder(
-                controller: _pageController,
-                onPageChanged: _onPageChanged,
-                itemCount: pages.length,
-                itemBuilder: (context, index) {
+                controller:
+                _pageController,
+                onPageChanged:
+                _onPageChanged,
+                itemCount:
+                pages.length,
+                itemBuilder:
+                    (context, index) {
                   return OnboardingPageItem(
-                    page: pages[index],
+                    page:
+                    pages[index],
                   );
                 },
               ),
@@ -138,7 +146,8 @@ class _OnboardingScreenState
                 screenHeight * 0.05,
                 right:
                 screenWidth * 0.10,
-                child: OnboardingIndicator(
+                child:
+                OnboardingIndicator(
                   currentIndex:
                   _currentIndex,
                   itemCount:

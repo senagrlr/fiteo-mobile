@@ -8,6 +8,7 @@ import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
 import 'package:fiteo_myapp/features/profile/presentation/models/plan_status.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/fiteo_overview_note_card.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/fiteo_score_header.dart';
+import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_review_sheet.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_status_header.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_status_note_card.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_weight_progress_chart.dart';
@@ -30,12 +31,12 @@ class _PlanTrackingScreenState
   int selectedTab = 0;
 
   // Sadece UI testi.
-  // Burayı değiştirerek 4 durumu test edebilirsin.
-  final PlanStatus planStatus = PlanStatus.improveConsistencyFirst;
+  // Review Recommended durumunu test etmek için.
+  final PlanStatus planStatus =
+      PlanStatus.reviewRecommended;
 
   // Diğer durumlar:
   //
-  // PlanStatus.reviewRecommended
   // PlanStatus.notEnoughData
   // PlanStatus.improveConsistencyFirst
 
@@ -92,7 +93,8 @@ class _PlanTrackingScreenState
   }
 }
 
-class _OverviewContent extends StatelessWidget {
+class _OverviewContent
+    extends StatelessWidget {
   const _OverviewContent();
 
   @override
@@ -134,12 +136,71 @@ class _OverviewContent extends StatelessWidget {
   }
 }
 
-class _PlanContent extends StatelessWidget {
+class _PlanContent
+    extends StatelessWidget {
   final PlanStatus status;
 
   const _PlanContent({
     required this.status,
   });
+
+  void _openPlanReviewSheet(
+      BuildContext context,
+      ) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor:
+      Colors.transparent,
+      barrierColor:
+      Colors.black.withValues(
+        alpha: 0.26,
+      ),
+      isDismissible: true,
+      enableDrag: true,
+      builder: (sheetContext) {
+        return PlanReviewSheet(
+          // ======================================================
+          // UI TEST - ESKİ PLAN
+          // ======================================================
+
+          previousPlan:
+          const PlanNutritionTargets(
+            calories: 1630,
+            protein: 120,
+            carbs: 180,
+            fats: 55,
+            waterLiters: 2.0,
+          ),
+
+          // ======================================================
+          // UI TEST - YENİ PLAN
+          // ======================================================
+
+          newPlan:
+          const PlanNutritionTargets(
+            calories: 1500,
+            protein: 130,
+            carbs: 160,
+            fats: 50,
+            waterLiters: 2.3,
+          ),
+
+          // ======================================================
+          // UI PLACEHOLDER
+          // Daha sonra gerçek kaydetme işlemi bağlanacak.
+          // ======================================================
+
+          onSavePlan: () {
+            Navigator.pop(
+              sheetContext,
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -184,11 +245,9 @@ class _PlanContent extends StatelessWidget {
             estimatedGoalDate:
             '20 ${context.l10n.july} 2026',
             onReviewPlan: () {
-              // Sadece Review Recommended
-              // durumunda buton görünür.
-              //
-              // Daha sonra yeni plan
-              // ekranına route bağlanacak.
+              _openPlanReviewSheet(
+                context,
+              );
             },
           ),
         ],

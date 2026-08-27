@@ -16,6 +16,8 @@ import 'package:fiteo_myapp/features/auth/presentation/screens/auth_gate_screen.
 import 'package:fiteo_myapp/features/profile/presentation/screens/saved_recipes_screen.dart';
 import 'package:fiteo_myapp/features/profile/presentation/screens/plan_tracking_screen.dart';
 import 'package:fiteo_myapp/features/profile/presentation/screens/progress_screen.dart';
+import 'package:fiteo_myapp/features/membership/presentation/screens/premium_screen.dart';
+import 'package:fiteo_myapp/features/membership/presentation/screens/premium_membership_screen.dart';
 
 class AppRouter {
   static Map<String, WidgetBuilder> routes = {
@@ -63,6 +65,12 @@ class AppRouter {
 
     AppRoutes.progress:
         (context) => const ProgressScreen(),
+
+    AppRoutes.premium:
+        (context) => const PremiumScreen(),
+
+    AppRoutes.premiumMembership:
+        (context) => const PremiumMembershipScreen(),
 
   };
 }

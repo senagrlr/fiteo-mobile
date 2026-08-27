@@ -218,4 +218,31 @@ class DailySummaryRepository {
 
     return (doc.data()?['hydrationMl'] as num?)?.round() ?? 0;
   }
+
+  Future<List<Map<String, dynamic>>> getSummariesForPeriod({
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception('User not logged in');
+    }
+
+    final startKey = _formatDate(startDate);
+    final endKey = _formatDate(endDate);
+
+    final snapshot = await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('dailySummaries')
+        .where('date', isGreaterThanOrEqualTo: startKey)
+        .where('date', isLessThanOrEqualTo: endKey)
+        .orderBy('date')
+        .get();
+
+    return snapshot.docs.map((doc) {
+      return Map<String, dynamic>.from(doc.data());
+    }).toList();
+  }
 }

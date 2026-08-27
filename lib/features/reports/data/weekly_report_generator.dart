@@ -2,6 +2,7 @@ import 'package:fiteo_myapp/features/reports/data/report_period_aggregator.dart'
 import 'package:fiteo_myapp/features/reports/data/weekly_report_cache_builder.dart';
 import 'package:fiteo_myapp/features/reports/data/weekly_report_calculator.dart';
 import 'package:fiteo_myapp/features/reports/models/weekly_report_cache.dart';
+import 'package:fiteo_myapp/features/reports/data/report_period_resolver.dart';
 
 class WeeklyReportGenerator {
   const WeeklyReportGenerator({
@@ -18,8 +19,7 @@ class WeeklyReportGenerator {
 
   WeeklyReportCache generate({
     required List<Map<String, dynamic>> days,
-    required DateTime periodStart,
-    required DateTime periodEnd,
+    required ReportPeriod period,
     required DateTime generatedAt,
     required DateTime availableFrom,
     required WeeklyWeightPlanCache weightPlan,
@@ -28,8 +28,8 @@ class WeeklyReportGenerator {
     int? previousScore,
   }) {
     final stats = _aggregator.calculate(
-      startDate: periodStart,
-      endDate: periodEnd,
+      startDate: period.effectiveStart,
+      endDate: period.effectiveEnd,
       summaries: days,
     );
 
@@ -46,6 +46,8 @@ class WeeklyReportGenerator {
       reviewParagraphs: reviewParagraphs,
       nextWeek: nextWeek,
       previousScore: previousScore,
+      calendarStart: period.calendarStart,
+      calendarEnd: period.calendarEnd,
     );
   }
 }

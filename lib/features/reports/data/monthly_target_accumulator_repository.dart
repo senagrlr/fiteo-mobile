@@ -119,14 +119,16 @@ class MonthlyTargetAccumulatorRepository {
     });
   }
 
-  Future<MonthlyTargetAccumulator?> loadCurrentMonth() async {
+  Future<MonthlyTargetAccumulator?> loadForMonth({
+    required DateTime month,
+  }) async {
     final user = _auth.currentUser;
 
     if (user == null) {
       throw Exception('User not logged in');
     }
 
-    final today = _dateOnly(DateTime.now());
+    final targetMonth = _dateOnly(month);
 
     final ref = _firestore
         .collection('users')
@@ -141,22 +143,20 @@ class MonthlyTargetAccumulatorRepository {
     }
 
     final data = doc.data() ?? <String, dynamic>{};
-
     final monthKey = data['monthKey'] as String?;
 
     if (monthKey == null ||
-        monthKey != _monthKey(today)) {
+        monthKey != _monthKey(targetMonth)) {
       return null;
     }
 
     return MonthlyTargetAccumulator(
       monthKey: monthKey,
       accruedExpectedChangeKg:
-      (data['accruedExpectedChangeKg'] as num?)
-          ?.toDouble() ??
-          0,
-      accruedThrough:
-      _parseDate(data['accruedThrough'] as String?),
+      (data['accruedExpectedChangeKg'] as num?)?.toDouble() ?? 0,
+      accruedThrough: _parseDate(
+        data['accruedThrough'] as String?,
+      ),
     );
   }
 

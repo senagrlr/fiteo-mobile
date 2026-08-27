@@ -14,12 +14,14 @@ class WeeklyReportCacheBuilder {
     required WeeklyWeightPlanCache weightPlan,
     required List<String> reviewParagraphs,
     required WeeklyNextWeekCache nextWeek,
+    required DateTime calendarStart,
+    required DateTime calendarEnd,
     int? previousScore,
   }) {
     return WeeklyReportCache(
       schemaVersion: 1,
-      periodStart: stats.startDate,
-      periodEnd: stats.endDate,
+      periodStart: calendarStart,
+      periodEnd: calendarEnd,
       generatedAt: generatedAt,
       availableFrom: availableFrom,
       isAvailable: false,

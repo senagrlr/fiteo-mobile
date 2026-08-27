@@ -15,12 +15,14 @@ class MonthlyReportCacheBuilder {
     required List<String> reviewParagraphs,
     required List<MonthlyPatternCache> patterns,
     required MonthlyNextMonthCache nextMonth,
+    required DateTime calendarStart,
+    required DateTime calendarEnd,
     int? previousScore,
   }) {
     return MonthlyReportCache(
       schemaVersion: 1,
-      periodStart: stats.startDate,
-      periodEnd: stats.endDate,
+      periodStart: calendarStart,
+      periodEnd: calendarEnd,
       generatedAt: generatedAt,
       availableFrom: availableFrom,
       isAvailable: false,

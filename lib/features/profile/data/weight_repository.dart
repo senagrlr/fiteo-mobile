@@ -1,7 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class WeightRepository {
+abstract class WeightDataSource {
+  Future<WeightTrackingState> getTrackingState();
+
+  Future<List<WeightEntry>> getEntries({
+    required DateTime start,
+    required DateTime end,
+  });
+}
+
+class WeightRepository implements WeightDataSource {
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
 

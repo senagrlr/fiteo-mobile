@@ -503,14 +503,6 @@ class PlanTrackingRepository {
     final actualWeeklyWeightChangeKg =
     (cache['actualWeeklyWeightChangeKg'] as num?)?.toDouble();
 
-    if (weightEntryCount < PlanTrackingCalculator.minWeightEntries ||
-        observationDays < PlanTrackingCalculator.minObservationDays ||
-        latestWeight == null ||
-        latestWeightDate == null ||
-        actualWeeklyWeightChangeKg == null) {
-      return false;
-    }
-
     final planActivatedAt =
     _parseDate(cache['planActivatedAt'] as String?);
 
@@ -521,30 +513,24 @@ class PlanTrackingRepository {
       return false;
     }
 
-    final initialGoalDate =
-    _calculator.calculateInitialEstimatedGoalDate(
+    final projection = _calculator.calculateGoalProjection(
+      weightEntryCount: weightEntryCount,
+      observationDays: observationDays,
       planStartWeight: planStartWeight,
       targetWeight: targetWeight,
       expectedWeeklyWeightChangeKg: expectedWeeklyWeightChangeKg,
       planActivatedAt: planActivatedAt,
-    );
-
-    final actualGoalDate =
-    _calculator.calculateEstimatedGoalDate(
       latestWeight: latestWeight,
-      targetWeight: targetWeight,
-      actualWeeklyWeightChangeKg: actualWeeklyWeightChangeKg,
       latestWeightDate: latestWeightDate,
+      actualWeeklyWeightChangeKg: actualWeeklyWeightChangeKg,
     );
 
-    final newEstimatedGoalDate =
-    actualGoalDate == null ? null : _dateKey(actualGoalDate);
+    final newEstimatedGoalDate = projection.estimatedGoalDate == null
+        ? null
+        : _dateKey(projection.estimatedGoalDate!);
 
     final newProjectionDifferenceDays =
-    _calculator.calculateProjectionDifferenceDays(
-      previousEstimate: initialGoalDate,
-      newEstimate: actualGoalDate,
-    );
+        projection.projectionDifferenceDays;
 
     final previousEstimatedGoalDate =
     cache['estimatedGoalDate'] as String?;
@@ -558,7 +544,8 @@ class PlanTrackingRepository {
     }
 
     cache['estimatedGoalDate'] = newEstimatedGoalDate;
-    cache['projectionDifferenceDays'] = newProjectionDifferenceDays;
+    cache['projectionDifferenceDays'] =
+        newProjectionDifferenceDays;
 
     return true;
   }

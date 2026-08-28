@@ -24,11 +24,11 @@ class PlanTrackingWeightResult {
 }
 
 class PlanTrackingWeightService {
-  final WeightRepository _weightRepository;
+  final WeightDataSource _weightRepository;
   final PlanTrackingCalculator _calculator;
 
   PlanTrackingWeightService({
-    WeightRepository? weightRepository,
+    WeightDataSource? weightRepository,
     PlanTrackingCalculator? calculator,
   })  : _weightRepository =
       weightRepository ?? WeightRepository(),

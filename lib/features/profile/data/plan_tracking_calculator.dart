@@ -2,6 +2,16 @@ import 'dart:math' as math;
 
 import 'package:fiteo_myapp/features/profile/presentation/models/plan_status.dart';
 
+class PlanGoalProjection {
+  final DateTime? estimatedGoalDate;
+  final int? projectionDifferenceDays;
+
+  const PlanGoalProjection({
+    required this.estimatedGoalDate,
+    required this.projectionDifferenceDays,
+  });
+}
+
 class PlanTrackingCalculator {
   const PlanTrackingCalculator();
 
@@ -158,6 +168,54 @@ class PlanTrackingCalculator {
 
     return planActivatedAt.add(
       Duration(days: (weeks * 7).round()),
+    );
+  }
+
+  PlanGoalProjection calculateGoalProjection({
+    required int weightEntryCount,
+    required int observationDays,
+    required double planStartWeight,
+    required double targetWeight,
+    required double expectedWeeklyWeightChangeKg,
+    required DateTime planActivatedAt,
+    required double? latestWeight,
+    required DateTime? latestWeightDate,
+    required double? actualWeeklyWeightChangeKg,
+  }) {
+    final initialGoalDate = calculateInitialEstimatedGoalDate(
+      planStartWeight: planStartWeight,
+      targetWeight: targetWeight,
+      expectedWeeklyWeightChangeKg: expectedWeeklyWeightChangeKg,
+      planActivatedAt: planActivatedAt,
+    );
+
+    final hasEnoughWeightData =
+        weightEntryCount >= minWeightEntries &&
+            observationDays >= minObservationDays &&
+            latestWeight != null &&
+            latestWeightDate != null &&
+            actualWeeklyWeightChangeKg != null;
+
+    if (!hasEnoughWeightData) {
+      return PlanGoalProjection(
+        estimatedGoalDate: initialGoalDate,
+        projectionDifferenceDays: null,
+      );
+    }
+
+    final actualGoalDate = calculateEstimatedGoalDate(
+      latestWeight: latestWeight,
+      targetWeight: targetWeight,
+      actualWeeklyWeightChangeKg: actualWeeklyWeightChangeKg,
+      latestWeightDate: latestWeightDate,
+    );
+
+    return PlanGoalProjection(
+      estimatedGoalDate: actualGoalDate,
+      projectionDifferenceDays: calculateProjectionDifferenceDays(
+        previousEstimate: initialGoalDate,
+        newEstimate: actualGoalDate,
+      ),
     );
   }
 

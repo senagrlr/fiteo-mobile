@@ -71,12 +71,6 @@ void main() {
         period: period,
         generatedAt: DateTime(2026, 8, 31, 2),
         availableFrom: DateTime(2026, 8, 31, 10),
-        weightPlan: const WeeklyWeightPlanCache(
-          startWeightKg: null,
-          currentWeightKg: null,
-          planStatus: 'notEnoughData',
-          planStatusDescription: null,
-        ),
         reviewParagraphs: const [],
         nextWeek: const WeeklyNextWeekCache(
           focusTitle: '',

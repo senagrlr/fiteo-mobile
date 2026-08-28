@@ -10,7 +10,6 @@ class WeeklyReportCacheBuilder {
     required WeeklyReportCalculation calculation,
     required DateTime generatedAt,
     required DateTime availableFrom,
-    required WeeklyWeightPlanCache weightPlan,
     required List<String> reviewParagraphs,
     required WeeklyNextWeekCache nextWeek,
     required DateTime calendarStart,
@@ -18,7 +17,7 @@ class WeeklyReportCacheBuilder {
     int? previousScore,
   }) {
     return WeeklyReportCache(
-      schemaVersion: 1,
+      schemaVersion: 2,
       periodStart: calendarStart,
       periodEnd: calendarEnd,
       generatedAt: generatedAt,
@@ -37,7 +36,6 @@ class WeeklyReportCacheBuilder {
       metrics: calculation.metrics,
       bestDay: calculation.bestDay,
       worstDay: calculation.worstDay,
-      weightPlan: weightPlan,
       reviewParagraphs: reviewParagraphs,
       nextWeek: nextWeek,
     );

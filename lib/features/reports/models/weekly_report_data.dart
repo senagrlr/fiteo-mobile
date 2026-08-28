@@ -11,8 +11,6 @@ class WeeklyReportData {
   final WeeklyDayData bestDay;
   final WeeklyDayData worstDay;
 
-  final WeeklyWeightPlanData weightPlan;
-
   final List<String> reviewParagraphs;
 
   final WeeklyNextWeekData nextWeek;
@@ -26,15 +24,10 @@ class WeeklyReportData {
     required this.metrics,
     required this.bestDay,
     required this.worstDay,
-    required this.weightPlan,
     required this.reviewParagraphs,
     required this.nextWeek,
   });
 }
-
-// ============================================================
-// OVERVIEW
-// ============================================================
 
 class WeeklyOverviewData {
   final String caloriesStatus;
@@ -53,10 +46,6 @@ class WeeklyOverviewData {
     required this.activityStatus,
   });
 }
-
-// ============================================================
-// METRICS
-// ============================================================
 
 class WeeklyMetricsData {
   final String caloriesAverage;
@@ -78,10 +67,6 @@ class WeeklyMetricsData {
   });
 }
 
-// ============================================================
-// BEST / WORST DAY
-// ============================================================
-
 class WeeklyDayData {
   final String dayLabel;
 
@@ -101,29 +86,6 @@ class WeeklyDayData {
     required this.alignmentPercent,
   });
 }
-
-// ============================================================
-// WEIGHT & PLAN
-// ============================================================
-
-class WeeklyWeightPlanData {
-  final double? startWeight;
-  final double? currentWeight;
-
-  final String statusLabel;
-  final String? statusDescription;
-
-  const WeeklyWeightPlanData({
-    required this.startWeight,
-    required this.currentWeight,
-    required this.statusLabel,
-    required this.statusDescription,
-  });
-}
-
-// ============================================================
-// NEXT WEEK
-// ============================================================
 
 class WeeklyNextWeekData {
   final String focusTitle;

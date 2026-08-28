@@ -17,7 +17,7 @@ import 'package:fiteo_myapp/features/home/presentation/widgets/water_progress_ca
 import 'package:fiteo_myapp/features/home/presentation/widgets/week_calendar_row.dart';
 
 import 'package:fiteo_myapp/features/home/presentation/widgets/home_loading_skeleton.dart';
-import 'package:fiteo_myapp/features/home/presentation/widgets/weekly_weight_update_sheet.dart';
+import 'package:fiteo_myapp/features/home/presentation/coordinators/home_popup_coordinator.dart';
 
 import 'package:fiteo_myapp/features/reports/models/monthly_report_data.dart';
 import 'package:fiteo_myapp/features/reports/presentation/popups/monthly_report_popup.dart';
@@ -52,6 +52,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final WeeklyReportMapper _weeklyReportMapper =
   const WeeklyReportMapper();
 
+  final HomePopupCoordinator _popupCoordinator =
+  HomePopupCoordinator();
+
   DailyFeedbackResult? dailyFeedback;
 
   int consumed = 0;
@@ -74,25 +77,6 @@ class _HomeScreenState extends State<HomeScreen> {
   int waterGoalMl = 2500;
 
   bool isLoading = true;
-
-  // ============================================================
-  // WEEKLY WEIGHT UPDATE - UI TEST
-  // ============================================================
-
-  bool _weeklyWeightUpdateShown = false;
-
-  // Daha sonra kullanıcının mevcut kilosu gelecek.
-  double currentWeightKg = 57.0;
-
-  // Daha sonra onboarding / profil tercihinden gelecek.
-  //
-  // KG testi:
-  // String weightUnit = 'KG';
-  //
-  // LB testi:
-  // String weightUnit = 'LB';
-
-  String weightUnit = 'KG';
 
   // ============================================================
   // MONTHLY REPORT TEST
@@ -252,17 +236,24 @@ class _HomeScreenState extends State<HomeScreen> {
         isLoading = false;
       });
 
-      final weeklyShown = await _tryShowWeeklyReport();
+      await _tryShowWeeklyReport();
 
-      if (!weeklyShown) {
-        final monthlyShown = await _tryShowMonthlyReport();
+      if (!mounted) return;
 
-        if (!monthlyShown) {
-          _showMonthlyReportForTest();
-        }
+      final monthlyShown =
+      await _tryShowMonthlyReport();
+
+      if (!mounted) return;
+
+      if (!monthlyShown) {
+        await _showMonthlyReportForTest();
       }
 
-      _showWeeklyWeightUpdateForTest();
+      if (!mounted) return;
+
+      await _popupCoordinator.tryShowWeightCheckIn(
+        context,
+      );
 
     } catch (_) {
       if (!mounted) return;
@@ -279,41 +270,42 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     try {
-      final cache = await _reportRepository.getMonthlyReport();
+      final cache =
+      await _reportRepository.getMonthlyReport();
 
-      if (!mounted || _monthlyReportShown) {
-        return false;
-      }
-
-      if (cache == null ||
+      if (!mounted ||
+          _monthlyReportShown ||
+          cache == null ||
           !cache.isAvailable ||
           cache.dismissed) {
         return false;
       }
 
-      final data = const MonthlyReportMapper().toPresentation(
+      final data =
+      const MonthlyReportMapper()
+          .toPresentation(
         context: context,
         cache: cache,
       );
 
       _monthlyReportShown = true;
 
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (!mounted) return;
+      await showMonthlyReportPopup(
+        context,
+        data,
+      );
 
-        await showMonthlyReportPopup(
-          context,
-          data,
-        );
+      if (!mounted) {
+        return true;
+      }
 
-        if (!mounted) return;
-
-        try {
-          await _reportRepository.dismissMonthlyReport();
-        } catch (_) {
-          // Report dismissal failure should not break Home.
-        }
-      });
+      try {
+        await _reportRepository
+            .dismissMonthlyReport();
+      } catch (_) {
+        // Report dismissal failure
+        // should not break Home.
+      }
 
       return true;
     } catch (_) {
@@ -327,41 +319,40 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     try {
-      final cache = await _reportRepository.getWeeklyReport();
+      final cache =
+      await _reportRepository.getWeeklyReport();
 
       if (cache == null ||
           !cache.isAvailable ||
-          cache.dismissed) {
+          cache.dismissed ||
+          !mounted) {
         return false;
       }
 
-      if (!mounted) {
-        return false;
-      }
-
-      final data = _weeklyReportMapper.toPresentation(
+      final data =
+      _weeklyReportMapper.toPresentation(
         context: context,
         cache: cache,
       );
 
       _weeklyReportShown = true;
 
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (!mounted) return;
+      await showWeeklyReportPopup(
+        context,
+        data,
+      );
 
-        await showWeeklyReportPopup(
-          context,
-          data,
-        );
+      if (!mounted) {
+        return true;
+      }
 
-        if (!mounted) return;
-
-        try {
-          await _reportRepository.dismissWeeklyReport();
-        } catch (_) {
-          // Report dismissal failure should not break Home.
-        }
-      });
+      try {
+        await _reportRepository
+            .dismissWeeklyReport();
+      } catch (_) {
+        // Report dismissal failure
+        // should not break Home.
+      }
 
       return true;
     } catch (_) {
@@ -370,88 +361,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // ============================================================
-  // WEEKLY WEIGHT UPDATE - UI TEST
-  // ============================================================
-
-  void _showWeeklyWeightUpdateForTest() {
-    if (_weeklyWeightUpdateShown ||
-        !mounted) {
-      return;
-    }
-
-    _weeklyWeightUpdateShown = true;
-
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) {
-      if (!mounted) return;
-
-      showModalBottomSheet<void>(
-        context: context,
-
-        // Sheet içerik kadar yükselir.
-        isScrollControlled: true,
-
-        backgroundColor:
-        Colors.transparent,
-
-        barrierColor:
-        Colors.black.withValues(
-          alpha: 0.25,
-        ),
-
-        // Dışarı dokununca kapanabilir.
-        isDismissible: true,
-
-        // Aşağı sürükleyerek kapanabilir.
-        enableDrag: true,
-
-        builder: (sheetContext) {
-          return WeeklyWeightUpdateSheet(
-            // ==================================================
-            // UI TEST - MEVCUT KİLO
-            // ==================================================
-
-            initialWeightKg:
-            currentWeightKg,
-
-            // ==================================================
-            // UI TEST - BİRİM
-            // ==================================================
-            //
-            // Kullanıcı onboarding'de KG seçtiyse KG,
-            // LB seçtiyse LB gelecek.
-            //
-            // Aynı anda ikisi gösterilmiyor.
-
-            unit:
-            weightUnit,
-
-            // ==================================================
-            // UI PLACEHOLDER
-            // ==================================================
-            //
-            // Daha sonra backend'deki haftalık kilo
-            // güncelleme işlemine bağlanacak.
-
-            onUpdate: (newWeightKg) {
-              if (!mounted) return;
-
-              setState(() {
-                currentWeightKg =
-                    newWeightKg;
-              });
-            },
-          );
-        },
-      );
-    });
-  }
-
-  // ============================================================
   // MONTHLY REPORT - UI TEST
   // ============================================================
 
-  void _showMonthlyReportForTest() {
+  Future<void> _showMonthlyReportForTest() async {
     if (_monthlyReportShown ||
         !mounted) {
       return;
@@ -459,13 +372,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _monthlyReportShown = true;
 
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) {
-      if (!mounted) return;
-
-      showMonthlyReportPopup(
-        context,
-        const MonthlyReportData(
+    await showMonthlyReportPopup(
+      context,
+      const MonthlyReportData(
           dateRange:
           '1 Ağu - 31 Ağu',
 
@@ -667,7 +576,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       );
-    });
   }
 
   // ============================================================

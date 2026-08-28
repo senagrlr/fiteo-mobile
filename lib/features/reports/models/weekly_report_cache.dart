@@ -26,8 +26,6 @@ class WeeklyReportCache {
   final WeeklyDayCalculation? bestDay;
   final WeeklyDayCalculation? worstDay;
 
-  final WeeklyWeightPlanCache weightPlan;
-
   final List<String> reviewParagraphs;
   final WeeklyNextWeekCache nextWeek;
 
@@ -49,24 +47,8 @@ class WeeklyReportCache {
     required this.metrics,
     required this.bestDay,
     required this.worstDay,
-    required this.weightPlan,
     required this.reviewParagraphs,
     required this.nextWeek,
-  });
-}
-
-class WeeklyWeightPlanCache {
-  final double? startWeightKg;
-  final double? currentWeightKg;
-
-  final String planStatus;
-  final String? planStatusDescription;
-
-  const WeeklyWeightPlanCache({
-    required this.startWeightKg,
-    required this.currentWeightKg,
-    required this.planStatus,
-    required this.planStatusDescription,
   });
 }
 

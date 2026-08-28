@@ -123,12 +123,6 @@ void main() {
         period: period,
         generatedAt: DateTime(2026, 8, 31, 2),
         availableFrom: DateTime(2026, 8, 31, 10),
-        weightPlan: const WeeklyWeightPlanCache(
-          startWeightKg: 80,
-          currentWeightKg: 79.5,
-          planStatus: 'onTrack',
-          planStatusDescription: 'On track',
-        ),
         reviewParagraphs: const [
           'Weekly integration review.',
         ],
@@ -175,16 +169,6 @@ void main() {
       expect(
         restoredCache.periodEnd,
         original.periodEnd,
-      );
-
-      expect(
-        restoredCache.weightPlan.startWeightKg,
-        80,
-      );
-
-      expect(
-        restoredCache.weightPlan.currentWeightKg,
-        79.5,
       );
     },
   );

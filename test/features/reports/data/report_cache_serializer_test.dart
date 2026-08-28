@@ -70,12 +70,6 @@ void main() {
           period: period,
           generatedAt: DateTime(2026, 8, 31, 2),
           availableFrom: DateTime(2026, 8, 31, 10),
-          weightPlan: const WeeklyWeightPlanCache(
-            startWeightKg: 80,
-            currentWeightKg: 79.5,
-            planStatus: 'onTrack',
-            planStatusDescription: 'Plan is on track.',
-          ),
           reviewParagraphs: const [
             'Weekly review.',
           ],
@@ -138,21 +132,6 @@ void main() {
         expect(
           restored.metrics.totalWorkoutMinutes,
           original.metrics.totalWorkoutMinutes,
-        );
-
-        expect(
-          restored.weightPlan.startWeightKg,
-          original.weightPlan.startWeightKg,
-        );
-
-        expect(
-          restored.weightPlan.currentWeightKg,
-          original.weightPlan.currentWeightKg,
-        );
-
-        expect(
-          restored.weightPlan.planStatus,
-          original.weightPlan.planStatus,
         );
 
         expect(

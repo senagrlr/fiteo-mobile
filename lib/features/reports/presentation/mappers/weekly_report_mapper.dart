@@ -44,12 +44,6 @@ class WeeklyReportMapper {
       ),
       bestDay: _day(context, cache.bestDay),
       worstDay: _day(context, cache.worstDay),
-      weightPlan: WeeklyWeightPlanData(
-        startWeight: cache.weightPlan.startWeightKg,
-        currentWeight: cache.weightPlan.currentWeightKg,
-        statusLabel: cache.weightPlan.planStatus,
-        statusDescription: cache.weightPlan.planStatusDescription,
-      ),
       reviewParagraphs: cache.reviewParagraphs,
       nextWeek: WeeklyNextWeekData(
         focusTitle: cache.nextWeek.focusTitle,

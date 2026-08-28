@@ -29,12 +29,6 @@ class ReportCacheSerializer {
       'metrics': _weeklyMetricsToMap(cache.metrics),
       'bestDay': _weeklyDayToMap(cache.bestDay),
       'worstDay': _weeklyDayToMap(cache.worstDay),
-      'weightPlan': {
-        'startWeightKg': cache.weightPlan.startWeightKg,
-        'currentWeightKg': cache.weightPlan.currentWeightKg,
-        'planStatus': cache.weightPlan.planStatus,
-        'planStatusDescription': cache.weightPlan.planStatusDescription,
-      },
       'reviewParagraphs': cache.reviewParagraphs,
       'nextWeek': {
         'focusTitle': cache.nextWeek.focusTitle,
@@ -45,9 +39,6 @@ class ReportCacheSerializer {
   }
 
   WeeklyReportCache weeklyFromMap(Map<String, dynamic> data) {
-    final weightPlan =
-    Map<String, dynamic>.from(data['weightPlan'] as Map? ?? {});
-
     final nextWeek =
     Map<String, dynamic>.from(data['nextWeek'] as Map? ?? {});
 
@@ -69,15 +60,6 @@ class ReportCacheSerializer {
       metrics: _weeklyMetricsFromMap(data['metrics']),
       bestDay: _weeklyDayFromMap(data['bestDay']),
       worstDay: _weeklyDayFromMap(data['worstDay']),
-      weightPlan: WeeklyWeightPlanCache(
-        startWeightKg:
-        (weightPlan['startWeightKg'] as num?)?.toDouble(),
-        currentWeightKg:
-        (weightPlan['currentWeightKg'] as num?)?.toDouble(),
-        planStatus: weightPlan['planStatus'] as String? ?? 'notEnoughData',
-        planStatusDescription:
-        weightPlan['planStatusDescription'] as String?,
-      ),
       reviewParagraphs: List<String>.from(
         data['reviewParagraphs'] as List? ?? const [],
       ),

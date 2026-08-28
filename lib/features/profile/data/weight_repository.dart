@@ -196,6 +196,33 @@ class WeightRepository {
     await batch.commit();
   }
 
+  Future<WeightTrackingState> getTrackingState() async {
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception('User not logged in');
+    }
+
+    final trackingDoc = await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('weightTracking')
+        .doc('current')
+        .get();
+
+    final data =
+        trackingDoc.data() ?? <String, dynamic>{};
+
+    return WeightTrackingState(
+      latestWeightKg:
+      (data['latestWeightKg'] as num?)
+          ?.toDouble(),
+      latestWeightDate: _parseDate(
+        data['latestWeightDate'],
+      ),
+    );
+  }
+
   Future<List<WeightEntry>> getEntries({
     required DateTime start,
     required DateTime end,
@@ -283,6 +310,16 @@ class WeightRepository {
         first.month == second.month &&
         first.day == second.day;
   }
+}
+
+class WeightTrackingState {
+  final double? latestWeightKg;
+  final DateTime? latestWeightDate;
+
+  const WeightTrackingState({
+    required this.latestWeightKg,
+    required this.latestWeightDate,
+  });
 }
 
 class WeightCheckInState {

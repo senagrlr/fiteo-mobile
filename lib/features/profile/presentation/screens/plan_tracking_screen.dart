@@ -408,7 +408,14 @@ class _PlanContent extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          const PlanWeightProgressChart(),
+          PlanWeightProgressChart(
+            planActivatedAt: stats.planActivatedAt,
+            expectedGoalDate: stats.expectedGoalDate,
+            planStartWeight: stats.planStartWeight,
+            targetWeight: stats.targetWeight,
+            weightPoints: stats.weightPoints,
+            weightUnit: stats.weightUnit,
+          ),
 
           const SizedBox(height: 30),
 

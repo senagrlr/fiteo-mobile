@@ -1,13 +1,30 @@
+import 'dart:math' as math;
+
+import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
+import 'package:fiteo_myapp/features/profile/presentation/models/plan_tracking_stats.dart';
 
 class PlanWeightProgressChart extends StatefulWidget {
+  final DateTime planActivatedAt;
+  final DateTime? expectedGoalDate;
+  final double planStartWeight;
+  final double targetWeight;
+  final List<PlanTrackingWeightPoint> weightPoints;
+  final String weightUnit;
+
   const PlanWeightProgressChart({
     super.key,
+    required this.planActivatedAt,
+    required this.expectedGoalDate,
+    required this.planStartWeight,
+    required this.targetWeight,
+    required this.weightPoints,
+    required this.weightUnit,
   });
 
   @override
@@ -20,23 +37,6 @@ class _PlanWeightProgressChartState
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _animation;
-
-  final List<FlSpot> actualWeightSpots = const [
-    FlSpot(0, 55),
-    FlSpot(1, 54.4),
-    FlSpot(2, 53.8),
-    FlSpot(3, 53.4),
-  ];
-
-  final List<FlSpot> expectedWeightSpots = const [
-    FlSpot(0, 55),
-    FlSpot(1, 54.2),
-    FlSpot(2, 53.3),
-    FlSpot(3, 52.5),
-    FlSpot(4, 51.6),
-    FlSpot(5, 50.8),
-    FlSpot(6, 50),
-  ];
 
   @override
   void initState() {
@@ -67,18 +67,133 @@ class _PlanWeightProgressChartState
     super.dispose();
   }
 
-  List<FlSpot> _animatedSpots(
-      List<FlSpot> spots,
-      double value,
-      ) {
+  List<FlSpot> _animatedSpots(List<FlSpot> spots, double value) {
+    if (spots.isEmpty) return const [];
+
     final startY = spots.first.y;
 
-    return spots.map((spot) {
-      return FlSpot(
-        spot.x,
-        startY + ((spot.y - startY) * value),
-      );
-    }).toList();
+    return spots
+        .map((spot) => FlSpot(
+      spot.x,
+      startY + ((spot.y - startY) * value),
+    ))
+        .toList();
+  }
+
+  double _displayWeight(double weightKg) {
+    return widget.weightUnit.toLowerCase() == 'lb'
+        ? weightKg * 2.2046226218
+        : weightKg;
+  }
+
+  DateTime get _chartEndDate {
+    final expectedGoalDate = widget.expectedGoalDate;
+
+    if (expectedGoalDate != null &&
+        expectedGoalDate.isAfter(widget.planActivatedAt)) {
+      return expectedGoalDate;
+    }
+
+    final latestDate =
+    widget.weightPoints.isEmpty ? null : widget.weightPoints.last.date;
+
+    if (latestDate != null && latestDate.isAfter(widget.planActivatedAt)) {
+      return latestDate;
+    }
+
+    return widget.planActivatedAt.add(const Duration(days: 28));
+  }
+
+  double get _totalDays {
+    return math.max(
+      1,
+      _chartEndDate.difference(widget.planActivatedAt).inDays,
+    ).toDouble();
+  }
+
+  List<FlSpot> get _actualWeightSpots {
+    final spots = <FlSpot>[
+      FlSpot(0, _displayWeight(widget.planStartWeight)),
+    ];
+
+    for (final point in widget.weightPoints) {
+      if (point.date.isBefore(widget.planActivatedAt) ||
+          point.date.isAfter(_chartEndDate)) {
+        continue;
+      }
+
+      final x =
+      point.date.difference(widget.planActivatedAt).inDays.toDouble();
+
+      final y = _displayWeight(point.weightKg);
+
+      if (x == 0) {
+        spots[0] = FlSpot(0, y);
+      } else {
+        spots.add(FlSpot(x, y));
+      }
+    }
+
+    return spots;
+  }
+
+  List<FlSpot> get _expectedWeightSpots {
+    return [
+      FlSpot(0, _displayWeight(widget.planStartWeight)),
+      FlSpot(_totalDays, _displayWeight(widget.targetWeight)),
+    ];
+  }
+
+  List<DateTime> get _bottomDates {
+    final totalDays = _chartEndDate.difference(widget.planActivatedAt).inDays;
+
+    return List.generate(4, (index) {
+      final offset = (totalDays * index / 3).round();
+      return widget.planActivatedAt.add(Duration(days: offset));
+    });
+  }
+
+  List<double> get _bottomXValues {
+    return _bottomDates
+        .map((date) =>
+        date.difference(widget.planActivatedAt).inDays.toDouble())
+        .toList();
+  }
+
+  double get _yInterval {
+    final values = <double>[
+      _displayWeight(widget.planStartWeight),
+      _displayWeight(widget.targetWeight),
+      ..._actualWeightSpots.map((spot) => spot.y),
+    ];
+
+    final lowest = values.reduce(math.min);
+    final highest = values.reduce(math.max);
+    final range = math.max(1.0, highest - lowest);
+
+    return math.max(1.0, (range / 4).ceilToDouble());
+  }
+
+  double get _minY {
+    final values = <double>[
+      _displayWeight(widget.planStartWeight),
+      _displayWeight(widget.targetWeight),
+      ..._actualWeightSpots.map((spot) => spot.y),
+    ];
+
+    final lowest = values.reduce(math.min);
+    return (lowest / _yInterval).floor() * _yInterval - _yInterval;
+  }
+
+  double get _maxY {
+    final values = <double>[
+      _displayWeight(widget.planStartWeight),
+      _displayWeight(widget.targetWeight),
+      ..._actualWeightSpots.map((spot) => spot.y),
+    ];
+
+    final highest = values.reduce(math.max);
+    return (highest / _yInterval).ceil() * _yInterval + _yInterval;
   }
 
   @override
@@ -180,12 +295,15 @@ class _PlanWeightProgressChartState
       BuildContext context,
       double animationValue,
       ) {
-    return LineChartData(
-      minX: -0.75,
-      maxX: 6.75,
+    final actualWeightSpots = _actualWeightSpots;
+    final expectedWeightSpots = _expectedWeightSpots;
 
-      minY: 48,
-      maxY: 56,
+    return LineChartData(
+      minX: 0,
+      maxX: _totalDays,
+
+      minY: _minY,
+      maxY: _maxY,
 
       clipData: const FlClipData.all(),
 
@@ -196,7 +314,7 @@ class _PlanWeightProgressChartState
       gridData: FlGridData(
         show: true,
         drawVerticalLine: false,
-        horizontalInterval: 2,
+        horizontalInterval: _yInterval,
         getDrawingHorizontalLine: (value) {
           return FlLine(
             color: AppColors.homeBrown.withValues(
@@ -224,16 +342,9 @@ class _PlanWeightProgressChartState
           sideTitles: SideTitles(
             showTitles: true,
             reservedSize: 27,
-            interval: 2,
+            interval: _yInterval,
             getTitlesWidget: (value, meta) {
-              if (value == 48) {
-                return const SizedBox.shrink();
-              }
-
-              if (value != 50 &&
-                  value != 52 &&
-                  value != 54 &&
-                  value != 56) {
+              if ((value - _minY).abs() < 0.01) {
                 return const SizedBox.shrink();
               }
 
@@ -241,10 +352,9 @@ class _PlanWeightProgressChartState
                 meta: meta,
                 space: 3,
                 child: Text(
-                  value.toInt().toString(),
+                  value.toStringAsFixed(value % 1 == 0 ? 0 : 1),
                   style: AppTextStyles.caption.copyWith(
-                    color: AppColors
-                        .planTrackingSecondaryLabel,
+                    color: AppColors.planTrackingSecondaryLabel,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                   ),
@@ -260,24 +370,20 @@ class _PlanWeightProgressChartState
             reservedSize: 35,
             interval: 1,
             getTitlesWidget: (value, meta) {
-              String day = '';
-              String month = '';
+              var index = -1;
 
-              if ((value - 0).abs() < 0.01) {
-                day = '14';
-                month = context.l10n.april;
-              } else if ((value - 2).abs() < 0.01) {
-                day = '20';
-                month = context.l10n.may;
-              } else if ((value - 4).abs() < 0.01) {
-                day = '18';
-                month = context.l10n.june;
-              } else if ((value - 6).abs() < 0.01) {
-                day = '20';
-                month = context.l10n.july;
-              } else {
-                return const SizedBox.shrink();
+              for (var i = 0; i < _bottomXValues.length; i++) {
+                if ((value - _bottomXValues[i]).abs() < 0.5) {
+                  index = i;
+                  break;
+                }
               }
+
+              if (index == -1) return const SizedBox.shrink();
+
+              final date = _bottomDates[index];
+              final locale = Localizations.localeOf(context).toLanguageTag();
+              final month = DateFormat.MMM(locale).format(date);
 
               return SideTitleWidget(
                 meta: meta,
@@ -286,25 +392,19 @@ class _PlanWeightProgressChartState
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      day,
-                      style:
-                      AppTextStyles.labelSmall.copyWith(
-                        color: AppColors
-                            .planTrackingSecondaryLabel,
+                      date.day.toString(),
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: AppColors.planTrackingSecondaryLabel,
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         height: 1,
                       ),
                     ),
-
                     const SizedBox(height: 1),
-
                     Text(
                       month,
-                      style:
-                      AppTextStyles.caption.copyWith(
-                        color: AppColors
-                            .planTrackingSecondaryLabel,
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.planTrackingSecondaryLabel,
                         fontSize: 9,
                         fontWeight: FontWeight.w600,
                         height: 1,
@@ -324,7 +424,7 @@ class _PlanWeightProgressChartState
           getTooltipItems: (spots) {
             return spots.map((spot) {
               return LineTooltipItem(
-                '${spot.y.toStringAsFixed(1)} kg',
+                '${spot.y.toStringAsFixed(1)} ${widget.weightUnit}',
                 AppTextStyles.labelSmall.copyWith(
                   color: AppColors.onPrimary,
                   fontSize: 11,
@@ -355,7 +455,7 @@ class _PlanWeightProgressChartState
           dotData: FlDotData(
             show: animationValue > 0.95,
             checkToShowDot: (spot, barData) {
-              return spot.x == 6;
+              return (spot.x - expectedWeightSpots.last.x).abs() < 0.01;
             },
             getDotPainter: (
                 spot,
@@ -377,7 +477,7 @@ class _PlanWeightProgressChartState
           ),
         ),
 
-        // GERÇEK İLERLEME
+        if (actualWeightSpots.isNotEmpty)
         LineChartBarData(
           spots: _animatedSpots(
             actualWeightSpots,
@@ -422,7 +522,7 @@ class _PlanWeightProgressChartState
       extraLinesData: ExtraLinesData(
         horizontalLines: [
           HorizontalLine(
-            y: 50,
+            y: _displayWeight(widget.targetWeight),
             color:
             AppColors.authButtonGreen.withValues(
               alpha: 0.7,
@@ -446,7 +546,8 @@ class _PlanWeightProgressChartState
                 fontSize: 10,
                 fontWeight: FontWeight.w800,
               ),
-              labelResolver: (_) => '50 kg',
+              labelResolver: (_) =>
+              '${_displayWeight(widget.targetWeight).toStringAsFixed(1)} ${widget.weightUnit}',
             ),
           ),
         ],

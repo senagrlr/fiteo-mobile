@@ -1,5 +1,15 @@
 import 'package:fiteo_myapp/features/profile/presentation/models/plan_status.dart';
 
+class PlanTrackingWeightPoint {
+  final DateTime date;
+  final double weightKg;
+
+  const PlanTrackingWeightPoint({
+    required this.date,
+    required this.weightKg,
+  });
+}
+
 class PlanTrackingStats {
   final DateTime planActivatedAt;
   final DateTime? lastProcessedDate;
@@ -17,9 +27,11 @@ class PlanTrackingStats {
   final double? latestWeight;
   final DateTime? latestWeightDate;
   final double? actualWeeklyWeightChangeKg;
+  final List<PlanTrackingWeightPoint> weightPoints;
 
   final double? progressRatio;
 
+  final DateTime? expectedGoalDate;
   final DateTime? estimatedGoalDate;
   final int? projectionDifferenceDays;
 
@@ -42,7 +54,9 @@ class PlanTrackingStats {
     required this.latestWeight,
     required this.latestWeightDate,
     required this.actualWeeklyWeightChangeKg,
+    required this.weightPoints,
     required this.progressRatio,
+    required this.expectedGoalDate,
     required this.estimatedGoalDate,
     required this.projectionDifferenceDays,
     required this.planStatus,
@@ -80,7 +94,9 @@ class PlanTrackingStats {
     double? latestWeight,
     DateTime? latestWeightDate,
     double? actualWeeklyWeightChangeKg,
+    List<PlanTrackingWeightPoint>? weightPoints,
     double? progressRatio,
+    DateTime? expectedGoalDate,
     DateTime? estimatedGoalDate,
     int? projectionDifferenceDays,
     PlanStatus? planStatus,
@@ -103,7 +119,9 @@ class PlanTrackingStats {
       latestWeightDate: latestWeightDate ?? this.latestWeightDate,
       actualWeeklyWeightChangeKg:
       actualWeeklyWeightChangeKg ?? this.actualWeeklyWeightChangeKg,
+      weightPoints: weightPoints ?? this.weightPoints,
       progressRatio: progressRatio ?? this.progressRatio,
+      expectedGoalDate: expectedGoalDate ?? this.expectedGoalDate,
       estimatedGoalDate: estimatedGoalDate ?? this.estimatedGoalDate,
       projectionDifferenceDays:
       projectionDifferenceDays ?? this.projectionDifferenceDays,

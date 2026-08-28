@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:fiteo_myapp/features/profile/data/plan_tracking_calculator.dart';
+import 'package:fiteo_myapp/features/profile/data/plan_tracking_weight_service.dart';
 import 'package:fiteo_myapp/features/profile/presentation/models/plan_status.dart';
 import 'package:fiteo_myapp/features/profile/presentation/models/plan_tracking_stats.dart';
 import 'package:fiteo_myapp/features/profile/data/adherence_calculator.dart';
@@ -13,6 +14,9 @@ class PlanTrackingRepository {
 
   final PlanTrackingCalculator _calculator =
   const PlanTrackingCalculator();
+
+  final PlanTrackingWeightService _weightService =
+  PlanTrackingWeightService();
 
   final AdherenceCalculator _adherenceCalculator =
   const AdherenceCalculator();
@@ -128,35 +132,62 @@ class PlanTrackingRepository {
             trackingData['planActivatedAt'] == null;
 
     if (needsBootstrap) {
+      final legacyExpectedWeeklyWeightChangeKg =
+      _calculateLegacyExpectedWeeklyWeightChange(userData: userData);
+
+      if (legacyExpectedWeeklyWeightChangeKg == null) {
+        throw Exception('Unable to bootstrap legacy plan tracking');
+      }
+
       cache = _createInitialCache(
         userData: userData,
         currentWeight: currentWeight,
         targetWeight: targetWeight,
-        expectedWeeklyWeightChangeKg: 0,
+        expectedWeeklyWeightChangeKg: legacyExpectedWeeklyWeightChangeKg,
         today: today,
+        planActivatedAtOverride: today,
       );
-
-      await trackingRef.set({
-        ...cache,
-        'schemaVersion': schemaVersion,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
     } else {
-      cache = Map<String, dynamic>.from(trackingData);
-
-      final changed = await _catchUpDailyTracking(
-        uid: user.uid,
-        cache: cache,
-        yesterday: yesterday,
+      cache =
+      Map<String, dynamic>.from(
+        trackingData,
       );
+    }
 
-      if (changed) {
-        await trackingRef.set({
+    final dailyChanged =
+    await _catchUpDailyTracking(
+      uid: user.uid,
+      cache: cache,
+      yesterday: yesterday,
+    );
+
+    final weightChanged =
+    await _refreshWeightTracking(
+      cache: cache,
+      targetWeight: targetWeight,
+      today: today,
+    );
+
+    final statusChanged =
+    _refreshPlanStatus(
+      cache: cache,
+    );
+
+    if (needsBootstrap ||
+        dailyChanged ||
+        weightChanged ||
+        statusChanged) {
+      await trackingRef.set(
+        {
           ...cache,
           'schemaVersion': schemaVersion,
-          'updatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-      }
+          'updatedAt':
+          FieldValue.serverTimestamp(),
+        },
+        SetOptions(
+          merge: !needsBootstrap,
+        ),
+      );
     }
 
     return _statsFromCache(
@@ -166,21 +197,76 @@ class PlanTrackingRepository {
     );
   }
 
+  double? _calculateLegacyExpectedWeeklyWeightChange({
+    required Map<String, dynamic> userData,
+  }) {
+    final userPreferences =
+        userData['userPreferences'] as Map<String, dynamic>? ?? {};
+
+    final nutritionPlan =
+        userData['nutritionPlan'] as Map<String, dynamic>? ?? {};
+
+    final age = (userPreferences['age'] as num?)?.toDouble();
+    final height = (userPreferences['height'] as num?)?.toDouble();
+    final weight = (userPreferences['weight'] as num?)?.toDouble();
+    final gender = userPreferences['gender']?.toString();
+    final activityLevel = userPreferences['activityLevel']?.toString();
+    final calorieGoal =
+        (nutritionPlan['dailyCalories'] as num?)?.toDouble() ??
+            (userPreferences['calorieGoal'] as num?)?.toDouble();
+
+    if (age == null ||
+        height == null ||
+        weight == null ||
+        gender == null ||
+        activityLevel == null ||
+        calorieGoal == null ||
+        age <= 0 ||
+        height <= 0 ||
+        weight <= 0 ||
+        calorieGoal <= 0) {
+      return null;
+    }
+
+    final isMale = gender.toLowerCase() == 'male';
+
+    final bmr = isMale
+        ? 10 * weight + 6.25 * height - 5 * age + 5
+        : 10 * weight + 6.25 * height - 5 * age - 161;
+
+    final activityMultipliers = <String, double>{
+      'Sedentary': 1.2,
+      'Lightly Active': 1.375,
+      'Moderately Active': 1.55,
+      'Very Active': 1.725,
+    };
+
+    final activityMultiplier = activityMultipliers[activityLevel];
+    if (activityMultiplier == null) return null;
+
+    final tdee = bmr * activityMultiplier;
+
+    return _calculator.calculateExpectedWeeklyWeightChange(
+      calorieGoal: calorieGoal,
+      tdee: tdee,
+    );
+  }
+
   Map<String, dynamic> _createInitialCache({
     required Map<String, dynamic> userData,
     required double currentWeight,
     required double targetWeight,
     required double expectedWeeklyWeightChangeKg,
     required DateTime today,
+    DateTime? planActivatedAtOverride,
   }) {
     final nutritionPlan =
         userData['nutritionPlan'] as Map<String, dynamic>? ?? {};
 
     final createdAt = nutritionPlan['createdAt'];
 
-    final planActivatedAt = createdAt is Timestamp
-        ? _dateOnly(createdAt.toDate())
-        : today;
+    final planActivatedAt = planActivatedAtOverride ??
+        (createdAt is Timestamp ? _dateOnly(createdAt.toDate()) : today);
 
     final initialEstimatedGoalDate =
     _calculator.calculateInitialEstimatedGoalDate(
@@ -208,6 +294,7 @@ class PlanTrackingRepository {
       'latestWeight': null,
       'latestWeightDate': null,
       'actualWeeklyWeightChangeKg': null,
+      'weightPoints': <Map<String, dynamic>>[],
 
       'progressRatio': null,
 
@@ -329,34 +416,217 @@ class PlanTrackingRepository {
     cache['calorieTrackedDays'] = calorieTrackedDays;
     cache['calorieAdherenceSum'] = calorieAdherenceSum;
 
-    final trackingConsistency = planEligibleDays <= 0
-        ? 0.0
-        : calorieTrackedDays / planEligibleDays * 100;
+    return true;
+  }
 
-    final calorieAdherence = calorieTrackedDays <= 0
-        ? 0.0
-        : calorieAdherenceSum / calorieTrackedDays;
+  Future<bool> _refreshWeightTracking({
+    required Map<String, dynamic> cache,
+    required double targetWeight,
+    required DateTime today,
+  }) async {
+    final planActivatedAt = _parseDate(cache['planActivatedAt'] as String?);
+    if (planActivatedAt == null) return false;
 
-    final status = _calculator.calculateStatus(
+    final planStartWeight = (cache['planStartWeight'] as num?)?.toDouble();
+    if (planStartWeight == null || planStartWeight <= 0) return false;
+
+    final hasWeightPointsCache = cache.containsKey('weightPoints');
+    final cachedLatestWeightDate = _parseDate(cache['latestWeightDate'] as String?);
+    final cachedLatestWeight = (cache['latestWeight'] as num?)?.toDouble();
+
+    final needsRefresh = !hasWeightPointsCache ||
+        await _weightService.needsRefresh(
+          planActivatedAt: planActivatedAt,
+          cachedLatestWeightDate: cachedLatestWeightDate,
+          cachedLatestWeight: cachedLatestWeight,
+        );
+
+    final expectedWeeklyWeightChangeKg =
+        (cache['expectedWeeklyWeightChangeKg'] as num?)?.toDouble() ?? 0;
+
+    final observationDays = (cache['planEligibleDays'] as num?)?.round() ?? 0;
+
+    if (!needsRefresh) {
+      return _refreshCachedGoalProjection(
+        cache: cache,
+        targetWeight: targetWeight,
+        expectedWeeklyWeightChangeKg: expectedWeeklyWeightChangeKg,
+        observationDays: observationDays,
+      );
+    }
+
+    final result = await _weightService.calculate(
+      planActivatedAt: planActivatedAt,
+      planStartWeight: planStartWeight,
+      targetWeight: targetWeight,
+      expectedWeeklyWeightChangeKg: expectedWeeklyWeightChangeKg,
+      today: today,
+      observationDays: observationDays,
+    );
+
+    cache['weightEntryCount'] = result.weightEntryCount;
+    cache['latestWeight'] = result.latestWeight;
+    cache['latestWeightDate'] =
+    result.latestWeightDate == null ? null : _dateKey(result.latestWeightDate!);
+    cache['actualWeeklyWeightChangeKg'] = result.actualWeeklyWeightChangeKg;
+
+    cache['weightPoints'] = result.weightPoints
+        .map((point) => <String, dynamic>{
+      'date': _dateKey(point.date),
+      'weightKg': point.weightKg,
+    })
+        .toList();
+
+    cache['progressRatio'] = result.progressRatio;
+    cache['estimatedGoalDate'] =
+    result.estimatedGoalDate == null ? null : _dateKey(result.estimatedGoalDate!);
+    cache['projectionDifferenceDays'] = result.projectionDifferenceDays;
+
+    return true;
+  }
+
+  bool _refreshCachedGoalProjection({
+    required Map<String, dynamic> cache,
+    required double targetWeight,
+    required double expectedWeeklyWeightChangeKg,
+    required int observationDays,
+  }) {
+    final weightEntryCount =
+        (cache['weightEntryCount'] as num?)?.round() ?? 0;
+
+    final latestWeight =
+    (cache['latestWeight'] as num?)?.toDouble();
+
+    final latestWeightDate =
+    _parseDate(cache['latestWeightDate'] as String?);
+
+    final actualWeeklyWeightChangeKg =
+    (cache['actualWeeklyWeightChangeKg'] as num?)?.toDouble();
+
+    if (weightEntryCount < PlanTrackingCalculator.minWeightEntries ||
+        observationDays < PlanTrackingCalculator.minObservationDays ||
+        latestWeight == null ||
+        latestWeightDate == null ||
+        actualWeeklyWeightChangeKg == null) {
+      return false;
+    }
+
+    final planActivatedAt =
+    _parseDate(cache['planActivatedAt'] as String?);
+
+    final planStartWeight =
+    (cache['planStartWeight'] as num?)?.toDouble();
+
+    if (planActivatedAt == null || planStartWeight == null) {
+      return false;
+    }
+
+    final initialGoalDate =
+    _calculator.calculateInitialEstimatedGoalDate(
+      planStartWeight: planStartWeight,
+      targetWeight: targetWeight,
+      expectedWeeklyWeightChangeKg: expectedWeeklyWeightChangeKg,
+      planActivatedAt: planActivatedAt,
+    );
+
+    final actualGoalDate =
+    _calculator.calculateEstimatedGoalDate(
+      latestWeight: latestWeight,
+      targetWeight: targetWeight,
+      actualWeeklyWeightChangeKg: actualWeeklyWeightChangeKg,
+      latestWeightDate: latestWeightDate,
+    );
+
+    final newEstimatedGoalDate =
+    actualGoalDate == null ? null : _dateKey(actualGoalDate);
+
+    final newProjectionDifferenceDays =
+    _calculator.calculateProjectionDifferenceDays(
+      previousEstimate: initialGoalDate,
+      newEstimate: actualGoalDate,
+    );
+
+    final previousEstimatedGoalDate =
+    cache['estimatedGoalDate'] as String?;
+
+    final previousProjectionDifferenceDays =
+    (cache['projectionDifferenceDays'] as num?)?.round();
+
+    if (previousEstimatedGoalDate == newEstimatedGoalDate &&
+        previousProjectionDifferenceDays == newProjectionDifferenceDays) {
+      return false;
+    }
+
+    cache['estimatedGoalDate'] = newEstimatedGoalDate;
+    cache['projectionDifferenceDays'] = newProjectionDifferenceDays;
+
+    return true;
+  }
+
+  bool _refreshPlanStatus({
+    required Map<String, dynamic> cache,
+  }) {
+    final planEligibleDays =
+        (cache['planEligibleDays'] as num?)
+            ?.round() ??
+            0;
+
+    final calorieTrackedDays =
+        (cache['calorieTrackedDays'] as num?)
+            ?.round() ??
+            0;
+
+    final calorieAdherenceSum =
+        (cache['calorieAdherenceSum'] as num?)
+            ?.toDouble() ??
+            0;
+
+    final trackingConsistency =
+    planEligibleDays <= 0
+        ? 0.0
+        : calorieTrackedDays /
+        planEligibleDays *
+        100;
+
+    final calorieAdherence =
+    calorieTrackedDays <= 0
+        ? 0.0
+        : calorieAdherenceSum /
+        calorieTrackedDays;
+
+    final status =
+    _calculator.calculateStatus(
       weightEntryCount:
-      (cache['weightEntryCount'] as num?)?.round() ?? 0,
-      observationDays: planEligibleDays,
-      calorieAdherence: calorieAdherence,
-      trackingConsistency: trackingConsistency,
+      (cache['weightEntryCount'] as num?)
+          ?.round() ??
+          0,
+      observationDays:
+      planEligibleDays,
+      calorieAdherence:
+      calorieAdherence,
+      trackingConsistency:
+      trackingConsistency,
       progressRatio:
-      (cache['progressRatio'] as num?)?.toDouble(),
+      (cache['progressRatio'] as num?)
+          ?.toDouble(),
       actualWeeklyWeightChangeKg:
-      (cache['actualWeeklyWeightChangeKg'] as num?)
+      (cache['actualWeeklyWeightChangeKg']
+      as num?)
           ?.toDouble(),
       expectedWeeklyWeightChangeKg:
-      (cache['expectedWeeklyWeightChangeKg'] as num?)
+      (cache['expectedWeeklyWeightChangeKg']
+      as num?)
           ?.toDouble() ??
           0,
     );
 
-    cache['planStatus'] = status.name;
+    final previousStatus =
+    cache['planStatus'] as String?;
 
-    return true;
+    cache['planStatus'] =
+        status.name;
+
+    return previousStatus != status.name;
   }
 
   PlanTrackingStats _statsFromCache(
@@ -364,25 +634,50 @@ class PlanTrackingRepository {
       double targetWeight,
       String weightUnit,
       ) {
-    final activatedAt =
-    _parseDate(cache['planActivatedAt'] as String?);
+    final activatedAt = _parseDate(cache['planActivatedAt'] as String?);
 
     if (activatedAt == null) {
       throw Exception('Missing plan activation date');
+    }
+
+    final planStartWeight = (cache['planStartWeight'] as num?)?.toDouble() ?? 0;
+    final expectedWeeklyWeightChangeKg =
+        (cache['expectedWeeklyWeightChangeKg'] as num?)?.toDouble() ?? 0;
+
+    final expectedGoalDate = _calculator.calculateInitialEstimatedGoalDate(
+      planStartWeight: planStartWeight,
+      targetWeight: targetWeight,
+      expectedWeeklyWeightChangeKg: expectedWeeklyWeightChangeKg,
+      planActivatedAt: activatedAt,
+    );
+
+    final rawWeightPoints = cache['weightPoints'] as List<dynamic>? ?? const [];
+    final weightPoints = <PlanTrackingWeightPoint>[];
+
+    for (final rawPoint in rawWeightPoints) {
+      if (rawPoint is! Map) continue;
+
+      final date = _parseDate(rawPoint['date'] as String?);
+      final weightKg = (rawPoint['weightKg'] as num?)?.toDouble();
+
+      if (date == null || weightKg == null) continue;
+
+      weightPoints.add(
+        PlanTrackingWeightPoint(
+          date: date,
+          weightKg: weightKg,
+        ),
+      );
     }
 
     return PlanTrackingStats(
       planActivatedAt: activatedAt,
       lastProcessedDate:
       _parseDate(cache['lastProcessedDate'] as String?),
-      planStartWeight:
-      (cache['planStartWeight'] as num?)?.toDouble() ?? 0,
+      planStartWeight: planStartWeight,
       targetWeight: targetWeight,
       weightUnit: weightUnit,
-      expectedWeeklyWeightChangeKg:
-      (cache['expectedWeeklyWeightChangeKg'] as num?)
-          ?.toDouble() ??
-          0,
+      expectedWeeklyWeightChangeKg: expectedWeeklyWeightChangeKg,
       planEligibleDays:
       (cache['planEligibleDays'] as num?)?.round() ?? 0,
       calorieTrackedDays:
@@ -397,10 +692,10 @@ class PlanTrackingRepository {
       latestWeightDate:
       _parseDate(cache['latestWeightDate'] as String?),
       actualWeeklyWeightChangeKg:
-      (cache['actualWeeklyWeightChangeKg'] as num?)
-          ?.toDouble(),
-      progressRatio:
-      (cache['progressRatio'] as num?)?.toDouble(),
+      (cache['actualWeeklyWeightChangeKg'] as num?)?.toDouble(),
+      weightPoints: weightPoints,
+      progressRatio: (cache['progressRatio'] as num?)?.toDouble(),
+      expectedGoalDate: expectedGoalDate,
       estimatedGoalDate:
       _parseDate(cache['estimatedGoalDate'] as String?),
       projectionDifferenceDays:

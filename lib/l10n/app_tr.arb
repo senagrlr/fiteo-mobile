@@ -698,6 +698,40 @@
   "improve": "Geliştir",
   "watch": "Dikkat Et",
 
+  "upgradeToPro": "FREE",
+  "unlockAllPremiumFeatures": "Aşağıdaki tüm özelliklerin kilidini aç",
+
+  "premiumUnlimitedRecipes": "Sınırsız tarif oluştur",
+  "premiumUnlimitedAi": "Fiteo’ya sınırsız soru sor",
+  "premiumBarcodeScanning": "Barkodla ürünü anında ekle",
+  "premiumSmartNotifications": "Akıllı bildirimlerle ritmini koru",
+  "premiumGoalPrediction": "Hedef tarihini önceden gör",
+  "premiumAdaptiveProgress": "Planını ve gelişimini detaylı izle",
+  "premiumReports": "Haftalık ve aylık raporlarını gör",
+  "premiumRecipePersonalization": "Tariflerini kişiselleştir",
+
+  "yearly": "Yıllık",
+  "monthly": "Aylık",
+  "popular": "Popüler",
+
+  "premiumMembershipTitle": "Fiteo Premium",
+  "premiumMembershipActive": "Premium üyeliğin aktif",
+  "premiumYearlyPlan": "Yıllık Plan",
+  "premiumActive": "Aktif",
+  "premiumRenewalDate": "Yenileme tarihi",
+  "premiumBenefits": "Premium avantajların",
+  "manageSubscription": "Aboneliği Yönet",
+
+  "newPlanTitle": "Yeni Plan",
+  "newPlanDescription": "Son ilerlemene göre günlük hedeflerin güncellendi.",
+  "oldPlanNewPlan": "Eski plan → Yeni plan",
+
+  "saveNewPlan": "Yeni Planı Kaydet",
+
+  "weeklyWeightUpdateTitle": "Haftalık Kilo Güncellemesi",
+  "weeklyWeightUpdateDescription": "Planını düzenli takip edebilmemiz için haftalık kilonu ölç ve güncelle.",
+  "updateWeight": "Güncelle",
+
   "recipeAddedToMeal": "{recipeName}, {mealType} öğününe eklendi.",
   "@recipeAddedToMeal": {
     "placeholders": {

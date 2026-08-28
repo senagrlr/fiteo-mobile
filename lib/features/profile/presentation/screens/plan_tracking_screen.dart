@@ -16,6 +16,7 @@ import 'package:fiteo_myapp/features/profile/presentation/models/plan_tracking_s
 
 import 'package:fiteo_myapp/features/profile/presentation/widgets/fiteo_overview_note_card.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/fiteo_score_header.dart';
+import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_review_sheet.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_status_header.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_status_note_card.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_weight_progress_chart.dart';
@@ -210,7 +211,8 @@ class _PlanTrackingScreenState
                   onTabChanged: _changeTab,
                 )
                     : FiteoScoreHeader(
-                  score: _overviewStats?.fiteoScore ?? 0,
+                  score:
+                  _overviewStats?.fiteoScore ?? 0,
                   selectedTab: selectedTab,
                   onTabChanged: _changeTab,
                 )
@@ -221,7 +223,8 @@ class _PlanTrackingScreenState
                   onTabChanged: _changeTab,
                 )
                     : PlanStatusHeader(
-                  status: _planTrackingStats?.planStatus ??
+                  status:
+                  _planTrackingStats?.planStatus ??
                       PlanStatus.notEnoughData,
                   selectedTab: selectedTab,
                   onTabChanged: _changeTab,
@@ -294,6 +297,49 @@ class _PlanContent extends StatelessWidget {
     required this.stats,
   });
 
+  void _openPlanReviewSheet(
+      BuildContext context,
+      ) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor:
+      Colors.transparent,
+      barrierColor:
+      Colors.black.withValues(
+        alpha: 0.26,
+      ),
+      isDismissible: true,
+      enableDrag: true,
+      builder: (sheetContext) {
+        return PlanReviewSheet(
+          previousPlan:
+          const PlanNutritionTargets(
+            calories: 1630,
+            protein: 120,
+            carbs: 180,
+            fats: 55,
+            waterLiters: 2.0,
+          ),
+          newPlan:
+          const PlanNutritionTargets(
+            calories: 1500,
+            protein: 130,
+            carbs: 160,
+            fats: 50,
+            waterLiters: 2.3,
+          ),
+          onSavePlan: () {
+            Navigator.pop(
+              sheetContext,
+            );
+          },
+        );
+      },
+    );
+  }
+
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}.'
         '${date.month.toString().padLeft(2, '0')}.'
@@ -305,7 +351,8 @@ class _PlanContent extends StatelessWidget {
       DateTime date,
       ) {
     final locale =
-    Localizations.localeOf(context).toLanguageTag();
+    Localizations.localeOf(context)
+        .toLanguageTag();
 
     return DateFormat.MMM(locale).format(date);
   }
@@ -327,25 +374,36 @@ class _PlanContent extends StatelessWidget {
       child: Column(
         children: [
           PlanWeightSummaryCard(
-            startWeight: stats.planStartWeight,
-            startDate: _formatDate(stats.planActivatedAt),
-            reachDay: stats.estimatedGoalDate?.day ?? 0,
-            reachMonth: stats.estimatedGoalDate == null
+            startWeight:
+            stats.planStartWeight,
+            startDate:
+            _formatDate(
+              stats.planActivatedAt,
+            ),
+            reachDay:
+            stats.estimatedGoalDate?.day ?? 0,
+            reachMonth:
+            stats.estimatedGoalDate == null
                 ? '-'
                 : _formatShortMonth(
               context,
               stats.estimatedGoalDate!,
             ),
             isProjectionGood:
-            stats.projectionDifferenceDays == null
+            stats.projectionDifferenceDays ==
+                null
                 ? null
-                : stats.projectionDifferenceDays! <= -3
+                : stats.projectionDifferenceDays! <=
+                -3
                 ? true
-                : stats.projectionDifferenceDays! >= 3
+                : stats.projectionDifferenceDays! >=
+                3
                 ? false
                 : null,
-            goalWeight: stats.targetWeight,
-            weightUnit: stats.weightUnit,
+            goalWeight:
+            stats.targetWeight,
+            weightUnit:
+            stats.weightUnit,
           ),
 
           const SizedBox(height: 24),
@@ -356,7 +414,8 @@ class _PlanContent extends StatelessWidget {
 
           PlanStatusNoteCard(
             status: stats.planStatus,
-            estimatedGoalDate: stats.estimatedGoalDate == null
+            estimatedGoalDate:
+            stats.estimatedGoalDate == null
                 ? '-'
                 : '${stats.estimatedGoalDate!.day} '
                 '${_formatShortMonth(
@@ -365,7 +424,9 @@ class _PlanContent extends StatelessWidget {
             )} '
                 '${stats.estimatedGoalDate!.year}',
             onReviewPlan: () {
-              // Review plan akışını AI entegrasyonunda bağlayacağız.
+              _openPlanReviewSheet(
+                context,
+              );
             },
           ),
         ],

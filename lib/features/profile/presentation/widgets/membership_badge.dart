@@ -5,17 +5,21 @@ import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 
 class MembershipBadge extends StatefulWidget {
   final String label;
+  final VoidCallback? onTap;
 
   const MembershipBadge({
     super.key,
     required this.label,
+    this.onTap,
   });
 
   @override
-  State<MembershipBadge> createState() => _MembershipBadgeState();
+  State<MembershipBadge> createState() =>
+      _MembershipBadgeState();
 }
 
-class _MembershipBadgeState extends State<MembershipBadge>
+class _MembershipBadgeState
+    extends State<MembershipBadge>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
@@ -25,19 +29,23 @@ class _MembershipBadgeState extends State<MembershipBadge>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2800),
+      duration: const Duration(
+        milliseconds: 2800,
+      ),
     )..repeat();
   }
 
   @override
   void dispose() {
     _controller.dispose();
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final isPremium = widget.label.toUpperCase() == 'PREMIUM';
+    final isPremium =
+        widget.label.toUpperCase() == 'PREMIUM';
 
     final colors = isPremium
         ? const [
@@ -55,36 +63,57 @@ class _MembershipBadgeState extends State<MembershipBadge>
       AppColors.membershipSilverDark,
     ];
 
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return ShaderMask(
-          blendMode: BlendMode.srcIn,
-          shaderCallback: (bounds) {
-            final position = _controller.value * 2 - 0.5;
+    return GestureDetector(
+      onTap: widget.onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 6,
+          vertical: 6,
+        ),
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            return ShaderMask(
+              blendMode: BlendMode.srcIn,
+              shaderCallback: (bounds) {
+                final position =
+                    _controller.value * 2 - 0.5;
 
-            return LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: colors,
-              stops: [
-                0,
-                (position - 0.15).clamp(0.0, 1.0),
-                position.clamp(0.0, 1.0),
-                (position + 0.15).clamp(0.0, 1.0),
-                1,
-              ],
-            ).createShader(bounds);
+                return LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: colors,
+                  stops: [
+                    0,
+                    (position - 0.15).clamp(
+                      0.0,
+                      1.0,
+                    ),
+                    position.clamp(
+                      0.0,
+                      1.0,
+                    ),
+                    (position + 0.15).clamp(
+                      0.0,
+                      1.0,
+                    ),
+                    1,
+                  ],
+                ).createShader(bounds);
+              },
+              child: child,
+            );
           },
-          child: child,
-        );
-      },
-      child: Text(
-        widget.label,
-        style: AppTextStyles.labelSmall.copyWith(
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 1.4,
+          child: Text(
+            widget.label,
+            style:
+            AppTextStyles.labelSmall.copyWith(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.4,
+            ),
+          ),
         ),
       ),
     );

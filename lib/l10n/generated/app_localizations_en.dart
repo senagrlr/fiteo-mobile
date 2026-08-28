@@ -1375,6 +1375,92 @@ class AppLocalizationsEn extends AppLocalizations {
   String get watchAdEarnOneUse => 'Watch an ad to earn 1 more use';
 
   @override
+  String get upgradeToPro => 'FREE';
+
+  @override
+  String get unlockAllPremiumFeatures => 'Unlock all features below';
+
+  @override
+  String get premiumUnlimitedRecipes => 'Create unlimited recipes';
+
+  @override
+  String get premiumUnlimitedAi => 'Ask Fiteo without limits';
+
+  @override
+  String get premiumBarcodeScanning => 'Add products instantly by barcode';
+
+  @override
+  String get premiumSmartNotifications =>
+      'Stay on track with smart notifications';
+
+  @override
+  String get premiumGoalPrediction => 'See your predicted goal date';
+
+  @override
+  String get premiumAdaptiveProgress =>
+      'Get an adaptive plan and detailed progress';
+
+  @override
+  String get premiumReports => 'See weekly and monthly reports';
+
+  @override
+  String get premiumRecipePersonalization =>
+      'Personalize recipes around your goals';
+
+  @override
+  String get yearly => 'Yearly';
+
+  @override
+  String get monthly => 'Monthly';
+
+  @override
+  String get popular => 'Popular';
+
+  @override
+  String get premiumMembershipTitle => 'Fiteo Premium';
+
+  @override
+  String get premiumMembershipActive => 'Your Premium membership is active';
+
+  @override
+  String get premiumYearlyPlan => 'Yearly Plan';
+
+  @override
+  String get premiumActive => 'Active';
+
+  @override
+  String get premiumRenewalDate => 'Renewal date';
+
+  @override
+  String get premiumBenefits => 'Your Premium benefits';
+
+  @override
+  String get manageSubscription => 'Manage Subscription';
+
+  @override
+  String get newPlanTitle => 'New Plan';
+
+  @override
+  String get newPlanDescription =>
+      'Your daily targets have been updated based on your recent progress.';
+
+  @override
+  String get oldPlanNewPlan => 'Previous plan → New plan';
+
+  @override
+  String get saveNewPlan => 'Save New Plan';
+
+  @override
+  String get weeklyWeightUpdateTitle => 'Weekly Weight Update';
+
+  @override
+  String get weeklyWeightUpdateDescription =>
+      'Measure and update your weekly weight so we can track your plan consistently.';
+
+  @override
+  String get updateWeight => 'Update';
+
+  @override
   String recipeAddedToMeal(String recipeName, String mealType) {
     return '$recipeName added to $mealType.';
   }

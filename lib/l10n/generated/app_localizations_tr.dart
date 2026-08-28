@@ -1373,6 +1373,90 @@ class AppLocalizationsTr extends AppLocalizations {
   String get watchAdEarnOneUse => 'Reklam izleyerek 1 hak kazanın';
 
   @override
+  String get upgradeToPro => 'FREE';
+
+  @override
+  String get unlockAllPremiumFeatures =>
+      'Aşağıdaki tüm özelliklerin kilidini aç';
+
+  @override
+  String get premiumUnlimitedRecipes => 'Sınırsız tarif oluştur';
+
+  @override
+  String get premiumUnlimitedAi => 'Fiteo’ya sınırsız soru sor';
+
+  @override
+  String get premiumBarcodeScanning => 'Barkodla ürünü anında ekle';
+
+  @override
+  String get premiumSmartNotifications => 'Akıllı bildirimlerle ritmini koru';
+
+  @override
+  String get premiumGoalPrediction => 'Hedef tarihini önceden gör';
+
+  @override
+  String get premiumAdaptiveProgress => 'Planını ve gelişimini detaylı izle';
+
+  @override
+  String get premiumReports => 'Haftalık ve aylık raporlarını gör';
+
+  @override
+  String get premiumRecipePersonalization => 'Tariflerini kişiselleştir';
+
+  @override
+  String get yearly => 'Yıllık';
+
+  @override
+  String get monthly => 'Aylık';
+
+  @override
+  String get popular => 'Popüler';
+
+  @override
+  String get premiumMembershipTitle => 'Fiteo Premium';
+
+  @override
+  String get premiumMembershipActive => 'Premium üyeliğin aktif';
+
+  @override
+  String get premiumYearlyPlan => 'Yıllık Plan';
+
+  @override
+  String get premiumActive => 'Aktif';
+
+  @override
+  String get premiumRenewalDate => 'Yenileme tarihi';
+
+  @override
+  String get premiumBenefits => 'Premium avantajların';
+
+  @override
+  String get manageSubscription => 'Aboneliği Yönet';
+
+  @override
+  String get newPlanTitle => 'Yeni Plan';
+
+  @override
+  String get newPlanDescription =>
+      'Son ilerlemene göre günlük hedeflerin güncellendi.';
+
+  @override
+  String get oldPlanNewPlan => 'Eski plan → Yeni plan';
+
+  @override
+  String get saveNewPlan => 'Yeni Planı Kaydet';
+
+  @override
+  String get weeklyWeightUpdateTitle => 'Haftalık Kilo Güncellemesi';
+
+  @override
+  String get weeklyWeightUpdateDescription =>
+      'Planını düzenli takip edebilmemiz için haftalık kilonu ölç ve güncelle.';
+
+  @override
+  String get updateWeight => 'Güncelle';
+
+  @override
   String recipeAddedToMeal(String recipeName, String mealType) {
     return '$recipeName, $mealType öğününe eklendi.';
   }

@@ -14,4 +14,6 @@ class AppRoutes {
   static const String savedRecipes = '/saved-recipes';
   static const String planTracking = '/plan-tracking';
   static const String progress = '/progress';
+  static const String premium = '/premium';
+  static const String premiumMembership = '/premium-membership';
 }

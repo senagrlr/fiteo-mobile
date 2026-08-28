@@ -2654,6 +2654,168 @@ abstract class AppLocalizations {
   /// **'Watch an ad to earn 1 more use'**
   String get watchAdEarnOneUse;
 
+  /// No description provided for @upgradeToPro.
+  ///
+  /// In en, this message translates to:
+  /// **'FREE'**
+  String get upgradeToPro;
+
+  /// No description provided for @unlockAllPremiumFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock all features below'**
+  String get unlockAllPremiumFeatures;
+
+  /// No description provided for @premiumUnlimitedRecipes.
+  ///
+  /// In en, this message translates to:
+  /// **'Create unlimited recipes'**
+  String get premiumUnlimitedRecipes;
+
+  /// No description provided for @premiumUnlimitedAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask Fiteo without limits'**
+  String get premiumUnlimitedAi;
+
+  /// No description provided for @premiumBarcodeScanning.
+  ///
+  /// In en, this message translates to:
+  /// **'Add products instantly by barcode'**
+  String get premiumBarcodeScanning;
+
+  /// No description provided for @premiumSmartNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay on track with smart notifications'**
+  String get premiumSmartNotifications;
+
+  /// No description provided for @premiumGoalPrediction.
+  ///
+  /// In en, this message translates to:
+  /// **'See your predicted goal date'**
+  String get premiumGoalPrediction;
+
+  /// No description provided for @premiumAdaptiveProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Get an adaptive plan and detailed progress'**
+  String get premiumAdaptiveProgress;
+
+  /// No description provided for @premiumReports.
+  ///
+  /// In en, this message translates to:
+  /// **'See weekly and monthly reports'**
+  String get premiumReports;
+
+  /// No description provided for @premiumRecipePersonalization.
+  ///
+  /// In en, this message translates to:
+  /// **'Personalize recipes around your goals'**
+  String get premiumRecipePersonalization;
+
+  /// No description provided for @yearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get yearly;
+
+  /// No description provided for @monthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get monthly;
+
+  /// No description provided for @popular.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular'**
+  String get popular;
+
+  /// No description provided for @premiumMembershipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fiteo Premium'**
+  String get premiumMembershipTitle;
+
+  /// No description provided for @premiumMembershipActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Premium membership is active'**
+  String get premiumMembershipActive;
+
+  /// No description provided for @premiumYearlyPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly Plan'**
+  String get premiumYearlyPlan;
+
+  /// No description provided for @premiumActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get premiumActive;
+
+  /// No description provided for @premiumRenewalDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Renewal date'**
+  String get premiumRenewalDate;
+
+  /// No description provided for @premiumBenefits.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Premium benefits'**
+  String get premiumBenefits;
+
+  /// No description provided for @manageSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Subscription'**
+  String get manageSubscription;
+
+  /// No description provided for @newPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New Plan'**
+  String get newPlanTitle;
+
+  /// No description provided for @newPlanDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your daily targets have been updated based on your recent progress.'**
+  String get newPlanDescription;
+
+  /// No description provided for @oldPlanNewPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous plan → New plan'**
+  String get oldPlanNewPlan;
+
+  /// No description provided for @saveNewPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Save New Plan'**
+  String get saveNewPlan;
+
+  /// No description provided for @weeklyWeightUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Weight Update'**
+  String get weeklyWeightUpdateTitle;
+
+  /// No description provided for @weeklyWeightUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Measure and update your weekly weight so we can track your plan consistently.'**
+  String get weeklyWeightUpdateDescription;
+
+  /// No description provided for @updateWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get updateWeight;
+
   /// No description provided for @recipeAddedToMeal.
   ///
   /// In en, this message translates to:

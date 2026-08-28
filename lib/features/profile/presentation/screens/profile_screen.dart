@@ -4,6 +4,7 @@ import 'package:fiteo_myapp/app/router/app_routes.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
+
 import 'package:fiteo_myapp/features/profile/data/profile_repository.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/profile_header.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/profile_menu_item.dart';
@@ -11,39 +12,65 @@ import 'package:fiteo_myapp/features/profile/presentation/widgets/weekly_views_c
 import 'package:fiteo_myapp/features/profile/presentation/widgets/profile_header_loading.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  const ProfileScreen({
+    super.key,
+  });
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<ProfileScreen> createState() =>
+      _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  final _profileRepository = ProfileRepository();
+class _ProfileScreenState
+    extends State<ProfileScreen> {
+  final _profileRepository =
+  ProfileRepository();
 
   String username = '';
   String email = '';
   String? mascot;
+
   bool isLoading = true;
+
+  // ============================================================
+  // MEMBERSHIP
+  // ============================================================
+
+  // UI testi:
+  //
+  // false -> FREE
+  // true  -> PREMIUM
+  //
+  // Daha sonra gerçek premium bilgisi buraya bağlanacak.
+  bool isPremium = false;
 
   @override
   void initState() {
     super.initState();
+
     loadUser();
   }
 
   Future<void> loadUser() async {
     try {
       final doc =
-      await _profileRepository.getCurrentUserDoc();
+      await _profileRepository
+          .getCurrentUserDoc();
 
       final data = doc.data();
 
       if (!mounted) return;
 
       setState(() {
-        username = data?['username'] ?? '';
-        email = data?['email'] ?? '';
-        mascot = data?['mascot'];
+        username =
+            data?['username'] ?? '';
+
+        email =
+            data?['email'] ?? '';
+
+        mascot =
+        data?['mascot'];
+
         isLoading = false;
       });
     } catch (e) {
@@ -55,33 +82,68 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  // ============================================================
+  // MEMBERSHIP SCREEN
+  // ============================================================
+
+  void _openMembershipScreen() {
+    // PREMIUM kullanıcı
+    if (isPremium) {
+      Navigator.pushNamed(
+        context,
+        AppRoutes.premiumMembership,
+      );
+
+      return;
+    }
+
+    // FREE kullanıcı
+    Navigator.pushNamed(
+      context,
+      AppRoutes.premium,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SystemNavigationBar(
       color: Colors.white,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor:
+        Colors.white,
         body: SingleChildScrollView(
-          padding: const EdgeInsets.only(
+          padding:
+          const EdgeInsets.only(
             bottom: 50,
           ),
           child: Column(
             children: [
+
               isLoading
-                  ? const ProfileHeaderLoading()
-                  : ProfileHeader(
-                username: username,
-                email: email,
-                mascot: mascot,
+              ? const ProfileHeaderLoading()
+              : ProfileHeader(
+          username: username,
+          email: email,
+          mascot: mascot,
+          isPremium: isPremium,
+          onMembershipTap: _openMembershipScreen,
+        ),
+
+              const SizedBox(
+                height: 30,
               ),
 
-              const SizedBox(height: 30),
+              // =================================================
+              // WEEKLY VIEWS
+              // =================================================
 
               Padding(
-                padding: const EdgeInsets.symmetric(
+                padding:
+                const EdgeInsets.symmetric(
                   horizontal: 22,
                 ),
-                child: WeeklyViewsCard(
+                child:
+                WeeklyViewsCard(
                   onArrowTap: () {
                     Navigator.pushNamed(
                       context,
@@ -91,84 +153,145 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
 
-              const SizedBox(height: 50),
+              const SizedBox(
+                height: 50,
+              ),
+
+              // =================================================
+              // MENU
+              // =================================================
 
               Padding(
-                padding: const EdgeInsets.symmetric(
+                padding:
+                const EdgeInsets.symmetric(
                   horizontal: 42,
                 ),
                 child: Column(
                   children: [
+                    // =============================================
+                    // EDIT PROFILE
+                    // =============================================
+
                     ProfileMenuItem(
-                      icon: Icons.edit,
+                      icon:
+                      Icons.edit,
+
                       title:
-                      context.l10n.editProfile,
+                      context
+                          .l10n
+                          .editProfile,
+
                       onTap: () async {
                         final result =
-                        await Navigator.pushNamed(
+                        await Navigator
+                            .pushNamed(
                           context,
-                          AppRoutes.editProfile,
+                          AppRoutes
+                              .editProfile,
                         );
 
-                        if (result == true) {
+                        if (result ==
+                            true) {
                           loadUser();
                         }
                       },
                     ),
 
+                    // =============================================
+                    // SAVED RECIPES
+                    // =============================================
+
                     ProfileMenuItem(
-                      icon: Icons
+                      icon:
+                      Icons
                           .favorite_border_rounded,
+
                       title:
-                      context.l10n.savedRecipes,
+                      context
+                          .l10n
+                          .savedRecipes,
+
                       onTap: () {
                         Navigator.pushNamed(
                           context,
-                          AppRoutes.savedRecipes,
+                          AppRoutes
+                              .savedRecipes,
                         );
                       },
                     ),
 
+                    // =============================================
                     // PLAN TRACKING
+                    // =============================================
+
                     ProfileMenuItem(
-                      icon: Icons.timeline_rounded,
-                      title: context.l10n.planTracking,
+                      icon:
+                      Icons
+                          .timeline_rounded,
+
+                      title:
+                      context
+                          .l10n
+                          .planTracking,
+
                       onTap: () {
                         Navigator.pushNamed(
                           context,
-                          AppRoutes.planTracking,
+                          AppRoutes
+                              .planTracking,
                         );
                       },
                     ),
 
+                    // =============================================
+                    // GOALS & PREFERENCES
+                    // =============================================
 
                     ProfileMenuItem(
-                      icon: Icons.track_changes,
-                      title: context
-                          .l10n.goalsPreferences,
+                      icon:
+                      Icons
+                          .track_changes,
+
+                      title:
+                      context
+                          .l10n
+                          .goalsPreferences,
+
                       onTap: () async {
                         final result =
-                        await Navigator.pushNamed(
+                        await Navigator
+                            .pushNamed(
                           context,
-                          AppRoutes.goalsPreferences,
+                          AppRoutes
+                              .goalsPreferences,
                         );
 
-                        if (result == true) {
+                        if (result ==
+                            true) {
                           loadUser();
                         }
                       },
                     ),
 
+                    // =============================================
+                    // LOG OUT
+                    // =============================================
 
                     ProfileMenuItem(
-                      icon: Icons.logout,
+                      icon:
+                      Icons.logout,
+
                       title:
-                      context.l10n.logOut,
+                      context
+                          .l10n
+                          .logOut,
+
                       onTap: () async {
                         await _profileRepository
                             .logout();
 
-                        if (!context.mounted) {
+                        if (!context
+                            .mounted) {
                           return;
                         }
 
@@ -176,20 +299,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             .pushNamedAndRemoveUntil(
                           context,
                           AppRoutes.login,
-                              (route) => false,
+                              (route) =>
+                          false,
                         );
                       },
                     ),
 
+                    // =============================================
+                    // DELETE ACCOUNT
+                    // =============================================
+
                     ProfileMenuItem(
-                      icon: Icons.delete_outline,
-                      title: context
-                          .l10n.deleteMyAccount,
-                      color: AppColors.red,
+                      icon:
+                      Icons
+                          .delete_outline,
+
+                      title:
+                      context
+                          .l10n
+                          .deleteMyAccount,
+
+                      color:
+                      AppColors.red,
+
                       onTap: () {
                         Navigator.pushNamed(
                           context,
-                          AppRoutes.deleteAccount,
+                          AppRoutes
+                              .deleteAccount,
                         );
                       },
                     ),

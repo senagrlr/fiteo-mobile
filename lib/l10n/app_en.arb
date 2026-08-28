@@ -700,6 +700,40 @@
 
   "watchAdEarnOneUse": "Watch an ad to earn 1 more use",
 
+  "upgradeToPro": "FREE",
+  "unlockAllPremiumFeatures": "Unlock all features below",
+
+  "premiumUnlimitedRecipes": "Create unlimited recipes",
+  "premiumUnlimitedAi": "Ask Fiteo without limits",
+  "premiumBarcodeScanning": "Add products instantly by barcode",
+  "premiumSmartNotifications": "Stay on track with smart notifications",
+  "premiumGoalPrediction": "See your predicted goal date",
+  "premiumAdaptiveProgress": "Get an adaptive plan and detailed progress",
+  "premiumReports": "See weekly and monthly reports",
+  "premiumRecipePersonalization": "Personalize recipes around your goals",
+
+  "yearly": "Yearly",
+  "monthly": "Monthly",
+  "popular": "Popular",
+
+  "premiumMembershipTitle": "Fiteo Premium",
+  "premiumMembershipActive": "Your Premium membership is active",
+  "premiumYearlyPlan": "Yearly Plan",
+  "premiumActive": "Active",
+  "premiumRenewalDate": "Renewal date",
+  "premiumBenefits": "Your Premium benefits",
+  "manageSubscription": "Manage Subscription",
+
+  "newPlanTitle": "New Plan",
+  "newPlanDescription": "Your daily targets have been updated based on your recent progress.",
+  "oldPlanNewPlan": "Previous plan → New plan",
+
+  "saveNewPlan": "Save New Plan",
+
+  "weeklyWeightUpdateTitle": "Weekly Weight Update",
+  "weeklyWeightUpdateDescription": "Measure and update your weekly weight so we can track your plan consistently.",
+  "updateWeight": "Update",
+
 
   "recipeAddedToMeal": "{recipeName} added to {mealType}.",
   "@recipeAddedToMeal": {

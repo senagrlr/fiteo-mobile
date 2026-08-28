@@ -1244,27 +1244,7 @@ class ProgressDataBuilder {
   DateTime _weightRangeStart(
       ProgressRange range,
       ) {
-    switch (range) {
-      case ProgressRange.days7:
-        return today.subtract(
-          const Duration(days: 6),
-        );
-
-      case ProgressRange.days30:
-        return today.subtract(
-          const Duration(days: 29),
-        );
-
-      case ProgressRange.days90:
-        return today.subtract(
-          const Duration(days: 89),
-        );
-
-      case ProgressRange.days365:
-        return today.subtract(
-          const Duration(days: 364),
-        );
-    }
+    return _effectiveStartDate(range);
   }
 
   String _signedValue(

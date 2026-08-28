@@ -8,11 +8,17 @@ import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/features/profile/presentation/models/progress_day_data.dart';
 import 'package:fiteo_myapp/features/profile/presentation/models/progress_models.dart';
 import 'package:fiteo_myapp/features/profile/presentation/models/progress_snapshot.dart';
+import 'package:fiteo_myapp/common/utils/weight_unit_converter.dart';
+import 'package:fiteo_myapp/features/profile/data/plan_tracking_calculator.dart';
+import 'package:fiteo_myapp/features/profile/data/weight_repository.dart';
 
 class ProgressDataBuilder {
   final BuildContext context;
   final ProgressSnapshot snapshot;
   final DateTime today;
+
+  final PlanTrackingCalculator _planTrackingCalculator =
+  const PlanTrackingCalculator();
 
   ProgressDataBuilder({
     required this.context,
@@ -37,7 +43,7 @@ class ProgressDataBuilder {
       case ProgressMetric.workout:
         return _buildWorkoutChart(range);
       case ProgressMetric.weight:
-        return _emptyWeightChart();
+        return _buildWeightChart(range);
     }
   }
 
@@ -55,11 +61,7 @@ class ProgressDataBuilder {
         case ProgressMetric.workout:
           return _yearlyWorkoutSummary();
         case ProgressMetric.weight:
-          return const ProgressSummaryValues(
-            primary: '—',
-            left: '—',
-            right: '—',
-          );
+          return _weightSummary(range);
       }
     }
 
@@ -73,11 +75,7 @@ class ProgressDataBuilder {
       case ProgressMetric.workout:
         return _workoutSummary(dates);
       case ProgressMetric.weight:
-        return const ProgressSummaryValues(
-          primary: '—',
-          left: '—',
-          right: '—',
-        );
+        return _weightSummary(range);
     }
   }
 
@@ -815,6 +813,15 @@ class ProgressDataBuilder {
     return dates;
   }
 
+  bool _isSameDate(
+      DateTime first,
+      DateTime second,
+      ) {
+    return first.year == second.year &&
+        first.month == second.month &&
+        first.day == second.day;
+  }
+
   double _averageDailyValue(
       List<DateTime> dates,
       double Function(ProgressDayData day) selector,
@@ -963,16 +970,328 @@ class ProgressDataBuilder {
     return labels[date.month - 1];
   }
 
-  ProgressChartData _emptyWeightChart() {
-    return const ProgressChartData(
+  ProgressChartData _buildWeightChart(
+      ProgressRange range,
+      ) {
+    final entries = _weightEntriesForRange(range);
+
+    if (entries.isEmpty) {
+      return _emptyWeightChart();
+    }
+
+    final unit = snapshot.weightUnit;
+
+    final targetWeight = snapshot.targetWeightKg == null
+        ? null
+        : WeightUnitConverter.kgToDisplay(
+      kg: snapshot.targetWeightKg!,
+      unit: unit,
+    );
+
+    final spots = <FlSpot>[];
+    final labels = <String>[];
+
+    if (range == ProgressRange.days365) {
+      final months = _last12Months();
+
+      labels.addAll(
+        months.map(_monthLabel),
+      );
+
+      for (var i = 0; i < months.length; i++) {
+        final month = months[i];
+
+        final monthEntries = entries.where(
+              (entry) =>
+          entry.date.year == month.year &&
+              entry.date.month == month.month,
+        ).toList();
+
+        if (monthEntries.isEmpty) {
+          continue;
+        }
+
+        final averageWeightKg =
+            monthEntries
+                .map((entry) => entry.weightKg)
+                .reduce((a, b) => a + b) /
+                monthEntries.length;
+
+        final displayWeight =
+        WeightUnitConverter.kgToDisplay(
+          kg: averageWeightKg,
+          unit: unit,
+        );
+
+        spots.add(
+          FlSpot(
+            i.toDouble(),
+            displayWeight,
+          ),
+        );
+      }
+    } else {
+      final buckets = _buildBuckets(range);
+
+      labels.addAll(
+        buckets.map((bucket) => bucket.label),
+      );
+
+      for (final entry in entries) {
+        final bucketIndex = buckets.indexWhere(
+              (bucket) => bucket.dates.any(
+                (date) => _isSameDate(
+              date,
+              entry.date,
+            ),
+          ),
+        );
+
+        if (bucketIndex == -1) {
+          continue;
+        }
+
+        final displayWeight =
+        WeightUnitConverter.kgToDisplay(
+          kg: entry.weightKg,
+          unit: unit,
+        );
+
+        spots.add(
+          FlSpot(
+            bucketIndex.toDouble(),
+            displayWeight,
+          ),
+        );
+      }
+    }
+
+    final values =
+    spots.map((spot) => spot.y).toList();
+
+    final bounds = _weightChartBounds(
+      values,
+      target: targetWeight,
+    );
+
+    return ProgressChartData(
       lineColor: AppColors.homeBrown,
-      spots: [FlSpot(0, 0)],
-      bottomLabels: [''],
+      spots: spots,
+      bottomLabels: labels,
+      minY: bounds.min,
+      maxY: bounds.max,
+      interval: bounds.interval,
+      targetY: targetWeight,
+      tooltipUnit: unit,
+    );
+  }
+
+  _ChartBounds _weightChartBounds(
+      List<double> values, {
+        double? target,
+      }) {
+    final allValues = <double>[
+      ...values,
+      if (target != null) target,
+    ];
+
+    if (allValues.isEmpty) {
+      return const _ChartBounds(
+        min: 50,
+        max: 70,
+        interval: 5,
+      );
+    }
+
+    final lowest = allValues.reduce(math.min);
+    final highest = allValues.reduce(math.max);
+
+    final range = highest - lowest;
+
+    final requiredInterval =
+    math.max(5.0, range / 3);
+
+    final interval =
+        (requiredInterval / 5).ceil() * 5.0;
+
+    var minY =
+        ((lowest - interval) / interval).floor() *
+            interval;
+
+    var maxY = minY + (interval * 4);
+
+    while (highest > maxY) {
+      minY += interval;
+      maxY += interval;
+    }
+
+    return _ChartBounds(
+      min: minY,
+      max: maxY,
+      interval: interval,
+    );
+  }
+
+  ProgressSummaryValues _weightSummary(
+      ProgressRange range,
+      ) {
+    final entries = _weightEntriesForRange(range);
+
+    if (entries.isEmpty) {
+      return const ProgressSummaryValues(
+        primary: '—',
+        left: '—',
+        right: '—',
+      );
+    }
+
+    final unit = snapshot.weightUnit;
+
+    final latestWeightKg =
+        entries.last.weightKg;
+
+    double? totalChangeKg;
+
+    if (entries.length >= 2) {
+      totalChangeKg =
+          latestWeightKg - entries.first.weightKg;
+    }
+
+    String weeklyRateText = '—';
+
+    if (entries.length >= 2) {
+      final points = entries
+          .map(
+            (entry) => PlanWeightPoint(
+          date: entry.date,
+          weightKg: entry.weightKg,
+        ),
+      )
+          .toList();
+
+      final weeklyRateKg =
+      _planTrackingCalculator
+          .calculateLinearRegressionWeeklyRate(
+        points,
+      );
+
+      final weeklyRateDisplay =
+      WeightUnitConverter.kgToDisplay(
+        kg: weeklyRateKg.abs(),
+        unit: unit,
+      );
+
+      weeklyRateText =
+      '${_signedValue(weeklyRateKg, weeklyRateDisplay)} $unit/week';
+    }
+
+    String remainingText = '—';
+
+    final targetWeightKg =
+        snapshot.targetWeightKg;
+
+    if (targetWeightKg != null) {
+      final remainingKg =
+      (targetWeightKg - latestWeightKg)
+          .abs();
+
+      final remainingDisplay =
+      WeightUnitConverter.kgToDisplay(
+        kg: remainingKg,
+        unit: unit,
+      );
+
+      remainingText =
+      '${_formatDouble(remainingDisplay)} $unit';
+    }
+
+    return ProgressSummaryValues(
+      primary: totalChangeKg == null
+          ? '—'
+          : '${_signedValue(
+        totalChangeKg,
+        WeightUnitConverter.kgToDisplay(
+          kg: totalChangeKg.abs(),
+          unit: unit,
+        ),
+      )} $unit',
+      left: weeklyRateText,
+      right: remainingText,
+    );
+  }
+
+  List<WeightEntry> _weightEntriesForRange(
+      ProgressRange range,
+      ) {
+    final start =
+    _weightRangeStart(range);
+
+    final entries = snapshot.weightEntries
+        .where(
+          (entry) =>
+      !entry.date.isBefore(start) &&
+          !entry.date.isAfter(today),
+    )
+        .toList()
+      ..sort(
+            (a, b) =>
+            a.date.compareTo(b.date),
+      );
+
+    return entries;
+  }
+
+  DateTime _weightRangeStart(
+      ProgressRange range,
+      ) {
+    switch (range) {
+      case ProgressRange.days7:
+        return today.subtract(
+          const Duration(days: 6),
+        );
+
+      case ProgressRange.days30:
+        return today.subtract(
+          const Duration(days: 29),
+        );
+
+      case ProgressRange.days90:
+        return today.subtract(
+          const Duration(days: 89),
+        );
+
+      case ProgressRange.days365:
+        return today.subtract(
+          const Duration(days: 364),
+        );
+    }
+  }
+
+  String _signedValue(
+      double sourceValue,
+      double displayValue,
+      ) {
+    if (sourceValue > 0) {
+      return '+${_formatDouble(displayValue)}';
+    }
+
+    if (sourceValue < 0) {
+      return '-${_formatDouble(displayValue)}';
+    }
+
+    return _formatDouble(displayValue);
+  }
+
+  ProgressChartData _emptyWeightChart() {
+    return ProgressChartData(
+      lineColor: AppColors.homeBrown,
+      spots: const [FlSpot(0, 0)],
+      bottomLabels: const [''],
       minY: 0,
       maxY: 10,
       interval: 2,
       targetY: null,
-      tooltipUnit: 'kg',
+      tooltipUnit: snapshot.weightUnit,
     );
   }
 }

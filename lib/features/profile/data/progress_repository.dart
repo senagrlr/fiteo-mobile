@@ -6,6 +6,7 @@ import 'package:fiteo_myapp/features/profile/data/progress_date_utils.dart';
 import 'package:fiteo_myapp/features/profile/presentation/models/progress_day_data.dart';
 import 'package:fiteo_myapp/features/profile/presentation/models/progress_month_data.dart';
 import 'package:fiteo_myapp/features/profile/presentation/models/progress_snapshot.dart';
+import 'package:fiteo_myapp/features/profile/data/weight_repository.dart';
 
 class ProgressRepository {
   final FirebaseAuth _auth =
@@ -13,6 +14,9 @@ class ProgressRepository {
 
   final FirebaseFirestore _firestore =
       FirebaseFirestore.instance;
+
+  final WeightRepository _weightRepository =
+  WeightRepository();
 
   late final ProgressCacheService
   _cacheService =
@@ -35,6 +39,11 @@ class ProgressRepository {
     final yesterday = today.subtract(const Duration(days: 1));
     final creationTime = user.metadata.creationTime;
 
+    final weightStartDate =
+    today.subtract(
+      const Duration(days: 364),
+    );
+
     final trackingStartDate = creationTime == null
         ? today
         : progressDateOnly(creationTime);
@@ -56,11 +65,15 @@ class ProgressRepository {
       progressDateKey(today),
     );
 
-    // Cache ve bugün aynı anda okunur.
     final results =
     await Future.wait([
       cacheRef.get(),
       todayRef.get(),
+      userRef.get(),
+      _weightRepository.getEntries(
+        start: weightStartDate,
+        end: today,
+      ),
     ]);
 
     final cacheDoc =
@@ -72,6 +85,34 @@ class ProgressRepository {
     results[1]
     as DocumentSnapshot<
         Map<String, dynamic>>;
+
+    final userDoc =
+    results[2]
+    as DocumentSnapshot<
+        Map<String, dynamic>>;
+
+    final weightEntries =
+    results[3]
+    as List<WeightEntry>;
+
+    final userData =
+        userDoc.data() ??
+            <String, dynamic>{};
+
+    final preferences =
+        userData['userPreferences']
+        as Map<String, dynamic>? ??
+            <String, dynamic>{};
+
+    final targetWeightKg =
+    (preferences['targetWeight']
+    as num?)
+        ?.toDouble();
+
+    final weightUnit =
+    (preferences['weightUnit'] ?? 'kg')
+        .toString()
+        .toLowerCase();
 
     Map<String, dynamic> cache =
     Map<String, dynamic>.from(
@@ -149,6 +190,9 @@ class ProgressRepository {
       days: days,
       months: months,
       trackingStartDate: trackingStartDate,
+      weightEntries: weightEntries,
+      targetWeightKg: targetWeightKg,
+      weightUnit: weightUnit,
     );
   }
 }

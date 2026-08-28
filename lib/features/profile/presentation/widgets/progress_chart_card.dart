@@ -157,7 +157,7 @@ class ProgressChartCard extends StatelessWidget {
 
     return LineChartData(
       minX: 0,
-      maxX: (data.spots.length - 1).toDouble(),
+      maxX: (data.bottomLabels.length - 1).toDouble(),
 
       minY: chartMinY,
       maxY: data.maxY,

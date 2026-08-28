@@ -303,16 +303,16 @@ class _ProgressScreenState
       case ProgressMetric.weight:
         return ProgressSummaryData(
           dateRange: builder.dateRangeLabel(selectedRange),
-          primaryItem: const ProgressSummaryItem(
-            value: '—',
+          primaryItem: ProgressSummaryItem(
+            value: values.primary,
             label: 'Total Change',
           ),
-          bottomLeftItem: const ProgressSummaryItem(
-            value: '—',
+          bottomLeftItem: ProgressSummaryItem(
+            value: values.left,
             label: 'Weekly Rate',
           ),
-          bottomRightItem: const ProgressSummaryItem(
-            value: '—',
+          bottomRightItem: ProgressSummaryItem(
+            value: values.right,
             label: 'Remaining',
           ),
         );

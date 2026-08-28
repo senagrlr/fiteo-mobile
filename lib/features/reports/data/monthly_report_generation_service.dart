@@ -5,6 +5,8 @@ import 'package:fiteo_myapp/features/reports/data/report_repository.dart';
 import 'package:fiteo_myapp/features/reports/models/monthly_report_cache.dart';
 import 'package:fiteo_myapp/features/reports/data/monthly_target_accumulator_repository.dart';
 import 'package:fiteo_myapp/features/reports/data/report_period_resolver.dart';
+import 'package:fiteo_myapp/features/profile/data/weight_repository.dart';
+import 'package:fiteo_myapp/features/reports/data/monthly_weight_resolver.dart';
 
 class MonthlyReportGenerationService {
   MonthlyReportGenerationService({
@@ -13,6 +15,8 @@ class MonthlyReportGenerationService {
     ReportRepository? reportRepository,
     MonthlyReportGenerator? generator,
     MonthlyTargetAccumulatorRepository? targetAccumulatorRepository,
+    WeightRepository? weightRepository,
+    MonthlyWeightResolver? weightResolver,
   })  : _dailySummaryRepository =
       dailySummaryRepository ?? DailySummaryRepository(),
         _planTrackingRepository =
@@ -22,7 +26,11 @@ class MonthlyReportGenerationService {
         _generator =
             generator ?? const MonthlyReportGenerator(),
         _targetAccumulatorRepository =
-            targetAccumulatorRepository ?? MonthlyTargetAccumulatorRepository();
+            targetAccumulatorRepository ?? MonthlyTargetAccumulatorRepository(),
+        _weightRepository =
+            weightRepository ?? WeightRepository(),
+        _weightResolver =
+            weightResolver ?? const MonthlyWeightResolver();
 
 
 
@@ -31,6 +39,8 @@ class MonthlyReportGenerationService {
   final ReportRepository _reportRepository;
   final MonthlyReportGenerator _generator;
   final MonthlyTargetAccumulatorRepository _targetAccumulatorRepository;
+  final WeightRepository _weightRepository;
+  final MonthlyWeightResolver _weightResolver;
 
   Future<MonthlyReportCache> generateAndSave({
     required ReportPeriod period,
@@ -62,10 +72,30 @@ class MonthlyReportGenerationService {
       month: period.calendarStart,
     );
 
+    final weightEntriesFuture =
+    _weightRepository.getEntries(
+      start: period.calendarStart,
+      end: period.calendarEnd,
+    );
+
     final summaries = await summariesFuture;
     final previousReport = await previousReportFuture;
     final planTracking = await planTrackingFuture;
     final accumulator = await accumulatorFuture;
+    final weightEntries = await weightEntriesFuture;
+
+    final weightResolution = _weightResolver.resolve(
+      periodStart: period.calendarStart,
+      periodEnd: period.calendarEnd,
+      planActivatedAt:
+      planTracking.planActivatedAt,
+      planStartWeightKg:
+      planTracking.planStartWeight,
+      currentMonthEntries:
+      weightEntries,
+      previousReport:
+      previousReport,
+    );
 
     final cache = _generator.generate(
       period: period,
@@ -77,8 +107,9 @@ class MonthlyReportGenerationService {
       planTracking.expectedWeeklyWeightChangeKg,
       accumulator: accumulator,
       startWeightKg:
-      previousReport?.weightPlan.currentWeightKg,
-      currentWeightKg: null,
+      weightResolution.startWeightKg,
+      currentWeightKg:
+      weightResolution.currentWeightKg,
       planStatus: planTracking.planStatus.name,
       planStatusDescription: planTracking.aiNote,
       previousComparisonBasis:

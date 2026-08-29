@@ -22,6 +22,7 @@ import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/shared/ai_mod
 import 'package:fiteo_myapp/features/ai_coach/data/ai_usage_limits.dart';
 import 'package:fiteo_myapp/features/ai_coach/data/ai_usage_repository.dart';
 import 'package:fiteo_myapp/features/ai_coach/data/ai_usage_state.dart';
+import 'package:fiteo_myapp/features/membership/data/membership_repository.dart';
 
 class AiCoachScreen extends StatefulWidget {
   const AiCoachScreen({
@@ -66,30 +67,38 @@ class _AiCoachScreenState
   final AiUsageRepository _usageRepository =
   AiUsageRepository();
 
+  final MembershipRepository _membershipRepository =
+  MembershipRepository();
+
+  bool _isPremium = false;
+
   AiUsageState _chatUsage =
   const AiUsageState.empty();
 
   bool get _hasReachedDailyLimit =>
-      _chatUsage.hasReachedLimit(
-        baseLimit:
-        AiUsageLimits.freeChatMessages,
-      );
+      !_isPremium &&
+          _chatUsage.hasReachedLimit(
+            baseLimit: AiUsageLimits.freeChatMessages,
+          );
 
   @override
   void initState() {
     super.initState();
 
-    _loadMessageCount();
+    _loadInitialState();
   }
 
-  Future<void> _loadMessageCount() async {
-    final usage =
-    await _usageRepository.getTodayChatUsage();
+  Future<void> _loadInitialState() async {
+    final results = await Future.wait([
+      _usageRepository.getTodayChatUsage(),
+      _membershipRepository.isPremium(),
+    ]);
 
     if (!mounted) return;
 
     setState(() {
-      _chatUsage = usage;
+      _chatUsage = results[0] as AiUsageState;
+      _isPremium = results[1] as bool;
     });
   }
 
@@ -271,8 +280,6 @@ class _AiCoachScreenState
         message: reply,
       );
 
-      await _usageRepository.incrementChatUsage();
-
     } else {
       temporaryErrorMessage =
           context.l10n.aiCouldNotRespond;
@@ -283,7 +290,7 @@ class _AiCoachScreenState
     }
 
     setState(() {
-      if (reply != null) {
+      if (!_isPremium) {
         _chatUsage = AiUsageState(
           usedCount: _chatUsage.usedCount + 1,
           rewardedCredits:

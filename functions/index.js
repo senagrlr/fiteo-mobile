@@ -55,46 +55,94 @@ async function requireAuthenticatedUser(req, res) {
 const PREMIUM_CHAT_SAFETY_LIMIT = 100;
 const PREMIUM_RECIPE_SAFETY_LIMIT = 20;
 
+const FREE_CHAT_LIMIT = 2;
+const FREE_RECIPE_LIMIT = 1;
+
+const MAX_REWARDED_CHAT_CREDITS = 3;
+const MAX_REWARDED_RECIPE_CREDITS = 2;
+
 function getUtcDateKey() {
   return new Date().toISOString().slice(0, 10);
 }
 
-async function reserveAiSafetyUsage({
+async function reserveAiUsage({
   uid,
   type,
-  limit,
+  isPremium,
 }) {
-  const field =
-      type === "chat"
-        ? "chatCount"
-        : "recipeCount";
+  const isChat = type === "chat";
 
-  const ref = admin
+  const countField =
+      isChat ? "chatCount" : "recipeCount";
+
+  const rewardedCreditsField =
+      isChat
+        ? "rewardedChatCredits"
+        : "rewardedRecipeCredits";
+
+  const freeBaseLimit =
+      isChat
+        ? FREE_CHAT_LIMIT
+        : FREE_RECIPE_LIMIT;
+
+  const maxRewardedCredits =
+      isChat
+        ? MAX_REWARDED_CHAT_CREDITS
+        : MAX_REWARDED_RECIPE_CREDITS;
+
+  const premiumSafetyLimit =
+      isChat
+        ? PREMIUM_CHAT_SAFETY_LIMIT
+        : PREMIUM_RECIPE_SAFETY_LIMIT;
+
+  const today = getUtcDateKey();
+
+  const usageRef = admin
     .firestore()
     .collection("users")
     .doc(uid)
-    .collection("aiSafetyUsage")
-    .doc(getUtcDateKey());
+    .collection("aiUsage")
+    .doc(today);
 
-  return admin
-    .firestore()
-    .runTransaction(async (transaction) => {
+  return admin.firestore().runTransaction(
+    async (transaction) => {
       const snapshot =
-          await transaction.get(ref);
+          await transaction.get(usageRef);
 
       const data = snapshot.data() || {};
 
       const currentCount =
-          Number(data[field]) || 0;
+          Number(data[countField]) || 0;
 
-      if (currentCount >= limit) {
+      let allowedCount;
+
+      if (isPremium) {
+        allowedCount =
+            premiumSafetyLimit;
+      } else {
+        const rawRewardedCredits =
+            Number(
+              data[rewardedCreditsField]
+            ) || 0;
+
+        const rewardedCredits = Math.min(
+          Math.max(rawRewardedCredits, 0),
+          maxRewardedCredits
+        );
+
+        allowedCount =
+            freeBaseLimit +
+            rewardedCredits;
+      }
+
+      if (currentCount >= allowedCount) {
         return false;
       }
 
       transaction.set(
-        ref,
+        usageRef,
         {
-          [field]:
+          [countField]:
               currentCount + 1,
           updatedAt:
               admin.firestore.FieldValue
@@ -102,11 +150,32 @@ async function reserveAiSafetyUsage({
         },
         {
           merge: true,
-        }
+        },
       );
 
       return true;
-    });
+    },
+  );
+}
+
+async function getUserMembership(uid) {
+  const membershipRef = admin
+    .firestore()
+    .collection("users")
+    .doc(uid)
+    .collection("membership")
+    .doc("current");
+
+  const snapshot =
+      await membershipRef.get();
+
+  const data = snapshot.data();
+
+  return {
+    isPremium:
+      data?.isPremium === true &&
+      data?.status === "active",
+  };
 }
 
 let fatSecretCachedAccessToken = null;
@@ -1113,17 +1182,24 @@ exports.chatWithCoach = onRequest(
 
     const uid = decodedToken.uid;
 
-    const hasChatSafetyCapacity =
-        await reserveAiSafetyUsage({
+    const membership =
+        await getUserMembership(uid);
+
+    const isPremium =
+        membership.isPremium;
+
+    const hasChatCapacity =
+        await reserveAiUsage({
           uid,
           type: "chat",
-          limit:
-            PREMIUM_CHAT_SAFETY_LIMIT,
+          isPremium,
         });
 
-    if (!hasChatSafetyCapacity) {
+    if (!hasChatCapacity) {
       return res.status(429).json({
-        error: "AI chat safety limit reached",
+        error: isPremium
+          ? "AI chat safety limit reached"
+          : "Daily AI chat limit reached",
       });
     }
 
@@ -1213,18 +1289,24 @@ exports.generateRecipeFromIngredients = onRequest(
 
     const uid = decodedToken.uid;
 
-    const hasRecipeSafetyCapacity =
-        await reserveAiSafetyUsage({
+    const membership =
+        await getUserMembership(uid);
+
+    const isPremium =
+        membership.isPremium;
+
+    const hasRecipeCapacity =
+        await reserveAiUsage({
           uid,
           type: "recipe",
-          limit:
-            PREMIUM_RECIPE_SAFETY_LIMIT,
+          isPremium,
         });
 
-    if (!hasRecipeSafetyCapacity) {
+    if (!hasRecipeCapacity) {
       return res.status(429).json({
-        error:
-          "AI recipe safety limit reached",
+        error: isPremium
+          ? "AI recipe safety limit reached"
+          : "Daily AI recipe limit reached",
       });
     }
 

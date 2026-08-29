@@ -65,6 +65,35 @@ function getUtcDateKey() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function normalizeFatSecretQuery(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/['’]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeFatSecretBarcode(value) {
+  const digits =
+      String(value || "")
+        .replace(/\D/g, "");
+
+  if (digits.length === 13) {
+    return digits;
+  }
+
+  if (
+    digits.length === 12 ||
+    digits.length === 8
+  ) {
+    return digits.padStart(13, "0");
+  }
+
+  return null;
+}
+
 async function reserveAiUsage({
   uid,
   type,
@@ -274,6 +303,218 @@ async function requestNewFatSecretAccessToken() {
    }
  }
 
+ exports.fatSecretFoodAlias = onRequest(
+   {
+     cors: true,
+   },
+   async (req, res) => {
+     try {
+       const decodedToken =
+           await requireAuthenticatedUser(
+             req,
+             res
+           );
+
+       if (!decodedToken) {
+         return;
+       }
+
+       if (req.method === "GET") {
+         const query =
+             normalizeFatSecretQuery(
+               req.query.q
+             );
+
+         if (!query) {
+           return res.status(400).json({
+             error: "Missing query",
+           });
+         }
+
+         const aliasRef = admin
+           .firestore()
+           .collection(
+             "fatSecretFoodAliases"
+           )
+           .doc(query);
+
+         const snapshot =
+             await aliasRef.get();
+
+         const foodId =
+             snapshot
+               .data()
+               ?.foodId
+               ?.toString()
+               .trim();
+
+         return res.status(200).json({
+           foodId:
+               foodId && foodId.length > 0
+                 ? foodId
+                 : null,
+         });
+       }
+
+       if (req.method === "POST") {
+         const query =
+             normalizeFatSecretQuery(
+               req.body?.query
+             );
+
+         const foodId =
+             String(
+               req.body?.foodId || ""
+             ).trim();
+
+         if (!query || !foodId) {
+           return res.status(400).json({
+             error:
+                 "Missing query or foodId",
+           });
+         }
+
+         await admin
+           .firestore()
+           .collection(
+             "fatSecretFoodAliases"
+           )
+           .doc(query)
+           .set({
+             foodId,
+             updatedAt:
+                 admin.firestore.FieldValue
+                   .serverTimestamp(),
+           });
+
+         return res.status(200).json({
+           success: true,
+         });
+       }
+
+       return res.status(405).json({
+         error: "Method not allowed",
+       });
+     } catch (error) {
+       console.error(
+         "fatSecretFoodAlias error:",
+         error
+       );
+
+       return res.status(500).json({
+         error:
+             "FatSecret food alias request failed",
+       });
+     }
+   }
+ );
+
+ exports.fatSecretBarcodeAlias = onRequest(
+   {
+     cors: true,
+   },
+   async (req, res) => {
+     try {
+       const decodedToken =
+           await requireAuthenticatedUser(
+             req,
+             res
+           );
+
+       if (!decodedToken) {
+         return;
+       }
+
+       if (req.method === "GET") {
+         const barcode =
+             normalizeFatSecretBarcode(
+               req.query.barcode
+             );
+
+         if (!barcode) {
+           return res.status(400).json({
+             error: "Invalid barcode",
+           });
+         }
+
+         const aliasRef = admin
+           .firestore()
+           .collection(
+             "fatSecretBarcodeAliases"
+           )
+           .doc(barcode);
+
+         const snapshot =
+             await aliasRef.get();
+
+         const foodId =
+             snapshot
+               .data()
+               ?.foodId
+               ?.toString()
+               .trim();
+
+         return res.status(200).json({
+           foodId:
+               foodId && foodId.length > 0
+                 ? foodId
+                 : null,
+         });
+       }
+
+       if (req.method === "POST") {
+         const barcode =
+             normalizeFatSecretBarcode(
+               req.body?.barcode
+             );
+
+         const foodId =
+             String(
+               req.body?.foodId || ""
+             ).trim();
+
+         if (!barcode || !foodId) {
+           return res.status(400).json({
+             error:
+                 "Missing barcode or foodId",
+           });
+         }
+
+         await admin
+           .firestore()
+           .collection(
+             "fatSecretBarcodeAliases"
+           )
+           .doc(barcode)
+           .set({
+             foodId,
+             updatedAt:
+                 admin.firestore.FieldValue
+                   .serverTimestamp(),
+           });
+
+         return res.status(200).json({
+           success: true,
+         });
+       }
+
+       return res.status(405).json({
+         error: "Method not allowed",
+       });
+     } catch (error) {
+       console.error(
+         "fatSecretBarcodeAlias error:",
+         error
+       );
+
+       return res.status(500).json({
+         error:
+             "FatSecret barcode alias request failed",
+       });
+     }
+   }
+ );
+
 exports.searchFatSecretFoods = onRequest(
   {
     secrets: [
@@ -284,6 +525,16 @@ exports.searchFatSecretFoods = onRequest(
   },
   async (req, res) => {
     try {
+          const decodedToken =
+              await requireAuthenticatedUser(
+                req,
+                res
+              );
+
+          if (!decodedToken) {
+            return;
+          }
+
       const query = String(
         req.query.q || ""
       ).trim();
@@ -382,6 +633,16 @@ exports.findFatSecretFoodByBarcode = onRequest(
   },
   async (req, res) => {
     try {
+          const decodedToken =
+              await requireAuthenticatedUser(
+                req,
+                res
+              );
+
+          if (!decodedToken) {
+            return;
+          }
+
       const rawBarcode = String(
         req.query.barcode || ""
       ).trim();
@@ -494,6 +755,16 @@ exports.getFatSecretFood = onRequest(
   },
   async (req, res) => {
     try {
+          const decodedToken =
+              await requireAuthenticatedUser(
+                req,
+                res
+              );
+
+          if (!decodedToken) {
+            return;
+          }
+
       const foodId = String(
         req.query.foodId || ""
       ).trim();

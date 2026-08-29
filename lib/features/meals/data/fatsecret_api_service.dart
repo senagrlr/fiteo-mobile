@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:fiteo_myapp/features/meals/data/fatsecret_candidate_ranker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FatSecretServing {
   final String id;
@@ -87,6 +88,24 @@ class FatSecretApiService {
   static const String _barcodeUrl =
       'https://us-central1-fiteo-app-39f91.cloudfunctions.net/findFatSecretFoodByBarcode';
 
+  Future<Map<String, String>?> _authenticatedHeaders() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      return null;
+    }
+
+    final idToken = await user.getIdToken();
+
+    if (idToken == null || idToken.isEmpty) {
+      return null;
+    }
+
+    return {
+      'Authorization': 'Bearer $idToken',
+    };
+  }
+
   double _toDouble(dynamic value) {
     return double.tryParse(value?.toString() ?? '') ?? 0;
   }
@@ -146,7 +165,17 @@ class FatSecretApiService {
 
     print('FATSECRET BARCODE REQUEST: $uri');
 
-    final response = await http.get(uri);
+    final headers =
+    await _authenticatedHeaders();
+
+    if (headers == null) {
+      return null;
+    }
+
+    final response = await http.get(
+      uri,
+      headers: headers,
+    );
 
     print(
       'FATSECRET BARCODE STATUS: ${response.statusCode}',
@@ -196,7 +225,17 @@ class FatSecretApiService {
 
     print('FATSECRET SEARCH REQUEST: $uri');
 
-    final response = await http.get(uri);
+    final headers =
+    await _authenticatedHeaders();
+
+    if (headers == null) {
+      return [];
+    }
+
+    final response = await http.get(
+      uri,
+      headers: headers,
+    );
 
     print('FATSECRET SEARCH STATUS: ${response.statusCode}');
 
@@ -271,7 +310,17 @@ class FatSecretApiService {
       '$_detailsUrl?foodId=${Uri.encodeQueryComponent(id)}',
     );
 
-    final response = await http.get(uri);
+    final headers =
+    await _authenticatedHeaders();
+
+    if (headers == null) {
+      return null;
+    }
+
+    final response = await http.get(
+      uri,
+      headers: headers,
+    );
 
     if (response.statusCode != 200) return null;
 

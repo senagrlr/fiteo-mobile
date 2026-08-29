@@ -1,12 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
 
 class FatSecretBarcodeCacheRepository {
-  final FirebaseFirestore _firestore;
-
-  FatSecretBarcodeCacheRepository({
-    FirebaseFirestore? firestore,
-  }) : _firestore =
-      firestore ?? FirebaseFirestore.instance;
+  static const String _aliasUrl =
+      'https://us-central1-fiteo-app-39f91.cloudfunctions.net/fatSecretBarcodeAlias';
 
   String? normalizeBarcode(String value) {
     final digits =
@@ -24,6 +23,22 @@ class FatSecretBarcodeCacheRepository {
     return null;
   }
 
+  Future<String?> _getIdToken() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      return null;
+    }
+
+    final idToken = await user.getIdToken();
+
+    if (idToken == null || idToken.isEmpty) {
+      return null;
+    }
+
+    return idToken;
+  }
+
   Future<String?> getFoodIdForBarcode(
       String barcode,
       ) async {
@@ -34,26 +49,38 @@ class FatSecretBarcodeCacheRepository {
       return null;
     }
 
-    final doc = await _firestore
-        .collection('fatSecretBarcodeAliases')
-        .doc(normalizedBarcode)
-        .get();
+    final idToken = await _getIdToken();
 
-    final data = doc.data();
-
-    if (data == null) {
+    if (idToken == null) {
       return null;
     }
+
+    final uri = Uri.parse(
+      '$_aliasUrl?barcode=${Uri.encodeQueryComponent(normalizedBarcode)}',
+    );
+
+    final response = await http.get(
+      uri,
+      headers: {
+        'Authorization': 'Bearer $idToken',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      return null;
+    }
+
+    final decoded =
+    jsonDecode(response.body) as Map<String, dynamic>;
 
     final foodId =
-    data['foodId']?.toString();
+    decoded['foodId']?.toString().trim();
 
-    if (foodId == null ||
-        foodId.trim().isEmpty) {
+    if (foodId == null || foodId.isEmpty) {
       return null;
     }
 
-    return foodId.trim();
+    return foodId;
   }
 
   Future<void> saveBarcodeAlias({
@@ -63,18 +90,29 @@ class FatSecretBarcodeCacheRepository {
     final normalizedBarcode =
     normalizeBarcode(barcode);
 
+    final cleanFoodId = foodId.trim();
+
     if (normalizedBarcode == null ||
-        foodId.trim().isEmpty) {
+        cleanFoodId.isEmpty) {
       return;
     }
 
-    await _firestore
-        .collection('fatSecretBarcodeAliases')
-        .doc(normalizedBarcode)
-        .set({
-      'foodId': foodId.trim(),
-      'updatedAt':
-      FieldValue.serverTimestamp(),
-    });
+    final idToken = await _getIdToken();
+
+    if (idToken == null) {
+      return;
+    }
+
+    await http.post(
+      Uri.parse(_aliasUrl),
+      headers: {
+        'Authorization': 'Bearer $idToken',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'barcode': normalizedBarcode,
+        'foodId': cleanFoodId,
+      }),
+    );
   }
 }

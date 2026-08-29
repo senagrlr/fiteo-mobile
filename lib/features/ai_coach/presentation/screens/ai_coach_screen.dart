@@ -19,6 +19,9 @@ import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/ai_chat/ai_we
 
 import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/shared/ad_reward_banner.dart';
 import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/shared/ai_mode_switch.dart';
+import 'package:fiteo_myapp/features/ai_coach/data/ai_usage_limits.dart';
+import 'package:fiteo_myapp/features/ai_coach/data/ai_usage_repository.dart';
+import 'package:fiteo_myapp/features/ai_coach/data/ai_usage_state.dart';
 
 class AiCoachScreen extends StatefulWidget {
   const AiCoachScreen({
@@ -60,16 +63,17 @@ class _AiCoachScreenState
 
   String? temporaryErrorMessage;
 
-  int messageCount = 0;
+  final AiUsageRepository _usageRepository =
+  AiUsageRepository();
 
-  static const int dailyLimit = 3;
-
-  // ============================================================
-  // DAILY LIMIT
-  // ============================================================
+  AiUsageState _chatUsage =
+  const AiUsageState.empty();
 
   bool get _hasReachedDailyLimit =>
-      messageCount >= dailyLimit;
+      _chatUsage.hasReachedLimit(
+        baseLimit:
+        AiUsageLimits.freeChatMessages,
+      );
 
   @override
   void initState() {
@@ -79,20 +83,15 @@ class _AiCoachScreenState
   }
 
   Future<void> _loadMessageCount() async {
-    final count =
-    await _chatRepository
-        .getTodayMessageCount();
+    final usage =
+    await _usageRepository.getTodayChatUsage();
 
     if (!mounted) return;
 
     setState(() {
-      messageCount = count;
+      _chatUsage = usage;
     });
   }
-
-  // ============================================================
-  // SCROLL
-  // ============================================================
 
   void _scrollToBottom() {
     WidgetsBinding.instance
@@ -272,8 +271,8 @@ class _AiCoachScreenState
         message: reply,
       );
 
-      await _chatRepository
-          .incrementTodayMessageCount();
+      await _usageRepository.incrementChatUsage();
+
     } else {
       temporaryErrorMessage =
           context.l10n.aiCouldNotRespond;
@@ -285,16 +284,16 @@ class _AiCoachScreenState
 
     setState(() {
       if (reply != null) {
-        messageCount++;
+        _chatUsage = AiUsageState(
+          usedCount: _chatUsage.usedCount + 1,
+          rewardedCredits:
+          _chatUsage.rewardedCredits,
+        );
       }
 
       isSending = false;
     });
   }
-
-  // ============================================================
-  // REWARD AD
-  // ============================================================
 
   void _onRewardAdTap() {
     // Şimdilik sadece UI callback.
@@ -307,10 +306,6 @@ class _AiCoachScreenState
     //
     // UI burada hazır kalacak.
   }
-
-  // ============================================================
-  // BACK TO WELCOME
-  // ============================================================
 
   void _backToWelcome() {
     setState(() {
@@ -327,10 +322,6 @@ class _AiCoachScreenState
     });
   }
 
-  // ============================================================
-  // DISPOSE
-  // ============================================================
-
   @override
   void dispose() {
     _messageController.dispose();
@@ -339,10 +330,6 @@ class _AiCoachScreenState
 
     super.dispose();
   }
-
-  // ============================================================
-  // BUILD
-  // ============================================================
 
   @override
   Widget build(
@@ -403,10 +390,6 @@ class _AiCoachScreenState
                 },
               )
 
-              // =================================================
-              // CHAT VIEW
-              // =================================================
-
                   : hasMessages
                   ? Column(
                 children: [
@@ -451,11 +434,6 @@ class _AiCoachScreenState
 
                   _buildLimitText(),
 
-                  // =======================================
-                  // REWARD AD
-                  // Sadece 3 hak bittiyse.
-                  // =======================================
-
                   if (_hasReachedDailyLimit)
                     Padding(
                       padding:
@@ -483,10 +461,6 @@ class _AiCoachScreenState
                   ),
                 ],
               )
-
-              // =================================================
-              // WELCOME VIEW
-              // =================================================
 
                   : Stack(
                 children: [
@@ -548,16 +522,11 @@ class _AiCoachScreenState
     );
   }
 
-  // ============================================================
-  // LIMIT TEXT
-  // ============================================================
-
   Widget _buildLimitText() {
     final remaining =
-    (dailyLimit - messageCount)
-        .clamp(
-      0,
-      dailyLimit,
+    _chatUsage.remaining(
+      baseLimit:
+      AiUsageLimits.freeChatMessages,
     );
 
     return Padding(

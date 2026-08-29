@@ -1,6 +1,9 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { defineSecret } = require("firebase-functions/params");
 const OpenAI = require("openai");
+const admin = require("firebase-admin");
+
+admin.initializeApp();
 
 const { createGeneratePersonalizedPlanHandler } = require("./personalized_plan");
 
@@ -9,6 +12,102 @@ const openaiApiKey = defineSecret("OPENAI_API_KEY");
 
 const fatSecretClientId = defineSecret("FATSECRET_CLIENT_ID");
 const fatSecretClientSecret = defineSecret("FATSECRET_CLIENT_SECRET");
+
+async function requireAuthenticatedUser(req, res) {
+  const authorization =
+      String(req.headers.authorization || "").trim();
+
+  if (!authorization.startsWith("Bearer ")) {
+    res.status(401).json({
+      error: "Authentication required",
+    });
+
+    return null;
+  }
+
+  const idToken =
+      authorization.substring("Bearer ".length).trim();
+
+  if (!idToken) {
+    res.status(401).json({
+      error: "Authentication required",
+    });
+
+    return null;
+  }
+
+  try {
+    return await admin.auth().verifyIdToken(idToken);
+  } catch (error) {
+    console.error(
+      "Firebase ID token verification failed:",
+      error
+    );
+
+    res.status(401).json({
+      error: "Invalid authentication token",
+    });
+
+    return null;
+  }
+}
+
+const PREMIUM_CHAT_SAFETY_LIMIT = 100;
+const PREMIUM_RECIPE_SAFETY_LIMIT = 20;
+
+function getUtcDateKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+async function reserveAiSafetyUsage({
+  uid,
+  type,
+  limit,
+}) {
+  const field =
+      type === "chat"
+        ? "chatCount"
+        : "recipeCount";
+
+  const ref = admin
+    .firestore()
+    .collection("users")
+    .doc(uid)
+    .collection("aiSafetyUsage")
+    .doc(getUtcDateKey());
+
+  return admin
+    .firestore()
+    .runTransaction(async (transaction) => {
+      const snapshot =
+          await transaction.get(ref);
+
+      const data = snapshot.data() || {};
+
+      const currentCount =
+          Number(data[field]) || 0;
+
+      if (currentCount >= limit) {
+        return false;
+      }
+
+      transaction.set(
+        ref,
+        {
+          [field]:
+              currentCount + 1,
+          updatedAt:
+              admin.firestore.FieldValue
+                .serverTimestamp(),
+        },
+        {
+          merge: true,
+        }
+      );
+
+      return true;
+    });
+}
 
 let fatSecretCachedAccessToken = null;
 let fatSecretAccessTokenExpiresAt = 0;
@@ -33,7 +132,7 @@ async function requestNewFatSecretAccessToken() {
        },
        body: new URLSearchParams({
          grant_type: "client_credentials",
-         scope: "premier",
+         scope: "premier barcode",
        }),
      }
    );
@@ -204,6 +303,118 @@ exports.searchFatSecretFoods = onRequest(
   }
 );
 
+exports.findFatSecretFoodByBarcode = onRequest(
+  {
+    secrets: [
+      fatSecretClientId,
+      fatSecretClientSecret,
+    ],
+    cors: true,
+  },
+  async (req, res) => {
+    try {
+      const rawBarcode = String(
+        req.query.barcode || ""
+      ).trim();
+
+      const digits = rawBarcode.replace(/\D/g, "");
+
+      let barcode;
+
+      if (digits.length === 13) {
+        barcode = digits;
+      } else if (
+        digits.length === 12 ||
+        digits.length === 8
+      ) {
+        barcode = digits.padStart(13, "0");
+      } else {
+        return res.status(400).json({
+          error: "Barcode must be EAN-8, UPC-A or EAN-13",
+        });
+      }
+
+      const accessToken =
+          await getFatSecretAccessToken();
+
+      const url = new URL(
+        "https://platform.fatsecret.com/rest/food/barcode/find-by-id/v1"
+      );
+
+      url.searchParams.set(
+        "barcode",
+        barcode
+      );
+
+      url.searchParams.set(
+        "region",
+        "US"
+      );
+
+      url.searchParams.set(
+        "language",
+        "en"
+      );
+
+      url.searchParams.set(
+        "format",
+        "json"
+      );
+
+
+
+      const response = await fetch(
+        url.toString(),
+        {
+          method: "GET",
+          headers: {
+            Authorization:
+              `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText =
+            await response.text();
+
+        return res.status(response.status).json({
+          error:
+            "FatSecret barcode request failed",
+          status: response.status,
+          details: errorText,
+        });
+      }
+
+      const data = await response.json();
+
+      const foodId =
+          data?.food_id?.value?.toString();
+
+      if (!foodId) {
+        return res.status(404).json({
+          error: "Food not found for barcode",
+        });
+      }
+
+      return res.status(200).json({
+        foodId,
+        barcode,
+      });
+    } catch (error) {
+      console.error(
+        "findFatSecretFoodByBarcode error:",
+        error
+      );
+
+      return res.status(500).json({
+        error:
+          "FatSecret barcode request failed",
+      });
+    }
+  }
+);
+
 exports.getFatSecretFood = onRequest(
   {
     secrets: [
@@ -249,6 +460,11 @@ exports.getFatSecretFood = onRequest(
       url.searchParams.set(
         "format",
         "json"
+      );
+
+      url.searchParams.set(
+        "flag_default_serving",
+        "true"
       );
 
       const response = await fetch(
@@ -888,6 +1104,29 @@ exports.chatWithCoach = onRequest(
   },
   async (req, res) => {
     try {
+    const decodedToken =
+        await requireAuthenticatedUser(req, res);
+
+    if (!decodedToken) {
+      return;
+    }
+
+    const uid = decodedToken.uid;
+
+    const hasChatSafetyCapacity =
+        await reserveAiSafetyUsage({
+          uid,
+          type: "chat",
+          limit:
+            PREMIUM_CHAT_SAFETY_LIMIT,
+        });
+
+    if (!hasChatSafetyCapacity) {
+      return res.status(429).json({
+        error: "AI chat safety limit reached",
+      });
+    }
+
       const message = req.body?.message;
       const userPreferences = req.body?.userPreferences || {};
       const dailySummary = req.body?.dailySummary || {};
@@ -965,6 +1204,30 @@ exports.generateRecipeFromIngredients = onRequest(
   },
   async (req, res) => {
     try {
+    const decodedToken =
+        await requireAuthenticatedUser(req, res);
+
+    if (!decodedToken) {
+      return;
+    }
+
+    const uid = decodedToken.uid;
+
+    const hasRecipeSafetyCapacity =
+        await reserveAiSafetyUsage({
+          uid,
+          type: "recipe",
+          limit:
+            PREMIUM_RECIPE_SAFETY_LIMIT,
+        });
+
+    if (!hasRecipeSafetyCapacity) {
+      return res.status(429).json({
+        error:
+          "AI recipe safety limit reached",
+      });
+    }
+
       const ingredients = req.body?.ingredients;
       const preferences = req.body?.preferences || {};
 

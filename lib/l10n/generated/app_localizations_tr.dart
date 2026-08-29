@@ -1132,6 +1132,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get barcodeDemoProduct => 'Örnek Ürün';
 
   @override
+  String get barcodeLookupFailed =>
+      'Bu barkoda ait bir ürün bulamadık. Lütfen tekrar deneyin.';
+
+  @override
   String get yourWeek => 'Haftan';
 
   @override

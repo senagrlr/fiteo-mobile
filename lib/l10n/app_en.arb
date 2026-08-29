@@ -529,6 +529,7 @@
   "barcodeLookingUp": "Looking up product...",
   "addScannedFood": "Add",
   "barcodeDemoProduct": "Sample Product",
+  "barcodeLookupFailed": "We couldn't find a product for this barcode. Please try again.",
 
   "weeklyReport": "Weekly Report",
   "yourWeek": "Your Week",

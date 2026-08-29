@@ -528,6 +528,7 @@
   "barcodeLookingUp": "Ürün bilgileri aranıyor...",
   "addScannedFood": "Ekle",
   "barcodeDemoProduct": "Örnek Ürün",
+  "barcodeLookupFailed": "Bu barkoda ait bir ürün bulamadık. Lütfen tekrar deneyin.",
 
   "weeklyReport": "Haftalık Rapor",
   "yourWeek": "Haftan",

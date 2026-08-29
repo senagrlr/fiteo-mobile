@@ -28,7 +28,14 @@ class _ProgressScreenState
     extends State<ProgressScreen> {
   ProgressMetric selectedMetric = ProgressMetric.weight;
 
-  ProgressRange selectedRange = ProgressRange.days30;
+  final Map<ProgressMetric, ProgressRange> _selectedRanges = {
+    ProgressMetric.weight: ProgressRange.days30,
+    ProgressMetric.nutrition: ProgressRange.days7,
+    ProgressMetric.water: ProgressRange.days7,
+    ProgressMetric.workout: ProgressRange.days7,
+  };
+
+  ProgressRange get selectedRange => _selectedRanges[selectedMetric]!;
 
   final ProgressRepository _progressRepository = ProgressRepository();
 
@@ -67,25 +74,15 @@ class _ProgressScreenState
     }
   }
 
-  void _onMetricChanged(
-      ProgressMetric metric,
-      ) {
+  void _onMetricChanged(ProgressMetric metric) {
     setState(() {
       selectedMetric = metric;
-
-      // Weight için 7 günlük görünüm yok.
-      if (metric == ProgressMetric.weight &&
-          selectedRange == ProgressRange.days7) {
-        selectedRange = ProgressRange.days30;
-      }
     });
   }
 
-  void _onRangeChanged(
-      ProgressRange range,
-      ) {
+  void _onRangeChanged(ProgressRange range) {
     setState(() {
-      selectedRange = range;
+      _selectedRanges[selectedMetric] = range;
     });
   }
 

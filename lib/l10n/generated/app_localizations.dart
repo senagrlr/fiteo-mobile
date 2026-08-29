@@ -2210,6 +2210,12 @@ abstract class AppLocalizations {
   /// **'Sample Product'**
   String get barcodeDemoProduct;
 
+  /// No description provided for @barcodeLookupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find a product for this barcode. Please try again.'**
+  String get barcodeLookupFailed;
+
   /// No description provided for @yourWeek.
   ///
   /// In en, this message translates to:

@@ -19,6 +19,9 @@ import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/shared/ai_mod
 
 import 'package:fiteo_myapp/features/meals/data/meal_repository.dart';
 import 'package:fiteo_myapp/features/profile/data/saved_recipe_repository.dart';
+import 'package:fiteo_myapp/features/ai_coach/data/ai_usage_limits.dart';
+import 'package:fiteo_myapp/features/ai_coach/data/ai_usage_repository.dart';
+import 'package:fiteo_myapp/features/ai_coach/data/ai_usage_state.dart';
 
 class CookAiScreen extends StatefulWidget {
   final VoidCallback onSwitchToCoach;
@@ -53,14 +56,18 @@ class _CookAiScreenState extends State<CookAiScreen> {
 
   CookRecipeResult? generatedRecipeResult;
 
-  int recipeCount = 0;
+  final AiUsageRepository _usageRepository =
+  AiUsageRepository();
+
+  AiUsageState _recipeUsage =
+  const AiUsageState.empty();
 
   String? savedRecipeId;
 
-  static const int dailyRecipeLimit = 2;
-
   bool get _hasReachedDailyRecipeLimit =>
-      recipeCount >= dailyRecipeLimit;
+      _recipeUsage.hasReachedLimit(
+        baseLimit: AiUsageLimits.freeRecipes,
+      );
 
   @override
   void initState() {
@@ -70,13 +77,13 @@ class _CookAiScreenState extends State<CookAiScreen> {
   }
 
   Future<void> _loadRecipeCount() async {
-    final count =
-    await _chatRepository.getTodayRecipeCount();
+    final usage =
+    await _usageRepository.getTodayRecipeUsage();
 
     if (!mounted) return;
 
     setState(() {
-      recipeCount = count;
+      _recipeUsage = usage;
     });
   }
 
@@ -161,13 +168,17 @@ class _CookAiScreenState extends State<CookAiScreen> {
       return;
     }
 
-    await _chatRepository
-        .incrementTodayRecipeCount();
+    await _usageRepository.incrementRecipeUsage();
 
     if (!mounted) return;
 
     setState(() {
-      recipeCount++;
+      _recipeUsage = AiUsageState(
+        usedCount: _recipeUsage.usedCount + 1,
+        rewardedCredits:
+        _recipeUsage.rewardedCredits,
+      );
+
       generatedRecipeResult = recipe;
       savedRecipeId = null;
     });
@@ -406,9 +417,9 @@ class _CookAiScreenState extends State<CookAiScreen> {
   @override
   Widget build(BuildContext context) {
     final remainingRecipeRequests =
-    (dailyRecipeLimit - recipeCount).clamp(
-      0,
-      dailyRecipeLimit,
+    _recipeUsage.remaining(
+      baseLimit:
+      AiUsageLimits.freeRecipes,
     );
 
     return SystemNavigationBar(

@@ -84,6 +84,9 @@ class FatSecretApiService {
   static const String _detailsUrl =
       'https://us-central1-fiteo-app-39f91.cloudfunctions.net/getFatSecretFood';
 
+  static const String _barcodeUrl =
+      'https://us-central1-fiteo-app-39f91.cloudfunctions.net/findFatSecretFoodByBarcode';
+
   double _toDouble(dynamic value) {
     return double.tryParse(value?.toString() ?? '') ?? 0;
   }
@@ -125,6 +128,59 @@ class FatSecretApiService {
     }
 
     return null;
+  }
+
+  Future<String?> findFoodIdByBarcode({
+    required String barcode,
+  }) async {
+    final cleanBarcode =
+    barcode.replaceAll(RegExp(r'\D'), '');
+
+    if (cleanBarcode.isEmpty) {
+      return null;
+    }
+
+    final uri = Uri.parse(
+      '$_barcodeUrl?barcode=${Uri.encodeQueryComponent(cleanBarcode)}',
+    );
+
+    print('FATSECRET BARCODE REQUEST: $uri');
+
+    final response = await http.get(uri);
+
+    print(
+      'FATSECRET BARCODE STATUS: ${response.statusCode}',
+    );
+
+    if (response.statusCode != 200) {
+      print(
+        'FATSECRET BARCODE ERROR: ${response.body}',
+      );
+
+      return null;
+    }
+
+    final decoded =
+    jsonDecode(response.body)
+    as Map<String, dynamic>;
+
+    if (decoded['error'] != null) {
+      print(
+        'FATSECRET BARCODE ERROR: ${decoded['error']}',
+      );
+
+      return null;
+    }
+
+    final foodId =
+    decoded['foodId']?.toString();
+
+    if (foodId == null ||
+        foodId.trim().isEmpty) {
+      return null;
+    }
+
+    return foodId.trim();
   }
 
   Future<List<FatSecretSearchFood>> searchFoods({

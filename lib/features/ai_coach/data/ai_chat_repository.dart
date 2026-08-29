@@ -184,64 +184,6 @@ class AiChatRepository {
     }).toList().reversed.toList();
   }
 
-  Future<int> getTodayMessageCount() async {
-    final user = _auth.currentUser;
-
-    if (user == null) return 0;
-
-    final today = _todayDate();
-
-    final doc = await _firestore
-        .collection('users')
-        .doc(user.uid)
-        .collection('aiUsage')
-        .doc('current')
-        .get();
-
-    final data = doc.data();
-
-    if (data == null) return 0;
-
-    final date = data['date'] as String?;
-
-    if (date != today) {
-      return 0;
-    }
-
-    return data['messageCount'] as int? ?? 0;
-  }
-
-  Future<void> incrementTodayMessageCount() async {
-    final user = _auth.currentUser;
-
-    if (user == null) return;
-
-    final today = _todayDate();
-
-    final ref = _firestore
-        .collection('users')
-        .doc(user.uid)
-        .collection('aiUsage')
-        .doc('current');
-
-    final doc = await ref.get();
-    final data = doc.data();
-
-    if (data == null || data['date'] != today) {
-      await ref.set({
-        'date': today,
-        'messageCount': 1,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-      return;
-    }
-
-    await ref.update({
-      'messageCount': FieldValue.increment(1),
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-  }
-
   Future<Map<String, dynamic>> getRecipePreferences() async {
     final user = _auth.currentUser;
 
@@ -257,63 +199,5 @@ class AiChatRepository {
       'goal': preferences['goal'],
       'nutritionPreference': preferences['nutritionPreference'],
     };
-  }
-
-  Future<int> getTodayRecipeCount() async {
-    final user = _auth.currentUser;
-
-    if (user == null) return 0;
-
-    final today = _todayDate();
-
-    final doc = await _firestore
-        .collection('users')
-        .doc(user.uid)
-        .collection('aiUsage')
-        .doc('recipe')
-        .get();
-
-    final data = doc.data();
-
-    if (data == null) return 0;
-
-    final date = data['date'] as String?;
-
-    if (date != today) {
-      return 0;
-    }
-
-    return data['recipeCount'] as int? ?? 0;
-  }
-
-  Future<void> incrementTodayRecipeCount() async {
-    final user = _auth.currentUser;
-
-    if (user == null) return;
-
-    final today = _todayDate();
-
-    final ref = _firestore
-        .collection('users')
-        .doc(user.uid)
-        .collection('aiUsage')
-        .doc('recipe');
-
-    final doc = await ref.get();
-    final data = doc.data();
-
-    if (data == null || data['date'] != today) {
-      await ref.set({
-        'date': today,
-        'recipeCount': 1,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-      return;
-    }
-
-    await ref.update({
-      'recipeCount': FieldValue.increment(1),
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
   }
 }

@@ -34,21 +34,7 @@ class OverviewRepository {
     final statsRef =
     userRef.collection('overviewStats').doc('current');
 
-    final progressCacheRef =
-    userRef.collection('progressCache').doc('current');
-
-    final initialResults = await Future.wait([
-      statsRef.get(),
-      progressCacheRef.get(),
-    ]);
-
-    final statsDoc =
-    initialResults[0]
-    as DocumentSnapshot<Map<String, dynamic>>;
-
-    final progressCacheDoc =
-    initialResults[1]
-    as DocumentSnapshot<Map<String, dynamic>>;
+    final statsDoc = await statsRef.get();
 
     final stats = OverviewStats.fromMap(
       statsDoc.data() ?? {},
@@ -108,14 +94,17 @@ class OverviewRepository {
     }
 
     if (stats.fiteoScoreDate != todayKey) {
-      final scoreDays = _last30DaysFromProgressCache(
-        cache: progressCacheDoc.data() ?? {},
+      final scoreDays = await _loadLast30DaysForScore(
+        userRef: userRef,
         today: today,
         accountStart: accountStart,
       );
 
       stats.fiteoScore =
-          _scoreCalculator.calculate(days: scoreDays);
+          _scoreCalculator.calculate(
+            days: scoreDays.days,
+            effectiveDays: scoreDays.effectiveDays,
+          );
 
       stats.fiteoScoreDate = todayKey;
       stateChanged = true;
@@ -153,15 +142,11 @@ class OverviewRepository {
     }, SetOptions(merge: true));
   }
 
-  List<Map<String, dynamic>>
-  _last30DaysFromProgressCache({
-    required Map<String, dynamic> cache,
+  Future<_OverviewScoreDays> _loadLast30DaysForScore({
+    required DocumentReference<Map<String, dynamic>> userRef,
     required DateTime today,
     required DateTime accountStart,
-  }) {
-    final rawDays =
-        cache['daily'] as Map<String, dynamic>? ?? {};
-
+  }) async {
     final requestedStart =
     today.subtract(const Duration(days: 30));
 
@@ -173,26 +158,49 @@ class OverviewRepository {
     final yesterday =
     today.subtract(const Duration(days: 1));
 
-    final result = <Map<String, dynamic>>[];
+    if (start.isAfter(yesterday)) {
+      return const _OverviewScoreDays(
+        days: [],
+        effectiveDays: 0,
+      );
+    }
+
+    final snapshot = await userRef
+        .collection('dailySummaries')
+        .where(
+      'date',
+      isGreaterThanOrEqualTo: _dateKey(start),
+    )
+        .where(
+      'date',
+      isLessThanOrEqualTo: _dateKey(yesterday),
+    )
+        .orderBy('date')
+        .get();
+
+    final summariesByDate = {
+      for (final doc in snapshot.docs)
+        doc.id: doc.data(),
+    };
+
+    final days = <Map<String, dynamic>>[];
 
     var day = start;
 
     while (!day.isAfter(yesterday)) {
       final key = _dateKey(day);
 
-      final raw =
-      rawDays[key] as Map?;
-
-      result.add(
-        raw == null
-            ? <String, dynamic>{}
-            : Map<String, dynamic>.from(raw),
+      days.add(
+        summariesByDate[key] ?? <String, dynamic>{},
       );
 
       day = day.add(const Duration(days: 1));
     }
 
-    return result;
+    return _OverviewScoreDays(
+      days: days,
+      effectiveDays: days.length,
+    );
   }
 
   DateTime _dateOnly(DateTime date) {
@@ -208,4 +216,14 @@ class OverviewRepository {
         '${date.month.toString().padLeft(2, '0')}-'
         '${date.day.toString().padLeft(2, '0')}';
   }
+}
+
+class _OverviewScoreDays {
+  final List<Map<String, dynamic>> days;
+  final int effectiveDays;
+
+  const _OverviewScoreDays({
+    required this.days,
+    required this.effectiveDays,
+  });
 }

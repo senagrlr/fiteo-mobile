@@ -540,10 +540,33 @@ exports.initializePlanTrackingOnPremium =
           const userSnapshot =
               await transaction.get(userRef);
 
+          const trackingSnapshot =
+              await transaction.get(trackingRef);
+
           if (!userSnapshot.exists) {
             throw new Error(
               `User ${uid} does not exist`
             );
+          }
+
+          const activationEventId =
+              String(event.id || "");
+
+          const existingTracking =
+              trackingSnapshot.data();
+
+          if (
+            trackingSnapshot.exists &&
+            activationEventId &&
+            existingTracking
+              ?.premiumActivationEventId ===
+              activationEventId
+          ) {
+            console.log(
+              `Plan Tracking activation event already processed for ${uid}`
+            );
+
+            return;
           }
 
           const userData =
@@ -564,16 +587,21 @@ exports.initializePlanTrackingOnPremium =
               );
 
           const planActivatedAt =
-              new Date();
+              event.time
+                ? new Date(event.time)
+                : new Date();
 
-          const cache =
-              createInitialPlanTrackingCache({
-                currentWeight,
-                targetWeight,
-                expectedWeeklyWeightChangeKg,
-                planActivatedAt,
-                timezone,
-              });
+          const cache = {
+            ...createInitialPlanTrackingCache({
+              currentWeight,
+              targetWeight,
+              expectedWeeklyWeightChangeKg,
+              planActivatedAt,
+              timezone,
+            }),
+            premiumActivationEventId:
+                activationEventId,
+          };
 
           transaction.set(
             trackingRef,

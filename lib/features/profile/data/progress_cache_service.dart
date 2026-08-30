@@ -7,19 +7,69 @@ import 'package:fiteo_myapp/features/profile/presentation/models/progress_month_
 class ProgressCacheService {
   static const int schemaVersion = 2;
 
+  static const String freeCacheMode = 'free';
+  static const String premiumCacheMode = 'premium';
+
   final FirebaseFirestore firestore;
 
   const ProgressCacheService({
     required this.firestore,
   });
 
-  Future<Map<String, dynamic>> bootstrapCache({
+  bool isFreeCache(Map<String, dynamic> cache) {
+    return cache['cacheMode'] == freeCacheMode;
+  }
+
+  Future<Map<String, dynamic>> bootstrapFreeCache({
     required String uid,
     required DateTime today,
     required DateTime yesterday,
   }) async {
-    final oldestMonth =
-    DateTime(
+    final start = today.subtract(
+      const Duration(days: 6),
+    );
+
+    final snapshot = await firestore
+        .collection('users')
+        .doc(uid)
+        .collection('dailySummaries')
+        .where(
+      'date',
+      isGreaterThanOrEqualTo: progressDateKey(start),
+    )
+        .where(
+      'date',
+      isLessThanOrEqualTo: progressDateKey(yesterday),
+    )
+        .orderBy('date')
+        .get();
+
+    final days = <String, ProgressDayData>{};
+
+    for (final doc in snapshot.docs) {
+      days[doc.id] = ProgressDayData.fromSummary(
+        doc.id,
+        doc.data(),
+      );
+    }
+
+    return {
+      'cacheMode': freeCacheMode,
+      'latestCachedDate': progressDateKey(yesterday),
+      'daily': {
+        for (final entry in days.entries)
+          entry.key: entry.value.toMap(),
+      },
+      'monthly': <String, dynamic>{},
+    };
+  }
+
+  Future<Map<String, dynamic>> bootstrapPremiumCache({
+    required String uid,
+    required DateTime today,
+    required DateTime yesterday,
+  }) async {
+    final oldestMonth = DateTime(
       today.year,
       today.month - 11,
       1,
@@ -31,33 +81,26 @@ class ProgressCacheService {
         .collection('dailySummaries')
         .where(
       'date',
-      isGreaterThanOrEqualTo:
-      progressDateKey(oldestMonth),
+      isGreaterThanOrEqualTo: progressDateKey(oldestMonth),
     )
         .where(
       'date',
-      isLessThanOrEqualTo:
-      progressDateKey(yesterday),
+      isLessThanOrEqualTo: progressDateKey(yesterday),
     )
         .orderBy('date')
         .get();
 
-    final days =
-    <String, ProgressDayData>{};
+    final days = <String, ProgressDayData>{};
+    final months = <String, ProgressMonthData>{};
 
-    final months =
-    <String, ProgressMonthData>{};
-
-    final dailyCutoff =
-    today.subtract(
+    final dailyCutoff = today.subtract(
       const Duration(days: 90),
     );
 
     for (final doc in snapshot.docs) {
       final date = DateTime.parse(doc.id);
 
-      final day =
-      ProgressDayData.fromSummary(
+      final day = ProgressDayData.fromSummary(
         doc.id,
         doc.data(),
       );
@@ -74,24 +117,130 @@ class ProgressCacheService {
     }
 
     return {
-      'latestCachedDate':
-      progressDateKey(yesterday),
-
+      'cacheMode': premiumCacheMode,
+      'latestCachedDate': progressDateKey(yesterday),
       'daily': {
         for (final entry in days.entries)
-          entry.key:
-          entry.value.toMap(),
+          entry.key: entry.value.toMap(),
       },
-
       'monthly': {
         for (final entry in months.entries)
-          entry.key:
-          entry.value.toMap(),
+          entry.key: entry.value.toMap(),
       },
     };
   }
 
-  Future<ProgressCacheUpdateResult> catchUpCache({
+  Future<ProgressCacheUpdateResult> catchUpFreeCache({
+    required String uid,
+    required Map<String, dynamic> cache,
+    required DateTime today,
+    required DateTime yesterday,
+  }) async {
+    final latest = DateTime.parse(
+      cache['latestCachedDate'] as String,
+    );
+
+    final freeStart = today.subtract(
+      const Duration(days: 6),
+    );
+
+    var changed = false;
+    final days = readDays(cache);
+
+    if (latest.isBefore(yesterday)) {
+      if (latest.isBefore(freeStart)) {
+        final snapshot = await firestore
+            .collection('users')
+            .doc(uid)
+            .collection('dailySummaries')
+            .where(
+          'date',
+          isGreaterThanOrEqualTo:
+          progressDateKey(freeStart),
+        )
+            .where(
+          'date',
+          isLessThanOrEqualTo:
+          progressDateKey(yesterday),
+        )
+            .orderBy('date')
+            .get();
+
+        days.clear();
+
+        for (final doc in snapshot.docs) {
+          days[doc.id] = ProgressDayData.fromSummary(
+            doc.id,
+            doc.data(),
+          );
+        }
+      } else {
+        final start = latest.add(
+          const Duration(days: 1),
+        );
+
+        final snapshot = await firestore
+            .collection('users')
+            .doc(uid)
+            .collection('dailySummaries')
+            .where(
+          'date',
+          isGreaterThanOrEqualTo:
+          progressDateKey(start),
+        )
+            .where(
+          'date',
+          isLessThanOrEqualTo:
+          progressDateKey(yesterday),
+        )
+            .orderBy('date')
+            .get();
+
+        for (final doc in snapshot.docs) {
+          days[doc.id] = ProgressDayData.fromSummary(
+            doc.id,
+            doc.data(),
+          );
+        }
+      }
+
+      cache['latestCachedDate'] =
+          progressDateKey(yesterday);
+
+      changed = true;
+    }
+
+    if (_pruneFreeDays(days, today)) {
+      changed = true;
+    }
+
+    final rawMonthly =
+    cache['monthly'] as Map<String, dynamic>?;
+
+    if (rawMonthly != null && rawMonthly.isNotEmpty) {
+      changed = true;
+    }
+
+    if (cache['cacheMode'] != freeCacheMode) {
+      changed = true;
+    }
+
+    cache['cacheMode'] = freeCacheMode;
+
+    cache['daily'] = {
+      for (final entry in days.entries)
+        entry.key: entry.value.toMap(),
+    };
+
+    cache['monthly'] = <String, dynamic>{};
+
+    return ProgressCacheUpdateResult(
+      cache: cache,
+      changed: changed,
+    );
+  }
+
+  Future<ProgressCacheUpdateResult> catchUpPremiumCache({
     required String uid,
     required Map<String, dynamic> cache,
     required DateTime today,
@@ -107,15 +256,13 @@ class ProgressCacheService {
     final months = readMonths(cache);
 
     if (latest.isBefore(yesterday)) {
-      final oldestMonth =
-      DateTime(
+      final oldestMonth = DateTime(
         today.year,
         today.month - 11,
         1,
       );
 
-      var start =
-      latest.add(
+      var start = latest.add(
         const Duration(days: 1),
       );
 
@@ -140,17 +287,14 @@ class ProgressCacheService {
           .orderBy('date')
           .get();
 
-      final dailyCutoff =
-      today.subtract(
+      final dailyCutoff = today.subtract(
         const Duration(days: 90),
       );
 
       for (final doc in snapshot.docs) {
-        final date =
-        DateTime.parse(doc.id);
+        final date = DateTime.parse(doc.id);
 
-        final day =
-        ProgressDayData.fromSummary(
+        final day = ProgressDayData.fromSummary(
           doc.id,
           doc.data(),
         );
@@ -172,7 +316,7 @@ class ProgressCacheService {
       changed = true;
     }
 
-    if (_pruneDays(days, today)) {
+    if (_prunePremiumDays(days, today)) {
       changed = true;
     }
 
@@ -180,16 +324,19 @@ class ProgressCacheService {
       changed = true;
     }
 
+    if (cache['cacheMode'] != premiumCacheMode) {
+      cache['cacheMode'] = premiumCacheMode;
+      changed = true;
+    }
+
     cache['daily'] = {
       for (final entry in days.entries)
-        entry.key:
-        entry.value.toMap(),
+        entry.key: entry.value.toMap(),
     };
 
     cache['monthly'] = {
       for (final entry in months.entries)
-        entry.key:
-        entry.value.toMap(),
+        entry.key: entry.value.toMap(),
     };
 
     return ProgressCacheUpdateResult(
@@ -202,8 +349,7 @@ class ProgressCacheService {
       Map<String, dynamic> cache,
       ) {
     final raw =
-    cache['daily']
-    as Map<String, dynamic>?;
+    cache['daily'] as Map<String, dynamic>?;
 
     if (raw == null) {
       return {};
@@ -211,8 +357,7 @@ class ProgressCacheService {
 
     return {
       for (final entry in raw.entries)
-        entry.key:
-        ProgressDayData.fromMap(
+        entry.key: ProgressDayData.fromMap(
           entry.key,
           Map<String, dynamic>.from(
             entry.value as Map,
@@ -225,8 +370,7 @@ class ProgressCacheService {
       Map<String, dynamic> cache,
       ) {
     final raw =
-    cache['monthly']
-    as Map<String, dynamic>?;
+    cache['monthly'] as Map<String, dynamic>?;
 
     if (raw == null) {
       return {};
@@ -234,8 +378,7 @@ class ProgressCacheService {
 
     return {
       for (final entry in raw.entries)
-        entry.key:
-        ProgressMonthData.fromMap(
+        entry.key: ProgressMonthData.fromMap(
           Map<String, dynamic>.from(
             entry.value as Map,
           ),
@@ -248,32 +391,44 @@ class ProgressCacheService {
       DateTime date,
       ProgressDayData day,
       ) {
-    final key =
-    progressMonthKey(date);
+    final key = progressMonthKey(date);
 
     final month =
-        months[key] ??
-            ProgressMonthData();
+        months[key] ?? ProgressMonthData();
 
     month.addDay(day);
-
     months[key] = month;
   }
 
-  bool _pruneDays(
+  bool _pruneFreeDays(
       Map<String, ProgressDayData> days,
       DateTime today,
       ) {
-    final cutoff =
-    today.subtract(
+    final cutoff = today.subtract(
+      const Duration(days: 6),
+    );
+
+    final oldKeys = days.keys.where((key) {
+      return DateTime.parse(key).isBefore(cutoff);
+    }).toList();
+
+    for (final key in oldKeys) {
+      days.remove(key);
+    }
+
+    return oldKeys.isNotEmpty;
+  }
+
+  bool _prunePremiumDays(
+      Map<String, ProgressDayData> days,
+      DateTime today,
+      ) {
+    final cutoff = today.subtract(
       const Duration(days: 90),
     );
 
-    final oldKeys =
-    days.keys.where((key) {
-      return DateTime
-          .parse(key)
-          .isBefore(cutoff);
+    final oldKeys = days.keys.where((key) {
+      return DateTime.parse(key).isBefore(cutoff);
     }).toList();
 
     for (final key in oldKeys) {
@@ -287,20 +442,16 @@ class ProgressCacheService {
       Map<String, ProgressMonthData> months,
       DateTime today,
       ) {
-    final oldest =
-    DateTime(
+    final oldest = DateTime(
       today.year,
       today.month - 11,
       1,
     );
 
-    final oldKeys =
-    months.keys.where((key) {
-      final parts =
-      key.split('-');
+    final oldKeys = months.keys.where((key) {
+      final parts = key.split('-');
 
-      final date =
-      DateTime(
+      final date = DateTime(
         int.parse(parts[0]),
         int.parse(parts[1]),
         1,

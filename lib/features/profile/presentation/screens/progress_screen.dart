@@ -13,6 +13,9 @@ import 'package:fiteo_myapp/features/profile/data/progress_repository.dart';
 import 'package:fiteo_myapp/features/profile/presentation/models/progress_data_builder.dart';
 import 'package:fiteo_myapp/features/profile/presentation/models/progress_snapshot.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/progress_nutrition_tabs.dart';
+import 'package:fiteo_myapp/features/membership/data/premium_access_service.dart';
+import 'package:fiteo_myapp/features/membership/domain/premium_feature.dart';
+import 'package:fiteo_myapp/features/membership/presentation/premium_navigation.dart';
 
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({
@@ -37,12 +40,17 @@ class _ProgressScreenState
 
   ProgressRange get selectedRange => _selectedRanges[selectedMetric]!;
 
-  final ProgressRepository _progressRepository = ProgressRepository();
+  final ProgressRepository _progressRepository =
+  ProgressRepository();
+
+  final PremiumAccessService _premiumAccessService =
+  PremiumAccessService();
 
   ProgressSnapshot? _snapshot;
 
   bool _isLoading = true;
   bool _hasError = false;
+  bool _isPremium = false;
 
   ProgressNutritionMetric selectedNutritionMetric =
       ProgressNutritionMetric.calories;
@@ -55,12 +63,38 @@ class _ProgressScreenState
 
   Future<void> _loadProgress() async {
     try {
-      final snapshot = await _progressRepository.loadProgress();
+      final isPremium =
+      await _premiumAccessService.canAccess(
+        PremiumFeature.extendedProgress,
+      );
+
+      final snapshot =
+      await _progressRepository.loadProgress(
+        isPremium: isPremium,
+      );
 
       if (!mounted) return;
 
       setState(() {
+        _isPremium = isPremium;
         _snapshot = snapshot;
+
+        if (!isPremium) {
+          selectedMetric = ProgressMetric.nutrition;
+
+          _selectedRanges[
+          ProgressMetric.nutrition
+          ] = ProgressRange.days7;
+
+          _selectedRanges[
+          ProgressMetric.water
+          ] = ProgressRange.days7;
+
+          _selectedRanges[
+          ProgressMetric.workout
+          ] = ProgressRange.days7;
+        }
+
         _isLoading = false;
         _hasError = false;
       });
@@ -74,13 +108,33 @@ class _ProgressScreenState
     }
   }
 
-  void _onMetricChanged(ProgressMetric metric) {
+  Future<void> _onMetricChanged(
+      ProgressMetric metric,
+      ) async {
+    if (!_isPremium &&
+        metric == ProgressMetric.weight) {
+      await PremiumNavigation.openPaywall(context);
+      return;
+    }
+
+    if (!mounted) return;
+
     setState(() {
       selectedMetric = metric;
     });
   }
 
-  void _onRangeChanged(ProgressRange range) {
+  Future<void> _onRangeChanged(
+      ProgressRange range,
+      ) async {
+    if (!_isPremium &&
+        range != ProgressRange.days7) {
+      await PremiumNavigation.openPaywall(context);
+      return;
+    }
+
+    if (!mounted) return;
+
     setState(() {
       _selectedRanges[selectedMetric] = range;
     });
@@ -206,6 +260,7 @@ class _ProgressScreenState
           ProgressMetricTabs(
             selectedMetric: selectedMetric,
             onChanged: _onMetricChanged,
+            isPremium: _isPremium,
           ),
 
           if (selectedMetric == ProgressMetric.nutrition) ...[
@@ -224,6 +279,7 @@ class _ProgressScreenState
             selectedRange: selectedRange,
             availableRanges: _availableRanges,
             onRangeChanged: _onRangeChanged,
+            isPremium: _isPremium,
           ),
 
           const SizedBox(height: 26),

@@ -12,6 +12,7 @@ class ProgressChartCard extends StatelessWidget {
   final ProgressRange selectedRange;
   final List<ProgressRange> availableRanges;
   final ValueChanged<ProgressRange> onRangeChanged;
+  final bool isPremium;
 
   const ProgressChartCard({
     super.key,
@@ -19,6 +20,7 @@ class ProgressChartCard extends StatelessWidget {
     required this.selectedRange,
     required this.availableRanges,
     required this.onRangeChanged,
+    required this.isPremium,
   });
 
   String _rangeLabel(
@@ -76,17 +78,30 @@ class ProgressChartCard extends StatelessWidget {
                 return availableRanges.map((range) {
                   return PopupMenuItem<ProgressRange>(
                     value: range,
-                    child: Text(
-                      _rangeLabel(
-                        context,
-                        range,
-                      ),
-                      style:
-                      AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.homeBrown,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _rangeLabel(
+                              context,
+                              range,
+                            ),
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: AppColors.homeBrown,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        if (!isPremium &&
+                            range != ProgressRange.days7)
+                          const Icon(
+                            Icons.lock_outline_rounded,
+                            size: 16,
+                            color:
+                            AppColors.planTrackingSecondaryLabel,
+                          ),
+                      ],
                     ),
                   );
                 }).toList();

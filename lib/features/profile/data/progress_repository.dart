@@ -3,44 +3,144 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:fiteo_myapp/features/profile/data/progress_cache_service.dart';
 import 'package:fiteo_myapp/features/profile/data/progress_date_utils.dart';
+import 'package:fiteo_myapp/features/profile/data/weight_repository.dart';
 import 'package:fiteo_myapp/features/profile/presentation/models/progress_day_data.dart';
 import 'package:fiteo_myapp/features/profile/presentation/models/progress_month_data.dart';
 import 'package:fiteo_myapp/features/profile/presentation/models/progress_snapshot.dart';
-import 'package:fiteo_myapp/features/profile/data/weight_repository.dart';
 
 class ProgressRepository {
-  final FirebaseAuth _auth =
-      FirebaseAuth.instance;
-
-  final FirebaseFirestore _firestore =
-      FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   final WeightRepository _weightRepository =
   WeightRepository();
 
-  late final ProgressCacheService
-  _cacheService =
+  late final ProgressCacheService _cacheService =
   ProgressCacheService(
     firestore: _firestore,
   );
 
-  Future<ProgressSnapshot>
-  loadProgress() async {
-    final user =
-        _auth.currentUser;
+  Future<ProgressSnapshot> loadProgress({
+    required bool isPremium,
+  }) async {
+    final user = _auth.currentUser;
 
     if (user == null) {
-      throw Exception(
-        'User not logged in',
-      );
+      throw Exception('User not logged in');
     }
 
-    final today = progressDateOnly(DateTime.now(),);
-    final yesterday = today.subtract(const Duration(days: 1));
+    return isPremium
+        ? _loadPremiumProgress(user)
+        : _loadFreeProgress(user);
+  }
+
+  Future<ProgressSnapshot> _loadFreeProgress(
+      User user,
+      ) async {
+    final today = progressDateOnly(DateTime.now());
+    final yesterday = today.subtract(
+      const Duration(days: 1),
+    );
+
     final creationTime = user.metadata.creationTime;
 
-    final weightStartDate =
-    today.subtract(
+    final trackingStartDate = creationTime == null
+        ? today
+        : progressDateOnly(creationTime);
+
+    final userRef = _firestore
+        .collection('users')
+        .doc(user.uid);
+
+    final cacheRef = userRef
+        .collection('progressCache')
+        .doc('current');
+
+    final todayRef = userRef
+        .collection('dailySummaries')
+        .doc(progressDateKey(today));
+
+    final results = await Future.wait([
+      cacheRef.get(),
+      todayRef.get(),
+    ]);
+
+    final cacheDoc = results[0]
+    as DocumentSnapshot<Map<String, dynamic>>;
+
+    final todayDoc = results[1]
+    as DocumentSnapshot<Map<String, dynamic>>;
+
+    Map<String, dynamic> cache =
+    Map<String, dynamic>.from(
+      cacheDoc.data() ?? {},
+    );
+
+    var shouldWriteCache = false;
+
+    if (cache['schemaVersion'] !=
+        ProgressCacheService.schemaVersion ||
+        cache['latestCachedDate'] == null) {
+      cache = await _cacheService.bootstrapFreeCache(
+        uid: user.uid,
+        today: today,
+        yesterday: yesterday,
+      );
+
+      shouldWriteCache = true;
+    } else {
+      final result =
+      await _cacheService.catchUpFreeCache(
+        uid: user.uid,
+        cache: cache,
+        today: today,
+        yesterday: yesterday,
+      );
+
+      cache = result.cache;
+      shouldWriteCache = result.changed;
+    }
+
+    if (shouldWriteCache) {
+      await cacheRef.set({
+        ...cache,
+        'schemaVersion':
+        ProgressCacheService.schemaVersion,
+        'updatedAt':
+        FieldValue.serverTimestamp(),
+      });
+    }
+
+    final days = _cacheService.readDays(cache);
+
+    final todayData = ProgressDayData.fromSummary(
+      progressDateKey(today),
+      todayDoc.data() ?? {},
+    );
+
+    days[progressDateKey(today)] = todayData;
+
+    return ProgressSnapshot(
+      days: days,
+      months: const {},
+      trackingStartDate: trackingStartDate,
+      weightEntries: const [],
+      targetWeightKg: null,
+      weightUnit: 'kg',
+    );
+  }
+
+  Future<ProgressSnapshot> _loadPremiumProgress(
+      User user,
+      ) async {
+    final today = progressDateOnly(DateTime.now());
+    final yesterday = today.subtract(
+      const Duration(days: 1),
+    );
+
+    final creationTime = user.metadata.creationTime;
+
+    final weightStartDate = today.subtract(
       const Duration(days: 364),
     );
 
@@ -48,25 +148,19 @@ class ProgressRepository {
         ? today
         : progressDateOnly(creationTime);
 
-    final userRef =
-    _firestore
+    final userRef = _firestore
         .collection('users')
         .doc(user.uid);
 
-    final cacheRef =
-    userRef
+    final cacheRef = userRef
         .collection('progressCache')
         .doc('current');
 
-    final todayRef =
-    userRef
+    final todayRef = userRef
         .collection('dailySummaries')
-        .doc(
-      progressDateKey(today),
-    );
+        .doc(progressDateKey(today));
 
-    final results =
-    await Future.wait([
+    final results = await Future.wait([
       cacheRef.get(),
       todayRef.get(),
       userRef.get(),
@@ -76,28 +170,20 @@ class ProgressRepository {
       ),
     ]);
 
-    final cacheDoc =
-    results[0]
-    as DocumentSnapshot<
-        Map<String, dynamic>>;
+    final cacheDoc = results[0]
+    as DocumentSnapshot<Map<String, dynamic>>;
 
-    final todayDoc =
-    results[1]
-    as DocumentSnapshot<
-        Map<String, dynamic>>;
+    final todayDoc = results[1]
+    as DocumentSnapshot<Map<String, dynamic>>;
 
-    final userDoc =
-    results[2]
-    as DocumentSnapshot<
-        Map<String, dynamic>>;
+    final userDoc = results[2]
+    as DocumentSnapshot<Map<String, dynamic>>;
 
     final weightEntries =
-    results[3]
-    as List<WeightEntry>;
+    results[3] as List<WeightEntry>;
 
     final userData =
-        userDoc.data() ??
-            <String, dynamic>{};
+        userDoc.data() ?? <String, dynamic>{};
 
     final preferences =
         userData['userPreferences']
@@ -105,8 +191,7 @@ class ProgressRepository {
             <String, dynamic>{};
 
     final targetWeightKg =
-    (preferences['targetWeight']
-    as num?)
+    (preferences['targetWeight'] as num?)
         ?.toDouble();
 
     final weightUnit =
@@ -121,14 +206,15 @@ class ProgressRepository {
 
     var shouldWriteCache = false;
 
+    final isFreeCache =
+    _cacheService.isFreeCache(cache);
+
     if (cache['schemaVersion'] !=
-        ProgressCacheService
-            .schemaVersion ||
-        cache['latestCachedDate'] ==
-            null) {
+        ProgressCacheService.schemaVersion ||
+        cache['latestCachedDate'] == null ||
+        isFreeCache) {
       cache =
-      await _cacheService
-          .bootstrapCache(
+      await _cacheService.bootstrapPremiumCache(
         uid: user.uid,
         today: today,
         yesterday: yesterday,
@@ -137,8 +223,7 @@ class ProgressRepository {
       shouldWriteCache = true;
     } else {
       final result =
-      await _cacheService
-          .catchUpCache(
+      await _cacheService.catchUpPremiumCache(
         uid: user.uid,
         cache: cache,
         today: today,
@@ -146,22 +231,16 @@ class ProgressRepository {
       );
 
       cache = result.cache;
-
-      shouldWriteCache =
-          result.changed;
+      shouldWriteCache = result.changed;
     }
 
     if (shouldWriteCache) {
       await cacheRef.set({
         ...cache,
-
         'schemaVersion':
-        ProgressCacheService
-            .schemaVersion,
-
+        ProgressCacheService.schemaVersion,
         'updatedAt':
-        FieldValue
-            .serverTimestamp(),
+        FieldValue.serverTimestamp(),
       });
     }
 
@@ -177,13 +256,16 @@ class ProgressRepository {
 
     days[progressDateKey(today)] = todayData;
 
-    // Bugünü yalnız RAM'deki
-    // güncel ay aggregate'ına ekliyoruz.
-    final currentMonthKey = progressMonthKey(today);
-    final currentMonth = months[currentMonthKey] ?? ProgressMonthData();
+    // Bugün yalnız RAM'deki güncel
+    // ay aggregate'ına eklenir.
+    final currentMonthKey =
+    progressMonthKey(today);
 
-    currentMonth.addDay(todayData,);
+    final currentMonth =
+        months[currentMonthKey] ??
+            ProgressMonthData();
 
+    currentMonth.addDay(todayData);
     months[currentMonthKey] = currentMonth;
 
     return ProgressSnapshot(

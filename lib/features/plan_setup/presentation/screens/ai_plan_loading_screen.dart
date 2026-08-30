@@ -14,7 +14,6 @@ import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
 import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
 import 'package:fiteo_myapp/features/plan_setup/presentation/widgets/plan_ready_sheet.dart';
-import 'package:fiteo_myapp/features/profile/data/plan_tracking_repository.dart';
 
 class AiPlanLoadingScreen extends StatefulWidget {
   final Map<String, dynamic> userPreferences;
@@ -214,11 +213,6 @@ class _AiPlanLoadingScreenState
           FieldValue.serverTimestamp(),
         },
         SetOptions(merge: true),
-      );
-
-      await PlanTrackingRepository().initializeNewPlan(
-        expectedWeeklyWeightChangeKg:
-        generatedPlan.expectedWeeklyWeightChangeKg,
       );
 
       if (!mounted) return;

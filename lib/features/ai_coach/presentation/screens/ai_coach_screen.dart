@@ -439,7 +439,7 @@ class _AiCoachScreenState
                     ),
                   ),
 
-                  _buildLimitText(),
+                  if (!_isPremium) _buildLimitText(),
 
                   if (_hasReachedDailyLimit)
                     Padding(

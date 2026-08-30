@@ -52,6 +52,7 @@ dependencies:
   confetti: ^0.8.0
   fl_chart: ^1.2.0
   mobile_scanner: ^7.4.0
+  flutter_timezone: ^5.1.0
 
 dev_dependencies:
   flutter_test:

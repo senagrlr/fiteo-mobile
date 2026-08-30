@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
+import 'package:fiteo_myapp/features/membership/data/premium_access_service.dart';
+import 'package:fiteo_myapp/features/membership/domain/premium_feature.dart';
 
 import 'package:fiteo_myapp/features/profile/data/overview_achievement_calculator.dart';
 import 'package:fiteo_myapp/features/profile/data/overview_repository.dart';
@@ -25,6 +27,7 @@ import 'package:fiteo_myapp/features/profile/presentation/widgets/tracking_summa
 import 'package:fiteo_myapp/features/profile/presentation/widgets/unique_features_card.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/overview_loading_skeleton.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_loading_skeleton.dart';
+import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_tracking_locked_content.dart';
 
 class PlanTrackingScreen extends StatefulWidget {
   const PlanTrackingScreen({
@@ -39,6 +42,13 @@ class PlanTrackingScreen extends StatefulWidget {
 class _PlanTrackingScreenState
     extends State<PlanTrackingScreen> {
   int selectedTab = 0;
+
+  final PremiumAccessService _premiumAccessService =
+  PremiumAccessService();
+
+  bool _isCheckingPremiumAccess = true;
+  bool _hasPremiumAccess = false;
+  bool _premiumAccessHasError = false;
 
   final OverviewRepository _overviewRepository =
   OverviewRepository();
@@ -66,8 +76,56 @@ class _PlanTrackingScreenState
   void initState() {
     super.initState();
 
-    _loadOverview();
-    _loadPlanTracking();
+    _initializeScreen();
+  }
+
+  void _retryPremiumAccess() {
+    setState(() {
+      _isCheckingPremiumAccess = true;
+      _premiumAccessHasError = false;
+    });
+
+    _initializeScreen();
+  }
+
+  Future<void> _initializeScreen() async {
+    try {
+      final hasAccess =
+      await _premiumAccessService.canAccess(
+        PremiumFeature.planTracking,
+      );
+
+      if (!mounted) return;
+
+      if (!hasAccess) {
+        setState(() {
+          _hasPremiumAccess = false;
+          _isCheckingPremiumAccess = false;
+          _premiumAccessHasError = false;
+        });
+
+        return;
+      }
+
+      setState(() {
+        _hasPremiumAccess = true;
+        _isCheckingPremiumAccess = false;
+        _premiumAccessHasError = false;
+      });
+
+      await Future.wait([
+        _loadOverview(),
+        _loadPlanTracking(),
+      ]);
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _hasPremiumAccess = false;
+        _isCheckingPremiumAccess = false;
+        _premiumAccessHasError = true;
+      });
+    }
   }
 
   Future<void> _loadOverview() async {
@@ -124,6 +182,80 @@ class _PlanTrackingScreenState
     setState(() {
       selectedTab = index;
     });
+  }
+
+  Widget _buildScreenBody() {
+    if (_isCheckingPremiumAccess) {
+      return const Center(
+        child: CircularProgressIndicator(
+          color: AppColors.homeBrown,
+        ),
+      );
+    }
+
+    if (_premiumAccessHasError) {
+      return Center(
+        child: IconButton(
+          onPressed: _retryPremiumAccess,
+          icon: const Icon(
+            Icons.refresh_rounded,
+            color: AppColors.homeBrown,
+          ),
+        ),
+      );
+    }
+
+    if (!_hasPremiumAccess) {
+      return Column(
+        children: [
+          OverviewLoadingHeader(
+            selectedTab: selectedTab,
+            onTabChanged: _changeTab,
+          ),
+          Expanded(
+            child: PlanTrackingLockedContent(
+              selectedTab: selectedTab,
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      children: [
+        if (selectedTab == 0)
+          _isOverviewLoading
+              ? OverviewLoadingHeader(
+            selectedTab: selectedTab,
+            onTabChanged: _changeTab,
+          )
+              : FiteoScoreHeader(
+            score:
+            _overviewStats?.fiteoScore ?? 0,
+            selectedTab: selectedTab,
+            onTabChanged: _changeTab,
+          )
+        else
+          _isPlanLoading
+              ? PlanLoadingHeader(
+            selectedTab: selectedTab,
+            onTabChanged: _changeTab,
+          )
+              : PlanStatusHeader(
+            status:
+            _planTrackingStats?.planStatus ??
+                PlanStatus.notEnoughData,
+            selectedTab: selectedTab,
+            onTabChanged: _changeTab,
+          ),
+
+        Expanded(
+          child: selectedTab == 0
+              ? _buildOverviewContent()
+              : _buildPlanContent(),
+        ),
+      ],
+    );
   }
 
   Widget _buildOverviewContent() {
@@ -202,41 +334,7 @@ class _PlanTrackingScreenState
           backgroundColor:
           AppColors.surfacePrimary,
           extendBodyBehindAppBar: true,
-          body: Column(
-            children: [
-              if (selectedTab == 0)
-                _isOverviewLoading
-                    ? OverviewLoadingHeader(
-                  selectedTab: selectedTab,
-                  onTabChanged: _changeTab,
-                )
-                    : FiteoScoreHeader(
-                  score:
-                  _overviewStats?.fiteoScore ?? 0,
-                  selectedTab: selectedTab,
-                  onTabChanged: _changeTab,
-                )
-              else
-                _isPlanLoading
-                    ? PlanLoadingHeader(
-                  selectedTab: selectedTab,
-                  onTabChanged: _changeTab,
-                )
-                    : PlanStatusHeader(
-                  status:
-                  _planTrackingStats?.planStatus ??
-                      PlanStatus.notEnoughData,
-                  selectedTab: selectedTab,
-                  onTabChanged: _changeTab,
-                ),
-
-              Expanded(
-                child: selectedTab == 0
-                    ? _buildOverviewContent()
-                    : _buildPlanContent(),
-              ),
-            ],
-          ),
+          body: _buildScreenBody(),
         ),
       ),
     );

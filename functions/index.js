@@ -1,4 +1,5 @@
 const { onRequest } = require("firebase-functions/v2/https");
+const { onDocumentWritten } = require("firebase-functions/v2/firestore");
 const { defineSecret } = require("firebase-functions/params");
 const OpenAI = require("openai");
 const admin = require("firebase-admin");
@@ -206,6 +207,386 @@ async function getUserMembership(uid) {
       data?.status === "active",
   };
 }
+
+const PLAN_TRACKING_SCHEMA_VERSION = 1;
+
+function isActivePremiumMembership(data) {
+  return (
+    data?.isPremium === true &&
+    data?.status === "active"
+  );
+}
+
+function getDateKey(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function getDateKeyInTimezone(date, timezone) {
+  try {
+    const formatter =
+        new Intl.DateTimeFormat(
+          "en-US",
+          {
+            timeZone: timezone,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          }
+        );
+
+    const parts =
+        formatter.formatToParts(date);
+
+    const year =
+        parts.find(
+          (part) => part.type === "year"
+        )?.value;
+
+    const month =
+        parts.find(
+          (part) => part.type === "month"
+        )?.value;
+
+    const day =
+        parts.find(
+          (part) => part.type === "day"
+        )?.value;
+
+    if (!year || !month || !day) {
+      throw new Error(
+        "Unable to resolve local date"
+      );
+    }
+
+    return `${year}-${month}-${day}`;
+  } catch (error) {
+    console.error(
+      `Invalid timezone "${timezone}":`,
+      error
+    );
+
+    return getDateKey(date);
+  }
+}
+
+function calculateExpectedWeeklyWeightChange({
+  calorieGoal,
+  tdee,
+}) {
+  if (tdee <= 0 || calorieGoal <= 0) {
+    return 0;
+  }
+
+  const dailyEnergyDifference =
+      calorieGoal - tdee;
+
+  return dailyEnergyDifference * 7 / 7700;
+}
+
+function calculateInitialEstimatedGoalDate({
+  planStartWeight,
+  targetWeight,
+  expectedWeeklyWeightChangeKg,
+  planActivatedAt,
+}) {
+  const remainingWeight =
+      targetWeight - planStartWeight;
+
+  if (Math.abs(remainingWeight) < 0.05) {
+    return planActivatedAt;
+  }
+
+  if (
+    Math.abs(expectedWeeklyWeightChangeKg) <
+    0.01
+  ) {
+    return null;
+  }
+
+  const movingTowardGoal =
+      Math.sign(remainingWeight) ===
+      Math.sign(expectedWeeklyWeightChangeKg);
+
+  if (!movingTowardGoal) {
+    return null;
+  }
+
+  const weeks =
+      Math.abs(remainingWeight) /
+      Math.abs(expectedWeeklyWeightChangeKg);
+
+  if (!Number.isFinite(weeks) || weeks < 0) {
+    return null;
+  }
+
+  const estimatedGoalDate =
+      new Date(planActivatedAt);
+
+  estimatedGoalDate.setUTCDate(
+    estimatedGoalDate.getUTCDate() +
+      Math.round(weeks * 7)
+  );
+
+  return estimatedGoalDate;
+}
+
+function calculatePremiumPlanTrackingStart(
+  userData
+) {
+  const userPreferences =
+      userData?.userPreferences || {};
+
+  const nutritionPlan =
+      userData?.nutritionPlan || {};
+
+  const age =
+      Number(userPreferences.age);
+
+  const height =
+      Number(userPreferences.height);
+
+  const currentWeight =
+      Number(userPreferences.weight);
+
+  const targetWeight =
+      Number(userPreferences.targetWeight);
+
+  const gender =
+      String(
+        userPreferences.gender || ""
+      );
+
+  const activityLevel =
+      String(
+        userPreferences.activityLevel || ""
+      );
+
+  const calorieGoal =
+      Number(
+        nutritionPlan.dailyCalories ??
+        userPreferences.calorieGoal
+      );
+
+  if (
+    !Number.isFinite(age) ||
+    !Number.isFinite(height) ||
+    !Number.isFinite(currentWeight) ||
+    !Number.isFinite(targetWeight) ||
+    !Number.isFinite(calorieGoal) ||
+    age <= 0 ||
+    height <= 0 ||
+    currentWeight <= 0 ||
+    targetWeight <= 0 ||
+    calorieGoal <= 0 ||
+    !gender ||
+    !activityLevel
+  ) {
+    throw new Error(
+      "Missing data required to initialize Plan Tracking"
+    );
+  }
+
+  const isMale =
+      gender.toLowerCase() === "male";
+
+  const bmr = isMale
+    ? 10 * currentWeight +
+      6.25 * height -
+      5 * age +
+      5
+    : 10 * currentWeight +
+      6.25 * height -
+      5 * age -
+      161;
+
+  const activityMultipliers = {
+    Sedentary: 1.2,
+    "Lightly Active": 1.375,
+    "Moderately Active": 1.55,
+    "Very Active": 1.725,
+  };
+
+  const activityMultiplier =
+      activityMultipliers[activityLevel];
+
+  if (!activityMultiplier) {
+    throw new Error(
+      "Unsupported activity level for Plan Tracking"
+    );
+  }
+
+  const tdee =
+      bmr * activityMultiplier;
+
+  const expectedWeeklyWeightChangeKg =
+      calculateExpectedWeeklyWeightChange({
+        calorieGoal,
+        tdee,
+      });
+
+  return {
+    currentWeight,
+    targetWeight,
+    expectedWeeklyWeightChangeKg,
+  };
+}
+
+function createInitialPlanTrackingCache({
+  currentWeight,
+  targetWeight,
+  expectedWeeklyWeightChangeKg,
+  planActivatedAt,
+  timezone,
+}) {
+  const estimatedGoalDate =
+      calculateInitialEstimatedGoalDate({
+        planStartWeight: currentWeight,
+        targetWeight,
+        expectedWeeklyWeightChangeKg,
+        planActivatedAt,
+      });
+
+  return {
+    schemaVersion:
+      PLAN_TRACKING_SCHEMA_VERSION,
+
+    planActivatedAt:
+      getDateKeyInTimezone(
+        planActivatedAt,
+        timezone
+      ),
+
+    lastProcessedDate: null,
+
+    planStartWeight:
+      currentWeight,
+
+    expectedWeeklyWeightChangeKg,
+
+    planEligibleDays: 0,
+    calorieTrackedDays: 0,
+    calorieAdherenceSum: 0,
+
+    weightEntryCount: 0,
+    latestWeight: null,
+    latestWeightDate: null,
+    actualWeeklyWeightChangeKg: null,
+    weightPoints: [],
+
+    progressRatio: null,
+
+    estimatedGoalDate:
+      estimatedGoalDate == null
+        ? null
+        : getDateKeyInTimezone(
+            estimatedGoalDate,
+            timezone
+          ),
+
+    projectionDifferenceDays: null,
+
+    planStatus: "notEnoughData",
+
+    aiNote: null,
+    aiNoteDate: null,
+
+    updatedAt:
+      admin.firestore.FieldValue
+        .serverTimestamp(),
+  };
+}
+
+exports.initializePlanTrackingOnPremium =
+  onDocumentWritten(
+    "users/{uid}/membership/current",
+    async (event) => {
+      const uid = event.params.uid;
+
+      const beforeData =
+          event.data?.before.exists
+            ? event.data.before.data()
+            : null;
+
+      const afterData =
+          event.data?.after.exists
+            ? event.data.after.data()
+            : null;
+
+      const wasPremium =
+          isActivePremiumMembership(
+            beforeData
+          );
+
+      const isPremium =
+          isActivePremiumMembership(
+            afterData
+          );
+
+      if (wasPremium || !isPremium) {
+        return;
+      }
+
+      const userRef = admin
+        .firestore()
+        .collection("users")
+        .doc(uid);
+
+      const trackingRef = userRef
+        .collection("planTracking")
+        .doc("current");
+
+      await admin.firestore().runTransaction(
+        async (transaction) => {
+          const userSnapshot =
+              await transaction.get(userRef);
+
+          if (!userSnapshot.exists) {
+            throw new Error(
+              `User ${uid} does not exist`
+            );
+          }
+
+          const userData =
+              userSnapshot.data() || {};
+
+          const timezone =
+              String(
+                userData.timezone || "UTC"
+              ).trim();
+
+          const {
+            currentWeight,
+            targetWeight,
+            expectedWeeklyWeightChangeKg,
+          } =
+              calculatePremiumPlanTrackingStart(
+                userData
+              );
+
+          const planActivatedAt =
+              new Date();
+
+          const cache =
+              createInitialPlanTrackingCache({
+                currentWeight,
+                targetWeight,
+                expectedWeeklyWeightChangeKg,
+                planActivatedAt,
+                timezone,
+              });
+
+          transaction.set(
+            trackingRef,
+            cache
+          );
+
+          console.log(
+            `Plan Tracking initialized for premium user ${uid}`
+          );
+        }
+      );
+    }
+  );
 
 let fatSecretCachedAccessToken = null;
 let fatSecretAccessTokenExpiresAt = 0;

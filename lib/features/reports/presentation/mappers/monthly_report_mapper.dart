@@ -70,9 +70,7 @@ class MonthlyReportMapper {
       nextMonth: MonthlyNextMonthData(
         title: cache.nextMonth.title,
         mainFocus: cache.nextMonth.mainFocus,
-        keepDoing: cache.nextMonth.keepDoing,
-        improve: cache.nextMonth.improve,
-        watch: cache.nextMonth.watch,
+        tips: cache.nextMonth.tips,
       ),
     );
   }

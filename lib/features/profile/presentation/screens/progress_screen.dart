@@ -15,7 +15,7 @@ import 'package:fiteo_myapp/features/profile/presentation/models/progress_snapsh
 import 'package:fiteo_myapp/features/profile/presentation/widgets/progress_nutrition_tabs.dart';
 import 'package:fiteo_myapp/features/membership/data/premium_access_service.dart';
 import 'package:fiteo_myapp/features/membership/domain/premium_feature.dart';
-import 'package:fiteo_myapp/features/membership/presentation/premium_navigation.dart';
+import 'package:fiteo_myapp/features/profile/presentation/widgets/progress_locked_content.dart';
 
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({
@@ -51,6 +51,8 @@ class _ProgressScreenState
   bool _isLoading = true;
   bool _hasError = false;
   bool _isPremium = false;
+  bool _showLockedContent = false;
+  String _lockedContentTitle = '';
 
   ProgressNutritionMetric selectedNutritionMetric =
       ProgressNutritionMetric.calories;
@@ -108,35 +110,41 @@ class _ProgressScreenState
     }
   }
 
-  Future<void> _onMetricChanged(
+  void _onMetricChanged(
       ProgressMetric metric,
-      ) async {
+      ) {
     if (!_isPremium &&
         metric == ProgressMetric.weight) {
-      await PremiumNavigation.openPaywall(context);
+      setState(() {
+        _showLockedContent = true;
+        _lockedContentTitle = 'Weight Progress';
+      });
       return;
     }
-
-    if (!mounted) return;
 
     setState(() {
       selectedMetric = metric;
+      _showLockedContent = false;
+      _lockedContentTitle = '';
     });
   }
 
-  Future<void> _onRangeChanged(
+  void _onRangeChanged(
       ProgressRange range,
-      ) async {
+      ) {
     if (!_isPremium &&
         range != ProgressRange.days7) {
-      await PremiumNavigation.openPaywall(context);
+      setState(() {
+        _showLockedContent = true;
+        _lockedContentTitle = _lockedRangeTitle(range);
+      });
       return;
     }
 
-    if (!mounted) return;
-
     setState(() {
       _selectedRanges[selectedMetric] = range;
+      _showLockedContent = false;
+      _lockedContentTitle = '';
     });
   }
 
@@ -146,6 +154,24 @@ class _ProgressScreenState
     setState(() {
       selectedNutritionMetric = metric;
     });
+  }
+
+  String _lockedRangeTitle(
+      ProgressRange range,
+      ) {
+    switch (range) {
+      case ProgressRange.days7:
+        return '7 Day Progress';
+
+      case ProgressRange.days30:
+        return '30 Day Progress';
+
+      case ProgressRange.days90:
+        return '90 Day Progress';
+
+      case ProgressRange.days365:
+        return '365 Day Progress';
+    }
   }
 
   List<ProgressRange> get _availableRanges {
@@ -274,23 +300,29 @@ class _ProgressScreenState
 
           const SizedBox(height: 24),
 
-          ProgressChartCard(
-            data: chartData,
-            selectedRange: selectedRange,
-            availableRanges: _availableRanges,
-            onRangeChanged: _onRangeChanged,
-            isPremium: _isPremium,
-          ),
-
-          const SizedBox(height: 26),
-
-          ProgressSummaryCard(
-            data: _buildRealSummaryData(
-              context,
-              builder,
-              summary,
+          if (_showLockedContent)
+            ProgressLockedContent(
+              title: _lockedContentTitle,
+            )
+          else ...[
+            ProgressChartCard(
+              data: chartData,
+              selectedRange: selectedRange,
+              availableRanges: _availableRanges,
+              onRangeChanged: _onRangeChanged,
+              isPremium: _isPremium,
             ),
-          ),
+
+            const SizedBox(height: 26),
+
+            ProgressSummaryCard(
+              data: _buildRealSummaryData(
+                context,
+                builder,
+                summary,
+              ),
+            ),
+          ],
         ],
       ),
     );

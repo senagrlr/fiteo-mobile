@@ -128,9 +128,9 @@ class ReportCacheSerializer {
       nextMonth: MonthlyNextMonthCache(
         title: nextMonth['title'] as String? ?? '',
         mainFocus: nextMonth['mainFocus'] as String? ?? '',
-        keepDoing: nextMonth['keepDoing'] as String? ?? '',
-        improve: nextMonth['improve'] as String? ?? '',
-        watch: nextMonth['watch'] as String? ?? '',
+        tips: List<String>.from(
+          nextMonth['tips'] as List? ?? const [],
+        ),
       ),
       comparisonBasis: _comparisonBasisFromMap(
         data['comparisonBasis'],
@@ -171,9 +171,7 @@ class ReportCacheSerializer {
       'nextMonth': {
         'title': cache.nextMonth.title,
         'mainFocus': cache.nextMonth.mainFocus,
-        'keepDoing': cache.nextMonth.keepDoing,
-        'improve': cache.nextMonth.improve,
-        'watch': cache.nextMonth.watch,
+        'tips': cache.nextMonth.tips,
       },
       'comparisonBasis': _comparisonBasisToMap(cache.comparisonBasis),
     };

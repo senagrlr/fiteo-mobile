@@ -85,15 +85,11 @@ class MonthlyWeightPlanCache {
 class MonthlyNextMonthCache {
   final String title;
   final String mainFocus;
-  final String keepDoing;
-  final String improve;
-  final String watch;
+  final List<String> tips;
 
   const MonthlyNextMonthCache({
     required this.title,
     required this.mainFocus,
-    required this.keepDoing,
-    required this.improve,
-    required this.watch,
+    required this.tips,
   });
 }

@@ -6,6 +6,8 @@ import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 
 import 'package:fiteo_myapp/features/meals/domain/models/barcode_food_data.dart';
 import 'package:fiteo_myapp/features/meals/presentation/screens/barcode_scanner_screen.dart';
+import 'package:fiteo_myapp/features/membership/data/premium_access_service.dart';
+import 'package:fiteo_myapp/features/membership/domain/premium_feature.dart';
 
 class BarcodeAddButton extends StatelessWidget {
   final ValueChanged<BarcodeFoodData> onFoodFound;
@@ -14,6 +16,25 @@ class BarcodeAddButton extends StatelessWidget {
     super.key,
     required this.onFoodFound,
   });
+
+  static final PremiumAccessService _premiumAccessService =
+  PremiumAccessService();
+
+  Future<void> _handleTap(BuildContext context) async {
+    final canAccess = await _premiumAccessService.canAccess(
+      PremiumFeature.barcodeScanner,
+    );
+
+    if (!canAccess) {
+      return;
+    }
+
+    if (!context.mounted) {
+      return;
+    }
+
+    await _openScanner(context);
+  }
 
   Future<void> _openScanner(
       BuildContext context,
@@ -41,7 +62,7 @@ class BarcodeAddButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            _openScanner(context);
+            _handleTap(context);
           },
           borderRadius:
           BorderRadius.circular(22),

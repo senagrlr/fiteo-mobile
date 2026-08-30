@@ -15,11 +15,7 @@ class MonthlyNextMonthCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tips = [
-      data.keepDoing,
-      data.improve,
-      data.watch,
-    ];
+    final tips = data.tips;
 
     return Container(
       width: double.infinity,

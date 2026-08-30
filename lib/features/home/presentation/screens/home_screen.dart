@@ -25,6 +25,7 @@ import 'package:fiteo_myapp/features/reports/data/report_repository.dart';
 import 'package:fiteo_myapp/features/reports/presentation/mappers/monthly_report_mapper.dart';
 import 'package:fiteo_myapp/features/reports/presentation/mappers/weekly_report_mapper.dart';
 import 'package:fiteo_myapp/features/reports/presentation/popups/weekly_report_popup.dart';
+import 'package:fiteo_myapp/features/membership/data/premium_access_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -54,6 +55,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final HomePopupCoordinator _popupCoordinator =
   HomePopupCoordinator();
+
+  final PremiumAccessService _premiumAccessService =
+  PremiumAccessService();
 
   DailyFeedbackResult? dailyFeedback;
 
@@ -236,20 +240,20 @@ class _HomeScreenState extends State<HomeScreen> {
         isLoading = false;
       });
 
-      await _tryShowWeeklyReport();
+      final isPremium =
+      await _premiumAccessService.isPremium();
 
       if (!mounted) return;
 
-      final monthlyShown =
-      await _tryShowMonthlyReport();
+      if (isPremium) {
+        await _tryShowWeeklyReport();
 
-      if (!mounted) return;
+        if (!mounted) return;
 
-      if (!monthlyShown) {
-        await _showMonthlyReportForTest();
+        await _tryShowMonthlyReport();
+
+        if (!mounted) return;
       }
-
-      if (!mounted) return;
 
       await _popupCoordinator.tryShowWeightCheckIn(
         context,
@@ -359,228 +363,6 @@ class _HomeScreenState extends State<HomeScreen> {
       return false;
     }
   }
-
-  // ============================================================
-  // MONTHLY REPORT - UI TEST
-  // ============================================================
-
-  Future<void> _showMonthlyReportForTest() async {
-    if (_monthlyReportShown ||
-        !mounted) {
-      return;
-    }
-
-    _monthlyReportShown = true;
-
-    await showMonthlyReportPopup(
-      context,
-      const MonthlyReportData(
-          dateRange:
-          '1 Ağu - 31 Ağu',
-
-          score: 87,
-
-          scoreChange: 6,
-
-          scoreLabel:
-          'Güçlü Ay',
-
-          // ====================================================
-          // WHAT CHANGED THIS MONTH
-          // ====================================================
-
-          overview:
-          MonthlyOverviewData(
-            changes: [
-              MonthlyChangeItem(
-                label:
-                'Hedef tutarlılığı',
-                value:
-                '%12',
-                direction:
-                MonthlyChangeDirection.up,
-              ),
-
-              MonthlyChangeItem(
-                label:
-                'Protein hedef günleri',
-                value:
-                '5 gün',
-                direction:
-                MonthlyChangeDirection.up,
-              ),
-
-              MonthlyChangeItem(
-                label:
-                'Su hedef günleri',
-                value:
-                '4 gün',
-                direction:
-                MonthlyChangeDirection.same,
-              ),
-
-              MonthlyChangeItem(
-                label:
-                'Takip',
-                value:
-                '%7',
-                direction:
-                MonthlyChangeDirection.down,
-              ),
-
-              MonthlyChangeItem(
-                label:
-                'Aktif günler',
-                value:
-                '3 gün',
-                direction:
-                MonthlyChangeDirection.up,
-              ),
-            ],
-          ),
-
-          // ====================================================
-          // CALORIES / ACTIVITY / PROTEIN
-          // ====================================================
-
-          metrics:
-          MonthlyMetricsData(
-            caloriesAverage:
-            '1925 kcal',
-
-            caloriesTargetDays:
-            '22/31 hedefte',
-
-            activeDays:
-            '18 gün',
-
-            workoutTime:
-            'Toplam 420 dk',
-
-            proteinAverage:
-            '92 g',
-
-            proteinTargetDays:
-            '24/31 hedefte',
-          ),
-
-          // ====================================================
-          // STRONGEST AREA
-          // ====================================================
-
-          strongestArea:
-          MonthlyAreaData(
-            title:
-            'Protein',
-
-            primaryText:
-            '24 gün protein hedefin karşılandı',
-
-            secondaryText:
-            'Haziran ayına göre 5 gün daha fazla',
-
-            badgeText:
-            'Böyle\ndevam',
-          ),
-
-          // ====================================================
-          // WEAKEST AREA
-          // ====================================================
-
-          weakestArea:
-          MonthlyAreaData(
-            title:
-            'Hafta Sonları',
-
-            primaryText:
-            'Hedef tutarlılığın hafta sonlarında daha düşüktü',
-
-            secondaryText:
-            'Hafta içine göre %21 daha düşük',
-
-            badgeText:
-            'Odak\nalanı',
-          ),
-
-          // ====================================================
-          // CONSISTENCY
-          // ====================================================
-
-          consistency:
-          MonthlyConsistencyData(
-            trackingConsistency:
-            91,
-
-            trackedDays:
-            28,
-
-            totalDays:
-            31,
-
-            goalConsistency:
-            82,
-
-            goalConsistencyNote:
-            'Şimdiye kadarki en tutarlı ayın',
-
-            longestStreakDays:
-            11,
-
-            perfectDays:
-            9,
-          ),
-
-          // ====================================================
-          // WEIGHT & PLAN
-          // ====================================================
-
-          weightPlan: const MonthlyWeightPlanData(
-            startWeight: 82.4,
-            currentWeight: 80.6,
-            monthlyTargetChange: -2.0,
-            progressAchievedPercent: 90,
-            statusLabel: 'Yolunda',
-            statusDescription:
-            'Bu ay planlanan kilo verme hızına oldukça yakın ilerledin.',
-          ),
-
-          // ====================================================
-          // YOUR MONTH IN REVIEW
-          // ====================================================
-
-          reviewParagraphs: [
-            'Bu ayın en belirgin özelliği tek tek iyi günlerden çok genel tutarlılığın oldu. Protein takibi en güçlü alışkanlıklarından biri haline gelirken hedeflerine bağlılığın da düzenli biçimde gelişti.',
-
-            'Genel ilerlemen planınla uyumlu. En büyük gelişim alanın hâlâ hafta sonları; özellikle akşam saatlerindeki kalori yoğunluğu burada dikkat çekiyor.',
-          ],
-
-          // ====================================================
-          // NEXT MONTH PLAN
-          // ====================================================
-
-          nextMonth: MonthlyNextMonthData(
-            title:
-            'Eylül Planın',
-
-            mainFocus:
-            'Hafta sonu tutarlılığını geliştir.',
-
-            keepDoing:
-            'Mevcut protein rutinini koru.',
-
-            improve:
-            'Her hafta en az 5 gün su hedefine ulaş.',
-
-            watch:
-            'Akşam öğünlerindeki kalori yoğunluğuna dikkat et.',
-          ),
-        ),
-      );
-  }
-
-  // ============================================================
-  // WATER
-  // ============================================================
 
   Future<void> _addWater(
       int amount,

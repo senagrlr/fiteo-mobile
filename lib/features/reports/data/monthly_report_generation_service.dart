@@ -50,9 +50,7 @@ class MonthlyReportGenerationService {
     MonthlyNextMonthCache nextMonth = const MonthlyNextMonthCache(
       title: '',
       mainFocus: '',
-      keepDoing: '',
-      improve: '',
-      watch: '',
+      tips: [],
     ),
   }) async {
     final summariesFuture =

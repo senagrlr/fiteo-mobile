@@ -254,10 +254,11 @@ void main() {
           title: 'September Plan',
           mainFocus:
           'Keep your routine stable.',
-          keepDoing:
-          'Continue consistent tracking.',
-          improve: 'Increase activity.',
-          watch: 'Stay hydrated.',
+          tips: [
+            'Keep logging consistently',
+            'Improve protein consistency',
+            'Watch your hydration',
+          ],
         ),
       );
 

@@ -7,6 +7,7 @@ import 'package:fiteo_myapp/features/reports/data/monthly_target_accumulator_rep
 import 'package:fiteo_myapp/features/reports/data/report_period_resolver.dart';
 import 'package:fiteo_myapp/features/profile/data/weight_repository.dart';
 import 'package:fiteo_myapp/features/reports/data/monthly_weight_resolver.dart';
+import 'package:fiteo_myapp/features/ai/data/premium_insight_service.dart';
 
 class MonthlyReportGenerationService {
   MonthlyReportGenerationService({
@@ -17,6 +18,7 @@ class MonthlyReportGenerationService {
     MonthlyTargetAccumulatorRepository? targetAccumulatorRepository,
     WeightRepository? weightRepository,
     MonthlyWeightResolver? weightResolver,
+    PremiumInsightService? premiumInsightService,
   })  : _dailySummaryRepository =
       dailySummaryRepository ?? DailySummaryRepository(),
         _planTrackingRepository =
@@ -30,9 +32,9 @@ class MonthlyReportGenerationService {
         _weightRepository =
             weightRepository ?? WeightRepository(),
         _weightResolver =
-            weightResolver ?? const MonthlyWeightResolver();
-
-
+            weightResolver ?? const MonthlyWeightResolver(),
+        _premiumInsightService =
+            premiumInsightService ?? PremiumInsightService();
 
   final DailySummaryRepository _dailySummaryRepository;
   final PlanTrackingRepository _planTrackingRepository;
@@ -41,6 +43,7 @@ class MonthlyReportGenerationService {
   final MonthlyTargetAccumulatorRepository _targetAccumulatorRepository;
   final WeightRepository _weightRepository;
   final MonthlyWeightResolver _weightResolver;
+  final PremiumInsightService _premiumInsightService;
 
   Future<MonthlyReportCache> generateAndSave({
     required ReportPeriod period,
@@ -95,29 +98,108 @@ class MonthlyReportGenerationService {
       previousReport,
     );
 
-    final cache = _generator.generate(
+    final draft = _generator.generate(
       period: period,
       summaries: summaries,
       generatedAt: generatedAt,
       availableFrom: availableFrom,
-      currentPlanActivatedAt: planTracking.planActivatedAt,
+      currentPlanActivatedAt:
+      planTracking.planActivatedAt,
       currentExpectedWeeklyWeightChangeKg:
-      planTracking.expectedWeeklyWeightChangeKg,
+      planTracking
+          .expectedWeeklyWeightChangeKg,
       accumulator: accumulator,
       startWeightKg:
       weightResolution.startWeightKg,
       currentWeightKg:
       weightResolution.currentWeightKg,
-      planStatus: planTracking.planStatus.name,
-      planStatusDescription: planTracking.aiNote,
+      planStatus:
+      planTracking.planStatus.name,
+      planStatusDescription:
+      planTracking.aiNote,
       previousComparisonBasis:
       previousReport?.comparisonBasis,
-      previousScore: previousReport?.score,
-      reviewParagraphs: reviewParagraphs,
+      previousScore:
+      previousReport?.score,
+      reviewParagraphs:
+      reviewParagraphs,
       nextMonth: nextMonth,
     );
 
-    await _reportRepository.saveMonthlyReport(cache);
+    var resolvedReviewParagraphs =
+        reviewParagraphs;
+
+    var resolvedNextMonth =
+        nextMonth;
+
+    final needsReview =
+        resolvedReviewParagraphs.isEmpty;
+
+    final needsNextMonth =
+        resolvedNextMonth.title
+            .trim()
+            .isEmpty ||
+            resolvedNextMonth.mainFocus
+                .trim()
+                .isEmpty ||
+            resolvedNextMonth.tips.isEmpty;
+
+    if (needsReview || needsNextMonth) {
+      final insight =
+      await _premiumInsightService
+          .generateMonthlyInsight(
+        draft,
+      );
+
+      if (insight != null) {
+        if (needsReview) {
+          resolvedReviewParagraphs =
+              insight.reviewParagraphs;
+        }
+
+        if (needsNextMonth) {
+          resolvedNextMonth =
+              MonthlyNextMonthCache(
+                title: insight.title,
+                mainFocus:
+                insight.mainFocus,
+                tips: insight.tips,
+              );
+        }
+      }
+    }
+
+    final cache = _generator.generate(
+      period: period,
+      summaries: summaries,
+      generatedAt: generatedAt,
+      availableFrom: availableFrom,
+      currentPlanActivatedAt:
+      planTracking.planActivatedAt,
+      currentExpectedWeeklyWeightChangeKg:
+      planTracking
+          .expectedWeeklyWeightChangeKg,
+      accumulator: accumulator,
+      startWeightKg:
+      weightResolution.startWeightKg,
+      currentWeightKg:
+      weightResolution.currentWeightKg,
+      planStatus:
+      planTracking.planStatus.name,
+      planStatusDescription:
+      planTracking.aiNote,
+      previousComparisonBasis:
+      previousReport?.comparisonBasis,
+      previousScore:
+      previousReport?.score,
+      reviewParagraphs:
+      resolvedReviewParagraphs,
+      nextMonth:
+      resolvedNextMonth,
+    );
+
+    await _reportRepository
+        .saveMonthlyReport(cache);
 
     return cache;
   }

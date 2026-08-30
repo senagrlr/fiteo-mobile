@@ -79,9 +79,11 @@ void main() {
         nextMonth: const MonthlyNextMonthCache(
           title: 'September Plan',
           mainFocus: 'Keep your routine stable.',
-          keepDoing: 'Continue consistent tracking.',
-          improve: 'Increase activity.',
-          watch: 'Stay hydrated.',
+          tips: const [
+            'Keep your current activity consistency.',
+            'Focus more on protein consistency.',
+            'Continue monitoring hydration.',
+          ],
         ),
       );
 

@@ -5,12 +5,20 @@ import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 
 class FiteoOverviewNoteCard extends StatelessWidget {
+  final String? note;
+
   const FiteoOverviewNoteCard({
     super.key,
+    this.note,
   });
 
   @override
   Widget build(BuildContext context) {
+    final displayedNote =
+    note != null && note!.trim().isNotEmpty
+        ? note!.trim()
+        : context.l10n.fiteoOverviewNote;
+
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 16,
@@ -47,7 +55,7 @@ class FiteoOverviewNoteCard extends StatelessWidget {
               CrossAxisAlignment.start,
               children: [
                 Text(
-                  '“ ${context.l10n.fiteoOverviewNote}',
+                  '“ $displayedNote',
                   style:
                   AppTextStyles.bodyMedium.copyWith(
                     color: AppColors.onPrimary,

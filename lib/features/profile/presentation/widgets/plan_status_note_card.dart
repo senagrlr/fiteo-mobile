@@ -9,15 +9,22 @@ class PlanStatusNoteCard extends StatelessWidget {
   final PlanStatus status;
   final String estimatedGoalDate;
   final VoidCallback? onReviewPlan;
+  final String? aiNote;
 
   const PlanStatusNoteCard({
     super.key,
     required this.status,
     required this.estimatedGoalDate,
+    this.aiNote,
     this.onReviewPlan,
   });
 
   String _description(BuildContext context) {
+    if (aiNote != null &&
+        aiNote!.trim().isNotEmpty) {
+      return aiNote!.trim();
+    }
+
     switch (status) {
       case PlanStatus.onTrack:
         return context.l10n.onTrackPlanNoteWithDate(

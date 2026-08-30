@@ -489,6 +489,8 @@ function createInitialPlanTrackingCache({
 
     aiNote: null,
     aiNoteDate: null,
+    aiNoteStatus: null,
+    aiNoteWeightSignature: null,
 
     updatedAt:
       admin.firestore.FieldValue
@@ -1840,6 +1842,410 @@ exports.classifyExercise = onRequest(
     } catch (error) {
       return res.status(500).json({
         error: "Exercise classification failed",
+        message: error.message,
+      });
+    }
+  }
+);
+
+const PREMIUM_INSIGHT_SAFETY_LIMIT = 20;
+
+async function reservePremiumInsightUsage(uid) {
+  const today = getUtcDateKey();
+
+  const usageRef = admin
+    .firestore()
+    .collection("users")
+    .doc(uid)
+    .collection("aiUsage")
+    .doc(today);
+
+  return admin.firestore().runTransaction(
+    async (transaction) => {
+      const snapshot =
+          await transaction.get(usageRef);
+
+      const data = snapshot.data() || {};
+
+      const currentCount =
+          Number(data.premiumInsightCount) || 0;
+
+      if (
+        currentCount >=
+        PREMIUM_INSIGHT_SAFETY_LIMIT
+      ) {
+        return false;
+      }
+
+      transaction.set(
+        usageRef,
+        {
+          premiumInsightCount:
+              currentCount + 1,
+          updatedAt:
+              admin.firestore.FieldValue
+                .serverTimestamp(),
+        },
+        {
+          merge: true,
+        }
+      );
+
+      return true;
+    }
+  );
+}
+
+function premiumInsightSchema(type) {
+  if (
+    type === "overview" ||
+    type === "plan"
+  ) {
+    return {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        note: {
+          type: "string",
+        },
+      },
+      required: ["note"],
+    };
+  }
+
+  if (type === "weekly") {
+    return {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        reviewParagraphs: {
+          type: "array",
+          minItems: 2,
+          maxItems: 2,
+          items: {
+            type: "string",
+          },
+        },
+        nextWeek: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            focusTitle: {
+              type: "string",
+            },
+            focusDescription: {
+              type: "string",
+            },
+            tips: {
+              type: "array",
+              minItems: 1,
+              maxItems: 3,
+              items: {
+                type: "string",
+              },
+            },
+          },
+          required: [
+            "focusTitle",
+            "focusDescription",
+            "tips",
+          ],
+        },
+      },
+      required: [
+        "reviewParagraphs",
+        "nextWeek",
+      ],
+    };
+  }
+
+  if (type === "monthly") {
+    return {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        reviewParagraphs: {
+          type: "array",
+          minItems: 2,
+          maxItems: 2,
+          items: {
+            type: "string",
+          },
+        },
+        nextMonth: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            title: {
+              type: "string",
+            },
+            mainFocus: {
+              type: "string",
+            },
+            tips: {
+              type: "array",
+              minItems: 1,
+              maxItems: 3,
+              items: {
+                type: "string",
+              },
+            },
+          },
+          required: [
+            "title",
+            "mainFocus",
+            "tips",
+          ],
+        },
+      },
+      required: [
+        "reviewParagraphs",
+        "nextMonth",
+      ],
+    };
+  }
+
+  return null;
+}
+
+function premiumInsightInstructions(type) {
+  const common =
+      "You are Fiteo, an AI coach inside a fitness and nutrition app. " +
+      "The application has already calculated every numeric result. " +
+      "Never recalculate, override, contradict, or invent metrics. " +
+      "Interpret only the structured data provided to you. " +
+      "Do not diagnose medical conditions or provide medical treatment. " +
+      "Be supportive, practical, concise, and specific. ";
+
+  if (type === "overview") {
+    return common +
+      "Write one short personalized overview note. " +
+      "Identify the most meaningful overall pattern, strength, or improvement area. " +
+      "Do not simply repeat all numbers. " +
+      "Do not list metrics one by one. " +
+      "Use approximately 2 sentences.";
+  }
+
+  if (type === "plan") {
+    return common +
+      "Explain how the user's existing plan is progressing. " +
+      "The planStatus provided by the app is authoritative and must never be changed by you. " +
+      "Valid statuses are onTrack, reviewRecommended, notEnoughData, and improveConsistencyFirst. " +
+      "Use weight progress as the primary progress signal, while calorie adherence and tracking consistency add context. " +
+      "Never prescribe a new calorie or macro target. " +
+      "Never tell the user to change the plan unless the provided planStatus is reviewRecommended. " +
+      "If status is improveConsistencyFirst, explain that consistency should improve before judging the plan. " +
+      "If status is notEnoughData, explain that more tracking or weight observations are needed. " +
+      "Use approximately 2 or 3 concise sentences.";
+  }
+
+  if (type === "weekly") {
+    return common +
+      "Create a weekly review from the completed weekly report values. " +
+      "Return exactly 2 concise review paragraphs. " +
+      "The first should summarize the most meaningful positive or overall pattern. " +
+      "The second should identify the most useful improvement area when one exists. " +
+      "Then create one clear focus for next week and 1 to 3 practical tips. " +
+      "Do not invent problems just to provide criticism. " +
+      "Do not invent food or workout records that were not provided.";
+  }
+
+  return common +
+    "Create a monthly review from the completed monthly report values. " +
+    "Return exactly 2 concise review paragraphs that interpret the month's major patterns and trends. " +
+    "Then create a general next-month title, one main focus, and 1 to 3 practical tips. " +
+    "Tips are dynamic recommendations; they are NOT fixed keep-doing, improve, or watch categories. " +
+    "Do not force a weakness or recommendation category when the data does not support one. " +
+    "Use previous-month changes, consistency, strongest and weakest areas, and weight-plan information when meaningful.";
+}
+
+async function generatePremiumInsightWithOpenAi({
+  type,
+  data,
+  languageCode,
+}) {
+  const schema =
+      premiumInsightSchema(type);
+
+  if (!schema) {
+    throw new Error(
+      "Unsupported premium insight type"
+    );
+  }
+
+  const client = new OpenAI({
+    apiKey: openaiApiKey.value(),
+  });
+
+  const maxOutputTokens =
+      type === "overview" ||
+      type === "plan"
+        ? 220
+        : type === "weekly"
+          ? 500
+          : 650;
+
+  const response =
+      await client.responses.create({
+        model: "gpt-4o-mini",
+        max_output_tokens:
+            maxOutputTokens,
+        input: [
+          {
+            role: "system",
+            content:
+              premiumInsightInstructions(
+                type
+              ) +
+              ` Write the entire response in language code "${languageCode}".`,
+          },
+          {
+            role: "user",
+            content:
+              "Calculated Fiteo data:\n" +
+              JSON.stringify(data),
+          },
+        ],
+        text: {
+          format: {
+            type: "json_schema",
+            name:
+              `${type}_premium_insight`,
+            schema,
+          },
+        },
+      });
+
+  if (!response.output_text) {
+    throw new Error(
+      "OpenAI returned empty premium insight"
+    );
+  }
+
+  return JSON.parse(
+    response.output_text
+  );
+}
+
+exports.generatePremiumInsight = onRequest(
+  {
+    secrets: [openaiApiKey],
+    cors: true,
+  },
+  async (req, res) => {
+    try {
+      const decodedToken =
+          await requireAuthenticatedUser(
+            req,
+            res
+          );
+
+      if (!decodedToken) {
+        return;
+      }
+
+      if (req.method !== "POST") {
+        return res.status(405).json({
+          error: "Method not allowed",
+        });
+      }
+
+      const uid = decodedToken.uid;
+
+      const membership =
+          await getUserMembership(uid);
+
+      if (!membership.isPremium) {
+        return res.status(403).json({
+          error:
+              "Premium membership required",
+        });
+      }
+
+      const type =
+          String(
+            req.body?.type || ""
+          ).trim();
+
+      const data =
+          req.body?.data;
+
+      const languageCode =
+          String(
+            req.body?.languageCode ||
+            "en"
+          )
+            .trim()
+            .toLowerCase()
+            .slice(0, 10);
+
+      if (
+        ![
+          "overview",
+          "plan",
+          "weekly",
+          "monthly",
+        ].includes(type)
+      ) {
+        return res.status(400).json({
+          error:
+              "Invalid premium insight type",
+        });
+      }
+
+      if (
+        !data ||
+        typeof data !== "object" ||
+        Array.isArray(data)
+      ) {
+        return res.status(400).json({
+          error:
+              "Missing insight data",
+        });
+      }
+
+      const serialized =
+          JSON.stringify(data);
+
+      if (serialized.length > 16000) {
+        return res.status(413).json({
+          error:
+              "Insight payload too large",
+        });
+      }
+
+      const hasCapacity =
+          await reservePremiumInsightUsage(
+            uid
+          );
+
+      if (!hasCapacity) {
+        return res.status(429).json({
+          error:
+              "Premium insight safety limit reached",
+        });
+      }
+
+      const result =
+          await generatePremiumInsightWithOpenAi({
+            type,
+            data,
+            languageCode:
+                languageCode || "en",
+          });
+
+      return res
+        .status(200)
+        .json(result);
+    } catch (error) {
+      console.error(
+        "generatePremiumInsight error:",
+        error
+      );
+
+      return res.status(500).json({
+        error:
+            "Premium insight generation failed",
         message: error.message,
       });
     }

@@ -28,6 +28,7 @@ import 'package:fiteo_myapp/features/profile/presentation/widgets/unique_feature
 import 'package:fiteo_myapp/features/profile/presentation/widgets/overview_loading_skeleton.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_loading_skeleton.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_tracking_locked_content.dart';
+import 'package:fiteo_myapp/features/ai/data/premium_insight_service.dart';
 
 class PlanTrackingScreen extends StatefulWidget {
   const PlanTrackingScreen({
@@ -71,6 +72,11 @@ class _PlanTrackingScreenState
 
   bool _isPlanLoading = true;
   bool _planHasError = false;
+
+  final PremiumInsightService _premiumInsightService =
+  PremiumInsightService();
+
+  bool _isRefreshingPlanAiNote = false;
 
   @override
   void initState() {
@@ -133,6 +139,8 @@ class _PlanTrackingScreenState
       final stats =
       await _overviewRepository.loadOverview();
 
+      await _refreshOverviewAiNote(stats);
+
       final achievements =
       _achievementCalculator.topAchievements(
         stats,
@@ -156,10 +164,47 @@ class _PlanTrackingScreenState
     }
   }
 
+  Future<void> _refreshOverviewAiNote(
+      OverviewStats stats,
+      ) async {
+    final todayKey = _dateKey(DateTime.now());
+
+    final hasCurrentNote =
+        stats.aiNote != null &&
+            stats.aiNote!.trim().isNotEmpty &&
+            stats.aiNoteDate == todayKey;
+
+    if (hasCurrentNote) {
+      return;
+    }
+
+    final note =
+    await _premiumInsightService
+        .generateOverviewNote(stats);
+
+    if (note == null) {
+      return;
+    }
+
+    try {
+      await _overviewRepository.saveAiNote(
+        note: note,
+        date: todayKey,
+      );
+
+      stats.aiNote = note;
+      stats.aiNoteDate = todayKey;
+    } catch (_) {
+      // Existing Overview stays usable
+      // even if AI cache write fails.
+    }
+  }
+
   Future<void> _loadPlanTracking() async {
     try {
       final stats =
-      await _planTrackingRepository.loadPlanTracking();
+      await _planTrackingRepository
+          .loadPlanTracking();
 
       if (!mounted) return;
 
@@ -168,6 +213,10 @@ class _PlanTrackingScreenState
         _isPlanLoading = false;
         _planHasError = false;
       });
+
+      if (selectedTab == 1) {
+        await _refreshPlanAiNoteIfNeeded();
+      }
     } catch (_) {
       if (!mounted) return;
 
@@ -182,6 +231,71 @@ class _PlanTrackingScreenState
     setState(() {
       selectedTab = index;
     });
+
+    if (_hasPremiumAccess &&
+        index == 1) {
+      _refreshPlanAiNoteIfNeeded();
+    }
+  }
+
+  Future<void> _refreshPlanAiNoteIfNeeded() async {
+    if (_isRefreshingPlanAiNote) {
+      return;
+    }
+
+    final stats = _planTrackingStats;
+
+    if (stats == null ||
+        !stats.needsAiNoteRefresh) {
+      return;
+    }
+
+    _isRefreshingPlanAiNote = true;
+
+    try {
+      final note =
+      await _premiumInsightService
+          .generatePlanNote(stats);
+
+      if (note == null) {
+        return;
+      }
+
+      final now = DateTime.now();
+      final dateKey = _dateKey(now);
+
+      await _planTrackingRepository.saveAiNote(
+        note: note,
+        date: dateKey,
+        status: stats.planStatus.name,
+        weightSignature:
+        stats.aiWeightSignature,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _planTrackingStats =
+            stats.copyWith(
+              aiNote: note,
+              aiNoteDate: now,
+              aiNoteStatus:
+              stats.planStatus.name,
+              aiNoteWeightSignature:
+              stats.aiWeightSignature,
+            );
+      });
+    } catch (_) {
+      // Static plan note remains visible.
+    } finally {
+      _isRefreshingPlanAiNote = false;
+    }
+  }
+
+  String _dateKey(DateTime date) {
+    return '${date.year}-'
+        '${date.month.toString().padLeft(2, '0')}-'
+        '${date.day.toString().padLeft(2, '0')}';
   }
 
   Widget _buildScreenBody() {
@@ -381,7 +495,9 @@ class _OverviewContent extends StatelessWidget {
 
           const SizedBox(height: 30),
 
-          const FiteoOverviewNoteCard(),
+          FiteoOverviewNoteCard(
+            note: stats.aiNote,
+          ),
         ],
       ),
     );
@@ -519,6 +635,7 @@ class _PlanContent extends StatelessWidget {
 
           PlanStatusNoteCard(
             status: stats.planStatus,
+            aiNote: stats.aiNote,
             estimatedGoalDate:
             stats.estimatedGoalDate == null
                 ? '-'

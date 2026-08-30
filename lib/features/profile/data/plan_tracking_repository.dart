@@ -197,6 +197,32 @@ class PlanTrackingRepository {
     );
   }
 
+  Future<void> saveAiNote({
+    required String note,
+    required String date,
+    required String status,
+    required String weightSignature,
+  }) async {
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception('User not logged in');
+    }
+
+    await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('planTracking')
+        .doc('current')
+        .set({
+      'aiNote': note,
+      'aiNoteDate': date,
+      'aiNoteStatus': status,
+      'aiNoteWeightSignature': weightSignature,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
   double? _calculateLegacyExpectedWeeklyWeightChange({
     required Map<String, dynamic> userData,
   }) {
@@ -308,6 +334,8 @@ class PlanTrackingRepository {
 
       'aiNote': null,
       'aiNoteDate': null,
+      'aiNoteStatus': null,
+      'aiNoteWeightSignature': null,
     };
   }
 
@@ -693,6 +721,10 @@ class PlanTrackingRepository {
       aiNote: cache['aiNote'] as String?,
       aiNoteDate:
       _parseDate(cache['aiNoteDate'] as String?),
+      aiNoteStatus:
+      cache['aiNoteStatus'] as String?,
+      aiNoteWeightSignature:
+      cache['aiNoteWeightSignature'] as String?,
     );
   }
 

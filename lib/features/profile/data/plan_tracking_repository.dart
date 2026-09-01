@@ -28,6 +28,7 @@ class PlanTrackingRepository {
 
   Future<void> initializeNewPlan({
     required double expectedWeeklyWeightChangeKg,
+    Map<String, dynamic>? nutritionPlan,
   }) async {
     final user = _auth.currentUser;
 
@@ -48,6 +49,16 @@ class PlanTrackingRepository {
     final userDoc = await userRef.get();
     final userData = userDoc.data() ?? <String, dynamic>{};
 
+    final effectiveUserData =
+    Map<String, dynamic>.from(
+      userData,
+    );
+
+    if (nutritionPlan != null) {
+      effectiveUserData['nutritionPlan'] =
+          nutritionPlan;
+    }
+
     final userPreferences =
         userData['userPreferences'] as Map<String, dynamic>? ?? {};
 
@@ -66,18 +77,47 @@ class PlanTrackingRepository {
     }
 
     final cache = _createInitialCache(
-      userData: userData,
+      userData: effectiveUserData,
       currentWeight: currentWeight,
       targetWeight: targetWeight,
       expectedWeeklyWeightChangeKg: expectedWeeklyWeightChangeKg,
       today: today,
     );
 
-    await trackingRef.set({
-      ...cache,
-      'schemaVersion': schemaVersion,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+    final batch =
+    _firestore.batch();
+
+    if (nutritionPlan != null) {
+      batch.set(
+        userRef,
+        {
+          'nutritionPlan': {
+            ...nutritionPlan,
+            'createdAt':
+            FieldValue.serverTimestamp(),
+            'updatedAt':
+            FieldValue.serverTimestamp(),
+          },
+          'updatedAt':
+          FieldValue.serverTimestamp(),
+        },
+        SetOptions(
+          merge: true,
+        ),
+      );
+    }
+
+    batch.set(
+      trackingRef,
+      {
+        ...cache,
+        'schemaVersion': schemaVersion,
+        'updatedAt':
+        FieldValue.serverTimestamp(),
+      },
+    );
+
+    await batch.commit();
   }
 
   Future<PlanTrackingStats> loadPlanTracking() async {

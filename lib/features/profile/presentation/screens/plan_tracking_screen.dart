@@ -32,6 +32,7 @@ import 'package:fiteo_myapp/features/profile/presentation/widgets/unique_feature
 import 'package:fiteo_myapp/features/profile/presentation/widgets/overview_loading_skeleton.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_loading_skeleton.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_tracking_locked_content.dart';
+import 'package:fiteo_myapp/features/profile/data/plan_review_service.dart';
 import 'package:fiteo_myapp/features/ai/data/premium_insight_service.dart';
 
 class PlanTrackingScreen extends StatefulWidget {
@@ -69,16 +70,23 @@ class _PlanTrackingScreenState
   bool _isOverviewLoading = true;
   bool _overviewHasError = false;
   bool _isOverviewAiLoading = false;
-  bool _isOverviewAiNoteLoading = false;
 
   final PlanTrackingRepository _planTrackingRepository =
   PlanTrackingRepository();
 
+  final PlanReviewService _planReviewService =
+  PlanReviewService();
+
   PlanTrackingStats? _planTrackingStats;
+
+  PlanReviewResult? _cachedPlanReview;
+  String? _cachedPlanReviewSignature;
 
   bool _isPlanLoading = true;
   bool _planHasError = false;
   bool _isPlanAiNoteLoading = false;
+  bool _isGeneratingPlanReview = false;
+  bool _isSavingReviewedPlan = false;
 
   final PremiumInsightService _premiumInsightService =
   PremiumInsightService();
@@ -334,6 +342,188 @@ class _PlanTrackingScreenState
     }
   }
 
+  String _planReviewSignature(
+      PlanTrackingStats stats,
+      ) {
+    return '${stats.planStatus.name}|'
+        '${stats.aiWeightSignature}';
+  }
+
+  Future<void> _openPlanReview() async {
+    if (_isGeneratingPlanReview) {
+      return;
+    }
+
+    final stats = _planTrackingStats;
+
+    if (stats == null ||
+        stats.planStatus !=
+            PlanStatus.reviewRecommended) {
+      return;
+    }
+
+    final signature =
+    _planReviewSignature(stats);
+
+    try {
+      setState(() {
+        _isGeneratingPlanReview = true;
+      });
+
+      if (_cachedPlanReview == null ||
+          _cachedPlanReviewSignature != signature) {
+        _cachedPlanReview =
+        await _planReviewService
+            .calculateReview(stats);
+
+        _cachedPlanReviewSignature =
+            signature;
+      }
+
+      if (!mounted ||
+          _cachedPlanReview == null) {
+        return;
+      }
+
+      final review =
+      _cachedPlanReview!;
+
+      await showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        backgroundColor:
+        Colors.transparent,
+        barrierColor:
+        Colors.black.withValues(
+          alpha: 0.26,
+        ),
+        isDismissible: true,
+        enableDrag: true,
+        builder: (sheetContext) {
+          return PlanReviewSheet(
+            previousPlan:
+            PlanNutritionTargets(
+              calories:
+              review.previousPlan
+                  .calories
+                  .toDouble(),
+              protein:
+              review.previousPlan
+                  .proteinGrams
+                  .toDouble(),
+              carbs:
+              review.previousPlan
+                  .carbsGrams
+                  .toDouble(),
+              fats:
+              review.previousPlan
+                  .fatsGrams
+                  .toDouble(),
+              waterLiters:
+              review.previousPlan
+                  .waterMl /
+                  1000,
+            ),
+            newPlan:
+            PlanNutritionTargets(
+              calories:
+              review.newPlan
+                  .calories
+                  .toDouble(),
+              protein:
+              review.newPlan
+                  .proteinGrams
+                  .toDouble(),
+              carbs:
+              review.newPlan
+                  .carbsGrams
+                  .toDouble(),
+              fats:
+              review.newPlan
+                  .fatsGrams
+                  .toDouble(),
+              waterLiters:
+              review.newPlan
+                  .waterMl /
+                  1000,
+            ),
+            onSavePlan: () {
+              _saveReviewedPlan(
+                sheetContext,
+                review.newPlan,
+              );
+            },
+          );
+        },
+      );
+    } catch (e) {
+      debugPrint(
+        'Plan review calculation failed: $e',
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isGeneratingPlanReview = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _saveReviewedPlan(
+      BuildContext sheetContext,
+      ReviewedPlanData plan,
+      ) async {
+    if (_isSavingReviewedPlan) {
+      return;
+    }
+
+    try {
+      _isSavingReviewedPlan = true;
+
+      await _planTrackingRepository
+          .initializeNewPlan(
+        expectedWeeklyWeightChangeKg:
+        plan.expectedWeeklyWeightChangeKg,
+        nutritionPlan: {
+          'dailyCalories':
+          plan.calories,
+          'proteinGrams':
+          plan.proteinGrams,
+          'carbsGrams':
+          plan.carbsGrams,
+          'fatsGrams':
+          plan.fatsGrams,
+          'waterMl':
+          plan.waterMl,
+        },
+      );
+
+      if (!mounted ||
+          !sheetContext.mounted) {
+        return;
+      }
+
+      Navigator.pop(sheetContext);
+
+      _cachedPlanReview = null;
+      _cachedPlanReviewSignature = null;
+
+      setState(() {
+        _isPlanLoading = true;
+        _planHasError = false;
+      });
+
+      await _loadPlanTracking();
+    } catch (e) {
+      debugPrint(
+        'Reviewed plan save failed: $e',
+      );
+    } finally {
+      _isSavingReviewedPlan = false;
+    }
+  }
+
   String _dateKey(DateTime date) {
     return '${date.year}-'
         '${date.month.toString().padLeft(2, '0')}-'
@@ -472,6 +662,7 @@ class _PlanTrackingScreenState
     return _PlanContent(
       stats: _planTrackingStats!,
       isAiNoteLoading: _isPlanAiNoteLoading,
+      onReviewPlan: _openPlanReview,
     );
   }
 
@@ -556,54 +747,13 @@ class _OverviewContent extends StatelessWidget {
 class _PlanContent extends StatelessWidget {
   final PlanTrackingStats stats;
   final bool isAiNoteLoading;
+  final VoidCallback onReviewPlan;
 
   const _PlanContent({
     required this.stats,
     required this.isAiNoteLoading,
+    required this.onReviewPlan,
   });
-
-  void _openPlanReviewSheet(
-      BuildContext context,
-      ) {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor:
-      Colors.transparent,
-      barrierColor:
-      Colors.black.withValues(
-        alpha: 0.26,
-      ),
-      isDismissible: true,
-      enableDrag: true,
-      builder: (sheetContext) {
-        return PlanReviewSheet(
-          previousPlan:
-          const PlanNutritionTargets(
-            calories: 1630,
-            protein: 120,
-            carbs: 180,
-            fats: 55,
-            waterLiters: 2.0,
-          ),
-          newPlan:
-          const PlanNutritionTargets(
-            calories: 1500,
-            protein: 130,
-            carbs: 160,
-            fats: 50,
-            waterLiters: 2.3,
-          ),
-          onSavePlan: () {
-            Navigator.pop(
-              sheetContext,
-            );
-          },
-        );
-      },
-    );
-  }
 
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}.'
@@ -687,24 +837,20 @@ class _PlanContent extends StatelessWidget {
           if (isAiNoteLoading)
             const PlanStatusNoteShimmer()
           else
-          PlanStatusNoteCard(
-            status: stats.planStatus,
-            aiNote: stats.aiNote,
-            estimatedGoalDate:
-            stats.estimatedGoalDate == null
-                ? '-'
-                : '${stats.estimatedGoalDate!.day} '
-                '${_formatShortMonth(
-              context,
-              stats.estimatedGoalDate!,
-            )} '
-                '${stats.estimatedGoalDate!.year}',
-            onReviewPlan: () {
-              _openPlanReviewSheet(
+            PlanStatusNoteCard(
+              status: stats.planStatus,
+              aiNote: stats.aiNote,
+              estimatedGoalDate:
+              stats.estimatedGoalDate == null
+                  ? '-'
+                  : '${stats.estimatedGoalDate!.day} '
+                  '${_formatShortMonth(
                 context,
-              );
-            },
-          ),
+                stats.estimatedGoalDate!,
+              )} '
+                  '${stats.estimatedGoalDate!.year}',
+              onReviewPlan: onReviewPlan,
+            ),
         ],
       ),
     );

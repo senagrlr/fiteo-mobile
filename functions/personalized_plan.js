@@ -146,6 +146,206 @@ function buildPersonalizedPlanBaseline(userPreferences) {
   };
 }
 
+function roundToNearestFiveWithinRange(
+  value,
+  min,
+  max
+) {
+  const clamped = clampNumber(
+    value,
+    min,
+    max
+  );
+
+  let rounded =
+      Math.round(clamped / 5) * 5;
+
+  if (rounded < min) {
+    rounded =
+        Math.ceil(min / 5) * 5;
+  }
+
+  if (rounded > max) {
+    rounded =
+        Math.floor(max / 5) * 5;
+  }
+
+  return rounded;
+}
+
+function buildReviewedPlan({
+  userPreferences,
+  currentCalories,
+  adjustmentDeltaKcal,
+}) {
+  const calculation =
+      buildPersonalizedPlanBaseline(
+        userPreferences
+      );
+
+  const current =
+      Number(currentCalories);
+
+  const requestedDelta =
+      Number(adjustmentDeltaKcal);
+
+  if (
+    !Number.isFinite(current) ||
+    current <= 0 ||
+    !Number.isFinite(requestedDelta) ||
+    requestedDelta === 0
+  ) {
+    throw new Error(
+      "Invalid review plan input"
+    );
+  }
+
+  const safeAdjustment =
+      clampNumber(
+        Math.abs(requestedDelta),
+        100,
+        200
+      );
+
+  const signedAdjustment =
+      requestedDelta < 0
+        ? -safeAdjustment
+        : safeAdjustment;
+
+  const rawCandidate =
+      current + signedAdjustment;
+
+  const calorieMin =
+      calculation.allowedRanges
+          .calories.min;
+
+  const calorieMax =
+      calculation.allowedRanges
+          .calories.max;
+
+  const calories =
+      roundToNearestFiveWithinRange(
+        rawCandidate,
+        calorieMin,
+        calorieMax
+      );
+
+  const proteinMin =
+      calculation.allowedRanges
+          .proteinGrams.min;
+
+  const proteinMax =
+      calculation.allowedRanges
+          .proteinGrams.max;
+
+  let protein =
+      (proteinMin + proteinMax) / 2;
+
+  const fatMin =
+      (calories * 0.20) / 9;
+
+  const fatMax =
+      (calories * 0.35) / 9;
+
+  let fats =
+      (fatMin + fatMax) / 2;
+
+  let carbs =
+      calculateCarbsFromRemainingCalories(
+        calories,
+        protein,
+        fats
+      );
+
+  let carbRatio =
+      (carbs * 4) / calories;
+
+  if (carbRatio < 0.35) {
+    fats = fatMin;
+
+    carbs =
+        calculateCarbsFromRemainingCalories(
+          calories,
+          protein,
+          fats
+        );
+
+    carbRatio =
+        (carbs * 4) / calories;
+
+    if (carbRatio < 0.35) {
+      protein = proteinMin;
+
+      carbs =
+          calculateCarbsFromRemainingCalories(
+            calories,
+            protein,
+            fats
+          );
+    }
+  } else if (carbRatio > 0.65) {
+    fats = fatMax;
+
+    carbs =
+        calculateCarbsFromRemainingCalories(
+          calories,
+          protein,
+          fats
+        );
+
+    carbRatio =
+        (carbs * 4) / calories;
+
+    if (carbRatio > 0.65) {
+      protein = proteinMax;
+
+      carbs =
+          calculateCarbsFromRemainingCalories(
+            calories,
+            protein,
+            fats
+          );
+    }
+  }
+
+  const water =
+      (
+        calculation.allowedRanges
+            .waterMl.min +
+        calculation.allowedRanges
+            .waterMl.max
+      ) / 2;
+
+  const expectedWeeklyWeightChangeKg =
+      (
+        (
+          calories -
+          calculation.baseline.tdee
+        ) *
+        7
+      ) /
+      7700;
+
+  return {
+    calories,
+    proteinGrams:
+        Math.round(protein),
+    carbsGrams:
+        Math.round(carbs),
+    fatsGrams:
+        Math.round(fats),
+    waterMl:
+        Math.round(water),
+    tdee:
+        calculation.baseline.tdee,
+    expectedWeeklyWeightChangeKg,
+    safetyRange: {
+      minCalories: calorieMin,
+      maxCalories: calorieMax,
+    },
+  };
+}
+
 function buildPlanFromValues({
   calories,
   proteinGrams,
@@ -427,4 +627,5 @@ function createGeneratePersonalizedPlanHandler(openaiApiKey) {
 
 module.exports = {
   createGeneratePersonalizedPlanHandler,
+  buildReviewedPlan,
 };

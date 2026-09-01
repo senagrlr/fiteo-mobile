@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+
+import 'package:fiteo_myapp/features/membership/data/membership_repository.dart';
 
 import 'package:fiteo_myapp/app/router/app_routes.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
@@ -26,22 +29,16 @@ class _ProfileScreenState
   final _profileRepository =
   ProfileRepository();
 
+  final _membershipRepository =
+  MembershipRepository();
+
+  StreamSubscription<bool>? _membershipSubscription;
+
   String username = '';
   String email = '';
   String? mascot;
 
   bool isLoading = true;
-
-  // ============================================================
-  // MEMBERSHIP
-  // ============================================================
-
-  // UI testi:
-  //
-  // false -> FREE
-  // true  -> PREMIUM
-  //
-  // Daha sonra gerçek premium bilgisi buraya bağlanacak.
   bool isPremium = false;
 
   @override
@@ -49,6 +46,26 @@ class _ProfileScreenState
     super.initState();
 
     loadUser();
+    _watchMembership();
+  }
+
+  void _watchMembership() {
+    _membershipSubscription =
+        _membershipRepository
+            .watchIsPremium()
+            .listen((value) {
+          if (!mounted) return;
+
+          setState(() {
+            isPremium = value;
+          });
+        });
+  }
+
+  @override
+  void dispose() {
+    _membershipSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> loadUser() async {

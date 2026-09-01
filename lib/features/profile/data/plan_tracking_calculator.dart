@@ -255,7 +255,31 @@ class PlanTrackingCalculator {
 
     final clamped = conservativeAdjustment.clamp(100, 200).toDouble();
 
-    return (clamped / 25).round() * 25.0;
+    return (clamped / 5).round() * 5.0;
+  }
+
+  double calculateReviewCalorieDeltaKcal({
+    required double expectedWeeklyWeightChangeKg,
+    required double actualWeeklyWeightChangeKg,
+  }) {
+    final adjustment = calculateReviewAdjustmentKcal(
+      expectedWeeklyWeightChangeKg:
+      expectedWeeklyWeightChangeKg,
+      actualWeeklyWeightChangeKg:
+      actualWeeklyWeightChangeKg,
+    );
+
+    final gap =
+        expectedWeeklyWeightChangeKg -
+            actualWeeklyWeightChangeKg;
+
+    if (gap.abs() < 0.01) {
+      return 0;
+    }
+
+    return gap.isNegative
+        ? -adjustment
+        : adjustment;
   }
 
   double calculateLinearRegressionWeeklyRate(

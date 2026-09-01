@@ -6,7 +6,10 @@ const admin = require("firebase-admin");
 
 admin.initializeApp();
 
-const { createGeneratePersonalizedPlanHandler } = require("./personalized_plan");
+const {
+  createGeneratePersonalizedPlanHandler,
+  buildReviewedPlan,
+} = require("./personalized_plan");
 
 const usdaApiKey = defineSecret("USDA_API_KEY");
 const openaiApiKey = defineSecret("OPENAI_API_KEY");
@@ -2521,6 +2524,87 @@ exports.generateRecipeFromIngredients = onRequest(
     } catch (error) {
       return res.status(500).json({
         error: "Recipe generation failed",
+        message: error.message,
+      });
+    }
+  }
+);
+
+exports.calculateReviewedPlan = onRequest(
+  {
+    cors: true,
+  },
+  async (req, res) => {
+    try {
+      const decodedToken =
+          await requireAuthenticatedUser(
+            req,
+            res
+          );
+
+      if (!decodedToken) {
+        return;
+      }
+
+      if (req.method !== "POST") {
+        return res.status(405).json({
+          error: "Method not allowed",
+        });
+      }
+
+      const uid = decodedToken.uid;
+
+      const membership =
+          await getUserMembership(uid);
+
+      if (!membership.isPremium) {
+        return res.status(403).json({
+          error:
+              "Premium membership required",
+        });
+      }
+
+      const userPreferences =
+          req.body?.userPreferences;
+
+      const currentCalories =
+          Number(
+            req.body?.currentCalories
+          );
+
+      const adjustmentDeltaKcal =
+          Number(
+            req.body?.adjustmentDeltaKcal
+          );
+
+      if (
+        !userPreferences ||
+        typeof userPreferences !== "object"
+      ) {
+        return res.status(400).json({
+          error:
+              "Missing user preferences",
+        });
+      }
+
+      const plan = buildReviewedPlan({
+        userPreferences,
+        currentCalories,
+        adjustmentDeltaKcal,
+      });
+
+      return res.status(200).json({
+        plan,
+      });
+    } catch (error) {
+      console.error(
+        "calculateReviewedPlan error:",
+        error
+      );
+
+      return res.status(500).json({
+        error:
+            "Reviewed plan calculation failed",
         message: error.message,
       });
     }

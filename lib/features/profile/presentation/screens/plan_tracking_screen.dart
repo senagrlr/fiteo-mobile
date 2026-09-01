@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -17,10 +19,12 @@ import 'package:fiteo_myapp/features/profile/presentation/models/plan_status.dar
 import 'package:fiteo_myapp/features/profile/presentation/models/plan_tracking_stats.dart';
 
 import 'package:fiteo_myapp/features/profile/presentation/widgets/fiteo_overview_note_card.dart';
+import 'package:fiteo_myapp/features/profile/presentation/widgets/fiteo_overview_note_shimmer.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/fiteo_score_header.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_review_sheet.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_status_header.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_status_note_card.dart';
+import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_status_note_shimmer.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_weight_progress_chart.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_weight_summary_card.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/tracking_summary_card.dart';
@@ -64,6 +68,7 @@ class _PlanTrackingScreenState
 
   bool _isOverviewLoading = true;
   bool _overviewHasError = false;
+  bool _isOverviewAiNoteLoading = false;
 
   final PlanTrackingRepository _planTrackingRepository =
   PlanTrackingRepository();
@@ -72,6 +77,7 @@ class _PlanTrackingScreenState
 
   bool _isPlanLoading = true;
   bool _planHasError = false;
+  bool _isPlanAiNoteLoading = false;
 
   final PremiumInsightService _premiumInsightService =
   PremiumInsightService();
@@ -139,8 +145,6 @@ class _PlanTrackingScreenState
       final stats =
       await _overviewRepository.loadOverview();
 
-      await _refreshOverviewAiNote(stats);
-
       final achievements =
       _achievementCalculator.topAchievements(
         stats,
@@ -154,6 +158,10 @@ class _PlanTrackingScreenState
         _isOverviewLoading = false;
         _overviewHasError = false;
       });
+
+      unawaited(
+        _refreshOverviewAiNote(stats),
+      );
     } catch (_) {
       if (!mounted) return;
 
@@ -178,25 +186,41 @@ class _PlanTrackingScreenState
       return;
     }
 
-    final note =
-    await _premiumInsightService
-        .generateOverviewNote(stats);
+    if (!mounted) return;
 
-    if (note == null) {
-      return;
-    }
+    setState(() {
+      _isOverviewAiNoteLoading = true;
+    });
 
     try {
+      final note =
+      await _premiumInsightService
+          .generateOverviewNote(stats);
+
+      if (note == null) {
+        return;
+      }
+
       await _overviewRepository.saveAiNote(
         note: note,
         date: todayKey,
       );
 
-      stats.aiNote = note;
-      stats.aiNoteDate = todayKey;
+      if (!mounted) return;
+
+      setState(() {
+        stats.aiNote = note;
+        stats.aiNoteDate = todayKey;
+      });
     } catch (_) {
-      // Existing Overview stays usable
-      // even if AI cache write fails.
+      // Static Overview note is shown
+      // if AI generation or cache write fails.
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isOverviewAiNoteLoading = false;
+        });
+      }
     }
   }
 
@@ -215,7 +239,9 @@ class _PlanTrackingScreenState
       });
 
       if (selectedTab == 1) {
-        await _refreshPlanAiNoteIfNeeded();
+        unawaited(
+          _refreshPlanAiNoteIfNeeded(),
+        );
       }
     } catch (_) {
       if (!mounted) return;
@@ -252,6 +278,12 @@ class _PlanTrackingScreenState
 
     _isRefreshingPlanAiNote = true;
 
+    if (mounted) {
+      setState(() {
+        _isPlanAiNoteLoading = true;
+      });
+    }
+
     try {
       final note =
       await _premiumInsightService
@@ -286,9 +318,16 @@ class _PlanTrackingScreenState
             );
       });
     } catch (_) {
-      // Static plan note remains visible.
+      // Static plan note is shown
+      // if AI generation or cache write fails.
     } finally {
       _isRefreshingPlanAiNote = false;
+
+      if (mounted) {
+        setState(() {
+          _isPlanAiNoteLoading = false;
+        });
+      }
     }
   }
 
@@ -399,6 +438,7 @@ class _PlanTrackingScreenState
     return _OverviewContent(
       stats: _overviewStats!,
       achievements: _achievements,
+      isAiNoteLoading: _isOverviewAiNoteLoading,
     );
   }
 
@@ -428,6 +468,7 @@ class _PlanTrackingScreenState
 
     return _PlanContent(
       stats: _planTrackingStats!,
+      isAiNoteLoading: _isPlanAiNoteLoading,
     );
   }
 
@@ -458,10 +499,12 @@ class _PlanTrackingScreenState
 class _OverviewContent extends StatelessWidget {
   final OverviewStats stats;
   final List<OverviewAchievement> achievements;
+  final bool isAiNoteLoading;
 
   const _OverviewContent({
     required this.stats,
     required this.achievements,
+    required this.isAiNoteLoading,
   });
 
   @override
@@ -495,9 +538,12 @@ class _OverviewContent extends StatelessWidget {
 
           const SizedBox(height: 30),
 
-          FiteoOverviewNoteCard(
-            note: stats.aiNote,
-          ),
+          if (isAiNoteLoading)
+            const FiteoOverviewNoteShimmer()
+          else
+            FiteoOverviewNoteCard(
+              note: stats.aiNote,
+            ),
         ],
       ),
     );
@@ -506,9 +552,11 @@ class _OverviewContent extends StatelessWidget {
 
 class _PlanContent extends StatelessWidget {
   final PlanTrackingStats stats;
+  final bool isAiNoteLoading;
 
   const _PlanContent({
     required this.stats,
+    required this.isAiNoteLoading,
   });
 
   void _openPlanReviewSheet(
@@ -633,6 +681,9 @@ class _PlanContent extends StatelessWidget {
 
           const SizedBox(height: 30),
 
+          if (isAiNoteLoading)
+            const PlanStatusNoteShimmer()
+          else
           PlanStatusNoteCard(
             status: stats.planStatus,
             aiNote: stats.aiNote,

@@ -156,4 +156,96 @@ void main() {
       expect(result, PlanStatus.improveConsistencyFirst);
     });
   });
+
+  group('plan review adjustment', () {
+    test('uses 50 percent conservative adjustment and rounds to nearest 5', () {
+      final result = calculator.calculateReviewAdjustmentKcal(
+        expectedWeeklyWeightChangeKg: -0.5,
+        actualWeeklyWeightChangeKg: -0.2,
+      );
+
+      expect(result, 165);
+    });
+
+    test('clamps small review adjustment to minimum 100 kcal', () {
+      final result = calculator.calculateReviewAdjustmentKcal(
+        expectedWeeklyWeightChangeKg: -0.5,
+        actualWeeklyWeightChangeKg: -0.45,
+      );
+
+      expect(result, 100);
+    });
+
+    test('clamps large review adjustment to maximum 200 kcal', () {
+      final result = calculator.calculateReviewAdjustmentKcal(
+        expectedWeeklyWeightChangeKg: -0.5,
+        actualWeeklyWeightChangeKg: 0.2,
+      );
+
+      expect(result, 200);
+    });
+
+    test('reduces calories when weight loss is slower than expected', () {
+      final result = calculator.calculateReviewCalorieDeltaKcal(
+        expectedWeeklyWeightChangeKg: -0.5,
+        actualWeeklyWeightChangeKg: -0.2,
+      );
+
+      expect(result, -165);
+    });
+
+    test('increases calories when weight loss is faster than expected', () {
+      final result = calculator.calculateReviewCalorieDeltaKcal(
+        expectedWeeklyWeightChangeKg: -0.5,
+        actualWeeklyWeightChangeKg: -0.8,
+      );
+
+      expect(result, 165);
+    });
+
+    test('increases calories when weight gain is slower than expected', () {
+      final result = calculator.calculateReviewCalorieDeltaKcal(
+        expectedWeeklyWeightChangeKg: 0.3,
+        actualWeeklyWeightChangeKg: 0.1,
+      );
+
+      expect(result, 110);
+    });
+
+    test('reduces calories when weight gain is faster than expected', () {
+      final result = calculator.calculateReviewCalorieDeltaKcal(
+        expectedWeeklyWeightChangeKg: 0.3,
+        actualWeeklyWeightChangeKg: 0.6,
+      );
+
+      expect(result, -165);
+    });
+
+    test('reduces calories when maintain goal is gaining weight', () {
+      final result = calculator.calculateReviewCalorieDeltaKcal(
+        expectedWeeklyWeightChangeKg: 0,
+        actualWeeklyWeightChangeKg: 0.3,
+      );
+
+      expect(result, -165);
+    });
+
+    test('increases calories when maintain goal is losing weight', () {
+      final result = calculator.calculateReviewCalorieDeltaKcal(
+        expectedWeeklyWeightChangeKg: 0,
+        actualWeeklyWeightChangeKg: -0.3,
+      );
+
+      expect(result, 165);
+    });
+
+    test('returns zero delta when actual and expected rates are effectively equal', () {
+      final result = calculator.calculateReviewCalorieDeltaKcal(
+        expectedWeeklyWeightChangeKg: -0.5,
+        actualWeeklyWeightChangeKg: -0.505,
+      );
+
+      expect(result, 0);
+    });
+  });
 }

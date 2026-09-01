@@ -1,6 +1,7 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { onDocumentWritten } = require("firebase-functions/v2/firestore");
 const { defineSecret } = require("firebase-functions/params");
+const { FieldValue } = require("firebase-admin/firestore");
 const OpenAI = require("openai");
 const admin = require("firebase-admin");
 
@@ -178,8 +179,7 @@ async function reserveAiUsage({
           [countField]:
               currentCount + 1,
           updatedAt:
-              admin.firestore.FieldValue
-                .serverTimestamp(),
+              FieldValue.serverTimestamp()
         },
         {
           merge: true,
@@ -496,8 +496,7 @@ function createInitialPlanTrackingCache({
     aiNoteWeightSignature: null,
 
     updatedAt:
-      admin.firestore.FieldValue
-        .serverTimestamp(),
+      FieldValue.serverTimestamp()
   };
 }
 
@@ -797,8 +796,7 @@ async function requestNewFatSecretAccessToken() {
            .set({
              foodId,
              updatedAt:
-                 admin.firestore.FieldValue
-                   .serverTimestamp(),
+                 FieldValue.serverTimestamp()
            });
 
          return res.status(200).json({
@@ -903,8 +901,7 @@ async function requestNewFatSecretAccessToken() {
            .set({
              foodId,
              updatedAt:
-                 admin.firestore.FieldValue
-                   .serverTimestamp(),
+                 FieldValue.serverTimestamp()
            });
 
          return res.status(200).json({
@@ -1886,8 +1883,7 @@ async function reservePremiumInsightUsage(uid) {
           premiumInsightCount:
               currentCount + 1,
           updatedAt:
-              admin.firestore.FieldValue
-                .serverTimestamp(),
+              FieldValue.serverTimestamp()
         },
         {
           merge: true,

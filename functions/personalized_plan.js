@@ -308,6 +308,19 @@ function buildReviewedPlan({
     }
   }
 
+  const finalCarbRatio =
+      (carbs * 4) / calories;
+
+  if (
+    !Number.isFinite(finalCarbRatio) ||
+    finalCarbRatio < 0.35 ||
+    finalCarbRatio > 0.65
+  ) {
+    throw new Error(
+      "Unable to build reviewed plan within carb ratio limits"
+    );
+  }
+
   const water =
       (
         calculation.allowedRanges

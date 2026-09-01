@@ -38,86 +38,78 @@ class PlanTrackingRepository {
 
     final today = _dateOnly(DateTime.now());
 
-    await _monthlyTargetAccumulatorRepository
-        .closeCurrentPlanSegment(
-      newPlanActivatedAt: today,
-    );
-
     final userRef = _firestore.collection('users').doc(user.uid);
-    final trackingRef = userRef.collection('planTracking').doc('current');
 
-    final userDoc = await userRef.get();
-    final userData = userDoc.data() ?? <String, dynamic>{};
+    final trackingRef =
+    userRef.collection('planTracking').doc('current');
 
-    final effectiveUserData =
-    Map<String, dynamic>.from(
-      userData,
-    );
+    await _firestore.runTransaction((transaction) async {
+      final userDoc = await transaction.get(userRef);
 
-    if (nutritionPlan != null) {
-      effectiveUserData['nutritionPlan'] =
-          nutritionPlan;
-    }
-
-    final userPreferences =
-        userData['userPreferences'] as Map<String, dynamic>? ?? {};
-
-    final currentWeight =
-    (userPreferences['weight'] as num?)?.toDouble();
-
-    final targetWeight =
-    (userPreferences['targetWeight'] as num?)?.toDouble();
-
-    if (currentWeight == null || currentWeight <= 0) {
-      throw Exception('Missing current weight');
-    }
-
-    if (targetWeight == null || targetWeight <= 0) {
-      throw Exception('Missing target weight');
-    }
-
-    final cache = _createInitialCache(
-      userData: effectiveUserData,
-      currentWeight: currentWeight,
-      targetWeight: targetWeight,
-      expectedWeeklyWeightChangeKg: expectedWeeklyWeightChangeKg,
-      today: today,
-    );
-
-    final batch =
-    _firestore.batch();
-
-    if (nutritionPlan != null) {
-      batch.set(
-        userRef,
-        {
-          'nutritionPlan': {
-            ...nutritionPlan,
-            'createdAt':
-            FieldValue.serverTimestamp(),
-            'updatedAt':
-            FieldValue.serverTimestamp(),
-          },
-          'updatedAt':
-          FieldValue.serverTimestamp(),
-        },
-        SetOptions(
-          merge: true,
-        ),
+      await _monthlyTargetAccumulatorRepository
+          .addCloseCurrentPlanSegmentToTransaction(
+        transaction: transaction,
+        newPlanActivatedAt: today,
       );
-    }
 
-    batch.set(
-      trackingRef,
-      {
-        ...cache,
-        'schemaVersion': schemaVersion,
-        'updatedAt':
-        FieldValue.serverTimestamp(),
-      },
-    );
+      final userData = userDoc.data() ?? <String, dynamic>{};
 
-    await batch.commit();
+      final effectiveUserData =
+      Map<String, dynamic>.from(userData);
+
+      if (nutritionPlan != null) {
+        effectiveUserData['nutritionPlan'] = nutritionPlan;
+      }
+
+      final userPreferences =
+          userData['userPreferences'] as Map<String, dynamic>? ?? {};
+
+      final currentWeight =
+      (userPreferences['weight'] as num?)?.toDouble();
+
+      final targetWeight =
+      (userPreferences['targetWeight'] as num?)?.toDouble();
+
+      if (currentWeight == null || currentWeight <= 0) {
+        throw Exception('Missing current weight');
+      }
+
+      if (targetWeight == null || targetWeight <= 0) {
+        throw Exception('Missing target weight');
+      }
+
+      final cache = _createInitialCache(
+        userData: effectiveUserData,
+        currentWeight: currentWeight,
+        targetWeight: targetWeight,
+        expectedWeeklyWeightChangeKg: expectedWeeklyWeightChangeKg,
+        today: today,
+      );
+
+      if (nutritionPlan != null) {
+        transaction.set(
+          userRef,
+          {
+            'nutritionPlan': {
+              ...nutritionPlan,
+              'createdAt': FieldValue.serverTimestamp(),
+              'updatedAt': FieldValue.serverTimestamp(),
+            },
+            'updatedAt': FieldValue.serverTimestamp(),
+          },
+          SetOptions(merge: true),
+        );
+      }
+
+      transaction.set(
+        trackingRef,
+        {
+          ...cache,
+          'schemaVersion': schemaVersion,
+          'updatedAt': FieldValue.serverTimestamp(),
+        },
+      );
+    });
   }
 
   Future<PlanTrackingStats> loadPlanTracking() async {

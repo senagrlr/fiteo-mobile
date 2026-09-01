@@ -14,6 +14,18 @@ class MonthlyTargetAccumulatorRepository {
   Future<void> closeCurrentPlanSegment({
     required DateTime newPlanActivatedAt,
   }) async {
+    await _firestore.runTransaction((transaction) async {
+      await addCloseCurrentPlanSegmentToTransaction(
+        transaction: transaction,
+        newPlanActivatedAt: newPlanActivatedAt,
+      );
+    });
+  }
+
+  Future<void> addCloseCurrentPlanSegmentToTransaction({
+    required Transaction transaction,
+    required DateTime newPlanActivatedAt,
+  }) async {
     final user = _auth.currentUser;
 
     if (user == null) {
@@ -24,38 +36,28 @@ class MonthlyTargetAccumulatorRepository {
 
     final userRef = _firestore.collection('users').doc(user.uid);
 
-    final trackingRef = userRef
-        .collection('planTracking')
-        .doc('current');
+    final trackingRef =
+    userRef.collection('planTracking').doc('current');
 
-    final accumulatorRef = userRef
-        .collection('reportState')
-        .doc('monthlyTarget');
+    final accumulatorRef =
+    userRef.collection('reportState').doc('monthlyTarget');
 
-    final results = await Future.wait([
-      trackingRef.get(),
-      accumulatorRef.get(),
-    ]);
-
-    final trackingDoc = results[0];
-    final accumulatorDoc = results[1];
+    final trackingDoc = await transaction.get(trackingRef);
+    final accumulatorDoc = await transaction.get(accumulatorRef);
 
     if (!trackingDoc.exists) {
       return;
     }
 
-    final trackingData =
-        trackingDoc.data() ?? <String, dynamic>{};
+    final trackingData = trackingDoc.data() ?? <String, dynamic>{};
 
     final oldExpectedRate =
-    (trackingData['expectedWeeklyWeightChangeKg'] as num?)
-        ?.toDouble();
+    (trackingData['expectedWeeklyWeightChangeKg'] as num?)?.toDouble();
 
     final oldPlanActivatedAt =
     _parseDate(trackingData['planActivatedAt'] as String?);
 
-    if (oldExpectedRate == null ||
-        oldPlanActivatedAt == null) {
+    if (oldExpectedRate == null || oldPlanActivatedAt == null) {
       return;
     }
 
@@ -70,27 +72,19 @@ class MonthlyTargetAccumulatorRepository {
     final accumulatorData =
         accumulatorDoc.data() ?? <String, dynamic>{};
 
-    final storedMonthKey =
-    accumulatorData['monthKey'] as String?;
-
-    final sameMonth =
-        storedMonthKey == expectedMonthKey;
+    final storedMonthKey = accumulatorData['monthKey'] as String?;
+    final sameMonth = storedMonthKey == expectedMonthKey;
 
     final previousAccrued = sameMonth
-        ? (accumulatorData['accruedExpectedChangeKg'] as num?)
-        ?.toDouble() ??
-        0
+        ? (accumulatorData['accruedExpectedChangeKg'] as num?)?.toDouble() ?? 0
         : 0.0;
 
     final previousAccruedThrough = sameMonth
-        ? _parseDate(
-      accumulatorData['accruedThrough'] as String?,
-    )
+        ? _parseDate(accumulatorData['accruedThrough'] as String?)
         : null;
 
-    final oldSegmentEnd = activationDate.subtract(
-      const Duration(days: 1),
-    );
+    final oldSegmentEnd =
+    activationDate.subtract(const Duration(days: 1));
 
     final oldSegmentStart = _calculator.segmentStart(
       monthStart: monthStart,
@@ -98,25 +92,25 @@ class MonthlyTargetAccumulatorRepository {
       accruedThrough: previousAccruedThrough,
     );
 
-    final contribution =
-    _calculator.calculateSegmentContribution(
+    final contribution = _calculator.calculateSegmentContribution(
       expectedWeeklyWeightChangeKg: oldExpectedRate,
       segmentStart: oldSegmentStart,
       segmentEnd: oldSegmentEnd,
     );
 
-    if (contribution == 0 &&
-        oldSegmentEnd.isBefore(oldSegmentStart)) {
+    if (contribution == 0 && oldSegmentEnd.isBefore(oldSegmentStart)) {
       return;
     }
 
-    await accumulatorRef.set({
-      'monthKey': expectedMonthKey,
-      'accruedExpectedChangeKg':
-      previousAccrued + contribution,
-      'accruedThrough': _dateKey(oldSegmentEnd),
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+    transaction.set(
+      accumulatorRef,
+      {
+        'monthKey': expectedMonthKey,
+        'accruedExpectedChangeKg': previousAccrued + contribution,
+        'accruedThrough': _dateKey(oldSegmentEnd),
+        'updatedAt': FieldValue.serverTimestamp(),
+      },
+    );
   }
 
   Future<MonthlyTargetAccumulator?> loadForMonth({

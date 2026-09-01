@@ -15,10 +15,16 @@ import 'package:fiteo_myapp/features/home/presentation/widgets/daily_macros_card
 import 'package:fiteo_myapp/features/home/presentation/widgets/home_header.dart';
 import 'package:fiteo_myapp/features/home/presentation/widgets/water_progress_card.dart';
 import 'package:fiteo_myapp/features/home/presentation/widgets/week_calendar_row.dart';
-import 'package:fiteo_myapp/features/home/presentation/widgets/weekly_weight_update_sheet.dart';
 
-import 'package:fiteo_myapp/features/reports/models/monthly_report_data.dart';
+import 'package:fiteo_myapp/features/home/presentation/widgets/home_loading_skeleton.dart';
+import 'package:fiteo_myapp/features/home/presentation/coordinators/home_popup_coordinator.dart';
+
 import 'package:fiteo_myapp/features/reports/presentation/popups/monthly_report_popup.dart';
+import 'package:fiteo_myapp/features/reports/data/report_repository.dart';
+import 'package:fiteo_myapp/features/reports/presentation/mappers/monthly_report_mapper.dart';
+import 'package:fiteo_myapp/features/reports/presentation/mappers/weekly_report_mapper.dart';
+import 'package:fiteo_myapp/features/reports/presentation/popups/weekly_report_popup.dart';
+import 'package:fiteo_myapp/features/membership/data/premium_access_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -34,13 +40,23 @@ class _HomeScreenState extends State<HomeScreen> {
   final HomeRepository _homeRepository =
   HomeRepository();
 
-  final DailyFeedbackService
-  _dailyFeedbackService =
+  final DailyFeedbackService _dailyFeedbackService =
   DailyFeedbackService();
 
-  final DailySummaryRepository
-  _dailySummaryRepository =
+  final DailySummaryRepository _dailySummaryRepository =
   DailySummaryRepository();
+
+  final ReportRepository _reportRepository =
+  ReportRepository();
+
+  final WeeklyReportMapper _weeklyReportMapper =
+  const WeeklyReportMapper();
+
+  final HomePopupCoordinator _popupCoordinator =
+  HomePopupCoordinator();
+
+  final PremiumAccessService _premiumAccessService =
+  PremiumAccessService();
 
   DailyFeedbackResult? dailyFeedback;
 
@@ -66,29 +82,11 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isLoading = true;
 
   // ============================================================
-  // WEEKLY WEIGHT UPDATE - UI TEST
-  // ============================================================
-
-  bool _weeklyWeightUpdateShown = false;
-
-  // Daha sonra kullanıcının mevcut kilosu gelecek.
-  double currentWeightKg = 57.0;
-
-  // Daha sonra onboarding / profil tercihinden gelecek.
-  //
-  // KG testi:
-  // String weightUnit = 'KG';
-  //
-  // LB testi:
-  // String weightUnit = 'LB';
-
-  String weightUnit = 'KG';
-
-  // ============================================================
   // MONTHLY REPORT TEST
   // ============================================================
 
   bool _monthlyReportShown = false;
+  bool _weeklyReportShown = false;
 
   @override
   void initState() {
@@ -105,6 +103,9 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final data =
       await _homeRepository.getTodaySummary();
+
+      final currentPlan =
+      await _homeRepository.getCurrentNutritionPlan();
 
       final streak =
       await _homeRepository.getCurrentStreak();
@@ -126,7 +127,8 @@ class _HomeScreenState extends State<HomeScreen> {
           data['netCalories'] as int? ?? 0;
 
       final todayGoal =
-          data['calorieGoal'] as int? ??
+          (data['calorieGoal'] as num?)?.round() ??
+              (currentPlan['calorieGoal'] as num?)?.round() ??
               2000;
 
       final todayProtein =
@@ -143,6 +145,26 @@ class _HomeScreenState extends State<HomeScreen> {
           (data['carbs'] as num?)
               ?.toDouble() ??
               0.0;
+
+      final todayProteinGoal =
+          (data['proteinGoal'] as num?)?.toDouble() ??
+              (currentPlan['proteinGoal'] as num?)?.toDouble() ??
+              70.0;
+
+      final todayFatGoal =
+          (data['fatGoal'] as num?)?.toDouble() ??
+              (currentPlan['fatGoal'] as num?)?.toDouble() ??
+              50.0;
+
+      final todayCarbsGoal =
+          (data['carbsGoal'] as num?)?.toDouble() ??
+              (currentPlan['carbsGoal'] as num?)?.toDouble() ??
+              120.0;
+
+      final todayWaterGoal =
+          (data['waterGoalMl'] as num?)?.round() ??
+              (currentPlan['waterGoalMl'] as num?)?.round() ??
+              2500;
 
       final todayGoalReached =
           data['isGoalReached'] as bool? ??
@@ -190,51 +212,52 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!mounted) return;
 
       setState(() {
-        consumed =
-            todayConsumed;
+        consumed = todayConsumed;
 
-        burned =
-            todayBurned;
+        burned = todayBurned;
 
-        net =
-            todayNet;
+        net = todayNet;
 
-        calorieGoal =
-            todayGoal;
+        calorieGoal = todayGoal;
 
-        streakDays =
-            streak;
+        streakDays = streak;
 
-        proteinConsumed =
-            todayProtein;
+        proteinConsumed = todayProtein;
+        proteinGoal = todayProteinGoal;
 
-        fatConsumed =
-            todayFats;
+        fatConsumed = todayFats;
+        fatGoal = todayFatGoal;
 
-        carbsConsumed =
-            todayCarbs;
+        carbsConsumed = todayCarbs;
+        carbsGoal = todayCarbsGoal;
 
-        waterConsumedMl =
-            todayWater;
+        waterConsumedMl = todayWater;
+        waterGoalMl = todayWaterGoal;
 
-        dailyFeedback =
-            feedback;
+        dailyFeedback = feedback;
 
         isLoading = false;
       });
 
-      // ========================================================
-      // UI TEST
-      // ========================================================
+      final isPremium =
+      await _premiumAccessService.isPremium();
 
-      // Ana sayfa açılınca haftalık kilo popup'ını göster.
-      _showWeeklyWeightUpdateForTest();
+      if (!mounted) return;
 
-      // Monthly Report test popup'ı şimdilik otomatik
-      // açılmıyor. İki modal üst üste binmesin diye
-      // yorum satırında bırakıyoruz.
-      //
-      // _showMonthlyReportForTest();
+      if (isPremium) {
+        await _tryShowWeeklyReport();
+
+        if (!mounted) return;
+
+        await _tryShowMonthlyReport();
+
+        if (!mounted) return;
+      }
+
+      await _popupCoordinator.tryShowWeightCheckIn(
+        context,
+      );
+
     } catch (_) {
       if (!mounted) return;
 
@@ -244,394 +267,101 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // ============================================================
-  // WEEKLY WEIGHT UPDATE - UI TEST
-  // ============================================================
-
-  void _showWeeklyWeightUpdateForTest() {
-    if (_weeklyWeightUpdateShown ||
-        !mounted) {
-      return;
+  Future<bool> _tryShowMonthlyReport() async {
+    if (_monthlyReportShown || !mounted) {
+      return false;
     }
 
-    _weeklyWeightUpdateShown = true;
+    try {
+      final cache =
+      await _reportRepository.getMonthlyReport();
 
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) {
-      if (!mounted) return;
+      if (!mounted ||
+          _monthlyReportShown ||
+          cache == null ||
+          !cache.isAvailable ||
+          cache.dismissed) {
+        return false;
+      }
 
-      showModalBottomSheet<void>(
+      final data =
+      const MonthlyReportMapper()
+          .toPresentation(
         context: context,
-
-        // Sheet içerik kadar yükselir.
-        isScrollControlled: true,
-
-        backgroundColor:
-        Colors.transparent,
-
-        barrierColor:
-        Colors.black.withValues(
-          alpha: 0.25,
-        ),
-
-        // Dışarı dokununca kapanabilir.
-        isDismissible: true,
-
-        // Aşağı sürükleyerek kapanabilir.
-        enableDrag: true,
-
-        builder: (sheetContext) {
-          return WeeklyWeightUpdateSheet(
-            // ==================================================
-            // UI TEST - MEVCUT KİLO
-            // ==================================================
-
-            initialWeightKg:
-            currentWeightKg,
-
-            // ==================================================
-            // UI TEST - BİRİM
-            // ==================================================
-            //
-            // Kullanıcı onboarding'de KG seçtiyse KG,
-            // LB seçtiyse LB gelecek.
-            //
-            // Aynı anda ikisi gösterilmiyor.
-
-            unit:
-            weightUnit,
-
-            // ==================================================
-            // UI PLACEHOLDER
-            // ==================================================
-            //
-            // Daha sonra backend'deki haftalık kilo
-            // güncelleme işlemine bağlanacak.
-
-            onUpdate: (newWeightKg) {
-              if (!mounted) return;
-
-              setState(() {
-                currentWeightKg =
-                    newWeightKg;
-              });
-            },
-          );
-        },
+        cache: cache,
       );
-    });
+
+      _monthlyReportShown = true;
+
+      await showMonthlyReportPopup(
+        context,
+        data,
+      );
+
+      if (!mounted) {
+        return true;
+      }
+
+      try {
+        await _reportRepository
+            .dismissMonthlyReport();
+      } catch (_) {
+        // Report dismissal failure
+        // should not break Home.
+      }
+
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
-  // ============================================================
-  // MONTHLY REPORT - UI TEST
-  // ============================================================
-
-  void _showMonthlyReportForTest() {
-    if (_monthlyReportShown ||
-        !mounted) {
-      return;
+  Future<bool> _tryShowWeeklyReport() async {
+    if (_weeklyReportShown || !mounted) {
+      return false;
     }
 
-    _monthlyReportShown = true;
-
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) {
-      if (!mounted) return;
-
-      showMonthlyReportPopup(
-        context,
-        const MonthlyReportData(
-          dateRange:
-          '1 Ağu - 31 Ağu',
-
-          score: 87,
-
-          scoreChange: 6,
-
-          scoreLabel:
-          'Güçlü Ay',
-
-          // ====================================================
-          // WHAT CHANGED THIS MONTH
-          // ====================================================
-
-          overview:
-          MonthlyOverviewData(
-            changes: [
-              MonthlyChangeItem(
-                label:
-                'Hedef tutarlılığı',
-                value:
-                '%12',
-                direction:
-                MonthlyChangeDirection.up,
-              ),
-
-              MonthlyChangeItem(
-                label:
-                'Protein hedef günleri',
-                value:
-                '5 gün',
-                direction:
-                MonthlyChangeDirection.up,
-              ),
-
-              MonthlyChangeItem(
-                label:
-                'Su hedef günleri',
-                value:
-                '4 gün',
-                direction:
-                MonthlyChangeDirection.same,
-              ),
-
-              MonthlyChangeItem(
-                label:
-                'Takip',
-                value:
-                '%7',
-                direction:
-                MonthlyChangeDirection.down,
-              ),
-
-              MonthlyChangeItem(
-                label:
-                'Aktif günler',
-                value:
-                '3 gün',
-                direction:
-                MonthlyChangeDirection.up,
-              ),
-            ],
-          ),
-
-          // ====================================================
-          // CALORIES / ACTIVITY / PROTEIN
-          // ====================================================
-
-          metrics:
-          MonthlyMetricsData(
-            caloriesAverage:
-            '1925 kcal',
-
-            caloriesTargetDays:
-            '22/31 hedefte',
-
-            activeDays:
-            '18 gün',
-
-            activityTargetDays:
-            '18/31 hedefte',
-
-            proteinAverage:
-            '92 g',
-
-            proteinTargetDays:
-            '24/31 hedefte',
-          ),
-
-          // ====================================================
-          // STRONGEST AREA
-          // ====================================================
-
-          strongestArea:
-          MonthlyAreaData(
-            title:
-            'Protein',
-
-            primaryText:
-            '24 gün protein hedefin karşılandı',
-
-            secondaryText:
-            'Haziran ayına göre 5 gün daha fazla',
-
-            badgeText:
-            'Böyle\ndevam',
-          ),
-
-          // ====================================================
-          // WEAKEST AREA
-          // ====================================================
-
-          weakestArea:
-          MonthlyAreaData(
-            title:
-            'Hafta Sonları',
-
-            primaryText:
-            'Hedef tutarlılığın hafta sonlarında daha düşüktü',
-
-            secondaryText:
-            'Hafta içine göre %21 daha düşük',
-
-            badgeText:
-            'Odak\nalanı',
-          ),
-
-          // ====================================================
-          // ACHIEVEMENTS
-          // ====================================================
-
-          achievements: [
-            MonthlyAchievementData(
-              type:
-              MonthlyAchievementType.trophy,
-
-              title:
-              'Yeni Kişisel Rekor',
-
-              description:
-              '%91 takip tutarlılığı',
-            ),
-
-            MonthlyAchievementData(
-              type:
-              MonthlyAchievementType.streak,
-
-              title:
-              'En Uzun Seri',
-
-              description:
-              '11 gün aralıksız',
-            ),
-
-            MonthlyAchievementData(
-              type:
-              MonthlyAchievementType.strength,
-
-              title:
-              'En Fazla Protein Hedefi',
-
-              description:
-              '24 gün — yeni rekor',
-            ),
-          ],
-
-          // ====================================================
-          // CONSISTENCY
-          // ====================================================
-
-          consistency:
-          MonthlyConsistencyData(
-            trackingConsistency:
-            91,
-
-            trackedDays:
-            28,
-
-            totalDays:
-            31,
-
-            goalConsistency:
-            82,
-
-            goalConsistencyNote:
-            'Şimdiye kadarki en tutarlı ayın',
-
-            longestStreakDays:
-            11,
-
-            perfectDays:
-            9,
-          ),
-
-          // ====================================================
-          // WEIGHT & PLAN
-          // ====================================================
-
-          weightPlan:
-          MonthlyWeightPlanData(
-            startWeight:
-            82.4,
-
-            currentWeight:
-            80.6,
-
-            monthlyTargetChange:
-            -2.0,
-
-            statusLabel:
-            'Yolunda',
-
-            statusDescription:
-            'Bu ay planlanan kilo verme hızına oldukça yakın ilerledin.',
-
-            goalPredictionDate:
-            '18 Ekim',
-
-            predictionDaysDifference:
-            7,
-          ),
-
-          // ====================================================
-          // PATTERNS WE NOTICED
-          // ====================================================
-
-          patterns: [
-            MonthlyPatternData(
-              title:
-              'Hafta Sonları',
-
-              description:
-              'Hedef tutarlılığın hafta sonlarında %21 daha düşüktü.',
-            ),
-
-            MonthlyPatternData(
-              title:
-              'Akşamlar',
-
-              description:
-              'Günlük kalorilerinin ortalama %46’sını akşam yemeğinde tükettin.',
-            ),
-
-            MonthlyPatternData(
-              title:
-              'Protein',
-
-              description:
-              'Sabah protein tüketimin günün ilerleyen öğünlerine göre düzenli olarak daha düşüktü.',
-            ),
-          ],
-
-          // ====================================================
-          // YOUR MONTH IN REVIEW
-          // ====================================================
-
-          reviewParagraphs: [
-            'Bu ayın en belirgin özelliği tek tek iyi günlerden çok genel tutarlılığın oldu. Protein takibi en güçlü alışkanlıklarından biri haline gelirken hedeflerine bağlılığın da düzenli biçimde gelişti.',
-
-            'Genel ilerlemen planınla uyumlu. En büyük gelişim alanın hâlâ hafta sonları; özellikle akşam saatlerindeki kalori yoğunluğu burada dikkat çekiyor.',
-          ],
-
-          // ====================================================
-          // NEXT MONTH PLAN
-          // ====================================================
-
-          plan:
-          MonthlyPlanData(
-            title:
-            'Eylül Planın',
-
-            mainFocus:
-            'Hafta sonu tutarlılığını geliştir.',
-
-            keepDoing:
-            'Mevcut protein rutinini koru.',
-
-            improve:
-            'Her hafta en az 5 gün su hedefine ulaş.',
-
-            watch:
-            'Akşam öğünlerindeki kalori yoğunluğuna dikkat et.',
-          ),
-        ),
+    try {
+      final cache =
+      await _reportRepository.getWeeklyReport();
+
+      if (cache == null ||
+          !cache.isAvailable ||
+          cache.dismissed ||
+          !mounted) {
+        return false;
+      }
+
+      final data =
+      _weeklyReportMapper.toPresentation(
+        context: context,
+        cache: cache,
       );
-    });
-  }
 
-  // ============================================================
-  // WATER
-  // ============================================================
+      _weeklyReportShown = true;
+
+      await showWeeklyReportPopup(
+        context,
+        data,
+      );
+
+      if (!mounted) {
+        return true;
+      }
+
+      try {
+        await _reportRepository
+            .dismissWeeklyReport();
+      } catch (_) {
+        // Report dismissal failure
+        // should not break Home.
+      }
+
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 
   Future<void> _addWater(
       int amount,
@@ -665,15 +395,10 @@ class _HomeScreenState extends State<HomeScreen> {
       ) {
     if (isLoading) {
       return const SystemNavigationBar(
-        color:
-        AppColors.generalBackground,
+        color: AppColors.generalBackground,
         child: Scaffold(
-          backgroundColor:
-          AppColors.generalBackground,
-          body: Center(
-            child:
-            CircularProgressIndicator(),
-          ),
+          backgroundColor: AppColors.generalBackground,
+          body: HomeLoadingContent(),
         ),
       );
     }

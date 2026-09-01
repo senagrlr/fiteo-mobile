@@ -6,9 +6,9 @@ class BarcodeFoodData {
   final String unit;
 
   final int calories;
-  final int protein;
-  final int fats;
-  final int carbs;
+  final double protein;
+  final double fats;
+  final double carbs;
 
   final String nutritionSource;
   final bool isEstimated;

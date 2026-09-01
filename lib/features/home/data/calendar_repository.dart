@@ -71,9 +71,15 @@ class CalendarRepository {
         'consumed': (d['consumedCalories'] as num?) ?? 0,
         'burned': (d['burnedCalories'] as num?) ?? 0,
         'netCalories': (d['netCalories'] as num?) ?? 0,
+
         'protein': (d['protein'] as num?) ?? 0,
         'fats': (d['fats'] as num?) ?? 0,
         'carbs': (d['carbs'] as num?) ?? 0,
+
+        'proteinGoal': (d['proteinGoal'] as num?) ?? 0,
+        'fatGoal': (d['fatGoal'] as num?) ?? 0,
+        'carbsGoal': (d['carbsGoal'] as num?) ?? 0,
+
         'hydration': (d['hydrationMl'] as num?) ?? 0,
       };
     }

@@ -11,17 +11,13 @@ class MonthlyReportData {
   final MonthlyAreaData strongestArea;
   final MonthlyAreaData weakestArea;
 
-  final List<MonthlyAchievementData> achievements;
-
   final MonthlyConsistencyData consistency;
 
   final MonthlyWeightPlanData weightPlan;
 
-  final List<MonthlyPatternData> patterns;
-
   final List<String> reviewParagraphs;
 
-  final MonthlyPlanData plan;
+  final MonthlyNextMonthData nextMonth;
 
   const MonthlyReportData({
     required this.dateRange,
@@ -32,18 +28,12 @@ class MonthlyReportData {
     required this.metrics,
     required this.strongestArea,
     required this.weakestArea,
-    required this.achievements,
     required this.consistency,
     required this.weightPlan,
-    required this.patterns,
     required this.reviewParagraphs,
-    required this.plan,
+    required this.nextMonth,
   });
 }
-
-// ============================================================
-// WHAT CHANGED THIS MONTH
-// ============================================================
 
 enum MonthlyChangeDirection {
   up,
@@ -71,16 +61,12 @@ class MonthlyOverviewData {
   });
 }
 
-// ============================================================
-// METRICS
-// ============================================================
-
 class MonthlyMetricsData {
   final String caloriesAverage;
   final String caloriesTargetDays;
 
   final String activeDays;
-  final String activityTargetDays;
+  final String workoutTime;
 
   final String proteinAverage;
   final String proteinTargetDays;
@@ -89,15 +75,11 @@ class MonthlyMetricsData {
     required this.caloriesAverage,
     required this.caloriesTargetDays,
     required this.activeDays,
-    required this.activityTargetDays,
+    required this.workoutTime,
     required this.proteinAverage,
     required this.proteinTargetDays,
   });
 }
-
-// ============================================================
-// STRONGEST / WEAKEST AREA
-// ============================================================
 
 class MonthlyAreaData {
   final String title;
@@ -112,32 +94,6 @@ class MonthlyAreaData {
     required this.badgeText,
   });
 }
-
-// ============================================================
-// ACHIEVEMENTS
-// ============================================================
-
-enum MonthlyAchievementType {
-  trophy,
-  streak,
-  strength,
-}
-
-class MonthlyAchievementData {
-  final MonthlyAchievementType type;
-  final String title;
-  final String description;
-
-  const MonthlyAchievementData({
-    required this.type,
-    required this.title,
-    required this.description,
-  });
-}
-
-// ============================================================
-// CONSISTENCY
-// ============================================================
 
 class MonthlyConsistencyData {
   final int trackingConsistency;
@@ -161,70 +117,34 @@ class MonthlyConsistencyData {
   });
 }
 
-// ============================================================
-// WEIGHT & PLAN
-// ============================================================
-
 class MonthlyWeightPlanData {
-  final double startWeight;
-  final double currentWeight;
+  final double? startWeight;
+  final double? currentWeight;
 
-  final double monthlyTargetChange;
+  final double? monthlyTargetChange;
+  final int? progressAchievedPercent;
 
   final String statusLabel;
-  final String statusDescription;
-
-  final String goalPredictionDate;
-
-  /// Pozitif ise geçen aya göre daha erken.
-  /// Negatif ise geçen aya göre daha geç.
-  final int predictionDaysDifference;
+  final String? statusDescription;
 
   const MonthlyWeightPlanData({
     required this.startWeight,
     required this.currentWeight,
     required this.monthlyTargetChange,
+    required this.progressAchievedPercent,
     required this.statusLabel,
     required this.statusDescription,
-    required this.goalPredictionDate,
-    required this.predictionDaysDifference,
   });
 }
 
-// ============================================================
-// PATTERNS
-// ============================================================
-
-class MonthlyPatternData {
+class MonthlyNextMonthData {
   final String title;
-  final String description;
-
-  const MonthlyPatternData({
-    required this.title,
-    required this.description,
-  });
-}
-
-// ============================================================
-// MONTHLY PLAN
-// ============================================================
-
-class MonthlyPlanData {
-  final String title;
-
   final String mainFocus;
+  final List<String> tips;
 
-  final String keepDoing;
-
-  final String improve;
-
-  final String watch;
-
-  const MonthlyPlanData({
+  const MonthlyNextMonthData({
     required this.title,
     required this.mainFocus,
-    required this.keepDoing,
-    required this.improve,
-    required this.watch,
+    required this.tips,
   });
 }

@@ -133,7 +133,7 @@ class WeeklyDayDetailCard extends StatelessWidget {
 
 class _CheckItem extends StatelessWidget {
   final String label;
-  final bool checked;
+  final bool? checked;
 
   const _CheckItem({
     required this.label,
@@ -146,14 +146,16 @@ class _CheckItem extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
-          checked
+          checked == null
+              ? Icons.remove_rounded
+              : checked!
               ? Icons.check_rounded
               : Icons.close_rounded,
-          color: checked
+          color: checked == null
+              ? AppColors.planTrackingSecondaryLabel
+              : checked!
               ? AppColors.calendarCompleted
               : AppColors.red,
-
-          // Biraz büyüttüm.
           size: 17,
         ),
 

@@ -1,20 +1,39 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
-import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
+import 'package:fiteo_myapp/features/membership/data/premium_access_service.dart';
+import 'package:fiteo_myapp/features/membership/domain/premium_feature.dart';
 
+import 'package:fiteo_myapp/features/profile/data/overview_achievement_calculator.dart';
+import 'package:fiteo_myapp/features/profile/data/overview_repository.dart';
+import 'package:fiteo_myapp/features/profile/data/plan_tracking_repository.dart';
+
+import 'package:fiteo_myapp/features/profile/presentation/models/overview_achievement.dart';
+import 'package:fiteo_myapp/features/profile/presentation/models/overview_stats.dart';
 import 'package:fiteo_myapp/features/profile/presentation/models/plan_status.dart';
+import 'package:fiteo_myapp/features/profile/presentation/models/plan_tracking_stats.dart';
+
 import 'package:fiteo_myapp/features/profile/presentation/widgets/fiteo_overview_note_card.dart';
+import 'package:fiteo_myapp/features/profile/presentation/widgets/fiteo_overview_note_shimmer.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/fiteo_score_header.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_review_sheet.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_status_header.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_status_note_card.dart';
+import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_status_note_shimmer.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_weight_progress_chart.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_weight_summary_card.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/tracking_summary_card.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/unique_features_card.dart';
+import 'package:fiteo_myapp/features/profile/presentation/widgets/overview_loading_skeleton.dart';
+import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_loading_skeleton.dart';
+import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_tracking_locked_content.dart';
+import 'package:fiteo_myapp/features/profile/data/plan_review_service.dart';
+import 'package:fiteo_myapp/features/ai/data/premium_insight_service.dart';
 
 class PlanTrackingScreen extends StatefulWidget {
   const PlanTrackingScreen({
@@ -30,20 +49,621 @@ class _PlanTrackingScreenState
     extends State<PlanTrackingScreen> {
   int selectedTab = 0;
 
-  // Sadece UI testi.
-  // Review Recommended durumunu test etmek için.
-  final PlanStatus planStatus =
-      PlanStatus.reviewRecommended;
+  final PremiumAccessService _premiumAccessService =
+  PremiumAccessService();
 
-  // Diğer durumlar:
-  //
-  // PlanStatus.notEnoughData
-  // PlanStatus.improveConsistencyFirst
+  bool _isCheckingPremiumAccess = true;
+  bool _hasPremiumAccess = false;
+  bool _premiumAccessHasError = false;
+
+  final OverviewRepository _overviewRepository =
+  OverviewRepository();
+
+  final OverviewAchievementCalculator
+  _achievementCalculator =
+  const OverviewAchievementCalculator();
+
+  OverviewStats? _overviewStats;
+
+  List<OverviewAchievement> _achievements = const [];
+
+  bool _isOverviewLoading = true;
+  bool _overviewHasError = false;
+  bool _isOverviewAiLoading = false;
+
+  final PlanTrackingRepository _planTrackingRepository =
+  PlanTrackingRepository();
+
+  final PlanReviewService _planReviewService =
+  PlanReviewService();
+
+  PlanTrackingStats? _planTrackingStats;
+
+  PlanReviewResult? _cachedPlanReview;
+  String? _cachedPlanReviewSignature;
+
+  bool _isPlanLoading = true;
+  bool _planHasError = false;
+  bool _isPlanAiNoteLoading = false;
+  bool _isGeneratingPlanReview = false;
+  bool _isSavingReviewedPlan = false;
+
+  final PremiumInsightService _premiumInsightService =
+  PremiumInsightService();
+
+  bool _isRefreshingPlanAiNote = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _initializeScreen();
+  }
+
+  void _retryPremiumAccess() {
+    setState(() {
+      _isCheckingPremiumAccess = true;
+      _premiumAccessHasError = false;
+    });
+
+    _initializeScreen();
+  }
+
+  Future<void> _initializeScreen() async {
+    try {
+      final hasAccess =
+      await _premiumAccessService.canAccess(
+        PremiumFeature.planTracking,
+      );
+
+      if (!mounted) return;
+
+      if (!hasAccess) {
+        setState(() {
+          _hasPremiumAccess = false;
+          _isCheckingPremiumAccess = false;
+          _premiumAccessHasError = false;
+        });
+
+        return;
+      }
+
+      setState(() {
+        _hasPremiumAccess = true;
+        _isCheckingPremiumAccess = false;
+        _premiumAccessHasError = false;
+      });
+
+      await Future.wait([
+        _loadOverview(),
+        _loadPlanTracking(),
+      ]);
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _hasPremiumAccess = false;
+        _isCheckingPremiumAccess = false;
+        _premiumAccessHasError = true;
+      });
+    }
+  }
+
+  Future<void> _loadOverview() async {
+    try {
+      final stats =
+      await _overviewRepository.loadOverview();
+
+      final achievements =
+      _achievementCalculator.topAchievements(
+        stats,
+      );
+
+      final shouldRefreshAi =
+      _needsOverviewAiRefresh(stats);
+
+      if (!mounted) return;
+
+      setState(() {
+        _overviewStats = stats;
+        _achievements = achievements;
+        _isOverviewLoading = false;
+        _overviewHasError = false;
+        _isOverviewAiLoading = shouldRefreshAi;
+      });
+
+      if (shouldRefreshAi) {
+        await _refreshOverviewAiNote(stats);
+      }
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _isOverviewLoading = false;
+        _overviewHasError = true;
+        _isOverviewAiLoading = false;
+      });
+    }
+  }
+
+  bool _needsOverviewAiRefresh(
+      OverviewStats stats,
+      ) {
+    final todayKey = _dateKey(DateTime.now());
+
+    return stats.aiNote == null ||
+        stats.aiNote!.trim().isEmpty ||
+        stats.aiNoteDate != todayKey;
+  }
+
+  Future<void> _refreshOverviewAiNote(
+      OverviewStats stats,
+      ) async {
+    final todayKey = _dateKey(DateTime.now());
+
+    try {
+      final note =
+      await _premiumInsightService
+          .generateOverviewNote(stats);
+
+      if (note == null) {
+        return;
+      }
+
+      await _overviewRepository.saveAiNote(
+        note: note,
+        date: todayKey,
+      );
+
+      stats.aiNote = note;
+      stats.aiNoteDate = todayKey;
+
+      if (!mounted) return;
+
+      setState(() {
+        _overviewStats = stats;
+      });
+    } catch (_) {
+      // Existing Overview stays usable
+      // even if AI generation/cache write fails.
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isOverviewAiLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _loadPlanTracking() async {
+    try {
+      final stats =
+      await _planTrackingRepository
+          .loadPlanTracking();
+
+      if (!mounted) return;
+
+      setState(() {
+        _planTrackingStats = stats;
+        _isPlanLoading = false;
+        _planHasError = false;
+      });
+
+      if (selectedTab == 1) {
+        unawaited(
+          _refreshPlanAiNoteIfNeeded(),
+        );
+      }
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _isPlanLoading = false;
+        _planHasError = true;
+      });
+    }
+  }
 
   void _changeTab(int index) {
     setState(() {
       selectedTab = index;
     });
+
+    if (_hasPremiumAccess &&
+        index == 1) {
+      _refreshPlanAiNoteIfNeeded();
+    }
+  }
+
+  Future<void> _refreshPlanAiNoteIfNeeded() async {
+    if (_isRefreshingPlanAiNote) {
+      return;
+    }
+
+    final stats = _planTrackingStats;
+
+    if (stats == null ||
+        !stats.needsAiNoteRefresh) {
+      return;
+    }
+
+    _isRefreshingPlanAiNote = true;
+
+    if (mounted) {
+      setState(() {
+        _isPlanAiNoteLoading = true;
+      });
+    }
+
+    try {
+      final note =
+      await _premiumInsightService
+          .generatePlanNote(stats);
+
+      if (note == null) {
+        return;
+      }
+
+      final now = DateTime.now();
+      final dateKey = _dateKey(now);
+
+      await _planTrackingRepository.saveAiNote(
+        note: note,
+        date: dateKey,
+        status: stats.planStatus.name,
+        weightSignature:
+        stats.aiWeightSignature,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _planTrackingStats =
+            stats.copyWith(
+              aiNote: note,
+              aiNoteDate: now,
+              aiNoteStatus:
+              stats.planStatus.name,
+              aiNoteWeightSignature:
+              stats.aiWeightSignature,
+            );
+      });
+    } catch (_) {
+      // Static plan note is shown
+      // if AI generation or cache write fails.
+    } finally {
+      _isRefreshingPlanAiNote = false;
+
+      if (mounted) {
+        setState(() {
+          _isPlanAiNoteLoading = false;
+        });
+      }
+    }
+  }
+
+  String _planReviewSignature(
+      PlanTrackingStats stats,
+      ) {
+    return '${stats.planStatus.name}|'
+        '${stats.aiWeightSignature}';
+  }
+
+  Future<void> _openPlanReview() async {
+    if (_isGeneratingPlanReview) {
+      return;
+    }
+
+    final stats = _planTrackingStats;
+
+    if (stats == null ||
+        stats.planStatus !=
+            PlanStatus.reviewRecommended) {
+      return;
+    }
+
+    final signature =
+    _planReviewSignature(stats);
+
+    try {
+      setState(() {
+        _isGeneratingPlanReview = true;
+      });
+
+      if (_cachedPlanReview == null ||
+          _cachedPlanReviewSignature != signature) {
+        _cachedPlanReview =
+        await _planReviewService
+            .calculateReview(stats);
+
+        _cachedPlanReviewSignature =
+            signature;
+      }
+
+      if (!mounted ||
+          _cachedPlanReview == null) {
+        return;
+      }
+
+      final review =
+      _cachedPlanReview!;
+
+      await showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        backgroundColor:
+        Colors.transparent,
+        barrierColor:
+        Colors.black.withValues(
+          alpha: 0.26,
+        ),
+        isDismissible: true,
+        enableDrag: true,
+        builder: (sheetContext) {
+          return PlanReviewSheet(
+            previousPlan:
+            PlanNutritionTargets(
+              calories:
+              review.previousPlan
+                  .calories
+                  .toDouble(),
+              protein:
+              review.previousPlan
+                  .proteinGrams
+                  .toDouble(),
+              carbs:
+              review.previousPlan
+                  .carbsGrams
+                  .toDouble(),
+              fats:
+              review.previousPlan
+                  .fatsGrams
+                  .toDouble(),
+              waterLiters:
+              review.previousPlan
+                  .waterMl /
+                  1000,
+            ),
+            newPlan:
+            PlanNutritionTargets(
+              calories:
+              review.newPlan
+                  .calories
+                  .toDouble(),
+              protein:
+              review.newPlan
+                  .proteinGrams
+                  .toDouble(),
+              carbs:
+              review.newPlan
+                  .carbsGrams
+                  .toDouble(),
+              fats:
+              review.newPlan
+                  .fatsGrams
+                  .toDouble(),
+              waterLiters:
+              review.newPlan
+                  .waterMl /
+                  1000,
+            ),
+            onSavePlan: () {
+              _saveReviewedPlan(
+                sheetContext,
+                review.newPlan,
+              );
+            },
+          );
+        },
+      );
+    } catch (e) {
+      debugPrint(
+        'Plan review calculation failed: $e',
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isGeneratingPlanReview = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _saveReviewedPlan(
+      BuildContext sheetContext,
+      ReviewedPlanData plan,
+      ) async {
+    if (_isSavingReviewedPlan) {
+      return;
+    }
+
+    try {
+      _isSavingReviewedPlan = true;
+
+      await _planTrackingRepository
+          .initializeNewPlan(
+        expectedWeeklyWeightChangeKg:
+        plan.expectedWeeklyWeightChangeKg,
+        nutritionPlan: {
+          'dailyCalories':
+          plan.calories,
+          'proteinGrams':
+          plan.proteinGrams,
+          'carbsGrams':
+          plan.carbsGrams,
+          'fatsGrams':
+          plan.fatsGrams,
+          'waterMl':
+          plan.waterMl,
+        },
+      );
+
+      if (!mounted ||
+          !sheetContext.mounted) {
+        return;
+      }
+
+      Navigator.pop(sheetContext);
+
+      _cachedPlanReview = null;
+      _cachedPlanReviewSignature = null;
+
+      setState(() {
+        _isPlanLoading = true;
+        _planHasError = false;
+      });
+
+      await _loadPlanTracking();
+    } catch (e) {
+      debugPrint(
+        'Reviewed plan save failed: $e',
+      );
+    } finally {
+      _isSavingReviewedPlan = false;
+    }
+  }
+
+  String _dateKey(DateTime date) {
+    return '${date.year}-'
+        '${date.month.toString().padLeft(2, '0')}-'
+        '${date.day.toString().padLeft(2, '0')}';
+  }
+
+  Widget _buildScreenBody() {
+    if (_isCheckingPremiumAccess) {
+      return const Center(
+        child: CircularProgressIndicator(
+          color: AppColors.homeBrown,
+        ),
+      );
+    }
+
+    if (_premiumAccessHasError) {
+      return Center(
+        child: IconButton(
+          onPressed: _retryPremiumAccess,
+          icon: const Icon(
+            Icons.refresh_rounded,
+            color: AppColors.homeBrown,
+          ),
+        ),
+      );
+    }
+
+    if (!_hasPremiumAccess) {
+      return Column(
+        children: [
+          OverviewLoadingHeader(
+            selectedTab: selectedTab,
+            onTabChanged: _changeTab,
+          ),
+          Expanded(
+            child: PlanTrackingLockedContent(
+              selectedTab: selectedTab,
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      children: [
+        if (selectedTab == 0)
+          _isOverviewLoading
+              ? OverviewLoadingHeader(
+            selectedTab: selectedTab,
+            onTabChanged: _changeTab,
+          )
+              : FiteoScoreHeader(
+            score:
+            _overviewStats?.fiteoScore ?? 0,
+            selectedTab: selectedTab,
+            onTabChanged: _changeTab,
+          )
+        else
+          _isPlanLoading
+              ? PlanLoadingHeader(
+            selectedTab: selectedTab,
+            onTabChanged: _changeTab,
+          )
+              : PlanStatusHeader(
+            status:
+            _planTrackingStats?.planStatus ??
+                PlanStatus.notEnoughData,
+            selectedTab: selectedTab,
+            onTabChanged: _changeTab,
+          ),
+
+        Expanded(
+          child: selectedTab == 0
+              ? _buildOverviewContent()
+              : _buildPlanContent(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOverviewContent() {
+    if (_isOverviewLoading) {
+      return const OverviewLoadingContent();
+    }
+
+    if (_overviewHasError || _overviewStats == null) {
+      return Center(
+        child: IconButton(
+          onPressed: () {
+            setState(() {
+              _isOverviewLoading = true;
+              _overviewHasError = false;
+            });
+
+            _loadOverview();
+          },
+          icon: const Icon(
+            Icons.refresh_rounded,
+            color: AppColors.homeBrown,
+          ),
+        ),
+      );
+    }
+
+    return _OverviewContent(
+      stats: _overviewStats!,
+      achievements: _achievements,
+      isAiNoteLoading: _isOverviewAiLoading,
+    );
+  }
+
+  Widget _buildPlanContent() {
+    if (_isPlanLoading) {
+      return const PlanLoadingContent();
+    }
+
+    if (_planHasError || _planTrackingStats == null) {
+      return Center(
+        child: IconButton(
+          onPressed: () {
+            setState(() {
+              _isPlanLoading = true;
+              _planHasError = false;
+            });
+
+            _loadPlanTracking();
+          },
+          icon: const Icon(
+            Icons.refresh_rounded,
+            color: AppColors.homeBrown,
+          ),
+        ),
+      );
+    }
+
+    return _PlanContent(
+      stats: _planTrackingStats!,
+      isAiNoteLoading: _isPlanAiNoteLoading,
+      onReviewPlan: _openPlanReview,
+    );
   }
 
   @override
@@ -63,39 +683,23 @@ class _PlanTrackingScreenState
           backgroundColor:
           AppColors.surfacePrimary,
           extendBodyBehindAppBar: true,
-          body: Column(
-            children: [
-              if (selectedTab == 0)
-                FiteoScoreHeader(
-                  score: 80,
-                  selectedTab: selectedTab,
-                  onTabChanged: _changeTab,
-                )
-              else
-                PlanStatusHeader(
-                  status: planStatus,
-                  selectedTab: selectedTab,
-                  onTabChanged: _changeTab,
-                ),
-
-              Expanded(
-                child: selectedTab == 0
-                    ? const _OverviewContent()
-                    : _PlanContent(
-                  status: planStatus,
-                ),
-              ),
-            ],
-          ),
+          body: _buildScreenBody(),
         ),
       ),
     );
   }
 }
 
-class _OverviewContent
-    extends StatelessWidget {
-  const _OverviewContent();
+class _OverviewContent extends StatelessWidget {
+  final OverviewStats stats;
+  final List<OverviewAchievement> achievements;
+  final bool isAiNoteLoading;
+
+  const _OverviewContent({
+    required this.stats,
+    required this.achievements,
+    required this.isAiNoteLoading,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -113,93 +717,59 @@ class _OverviewContent
       ),
       child: Column(
         children: [
-          const TrackingSummaryCard(
-            streakDays: 12,
-            goalAchievement: 84,
+          TrackingSummaryCard(
+            trackingConsistency:
+            stats.trackingConsistency.round(),
+            goalAchievement:
+            stats.goalAchievement.round(),
           ),
 
           const SizedBox(height: 24),
 
           UniqueFeaturesCard(
-            longestStreak: 12,
-            bestProtein: 134,
-            mostActiveDay:
-            context.l10n.sunday,
+            achievements: achievements,
           ),
 
           const SizedBox(height: 30),
 
-          const FiteoOverviewNoteCard(),
+          if (isAiNoteLoading)
+            const FiteoOverviewNoteShimmer()
+          else
+            FiteoOverviewNoteCard(
+              note: stats.aiNote,
+            ),
         ],
       ),
     );
   }
 }
 
-class _PlanContent
-    extends StatelessWidget {
-  final PlanStatus status;
+class _PlanContent extends StatelessWidget {
+  final PlanTrackingStats stats;
+  final bool isAiNoteLoading;
+  final VoidCallback onReviewPlan;
 
   const _PlanContent({
-    required this.status,
+    required this.stats,
+    required this.isAiNoteLoading,
+    required this.onReviewPlan,
   });
 
-  void _openPlanReviewSheet(
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}.'
+        '${date.month.toString().padLeft(2, '0')}.'
+        '${date.year}';
+  }
+
+  String _formatShortMonth(
       BuildContext context,
+      DateTime date,
       ) {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor:
-      Colors.transparent,
-      barrierColor:
-      Colors.black.withValues(
-        alpha: 0.26,
-      ),
-      isDismissible: true,
-      enableDrag: true,
-      builder: (sheetContext) {
-        return PlanReviewSheet(
-          // ======================================================
-          // UI TEST - ESKİ PLAN
-          // ======================================================
+    final locale =
+    Localizations.localeOf(context)
+        .toLanguageTag();
 
-          previousPlan:
-          const PlanNutritionTargets(
-            calories: 1630,
-            protein: 120,
-            carbs: 180,
-            fats: 55,
-            waterLiters: 2.0,
-          ),
-
-          // ======================================================
-          // UI TEST - YENİ PLAN
-          // ======================================================
-
-          newPlan:
-          const PlanNutritionTargets(
-            calories: 1500,
-            protein: 130,
-            carbs: 160,
-            fats: 50,
-            waterLiters: 2.3,
-          ),
-
-          // ======================================================
-          // UI PLACEHOLDER
-          // Daha sonra gerçek kaydetme işlemi bağlanacak.
-          // ======================================================
-
-          onSavePlan: () {
-            Navigator.pop(
-              sheetContext,
-            );
-          },
-        );
-      },
-    );
+    return DateFormat.MMM(locale).format(date);
   }
 
   @override
@@ -219,37 +789,68 @@ class _PlanContent
       child: Column(
         children: [
           PlanWeightSummaryCard(
-            startWeight: 55,
-            startDate: '12.04.2026',
-
-            // UI test verisi
-            reachDay: 20,
+            startWeight:
+            stats.planStartWeight,
+            startDate:
+            _formatDate(
+              stats.planActivatedAt,
+            ),
+            reachDay:
+            stats.estimatedGoalDate?.day ?? 0,
             reachMonth:
-            context.l10n.july,
-
-            // true  -> yeşil + yukarı ok
-            // false -> kırmızı + aşağı ok
-            isProjectionGood: true,
-
-            goalWeight: 50,
+            stats.estimatedGoalDate == null
+                ? '-'
+                : _formatShortMonth(
+              context,
+              stats.estimatedGoalDate!,
+            ),
+            isProjectionGood:
+            stats.projectionDifferenceDays ==
+                null
+                ? null
+                : stats.projectionDifferenceDays! <=
+                -3
+                ? true
+                : stats.projectionDifferenceDays! >=
+                3
+                ? false
+                : null,
+            goalWeight:
+            stats.targetWeight,
+            weightUnit:
+            stats.weightUnit,
           ),
 
           const SizedBox(height: 24),
 
-          const PlanWeightProgressChart(),
+          PlanWeightProgressChart(
+            planActivatedAt: stats.planActivatedAt,
+            expectedGoalDate: stats.expectedGoalDate,
+            planStartWeight: stats.planStartWeight,
+            targetWeight: stats.targetWeight,
+            weightPoints: stats.weightPoints,
+            weightUnit: stats.weightUnit,
+          ),
 
           const SizedBox(height: 30),
 
-          PlanStatusNoteCard(
-            status: status,
-            estimatedGoalDate:
-            '20 ${context.l10n.july} 2026',
-            onReviewPlan: () {
-              _openPlanReviewSheet(
+          if (isAiNoteLoading)
+            const PlanStatusNoteShimmer()
+          else
+            PlanStatusNoteCard(
+              status: stats.planStatus,
+              aiNote: stats.aiNote,
+              estimatedGoalDate:
+              stats.estimatedGoalDate == null
+                  ? '-'
+                  : '${stats.estimatedGoalDate!.day} '
+                  '${_formatShortMonth(
                 context,
-              );
-            },
-          ),
+                stats.estimatedGoalDate!,
+              )} '
+                  '${stats.estimatedGoalDate!.year}',
+              onReviewPlan: onReviewPlan,
+            ),
         ],
       ),
     );

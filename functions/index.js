@@ -1,14 +1,624 @@
 const { onRequest } = require("firebase-functions/v2/https");
+const { onDocumentWritten } = require("firebase-functions/v2/firestore");
 const { defineSecret } = require("firebase-functions/params");
+const { FieldValue } = require("firebase-admin/firestore");
 const OpenAI = require("openai");
+const admin = require("firebase-admin");
 
-const { createGeneratePersonalizedPlanHandler } = require("./personalized_plan");
+admin.initializeApp();
+
+const {
+  createGeneratePersonalizedPlanHandler,
+  buildReviewedPlan,
+} = require("./personalized_plan");
 
 const usdaApiKey = defineSecret("USDA_API_KEY");
 const openaiApiKey = defineSecret("OPENAI_API_KEY");
 
 const fatSecretClientId = defineSecret("FATSECRET_CLIENT_ID");
 const fatSecretClientSecret = defineSecret("FATSECRET_CLIENT_SECRET");
+
+async function requireAuthenticatedUser(req, res) {
+  const authorization =
+      String(req.headers.authorization || "").trim();
+
+  if (!authorization.startsWith("Bearer ")) {
+    res.status(401).json({
+      error: "Authentication required",
+    });
+
+    return null;
+  }
+
+  const idToken =
+      authorization.substring("Bearer ".length).trim();
+
+  if (!idToken) {
+    res.status(401).json({
+      error: "Authentication required",
+    });
+
+    return null;
+  }
+
+  try {
+    return await admin.auth().verifyIdToken(idToken);
+  } catch (error) {
+    console.error(
+      "Firebase ID token verification failed:",
+      error
+    );
+
+    res.status(401).json({
+      error: "Invalid authentication token",
+    });
+
+    return null;
+  }
+}
+
+const PREMIUM_CHAT_SAFETY_LIMIT = 100;
+const PREMIUM_RECIPE_SAFETY_LIMIT = 20;
+
+const FREE_CHAT_LIMIT = 2;
+const FREE_RECIPE_LIMIT = 1;
+
+const MAX_REWARDED_CHAT_CREDITS = 3;
+const MAX_REWARDED_RECIPE_CREDITS = 2;
+
+function getUtcDateKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function normalizeFatSecretQuery(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/['’]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeFatSecretBarcode(value) {
+  const digits =
+      String(value || "")
+        .replace(/\D/g, "");
+
+  if (digits.length === 13) {
+    return digits;
+  }
+
+  if (
+    digits.length === 12 ||
+    digits.length === 8
+  ) {
+    return digits.padStart(13, "0");
+  }
+
+  return null;
+}
+
+async function reserveAiUsage({
+  uid,
+  type,
+  isPremium,
+}) {
+  const isChat = type === "chat";
+
+  const countField =
+      isChat ? "chatCount" : "recipeCount";
+
+  const rewardedCreditsField =
+      isChat
+        ? "rewardedChatCredits"
+        : "rewardedRecipeCredits";
+
+  const freeBaseLimit =
+      isChat
+        ? FREE_CHAT_LIMIT
+        : FREE_RECIPE_LIMIT;
+
+  const maxRewardedCredits =
+      isChat
+        ? MAX_REWARDED_CHAT_CREDITS
+        : MAX_REWARDED_RECIPE_CREDITS;
+
+  const premiumSafetyLimit =
+      isChat
+        ? PREMIUM_CHAT_SAFETY_LIMIT
+        : PREMIUM_RECIPE_SAFETY_LIMIT;
+
+  const today = getUtcDateKey();
+
+  const usageRef = admin
+    .firestore()
+    .collection("users")
+    .doc(uid)
+    .collection("aiUsage")
+    .doc(today);
+
+  return admin.firestore().runTransaction(
+    async (transaction) => {
+      const snapshot =
+          await transaction.get(usageRef);
+
+      const data = snapshot.data() || {};
+
+      const currentCount =
+          Number(data[countField]) || 0;
+
+      let allowedCount;
+
+      if (isPremium) {
+        allowedCount =
+            premiumSafetyLimit;
+      } else {
+        const rawRewardedCredits =
+            Number(
+              data[rewardedCreditsField]
+            ) || 0;
+
+        const rewardedCredits = Math.min(
+          Math.max(rawRewardedCredits, 0),
+          maxRewardedCredits
+        );
+
+        allowedCount =
+            freeBaseLimit +
+            rewardedCredits;
+      }
+
+      if (currentCount >= allowedCount) {
+        return false;
+      }
+
+      transaction.set(
+        usageRef,
+        {
+          [countField]:
+              currentCount + 1,
+          updatedAt:
+              FieldValue.serverTimestamp()
+        },
+        {
+          merge: true,
+        },
+      );
+
+      return true;
+    },
+  );
+}
+
+async function getUserMembership(uid) {
+  const membershipRef = admin
+    .firestore()
+    .collection("users")
+    .doc(uid)
+    .collection("membership")
+    .doc("current");
+
+  const snapshot =
+      await membershipRef.get();
+
+  const data = snapshot.data();
+
+  return {
+    isPremium:
+      data?.isPremium === true &&
+      data?.status === "active",
+  };
+}
+
+const PLAN_TRACKING_SCHEMA_VERSION = 1;
+
+function isActivePremiumMembership(data) {
+  return (
+    data?.isPremium === true &&
+    data?.status === "active"
+  );
+}
+
+function getDateKey(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function getDateKeyInTimezone(date, timezone) {
+  try {
+    const formatter =
+        new Intl.DateTimeFormat(
+          "en-US",
+          {
+            timeZone: timezone,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          }
+        );
+
+    const parts =
+        formatter.formatToParts(date);
+
+    const year =
+        parts.find(
+          (part) => part.type === "year"
+        )?.value;
+
+    const month =
+        parts.find(
+          (part) => part.type === "month"
+        )?.value;
+
+    const day =
+        parts.find(
+          (part) => part.type === "day"
+        )?.value;
+
+    if (!year || !month || !day) {
+      throw new Error(
+        "Unable to resolve local date"
+      );
+    }
+
+    return `${year}-${month}-${day}`;
+  } catch (error) {
+    console.error(
+      `Invalid timezone "${timezone}":`,
+      error
+    );
+
+    return getDateKey(date);
+  }
+}
+
+function calculateExpectedWeeklyWeightChange({
+  calorieGoal,
+  tdee,
+}) {
+  if (tdee <= 0 || calorieGoal <= 0) {
+    return 0;
+  }
+
+  const dailyEnergyDifference =
+      calorieGoal - tdee;
+
+  return dailyEnergyDifference * 7 / 7700;
+}
+
+function calculateInitialEstimatedGoalDate({
+  planStartWeight,
+  targetWeight,
+  expectedWeeklyWeightChangeKg,
+  planActivatedAt,
+}) {
+  const remainingWeight =
+      targetWeight - planStartWeight;
+
+  if (Math.abs(remainingWeight) < 0.05) {
+    return planActivatedAt;
+  }
+
+  if (
+    Math.abs(expectedWeeklyWeightChangeKg) <
+    0.01
+  ) {
+    return null;
+  }
+
+  const movingTowardGoal =
+      Math.sign(remainingWeight) ===
+      Math.sign(expectedWeeklyWeightChangeKg);
+
+  if (!movingTowardGoal) {
+    return null;
+  }
+
+  const weeks =
+      Math.abs(remainingWeight) /
+      Math.abs(expectedWeeklyWeightChangeKg);
+
+  if (!Number.isFinite(weeks) || weeks < 0) {
+    return null;
+  }
+
+  const estimatedGoalDate =
+      new Date(planActivatedAt);
+
+  estimatedGoalDate.setUTCDate(
+    estimatedGoalDate.getUTCDate() +
+      Math.round(weeks * 7)
+  );
+
+  return estimatedGoalDate;
+}
+
+function calculatePremiumPlanTrackingStart(
+  userData
+) {
+  const userPreferences =
+      userData?.userPreferences || {};
+
+  const nutritionPlan =
+      userData?.nutritionPlan || {};
+
+  const age =
+      Number(userPreferences.age);
+
+  const height =
+      Number(userPreferences.height);
+
+  const currentWeight =
+      Number(userPreferences.weight);
+
+  const targetWeight =
+      Number(userPreferences.targetWeight);
+
+  const gender =
+      String(
+        userPreferences.gender || ""
+      );
+
+  const activityLevel =
+      String(
+        userPreferences.activityLevel || ""
+      );
+
+  const calorieGoal =
+      Number(
+        nutritionPlan.dailyCalories ??
+        userPreferences.calorieGoal
+      );
+
+  if (
+    !Number.isFinite(age) ||
+    !Number.isFinite(height) ||
+    !Number.isFinite(currentWeight) ||
+    !Number.isFinite(targetWeight) ||
+    !Number.isFinite(calorieGoal) ||
+    age <= 0 ||
+    height <= 0 ||
+    currentWeight <= 0 ||
+    targetWeight <= 0 ||
+    calorieGoal <= 0 ||
+    !gender ||
+    !activityLevel
+  ) {
+    throw new Error(
+      "Missing data required to initialize Plan Tracking"
+    );
+  }
+
+  const isMale =
+      gender.toLowerCase() === "male";
+
+  const bmr = isMale
+    ? 10 * currentWeight +
+      6.25 * height -
+      5 * age +
+      5
+    : 10 * currentWeight +
+      6.25 * height -
+      5 * age -
+      161;
+
+  const activityMultipliers = {
+    Sedentary: 1.2,
+    "Lightly Active": 1.375,
+    "Moderately Active": 1.55,
+    "Very Active": 1.725,
+  };
+
+  const activityMultiplier =
+      activityMultipliers[activityLevel];
+
+  if (!activityMultiplier) {
+    throw new Error(
+      "Unsupported activity level for Plan Tracking"
+    );
+  }
+
+  const tdee =
+      bmr * activityMultiplier;
+
+  const expectedWeeklyWeightChangeKg =
+      calculateExpectedWeeklyWeightChange({
+        calorieGoal,
+        tdee,
+      });
+
+  return {
+    currentWeight,
+    targetWeight,
+    expectedWeeklyWeightChangeKg,
+  };
+}
+
+function createInitialPlanTrackingCache({
+  currentWeight,
+  targetWeight,
+  expectedWeeklyWeightChangeKg,
+  planActivatedAt,
+  timezone,
+}) {
+  const estimatedGoalDate =
+      calculateInitialEstimatedGoalDate({
+        planStartWeight: currentWeight,
+        targetWeight,
+        expectedWeeklyWeightChangeKg,
+        planActivatedAt,
+      });
+
+  return {
+    schemaVersion:
+      PLAN_TRACKING_SCHEMA_VERSION,
+
+    planActivatedAt:
+      getDateKeyInTimezone(
+        planActivatedAt,
+        timezone
+      ),
+
+    lastProcessedDate: null,
+
+    planStartWeight:
+      currentWeight,
+
+    expectedWeeklyWeightChangeKg,
+
+    planEligibleDays: 0,
+    calorieTrackedDays: 0,
+    calorieAdherenceSum: 0,
+
+    weightEntryCount: 0,
+    latestWeight: null,
+    latestWeightDate: null,
+    actualWeeklyWeightChangeKg: null,
+    weightPoints: [],
+
+    progressRatio: null,
+
+    estimatedGoalDate:
+      estimatedGoalDate == null
+        ? null
+        : getDateKeyInTimezone(
+            estimatedGoalDate,
+            timezone
+          ),
+
+    projectionDifferenceDays: null,
+
+    planStatus: "notEnoughData",
+
+    aiNote: null,
+    aiNoteDate: null,
+    aiNoteStatus: null,
+    aiNoteWeightSignature: null,
+
+    updatedAt:
+      FieldValue.serverTimestamp()
+  };
+}
+
+exports.initializePlanTrackingOnPremium =
+  onDocumentWritten(
+    "users/{uid}/membership/current",
+    async (event) => {
+      const uid = event.params.uid;
+
+      const beforeData =
+          event.data?.before.exists
+            ? event.data.before.data()
+            : null;
+
+      const afterData =
+          event.data?.after.exists
+            ? event.data.after.data()
+            : null;
+
+      const wasPremium =
+          isActivePremiumMembership(
+            beforeData
+          );
+
+      const isPremium =
+          isActivePremiumMembership(
+            afterData
+          );
+
+      if (wasPremium || !isPremium) {
+        return;
+      }
+
+      const userRef = admin
+        .firestore()
+        .collection("users")
+        .doc(uid);
+
+      const trackingRef = userRef
+        .collection("planTracking")
+        .doc("current");
+
+      await admin.firestore().runTransaction(
+        async (transaction) => {
+          const userSnapshot =
+              await transaction.get(userRef);
+
+          const trackingSnapshot =
+              await transaction.get(trackingRef);
+
+          if (!userSnapshot.exists) {
+            throw new Error(
+              `User ${uid} does not exist`
+            );
+          }
+
+          const activationEventId =
+              String(event.id || "");
+
+          const existingTracking =
+              trackingSnapshot.data();
+
+          if (
+            trackingSnapshot.exists &&
+            activationEventId &&
+            existingTracking
+              ?.premiumActivationEventId ===
+              activationEventId
+          ) {
+            console.log(
+              `Plan Tracking activation event already processed for ${uid}`
+            );
+
+            return;
+          }
+
+          const userData =
+              userSnapshot.data() || {};
+
+          const timezone =
+              String(
+                userData.timezone || "UTC"
+              ).trim();
+
+          const {
+            currentWeight,
+            targetWeight,
+            expectedWeeklyWeightChangeKg,
+          } =
+              calculatePremiumPlanTrackingStart(
+                userData
+              );
+
+          const planActivatedAt =
+              event.time
+                ? new Date(event.time)
+                : new Date();
+
+          const cache = {
+            ...createInitialPlanTrackingCache({
+              currentWeight,
+              targetWeight,
+              expectedWeeklyWeightChangeKg,
+              planActivatedAt,
+              timezone,
+            }),
+            premiumActivationEventId:
+                activationEventId,
+          };
+
+          transaction.set(
+            trackingRef,
+            cache
+          );
+
+          console.log(
+            `Plan Tracking initialized for premium user ${uid}`
+          );
+        }
+      );
+    }
+  );
 
 let fatSecretCachedAccessToken = null;
 let fatSecretAccessTokenExpiresAt = 0;
@@ -33,7 +643,7 @@ async function requestNewFatSecretAccessToken() {
        },
        body: new URLSearchParams({
          grant_type: "client_credentials",
-         scope: "premier",
+         scope: "premier barcode",
        }),
      }
    );
@@ -106,6 +716,216 @@ async function requestNewFatSecretAccessToken() {
    }
  }
 
+ exports.fatSecretFoodAlias = onRequest(
+   {
+     cors: true,
+   },
+   async (req, res) => {
+     try {
+       const decodedToken =
+           await requireAuthenticatedUser(
+             req,
+             res
+           );
+
+       if (!decodedToken) {
+         return;
+       }
+
+       if (req.method === "GET") {
+         const query =
+             normalizeFatSecretQuery(
+               req.query.q
+             );
+
+         if (!query) {
+           return res.status(400).json({
+             error: "Missing query",
+           });
+         }
+
+         const aliasRef = admin
+           .firestore()
+           .collection(
+             "fatSecretFoodAliases"
+           )
+           .doc(query);
+
+         const snapshot =
+             await aliasRef.get();
+
+         const foodId =
+             snapshot
+               .data()
+               ?.foodId
+               ?.toString()
+               .trim();
+
+         return res.status(200).json({
+           foodId:
+               foodId && foodId.length > 0
+                 ? foodId
+                 : null,
+         });
+       }
+
+       if (req.method === "POST") {
+         const query =
+             normalizeFatSecretQuery(
+               req.body?.query
+             );
+
+         const foodId =
+             String(
+               req.body?.foodId || ""
+             ).trim();
+
+         if (!query || !foodId) {
+           return res.status(400).json({
+             error:
+                 "Missing query or foodId",
+           });
+         }
+
+         await admin
+           .firestore()
+           .collection(
+             "fatSecretFoodAliases"
+           )
+           .doc(query)
+           .set({
+             foodId,
+             updatedAt:
+                 FieldValue.serverTimestamp()
+           });
+
+         return res.status(200).json({
+           success: true,
+         });
+       }
+
+       return res.status(405).json({
+         error: "Method not allowed",
+       });
+     } catch (error) {
+       console.error(
+         "fatSecretFoodAlias error:",
+         error
+       );
+
+       return res.status(500).json({
+         error:
+             "FatSecret food alias request failed",
+       });
+     }
+   }
+ );
+
+ exports.fatSecretBarcodeAlias = onRequest(
+   {
+     cors: true,
+   },
+   async (req, res) => {
+     try {
+       const decodedToken =
+           await requireAuthenticatedUser(
+             req,
+             res
+           );
+
+       if (!decodedToken) {
+         return;
+       }
+
+       if (req.method === "GET") {
+         const barcode =
+             normalizeFatSecretBarcode(
+               req.query.barcode
+             );
+
+         if (!barcode) {
+           return res.status(400).json({
+             error: "Invalid barcode",
+           });
+         }
+
+         const aliasRef = admin
+           .firestore()
+           .collection(
+             "fatSecretBarcodeAliases"
+           )
+           .doc(barcode);
+
+         const snapshot =
+             await aliasRef.get();
+
+         const foodId =
+             snapshot
+               .data()
+               ?.foodId
+               ?.toString()
+               .trim();
+
+         return res.status(200).json({
+           foodId:
+               foodId && foodId.length > 0
+                 ? foodId
+                 : null,
+         });
+       }
+
+       if (req.method === "POST") {
+         const barcode =
+             normalizeFatSecretBarcode(
+               req.body?.barcode
+             );
+
+         const foodId =
+             String(
+               req.body?.foodId || ""
+             ).trim();
+
+         if (!barcode || !foodId) {
+           return res.status(400).json({
+             error:
+                 "Missing barcode or foodId",
+           });
+         }
+
+         await admin
+           .firestore()
+           .collection(
+             "fatSecretBarcodeAliases"
+           )
+           .doc(barcode)
+           .set({
+             foodId,
+             updatedAt:
+                 FieldValue.serverTimestamp()
+           });
+
+         return res.status(200).json({
+           success: true,
+         });
+       }
+
+       return res.status(405).json({
+         error: "Method not allowed",
+       });
+     } catch (error) {
+       console.error(
+         "fatSecretBarcodeAlias error:",
+         error
+       );
+
+       return res.status(500).json({
+         error:
+             "FatSecret barcode alias request failed",
+       });
+     }
+   }
+ );
+
 exports.searchFatSecretFoods = onRequest(
   {
     secrets: [
@@ -116,6 +936,16 @@ exports.searchFatSecretFoods = onRequest(
   },
   async (req, res) => {
     try {
+          const decodedToken =
+              await requireAuthenticatedUser(
+                req,
+                res
+              );
+
+          if (!decodedToken) {
+            return;
+          }
+
       const query = String(
         req.query.q || ""
       ).trim();
@@ -204,6 +1034,128 @@ exports.searchFatSecretFoods = onRequest(
   }
 );
 
+exports.findFatSecretFoodByBarcode = onRequest(
+  {
+    secrets: [
+      fatSecretClientId,
+      fatSecretClientSecret,
+    ],
+    cors: true,
+  },
+  async (req, res) => {
+    try {
+          const decodedToken =
+              await requireAuthenticatedUser(
+                req,
+                res
+              );
+
+          if (!decodedToken) {
+            return;
+          }
+
+      const rawBarcode = String(
+        req.query.barcode || ""
+      ).trim();
+
+      const digits = rawBarcode.replace(/\D/g, "");
+
+      let barcode;
+
+      if (digits.length === 13) {
+        barcode = digits;
+      } else if (
+        digits.length === 12 ||
+        digits.length === 8
+      ) {
+        barcode = digits.padStart(13, "0");
+      } else {
+        return res.status(400).json({
+          error: "Barcode must be EAN-8, UPC-A or EAN-13",
+        });
+      }
+
+      const accessToken =
+          await getFatSecretAccessToken();
+
+      const url = new URL(
+        "https://platform.fatsecret.com/rest/food/barcode/find-by-id/v1"
+      );
+
+      url.searchParams.set(
+        "barcode",
+        barcode
+      );
+
+      url.searchParams.set(
+        "region",
+        "US"
+      );
+
+      url.searchParams.set(
+        "language",
+        "en"
+      );
+
+      url.searchParams.set(
+        "format",
+        "json"
+      );
+
+
+
+      const response = await fetch(
+        url.toString(),
+        {
+          method: "GET",
+          headers: {
+            Authorization:
+              `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText =
+            await response.text();
+
+        return res.status(response.status).json({
+          error:
+            "FatSecret barcode request failed",
+          status: response.status,
+          details: errorText,
+        });
+      }
+
+      const data = await response.json();
+
+      const foodId =
+          data?.food_id?.value?.toString();
+
+      if (!foodId) {
+        return res.status(404).json({
+          error: "Food not found for barcode",
+        });
+      }
+
+      return res.status(200).json({
+        foodId,
+        barcode,
+      });
+    } catch (error) {
+      console.error(
+        "findFatSecretFoodByBarcode error:",
+        error
+      );
+
+      return res.status(500).json({
+        error:
+          "FatSecret barcode request failed",
+      });
+    }
+  }
+);
+
 exports.getFatSecretFood = onRequest(
   {
     secrets: [
@@ -214,6 +1166,16 @@ exports.getFatSecretFood = onRequest(
   },
   async (req, res) => {
     try {
+          const decodedToken =
+              await requireAuthenticatedUser(
+                req,
+                res
+              );
+
+          if (!decodedToken) {
+            return;
+          }
+
       const foodId = String(
         req.query.foodId || ""
       ).trim();
@@ -249,6 +1211,11 @@ exports.getFatSecretFood = onRequest(
       url.searchParams.set(
         "format",
         "json"
+      );
+
+      url.searchParams.set(
+        "flag_default_serving",
+        "true"
       );
 
       const response = await fetch(
@@ -881,6 +1848,409 @@ exports.classifyExercise = onRequest(
   }
 );
 
+const PREMIUM_INSIGHT_SAFETY_LIMIT = 20;
+
+async function reservePremiumInsightUsage(uid) {
+  const today = getUtcDateKey();
+
+  const usageRef = admin
+    .firestore()
+    .collection("users")
+    .doc(uid)
+    .collection("aiUsage")
+    .doc(today);
+
+  return admin.firestore().runTransaction(
+    async (transaction) => {
+      const snapshot =
+          await transaction.get(usageRef);
+
+      const data = snapshot.data() || {};
+
+      const currentCount =
+          Number(data.premiumInsightCount) || 0;
+
+      if (
+        currentCount >=
+        PREMIUM_INSIGHT_SAFETY_LIMIT
+      ) {
+        return false;
+      }
+
+      transaction.set(
+        usageRef,
+        {
+          premiumInsightCount:
+              currentCount + 1,
+          updatedAt:
+              FieldValue.serverTimestamp()
+        },
+        {
+          merge: true,
+        }
+      );
+
+      return true;
+    }
+  );
+}
+
+function premiumInsightSchema(type) {
+  if (
+    type === "overview" ||
+    type === "plan"
+  ) {
+    return {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        note: {
+          type: "string",
+        },
+      },
+      required: ["note"],
+    };
+  }
+
+  if (type === "weekly") {
+    return {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        reviewParagraphs: {
+          type: "array",
+          minItems: 2,
+          maxItems: 2,
+          items: {
+            type: "string",
+          },
+        },
+        nextWeek: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            focusTitle: {
+              type: "string",
+            },
+            focusDescription: {
+              type: "string",
+            },
+            tips: {
+              type: "array",
+              minItems: 1,
+              maxItems: 3,
+              items: {
+                type: "string",
+              },
+            },
+          },
+          required: [
+            "focusTitle",
+            "focusDescription",
+            "tips",
+          ],
+        },
+      },
+      required: [
+        "reviewParagraphs",
+        "nextWeek",
+      ],
+    };
+  }
+
+  if (type === "monthly") {
+    return {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        reviewParagraphs: {
+          type: "array",
+          minItems: 2,
+          maxItems: 2,
+          items: {
+            type: "string",
+          },
+        },
+        nextMonth: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            title: {
+              type: "string",
+            },
+            mainFocus: {
+              type: "string",
+            },
+            tips: {
+              type: "array",
+              minItems: 1,
+              maxItems: 3,
+              items: {
+                type: "string",
+              },
+            },
+          },
+          required: [
+            "title",
+            "mainFocus",
+            "tips",
+          ],
+        },
+      },
+      required: [
+        "reviewParagraphs",
+        "nextMonth",
+      ],
+    };
+  }
+
+  return null;
+}
+
+function premiumInsightInstructions(type) {
+  const common =
+      "You are Fiteo, an AI coach inside a fitness and nutrition app. " +
+      "The application has already calculated every numeric result. " +
+      "Never recalculate, override, contradict, or invent metrics. " +
+      "Interpret only the structured data provided to you. " +
+      "Do not diagnose medical conditions or provide medical treatment. " +
+      "Be supportive, practical, concise, and specific. ";
+
+  if (type === "overview") {
+    return common +
+      "Write one short personalized overview note. " +
+      "Identify the most meaningful overall pattern, strength, or improvement area. " +
+      "Do not simply repeat all numbers. " +
+      "Do not list metrics one by one. " +
+      "Use approximately 2 sentences.";
+  }
+
+  if (type === "plan") {
+    return common +
+      "Explain how the user's existing plan is progressing. " +
+      "The planStatus provided by the app is authoritative and must never be changed by you. " +
+      "Valid statuses are onTrack, reviewRecommended, notEnoughData, and improveConsistencyFirst. " +
+      "Use weight progress as the primary progress signal, while calorie adherence and tracking consistency add context. " +
+      "Never prescribe a new calorie or macro target. " +
+      "Never tell the user to change the plan unless the provided planStatus is reviewRecommended. " +
+      "If status is improveConsistencyFirst, explain that consistency should improve before judging the plan. " +
+      "If status is notEnoughData, explain that more tracking or weight observations are needed. " +
+      "Use approximately 2 or 3 concise sentences.";
+  }
+
+  if (type === "weekly") {
+    return common +
+      "Create a weekly review from the completed weekly report values. " +
+      "Return exactly 2 concise review paragraphs. " +
+      "The first should summarize the most meaningful positive or overall pattern. " +
+      "The second should identify the most useful improvement area when one exists. " +
+      "Then create one clear focus for next week and 1 to 3 practical tips. " +
+      "Do not invent problems just to provide criticism. " +
+      "Do not invent food or workout records that were not provided.";
+  }
+
+  return common +
+    "Create a monthly review from the completed monthly report values. " +
+    "Return exactly 2 concise review paragraphs that interpret the month's major patterns and trends. " +
+    "Then create a general next-month title, one main focus, and 1 to 3 practical tips. " +
+    "Tips are dynamic recommendations; they are NOT fixed keep-doing, improve, or watch categories. " +
+    "Do not force a weakness or recommendation category when the data does not support one. " +
+    "Use previous-month changes, consistency, strongest and weakest areas, and weight-plan information when meaningful.";
+}
+
+async function generatePremiumInsightWithOpenAi({
+  type,
+  data,
+  languageCode,
+}) {
+  const schema =
+      premiumInsightSchema(type);
+
+  if (!schema) {
+    throw new Error(
+      "Unsupported premium insight type"
+    );
+  }
+
+  const client = new OpenAI({
+    apiKey: openaiApiKey.value(),
+  });
+
+  const maxOutputTokens =
+      type === "overview" ||
+      type === "plan"
+        ? 220
+        : type === "weekly"
+          ? 500
+          : 650;
+
+  const response =
+      await client.responses.create({
+        model: "gpt-4o-mini",
+        max_output_tokens:
+            maxOutputTokens,
+        input: [
+          {
+            role: "system",
+            content:
+              premiumInsightInstructions(
+                type
+              ) +
+              ` Write the entire response in language code "${languageCode}".`,
+          },
+          {
+            role: "user",
+            content:
+              "Calculated Fiteo data:\n" +
+              JSON.stringify(data),
+          },
+        ],
+        text: {
+          format: {
+            type: "json_schema",
+            name:
+              `${type}_premium_insight`,
+            schema,
+          },
+        },
+      });
+
+  if (!response.output_text) {
+    throw new Error(
+      "OpenAI returned empty premium insight"
+    );
+  }
+
+  return JSON.parse(
+    response.output_text
+  );
+}
+
+exports.generatePremiumInsight = onRequest(
+  {
+    secrets: [openaiApiKey],
+    cors: true,
+  },
+  async (req, res) => {
+    try {
+      const decodedToken =
+          await requireAuthenticatedUser(
+            req,
+            res
+          );
+
+      if (!decodedToken) {
+        return;
+      }
+
+      if (req.method !== "POST") {
+        return res.status(405).json({
+          error: "Method not allowed",
+        });
+      }
+
+      const uid = decodedToken.uid;
+
+      const membership =
+          await getUserMembership(uid);
+
+      if (!membership.isPremium) {
+        return res.status(403).json({
+          error:
+              "Premium membership required",
+        });
+      }
+
+      const type =
+          String(
+            req.body?.type || ""
+          ).trim();
+
+      const data =
+          req.body?.data;
+
+      const languageCode =
+          String(
+            req.body?.languageCode ||
+            "en"
+          )
+            .trim()
+            .toLowerCase()
+            .slice(0, 10);
+
+      if (
+        ![
+          "overview",
+          "plan",
+          "weekly",
+          "monthly",
+        ].includes(type)
+      ) {
+        return res.status(400).json({
+          error:
+              "Invalid premium insight type",
+        });
+      }
+
+      if (
+        !data ||
+        typeof data !== "object" ||
+        Array.isArray(data)
+      ) {
+        return res.status(400).json({
+          error:
+              "Missing insight data",
+        });
+      }
+
+      const serialized =
+          JSON.stringify(data);
+
+      if (serialized.length > 16000) {
+        return res.status(413).json({
+          error:
+              "Insight payload too large",
+        });
+      }
+
+      const hasCapacity =
+          await reservePremiumInsightUsage(
+            uid
+          );
+
+      if (!hasCapacity) {
+        return res.status(429).json({
+          error:
+              "Premium insight safety limit reached",
+        });
+      }
+
+      const result =
+          await generatePremiumInsightWithOpenAi({
+            type,
+            data,
+            languageCode:
+                languageCode || "en",
+          });
+
+      return res
+        .status(200)
+        .json(result);
+    } catch (error) {
+      console.error(
+        "generatePremiumInsight error:",
+        error
+      );
+
+      return res.status(500).json({
+        error:
+            "Premium insight generation failed",
+        message: error.message,
+      });
+    }
+  }
+);
+
 exports.chatWithCoach = onRequest(
   {
     secrets: [openaiApiKey],
@@ -888,6 +2258,36 @@ exports.chatWithCoach = onRequest(
   },
   async (req, res) => {
     try {
+    const decodedToken =
+        await requireAuthenticatedUser(req, res);
+
+    if (!decodedToken) {
+      return;
+    }
+
+    const uid = decodedToken.uid;
+
+    const membership =
+        await getUserMembership(uid);
+
+    const isPremium =
+        membership.isPremium;
+
+    const hasChatCapacity =
+        await reserveAiUsage({
+          uid,
+          type: "chat",
+          isPremium,
+        });
+
+    if (!hasChatCapacity) {
+      return res.status(429).json({
+        error: isPremium
+          ? "AI chat safety limit reached"
+          : "Daily AI chat limit reached",
+      });
+    }
+
       const message = req.body?.message;
       const userPreferences = req.body?.userPreferences || {};
       const dailySummary = req.body?.dailySummary || {};
@@ -965,6 +2365,36 @@ exports.generateRecipeFromIngredients = onRequest(
   },
   async (req, res) => {
     try {
+    const decodedToken =
+        await requireAuthenticatedUser(req, res);
+
+    if (!decodedToken) {
+      return;
+    }
+
+    const uid = decodedToken.uid;
+
+    const membership =
+        await getUserMembership(uid);
+
+    const isPremium =
+        membership.isPremium;
+
+    const hasRecipeCapacity =
+        await reserveAiUsage({
+          uid,
+          type: "recipe",
+          isPremium,
+        });
+
+    if (!hasRecipeCapacity) {
+      return res.status(429).json({
+        error: isPremium
+          ? "AI recipe safety limit reached"
+          : "Daily AI recipe limit reached",
+      });
+    }
+
       const ingredients = req.body?.ingredients;
       const preferences = req.body?.preferences || {};
 
@@ -1090,6 +2520,87 @@ exports.generateRecipeFromIngredients = onRequest(
     } catch (error) {
       return res.status(500).json({
         error: "Recipe generation failed",
+        message: error.message,
+      });
+    }
+  }
+);
+
+exports.calculateReviewedPlan = onRequest(
+  {
+    cors: true,
+  },
+  async (req, res) => {
+    try {
+      const decodedToken =
+          await requireAuthenticatedUser(
+            req,
+            res
+          );
+
+      if (!decodedToken) {
+        return;
+      }
+
+      if (req.method !== "POST") {
+        return res.status(405).json({
+          error: "Method not allowed",
+        });
+      }
+
+      const uid = decodedToken.uid;
+
+      const membership =
+          await getUserMembership(uid);
+
+      if (!membership.isPremium) {
+        return res.status(403).json({
+          error:
+              "Premium membership required",
+        });
+      }
+
+      const userPreferences =
+          req.body?.userPreferences;
+
+      const currentCalories =
+          Number(
+            req.body?.currentCalories
+          );
+
+      const adjustmentDeltaKcal =
+          Number(
+            req.body?.adjustmentDeltaKcal
+          );
+
+      if (
+        !userPreferences ||
+        typeof userPreferences !== "object"
+      ) {
+        return res.status(400).json({
+          error:
+              "Missing user preferences",
+        });
+      }
+
+      const plan = buildReviewedPlan({
+        userPreferences,
+        currentCalories,
+        adjustmentDeltaKcal,
+      });
+
+      return res.status(200).json({
+        plan,
+      });
+    } catch (error) {
+      console.error(
+        "calculateReviewedPlan error:",
+        error
+      );
+
+      return res.status(500).json({
+        error:
+            "Reviewed plan calculation failed",
         message: error.message,
       });
     }

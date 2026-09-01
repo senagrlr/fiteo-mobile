@@ -13,6 +13,9 @@ class CalendarDaySummaryCard extends StatelessWidget {
   final double protein;
   final double fats;
   final double carbs;
+  final double proteinGoal;
+  final double fatGoal;
+  final double carbsGoal;
   final int netCalories;
   final int hydration;
 
@@ -26,15 +29,15 @@ class CalendarDaySummaryCard extends StatelessWidget {
     required this.protein,
     required this.fats,
     required this.carbs,
+    required this.proteinGoal,
+    required this.fatGoal,
+    required this.carbsGoal,
     required this.netCalories,
     required this.hydration,
   });
 
   @override
   Widget build(BuildContext context) {
-    const double fatGoal = 70.0;
-    const double carbsGoal = 150.0;
-    const double proteinGoal = 90.0;
 
     return Container(
       width: double.infinity,

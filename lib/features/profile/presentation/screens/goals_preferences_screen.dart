@@ -11,6 +11,7 @@ import 'package:fiteo_myapp/features/profile/data/profile_repository.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/profile_dropdown_field.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/profile_input.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/settings_card.dart';
+import 'package:fiteo_myapp/common/utils/weight_unit_converter.dart';
 
 class GoalsPreferencesScreen extends StatefulWidget {
   const GoalsPreferencesScreen({
@@ -76,18 +77,6 @@ class _GoalsPreferencesScreenState
     _loadPreferences();
   }
 
-  double _kgToDisplay(double kg) {
-    return weightUnit == 'lb'
-        ? kg * 2.2046226218
-        : kg;
-  }
-
-  double _displayToKg(double value) {
-    return weightUnit == 'lb'
-        ? value * 0.45359237
-        : value;
-  }
-
   String _formatWeight(double value) {
     return value.toStringAsFixed(1);
   }
@@ -101,6 +90,10 @@ class _GoalsPreferencesScreenState
 
       final preferences =
       data?['userPreferences']
+      as Map<String, dynamic>?;
+
+      final nutritionPlan =
+      data?['nutritionPlan']
       as Map<String, dynamic>?;
 
       if (preferences != null) {
@@ -136,18 +129,25 @@ class _GoalsPreferencesScreenState
         weightKg == null
             ? ''
             : _formatWeight(
-          _kgToDisplay(weightKg),
+            WeightUnitConverter.kgToDisplay(
+              kg: weightKg,
+              unit: weightUnit,
+            )
         );
 
         targetWeightController.text =
         targetWeightKg == null
             ? ''
             : _formatWeight(
-          _kgToDisplay(targetWeightKg),
+            WeightUnitConverter.kgToDisplay(
+              kg: targetWeightKg,
+              unit: weightUnit,
+            )
         );
 
         dailyCaloriesController.text =
-            preferences['calorieGoal']
+            (nutritionPlan?['calorieGoal'] ??
+                nutritionPlan?['dailyCalories'])
                 ?.toString() ??
                 '';
       }
@@ -311,10 +311,11 @@ class _GoalsPreferencesScreenState
               null
               ? null
               : double.parse(
-            _displayToKg(
-              double.parse(
+            WeightUnitConverter.displayToKg(
+              value: double.parse(
                 weightController.text.trim(),
               ),
+              unit: weightUnit,
             ).toStringAsFixed(1),
           ),
 
@@ -327,23 +328,27 @@ class _GoalsPreferencesScreenState
               null
               ? null
               : double.parse(
-            _displayToKg(
-              double.parse(
+            WeightUnitConverter.displayToKg(
+              value: double.parse(
                 targetWeightController.text.trim(),
               ),
+              unit: weightUnit,
             ).toStringAsFixed(1),
           ),
 
           'weightUnit': weightUnit,
 
-          'calorieGoal':
-          dailyCaloriesController.text.trim().isEmpty
-              ? null
-              : int.tryParse(
-            dailyCaloriesController.text.trim(),
-          ),
         },
       );
+
+      await _profileRepository.updateNutritionPlan({
+        'calorieGoal':
+        dailyCaloriesController.text.trim().isEmpty
+            ? null
+            : int.tryParse(
+          dailyCaloriesController.text.trim(),
+        ),
+      });
 
       if (!mounted) return;
 

@@ -142,6 +142,15 @@ class _MonthlyCalendarScreenState
         final carbs =
         (values['carbs'] ?? 0).toDouble();
 
+        final proteinGoal =
+        (values['proteinGoal'] ?? 0).toDouble();
+
+        final fatGoal =
+        (values['fatGoal'] ?? 0).toDouble();
+
+        final carbsGoal =
+        (values['carbsGoal'] ?? 0).toDouble();
+
         final netCalories =
         (values['netCalories'] ?? 0).round();
 
@@ -159,6 +168,9 @@ class _MonthlyCalendarScreenState
             protein: protein,
             fats: fats,
             carbs: carbs,
+            proteinGoal: proteinGoal,
+            fatGoal: fatGoal,
+            carbsGoal: carbsGoal,
             netCalories: netCalories,
             hydration: hydration,
           );
@@ -298,6 +310,12 @@ class _MonthlyCalendarScreenState
                   selectedData?.fats ?? 0,
                   carbs:
                   selectedData?.carbs ?? 0,
+                  proteinGoal:
+                  selectedData?.proteinGoal ?? 0,
+                  fatGoal:
+                  selectedData?.fatGoal ?? 0,
+                  carbsGoal:
+                  selectedData?.carbsGoal ?? 0,
                   netCalories:
                   selectedData?.netCalories ?? 0,
                   hydration:
@@ -320,6 +338,10 @@ class DayCalories {
   final double fats;
   final double carbs;
 
+  final double proteinGoal;
+  final double fatGoal;
+  final double carbsGoal;
+
   final int netCalories;
   final int hydration;
 
@@ -329,6 +351,9 @@ class DayCalories {
     required this.protein,
     required this.fats,
     required this.carbs,
+    required this.proteinGoal,
+    required this.fatGoal,
+    required this.carbsGoal,
     required this.netCalories,
     required this.hydration,
   });

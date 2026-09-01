@@ -5,12 +5,12 @@ import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 
 class TrackingSummaryCard extends StatelessWidget {
-  final int streakDays;
+  final int trackingConsistency;
   final int goalAchievement;
 
   const TrackingSummaryCard({
     super.key,
-    required this.streakDays,
+    required this.trackingConsistency,
     required this.goalAchievement,
   });
 
@@ -20,54 +20,15 @@ class TrackingSummaryCard extends StatelessWidget {
       children: [
         Expanded(
           child: _TrackingValueCard(
-            title: context.l10n.currentStreak,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(
-                    bottom: 3,
-                  ),
-                  child: Icon(
-                    Icons.local_fire_department_rounded,
-                    color:
-                    AppColors.planTrackingStreakBadge,
-                    size: 22,
-                  ),
-                ),
-
-                const SizedBox(width: 3),
-
-                Text(
-                  streakDays.toString(),
-                  style:
-                  AppTextStyles.headingLarge.copyWith(
-                    color: AppColors.homeBrown,
-                    fontSize: 30,
-                    fontWeight: FontWeight.w800,
-                    height: 1,
-                  ),
-                ),
-
-                const SizedBox(width: 4),
-
-                Padding(
-                  padding: const EdgeInsets.only(
-                    bottom: 2,
-                  ),
-                  child: Text(
-                    context.l10n.days,
-                    style:
-                    AppTextStyles.caption.copyWith(
-                      color: AppColors
-                          .planTrackingSecondaryLabel,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
+            title: context.l10n.trackingConsistency,
+            child: Text(
+              '%$trackingConsistency',
+              style: AppTextStyles.headingLarge.copyWith(
+                color: AppColors.homeBrown,
+                fontSize: 30,
+                fontWeight: FontWeight.w800,
+                height: 1,
+              ),
             ),
           ),
         ),

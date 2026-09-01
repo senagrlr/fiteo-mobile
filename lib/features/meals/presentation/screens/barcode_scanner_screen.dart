@@ -5,10 +5,12 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
+import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
 import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
 
 import 'package:fiteo_myapp/features/meals/domain/models/barcode_food_data.dart';
 import 'package:fiteo_myapp/features/meals/presentation/widgets/barcode_product_result_card.dart';
+import 'package:fiteo_myapp/features/meals/data/barcode_food_service.dart';
 
 class BarcodeScannerScreen extends StatefulWidget {
   const BarcodeScannerScreen({
@@ -27,6 +29,9 @@ class _BarcodeScannerScreenState
     facing: CameraFacing.back,
     detectionSpeed: DetectionSpeed.noDuplicates,
   );
+
+  final BarcodeFoodService _barcodeFoodService =
+  BarcodeFoodService();
 
   bool _isLookingUp = false;
   BarcodeFoodData? _product;
@@ -78,14 +83,11 @@ class _BarcodeScannerScreenState
     );
   }
 
-  // ============================================================
-  // BARKODDAN ÜRÜN ARAMA
-  // ============================================================
-
   Future<void> _lookupBarcode(
       String barcode,
       ) async {
-    final trimmedBarcode = barcode.trim();
+    final trimmedBarcode =
+    barcode.trim();
 
     if (trimmedBarcode.isEmpty ||
         _isLookingUp ||
@@ -98,35 +100,27 @@ class _BarcodeScannerScreenState
       _product = null;
     });
 
-    // ==========================================================
-    // UI TEST
-    //
-    // Şimdilik gerçek API bağlı değil.
-    // Girilen HER barkod için aşağıdaki örnek ürün geliyor.
-    //
-    // API bağlandığında sadece bu bölüm değişecek.
-    // ==========================================================
-
-    await Future<void>.delayed(
-      const Duration(milliseconds: 500),
-    );
-
-    if (!mounted) return;
-
-    final product = BarcodeFoodData(
+    final product =
+    await _barcodeFoodService.findFood(
       barcode: trimmedBarcode,
-      name: context.l10n.barcodeDemoProduct,
-      amount: '100',
-      unit: 'Grams',
-      calories: 210,
-      protein: 8,
-      fats: 7,
-      carbs: 29,
-      nutritionSource: 'barcode',
-      isEstimated: false,
     );
 
     if (!mounted) return;
+
+    if (product == null) {
+      setState(() {
+        _isLookingUp = false;
+      });
+
+      AppSnackbar.showError(
+        context,
+        context.l10n.barcodeLookupFailed,
+      );
+
+      await _startScannerSafely();
+
+      return;
+    }
 
     setState(() {
       _product = product;

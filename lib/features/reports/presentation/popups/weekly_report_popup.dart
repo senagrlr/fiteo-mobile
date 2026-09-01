@@ -14,7 +14,6 @@ import 'package:fiteo_myapp/features/reports/presentation/widgets/weekly/weekly_
 import 'package:fiteo_myapp/features/reports/presentation/widgets/weekly/weekly_next_week_card.dart';
 import 'package:fiteo_myapp/features/reports/presentation/widgets/weekly/weekly_overview_card.dart';
 import 'package:fiteo_myapp/features/reports/presentation/widgets/weekly/weekly_review_card.dart';
-import 'package:fiteo_myapp/features/reports/presentation/widgets/weekly/weekly_weight_plan_card.dart';
 
 class WeeklyReportPopup extends StatefulWidget {
   final WeeklyReportData data;
@@ -130,13 +129,6 @@ class _WeeklyReportPopupState
                     ),
                     data: selectedDay,
                   ),
-                ),
-
-                const SizedBox(height: 34),
-
-                WeeklyWeightPlanCard(
-                  data:
-                  widget.data.weightPlan,
                 ),
 
                 const SizedBox(height: 34),

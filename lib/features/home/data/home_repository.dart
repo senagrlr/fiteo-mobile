@@ -51,6 +51,11 @@ class HomeRepository {
     final fats = (data?['fats'] as num?)?.toDouble() ?? 0.0;
     final carbs = (data?['carbs'] as num?)?.toDouble() ?? 0.0;
 
+    final proteinGoal = (data?['proteinGoal'] as num?)?.toDouble();
+    final fatGoal = (data?['fatGoal'] as num?)?.toDouble();
+    final carbsGoal = (data?['carbsGoal'] as num?)?.toDouble();
+    final waterGoalMl = (data?['waterGoalMl'] as num?)?.round();
+
     return {
       'consumed': consumed,
       'burned': burned,
@@ -61,6 +66,49 @@ class HomeRepository {
       'protein': protein,
       'fats': fats,
       'carbs': carbs,
+      'proteinGoal': proteinGoal,
+      'fatGoal': fatGoal,
+      'carbsGoal': carbsGoal,
+      'waterGoalMl': waterGoalMl,
+    };
+  }
+
+  Future<Map<String, dynamic>> getCurrentNutritionPlan() async {
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception('User not logged in');
+    }
+
+    final doc = await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .get();
+
+    final data =
+    doc.data()?['nutritionPlan']
+    as Map<String, dynamic>?;
+
+    if (data == null) {
+      return {};
+    }
+
+    return {
+      'calorieGoal':
+      data['calorieGoal'] ??
+          data['dailyCalories'],
+      'proteinGoal':
+      data['proteinGoal'] ??
+          data['proteinGrams'],
+      'carbsGoal':
+      data['carbsGoal'] ??
+          data['carbsGrams'],
+      'fatGoal':
+      data['fatGoal'] ??
+          data['fatsGrams'],
+      'waterGoalMl':
+      data['waterGoalMl'] ??
+          data['waterMl'],
     };
   }
 

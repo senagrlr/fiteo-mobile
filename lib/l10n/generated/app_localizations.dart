@@ -1478,6 +1478,90 @@ abstract class AppLocalizations {
   /// **'SUN'**
   String get sundayShort;
 
+  /// No description provided for @januaryShort.
+  ///
+  /// In en, this message translates to:
+  /// **'J'**
+  String get januaryShort;
+
+  /// No description provided for @februaryShort.
+  ///
+  /// In en, this message translates to:
+  /// **'F'**
+  String get februaryShort;
+
+  /// No description provided for @marchShort.
+  ///
+  /// In en, this message translates to:
+  /// **'M'**
+  String get marchShort;
+
+  /// No description provided for @aprilShort.
+  ///
+  /// In en, this message translates to:
+  /// **'A'**
+  String get aprilShort;
+
+  /// No description provided for @mayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'M'**
+  String get mayShort;
+
+  /// No description provided for @juneShort.
+  ///
+  /// In en, this message translates to:
+  /// **'J'**
+  String get juneShort;
+
+  /// No description provided for @julyShort.
+  ///
+  /// In en, this message translates to:
+  /// **'J'**
+  String get julyShort;
+
+  /// No description provided for @augustShort.
+  ///
+  /// In en, this message translates to:
+  /// **'A'**
+  String get augustShort;
+
+  /// No description provided for @septemberShort.
+  ///
+  /// In en, this message translates to:
+  /// **'S'**
+  String get septemberShort;
+
+  /// No description provided for @octoberShort.
+  ///
+  /// In en, this message translates to:
+  /// **'O'**
+  String get octoberShort;
+
+  /// No description provided for @novemberShort.
+  ///
+  /// In en, this message translates to:
+  /// **'N'**
+  String get novemberShort;
+
+  /// No description provided for @decemberShort.
+  ///
+  /// In en, this message translates to:
+  /// **'D'**
+  String get decemberShort;
+
+  /// No description provided for @weekShort.
+  ///
+  /// In en, this message translates to:
+  /// **'W'**
+  String get weekShort;
+
+  /// No description provided for @minuteUnitShort.
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get minuteUnitShort;
+
   /// No description provided for @editProfile.
   ///
   /// In en, this message translates to:
@@ -1652,6 +1736,12 @@ abstract class AppLocalizations {
   /// **'Current Streak'**
   String get currentStreak;
 
+  /// No description provided for @trackingConsistency.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking Consistency'**
+  String get trackingConsistency;
+
   /// No description provided for @goalAchievement.
   ///
   /// In en, this message translates to:
@@ -1687,6 +1777,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Most Active Day'**
   String get mostActiveDay;
+
+  /// No description provided for @achievementLongestStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Longest Streak'**
+  String get achievementLongestStreak;
+
+  /// No description provided for @achievementLongestStreakDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your longest streak of consecutive days with meaningful tracking.'**
+  String get achievementLongestStreakDescription;
+
+  /// No description provided for @achievementBestProtein.
+  ///
+  /// In en, this message translates to:
+  /// **'Best Protein'**
+  String get achievementBestProtein;
+
+  /// No description provided for @achievementBestProteinDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The day your protein intake matched your protein goal most closely.'**
+  String get achievementBestProteinDescription;
+
+  /// No description provided for @achievementMostActiveDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Most Active Day'**
+  String get achievementMostActiveDay;
+
+  /// No description provided for @achievementMostActiveDayDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The day of the week where you have accumulated the most workout time.'**
+  String get achievementMostActiveDayDescription;
+
+  /// No description provided for @achievementHydrationHero.
+  ///
+  /// In en, this message translates to:
+  /// **'Hydration Hero'**
+  String get achievementHydrationHero;
+
+  /// No description provided for @achievementHydrationHeroDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your overall adherence to your daily hydration goal.'**
+  String get achievementHydrationHeroDescription;
+
+  /// No description provided for @achievementNutritionPro.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutrition Pro'**
+  String get achievementNutritionPro;
+
+  /// No description provided for @achievementNutritionProDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your overall adherence across calories, protein, carbs, and fat.'**
+  String get achievementNutritionProDescription;
+
+  /// No description provided for @achievementBalancedDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced Days'**
+  String get achievementBalancedDays;
+
+  /// No description provided for @achievementBalancedDaysDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Days where calories, protein, carbs, and fat were all close to their targets.'**
+  String get achievementBalancedDaysDescription;
+
+  /// No description provided for @achievementActiveChampion.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Champion'**
+  String get achievementActiveChampion;
+
+  /// No description provided for @achievementActiveChampionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your overall performance based on days with at least 20 minutes of exercise.'**
+  String get achievementActiveChampionDescription;
+
+  /// No description provided for @achievementGoalKeeper.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal Keeper'**
+  String get achievementGoalKeeper;
+
+  /// No description provided for @achievementGoalKeeperDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The goal you have successfully reached most often.'**
+  String get achievementGoalKeeperDescription;
+
+  /// No description provided for @achievementCalorieCompass.
+  ///
+  /// In en, this message translates to:
+  /// **'Calorie Compass'**
+  String get achievementCalorieCompass;
+
+  /// No description provided for @achievementCalorieCompassDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'How consistently your net calories stay close to your calorie goal.'**
+  String get achievementCalorieCompassDescription;
+
+  /// No description provided for @achievementHydrationStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Hydration Streak'**
+  String get achievementHydrationStreak;
+
+  /// No description provided for @achievementHydrationStreakDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your longest streak of consecutive days reaching your hydration goal.'**
+  String get achievementHydrationStreakDescription;
+
+  /// No description provided for @overviewNoAchievements.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep tracking to discover your strengths.'**
+  String get overviewNoAchievements;
+
+  /// No description provided for @monday.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get monday;
+
+  /// No description provided for @tuesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuesday'**
+  String get tuesday;
+
+  /// No description provided for @wednesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Wednesday'**
+  String get wednesday;
+
+  /// No description provided for @thursday.
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday'**
+  String get thursday;
+
+  /// No description provided for @friday.
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get friday;
+
+  /// No description provided for @saturday.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday'**
+  String get saturday;
 
   /// No description provided for @sunday.
   ///
@@ -1958,6 +2210,12 @@ abstract class AppLocalizations {
   /// **'Sample Product'**
   String get barcodeDemoProduct;
 
+  /// No description provided for @barcodeLookupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find a product for this barcode. Please try again.'**
+  String get barcodeLookupFailed;
+
   /// No description provided for @yourWeek.
   ///
   /// In en, this message translates to:
@@ -1969,12 +2227,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Activity'**
   String get activity;
-
-  /// No description provided for @weeklyScoreChange.
-  ///
-  /// In en, this message translates to:
-  /// **'%{value} from last week'**
-  String weeklyScoreChange(int value);
 
   /// No description provided for @active.
   ///
@@ -2042,6 +2294,12 @@ abstract class AppLocalizations {
   /// **'Next Week'**
   String get nextWeek;
 
+  /// No description provided for @nextWeekPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Week Plan'**
+  String get nextWeekPlan;
+
   /// No description provided for @yourMainFocus.
   ///
   /// In en, this message translates to:
@@ -2054,11 +2312,203 @@ abstract class AppLocalizations {
   /// **'Try This'**
   String get tryThis;
 
-  /// No description provided for @nextWeekPlan.
+  /// No description provided for @weeklyScoreChange.
   ///
   /// In en, this message translates to:
-  /// **'Next Week Plan'**
-  String get nextWeekPlan;
+  /// **'%{value} from last week'**
+  String weeklyScoreChange(int value);
+
+  /// No description provided for @reportStatusStrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong'**
+  String get reportStatusStrong;
+
+  /// No description provided for @reportStatusGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get reportStatusGood;
+
+  /// No description provided for @reportStatusNeedsFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs Focus'**
+  String get reportStatusNeedsFocus;
+
+  /// No description provided for @reportStatusNeedsImprovement.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs Improvement'**
+  String get reportStatusNeedsImprovement;
+
+  /// No description provided for @weeklyScoreStrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong Week'**
+  String get weeklyScoreStrong;
+
+  /// No description provided for @weeklyScoreGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Week'**
+  String get weeklyScoreGood;
+
+  /// No description provided for @weeklyScoreNeedsFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs Focus'**
+  String get weeklyScoreNeedsFocus;
+
+  /// No description provided for @weeklyScoreNeedsImprovement.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs Improvement'**
+  String get weeklyScoreNeedsImprovement;
+
+  /// No description provided for @reportTargetDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{reached}/{total} on target'**
+  String reportTargetDays(int reached, int total);
+
+  /// No description provided for @reportWorkoutTime.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min total'**
+  String reportWorkoutTime(int minutes);
+
+  /// No description provided for @monthlyScoreStrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong Month'**
+  String get monthlyScoreStrong;
+
+  /// No description provided for @monthlyScoreGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Month'**
+  String get monthlyScoreGood;
+
+  /// No description provided for @monthlyScoreNeedsFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs Focus'**
+  String get monthlyScoreNeedsFocus;
+
+  /// No description provided for @monthlyScoreNeedsImprovement.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs Improvement'**
+  String get monthlyScoreNeedsImprovement;
+
+  /// No description provided for @reportAreaCalories.
+  ///
+  /// In en, this message translates to:
+  /// **'Calories'**
+  String get reportAreaCalories;
+
+  /// No description provided for @reportAreaProtein.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein'**
+  String get reportAreaProtein;
+
+  /// No description provided for @reportAreaCarbs.
+  ///
+  /// In en, this message translates to:
+  /// **'Carbs'**
+  String get reportAreaCarbs;
+
+  /// No description provided for @reportAreaFat.
+  ///
+  /// In en, this message translates to:
+  /// **'Fat'**
+  String get reportAreaFat;
+
+  /// No description provided for @reportAreaHydration.
+  ///
+  /// In en, this message translates to:
+  /// **'Hydration'**
+  String get reportAreaHydration;
+
+  /// No description provided for @reportAreaActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get reportAreaActivity;
+
+  /// No description provided for @reportAreaTracking.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking'**
+  String get reportAreaTracking;
+
+  /// No description provided for @reportAreaWeekends.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekends'**
+  String get reportAreaWeekends;
+
+  /// No description provided for @reportStrongAreaTargetDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{reached}/{total} days on target'**
+  String reportStrongAreaTargetDays(int reached, int total);
+
+  /// No description provided for @reportWeakAreaScore.
+  ///
+  /// In en, this message translates to:
+  /// **'{score}% alignment'**
+  String reportWeakAreaScore(int score);
+
+  /// No description provided for @reportWeekendDifference.
+  ///
+  /// In en, this message translates to:
+  /// **'{value}% lower than weekdays'**
+  String reportWeekendDifference(int value);
+
+  /// No description provided for @reportGoalConsistencyPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal consistency this month'**
+  String get reportGoalConsistencyPeriod;
+
+  /// No description provided for @monthlyChangeTrackingConsistency.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking Consistency'**
+  String get monthlyChangeTrackingConsistency;
+
+  /// No description provided for @monthlyChangeGoalConsistency.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal Consistency'**
+  String get monthlyChangeGoalConsistency;
+
+  /// No description provided for @monthlyChangeCalories.
+  ///
+  /// In en, this message translates to:
+  /// **'Calories'**
+  String get monthlyChangeCalories;
+
+  /// No description provided for @monthlyChangeProtein.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein'**
+  String get monthlyChangeProtein;
+
+  /// No description provided for @monthlyChangeHydration.
+  ///
+  /// In en, this message translates to:
+  /// **'Hydration'**
+  String get monthlyChangeHydration;
+
+  /// No description provided for @monthlyChangeActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Days'**
+  String get monthlyChangeActivity;
 
   /// No description provided for @monthlyScoreChange.
   ///
@@ -2095,12 +2545,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Consistency'**
   String get consistency;
-
-  /// No description provided for @trackingConsistency.
-  ///
-  /// In en, this message translates to:
-  /// **'Tracking Consistency'**
-  String get trackingConsistency;
 
   /// No description provided for @goalConsistency.
   ///

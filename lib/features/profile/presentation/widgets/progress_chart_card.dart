@@ -12,6 +12,7 @@ class ProgressChartCard extends StatelessWidget {
   final ProgressRange selectedRange;
   final List<ProgressRange> availableRanges;
   final ValueChanged<ProgressRange> onRangeChanged;
+  final bool isPremium;
 
   const ProgressChartCard({
     super.key,
@@ -19,6 +20,7 @@ class ProgressChartCard extends StatelessWidget {
     required this.selectedRange,
     required this.availableRanges,
     required this.onRangeChanged,
+    required this.isPremium,
   });
 
   String _rangeLabel(
@@ -76,17 +78,30 @@ class ProgressChartCard extends StatelessWidget {
                 return availableRanges.map((range) {
                   return PopupMenuItem<ProgressRange>(
                     value: range,
-                    child: Text(
-                      _rangeLabel(
-                        context,
-                        range,
-                      ),
-                      style:
-                      AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.homeBrown,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _rangeLabel(
+                              context,
+                              range,
+                            ),
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: AppColors.homeBrown,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        if (!isPremium &&
+                            range != ProgressRange.days7)
+                          const Icon(
+                            Icons.lock_outline_rounded,
+                            size: 16,
+                            color:
+                            AppColors.planTrackingSecondaryLabel,
+                          ),
+                      ],
                     ),
                   );
                 }).toList();
@@ -152,14 +167,22 @@ class ProgressChartCard extends StatelessWidget {
   LineChartData _chartData(
       BuildContext context,
       ) {
+    final chartMinY =
+    data.minY == 0 ? -data.interval * 0.08 : data.minY;
+
     return LineChartData(
       minX: 0,
-      maxX: (data.spots.length - 1).toDouble(),
+      maxX: (data.bottomLabels.length - 1).toDouble(),
 
-      minY: data.minY,
+      minY: chartMinY,
       maxY: data.maxY,
 
-      clipData: const FlClipData.all(),
+      clipData: const FlClipData(
+        top: true,
+        bottom: false,
+        left: true,
+        right: true,
+      ),
 
       borderData: FlBorderData(
         show: false,
@@ -170,10 +193,15 @@ class ProgressChartCard extends StatelessWidget {
         drawVerticalLine: false,
         horizontalInterval: data.interval,
         getDrawingHorizontalLine: (value) {
+          if (value < 0) {
+            return const FlLine(
+              color: Colors.transparent,
+              strokeWidth: 0,
+            );
+          }
+
           return FlLine(
-            color: AppColors.homeBrown.withValues(
-              alpha: 0.07,
-            ),
+            color: AppColors.homeBrown.withValues(alpha: 0.07),
             strokeWidth: 1,
           );
         },
@@ -195,18 +223,22 @@ class ProgressChartCard extends StatelessWidget {
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 30,
+            reservedSize: 44,
             interval: data.interval,
             getTitlesWidget: (value, meta) {
+              if (value < 0) {
+                return const SizedBox.shrink();
+              }
+
               return SideTitleWidget(
                 meta: meta,
                 space: 5,
                 child: Text(
                   _formatAxisValue(value),
-                  style:
-                  AppTextStyles.caption.copyWith(
-                    color: AppColors
-                        .planTrackingSecondaryLabel,
+                  maxLines: 1,
+                  softWrap: false,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.planTrackingSecondaryLabel,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                   ),
@@ -264,10 +296,15 @@ class ProgressChartCard extends StatelessWidget {
         touchTooltipData:
         LineTouchTooltipData(
           getTooltipItems: (spots) {
+            final seenX = <double>{};
+
             return spots.map((spot) {
+              if (!seenX.add(spot.x)) {
+                return null;
+              }
+
               return LineTooltipItem(
-                '${_formatTooltipValue(spot.y)} '
-                    '${data.tooltipUnit}',
+                '${_formatTooltipValue(spot.y)} ${data.tooltipUnit}',
                 AppTextStyles.labelSmall.copyWith(
                   color: AppColors.onPrimary,
                   fontSize: 11,
@@ -280,53 +317,112 @@ class ProgressChartCard extends StatelessWidget {
       ),
 
       extraLinesData: ExtraLinesData(
-        horizontalLines: [
+        horizontalLines: data.targetY == null
+            ? []
+            : [
           HorizontalLine(
-            y: data.targetY,
-            color: data.lineColor.withValues(
-              alpha: 0.35,
-            ),
+            y: data.targetY!,
+            color: data.lineColor.withValues(alpha: 0.35,),
             strokeWidth: 1.5,
             dashArray: [6, 5],
           ),
         ],
       ),
 
-      lineBarsData: [
-        LineChartBarData(
-          spots: data.spots,
-          isCurved: true,
-          curveSmoothness: 0.28,
-          color: data.lineColor,
-          barWidth: 3,
-          isStrokeCapRound: true,
+      lineBarsData: _buildLineBars(),
+    );
+  }
 
-          belowBarData: BarAreaData(
-            show: true,
-            color: data.lineColor.withValues(
-              alpha: 0.055,
-            ),
-          ),
-
-          // Her veri noktası görünüyor.
-          dotData: FlDotData(
-            show: true,
-            getDotPainter: (
-                spot,
-                percent,
-                barData,
-                index,
-                ) {
-              return FlDotCirclePainter(
-                radius: 3.5,
-                color: AppColors.surfacePrimary,
-                strokeWidth: 2,
-                strokeColor: data.lineColor,
-              );
-            },
-          ),
+  List<LineChartBarData> _buildLineBars() {
+    if (data.spots.length <= 1) {
+      return [
+        _createLineBar(
+          data.spots,
+          isCurved: false,
         ),
-      ],
+      ];
+    }
+
+    final bars = <LineChartBarData>[];
+
+    var currentSpots = <FlSpot>[data.spots.first];
+    var currentIsZeroSegment = _isZeroSegment(
+      data.spots[0],
+      data.spots[1],
+    );
+
+    for (var i = 1; i < data.spots.length; i++) {
+      final currentSpot = data.spots[i];
+      currentSpots.add(currentSpot);
+
+      if (i == data.spots.length - 1) {
+        bars.add(
+          _createLineBar(
+            currentSpots,
+            isCurved: !currentIsZeroSegment,
+          ),
+        );
+        break;
+      }
+
+      final nextIsZeroSegment = _isZeroSegment(
+        currentSpot,
+        data.spots[i + 1],
+      );
+
+      if (nextIsZeroSegment != currentIsZeroSegment) {
+        bars.add(
+          _createLineBar(
+            currentSpots,
+            isCurved: !currentIsZeroSegment,
+          ),
+        );
+
+        currentSpots = [currentSpot];
+        currentIsZeroSegment = nextIsZeroSegment;
+      }
+    }
+
+    return bars;
+  }
+
+  bool _isZeroSegment(FlSpot first, FlSpot second) {
+    return first.y == 0 && second.y == 0;
+  }
+
+  LineChartBarData _createLineBar(
+      List<FlSpot> spots, {
+        required bool isCurved,
+      }) {
+    return LineChartBarData(
+      spots: spots,
+      isCurved: isCurved,
+      curveSmoothness: isCurved ? 0.28 : 0,
+      color: data.lineColor,
+      barWidth: 3,
+      isStrokeCapRound: true,
+
+      belowBarData: BarAreaData(
+        show: true,
+        color: data.lineColor.withValues(alpha: 0.055),
+      ),
+
+      dotData: FlDotData(
+        show: true,
+        getDotPainter: (
+            spot,
+            percent,
+            barData,
+            index,
+            ) {
+          return FlDotCirclePainter(
+            radius: 3.5,
+            color: AppColors.surfacePrimary,
+            strokeWidth: 2,
+            strokeColor: data.lineColor,
+          );
+        },
+      ),
     );
   }
 
@@ -341,6 +437,16 @@ class ProgressChartCard extends StatelessWidget {
   String _formatTooltipValue(double value) {
     if (value == value.roundToDouble()) {
       return value.toInt().toString();
+    }
+
+    if (data.tooltipUnit == 'L' && value.abs() < 1) {
+      final formatted = value.toStringAsFixed(2);
+
+      if (formatted.endsWith('0')) {
+        return value.toStringAsFixed(1);
+      }
+
+      return formatted;
     }
 
     return value.toStringAsFixed(1);

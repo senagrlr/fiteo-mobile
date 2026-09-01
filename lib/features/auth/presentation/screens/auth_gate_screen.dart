@@ -4,19 +4,39 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:fiteo_myapp/app/router/app_routes.dart';
+import 'package:fiteo_myapp/common/services/device_timezone_service.dart';
 import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
 
 class AuthGateScreen extends StatelessWidget {
   const AuthGateScreen({super.key});
 
   Future<String> _getLoggedInTargetRoute(User user) async {
-    final doc = await FirebaseFirestore.instance
+    final userRef = FirebaseFirestore.instance
         .collection('users')
-        .doc(user.uid)
-        .get();
+        .doc(user.uid);
+
+    final doc = await userRef.get();
+    final data = doc.data() ?? <String, dynamic>{};
+
+    try {
+      final timezone =
+      await DeviceTimezoneService.getCurrentTimezone();
+
+      if (data['timezone'] != timezone) {
+        await userRef.set(
+          {
+            'timezone': timezone,
+            'updatedAt': FieldValue.serverTimestamp(),
+          },
+          SetOptions(merge: true),
+        );
+      }
+    } catch (e) {
+      debugPrint('TIMEZONE SYNC ERROR: $e');
+    }
 
     final isOnboardingCompleted =
-        doc.data()?['isOnboardingCompleted'] == true;
+        data['isOnboardingCompleted'] == true;
 
     if (isOnboardingCompleted) {
       return AppRoutes.main;

@@ -11,8 +11,6 @@ class WeeklyReportData {
   final WeeklyDayData bestDay;
   final WeeklyDayData worstDay;
 
-  final WeeklyWeightPlanData weightPlan;
-
   final List<String> reviewParagraphs;
 
   final WeeklyNextWeekData nextWeek;
@@ -26,15 +24,10 @@ class WeeklyReportData {
     required this.metrics,
     required this.bestDay,
     required this.worstDay,
-    required this.weightPlan,
     required this.reviewParagraphs,
     required this.nextWeek,
   });
 }
-
-// ============================================================
-// OVERVIEW
-// ============================================================
 
 class WeeklyOverviewData {
   final String caloriesStatus;
@@ -54,16 +47,12 @@ class WeeklyOverviewData {
   });
 }
 
-// ============================================================
-// METRICS
-// ============================================================
-
 class WeeklyMetricsData {
   final String caloriesAverage;
   final String caloriesTargetDays;
 
   final String activeDays;
-  final String activityTargetDays;
+  final String workoutTime;
 
   final String proteinAverage;
   final String proteinTargetDays;
@@ -72,23 +61,19 @@ class WeeklyMetricsData {
     required this.caloriesAverage,
     required this.caloriesTargetDays,
     required this.activeDays,
-    required this.activityTargetDays,
+    required this.workoutTime,
     required this.proteinAverage,
     required this.proteinTargetDays,
   });
 }
 
-// ============================================================
-// BEST / WORST DAY
-// ============================================================
-
 class WeeklyDayData {
   final String dayLabel;
 
-  final bool caloriesAligned;
-  final bool activityAligned;
-  final bool waterAligned;
-  final bool proteinAligned;
+  final bool? caloriesAligned;
+  final bool? activityAligned;
+  final bool? waterAligned;
+  final bool? proteinAligned;
 
   final int alignmentPercent;
 
@@ -101,32 +86,6 @@ class WeeklyDayData {
     required this.alignmentPercent,
   });
 }
-
-// ============================================================
-// WEIGHT & PLAN
-// ============================================================
-
-class WeeklyWeightPlanData {
-  final double lastWeekWeight;
-  final double currentWeight;
-
-  final String statusLabel;
-  final String statusDescription;
-
-  final String estimatedGoalDate;
-
-  const WeeklyWeightPlanData({
-    required this.lastWeekWeight,
-    required this.currentWeight,
-    required this.statusLabel,
-    required this.statusDescription,
-    required this.estimatedGoalDate,
-  });
-}
-
-// ============================================================
-// NEXT WEEK
-// ============================================================
 
 class WeeklyNextWeekData {
   final String focusTitle;

@@ -8,16 +8,9 @@ import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 class WeeklyWeightUpdateSheet
     extends StatefulWidget {
   final double initialWeightKg;
-
-  /// "KG" veya "LB"
-  /// Daha sonra kullanıcının profil/plan
-  /// tercihinden gelecek.
   final String unit;
 
-  /// Değeri her zaman KG olarak döndürüyoruz.
-  /// Backend tarafında tek bir standart
-  /// birimde saklamak daha temiz olur.
-  final ValueChanged<double> onUpdate;
+  final Future<void> Function(double weightKg) onUpdate;
 
   const WeeklyWeightUpdateSheet({
     super.key,
@@ -266,16 +259,16 @@ class _WeeklyWeightUpdateSheetState
         '${widget.unit.toUpperCase()}';
   }
 
-  void _update() {
-    final roundedWeightKg =
-    double.parse(
-      selectedWeightKg
-          .toStringAsFixed(1),
+  Future<void> _update() async {
+    final roundedWeightKg = double.parse(
+      selectedWeightKg.toStringAsFixed(1),
     );
 
-    widget.onUpdate(
+    await widget.onUpdate(
       roundedWeightKg,
     );
+
+    if (!mounted) return;
 
     Navigator.pop(context);
   }

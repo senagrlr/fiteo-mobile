@@ -3,21 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
-import 'package:fiteo_myapp/features/reports/models/monthly_report_data.dart';
 
 class MonthlyReviewCard extends StatelessWidget {
   final List<String> paragraphs;
-  final List<MonthlyPatternData> patterns;
 
   const MonthlyReviewCard({
     super.key,
     required this.paragraphs,
-    required this.patterns,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (paragraphs.isEmpty && patterns.isEmpty) {
+    if (paragraphs.isEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -45,9 +42,6 @@ class MonthlyReviewCard extends StatelessWidget {
         crossAxisAlignment:
         CrossAxisAlignment.start,
         children: [
-          // =====================================================
-          // MONTHLY REVIEW TITLE
-          // =====================================================
 
           Row(
             children: [
@@ -76,10 +70,6 @@ class MonthlyReviewCard extends StatelessWidget {
               ),
             ],
           ),
-
-          // =====================================================
-          // REVIEW TEXT
-          // =====================================================
 
           if (paragraphs.isNotEmpty) ...[
             const SizedBox(height: 17),
@@ -110,123 +100,8 @@ class MonthlyReviewCard extends StatelessWidget {
               },
             ),
           ],
-
-          // =====================================================
-          // PATTERNS WE NOTICED
-          // =====================================================
-
-          if (patterns.isNotEmpty) ...[
-            const SizedBox(height: 23),
-
-            Container(
-              height: 1,
-              width: double.infinity,
-              color: AppColors.mealFieldDivider,
-            ),
-
-            const SizedBox(height: 19),
-
-            Text(
-              context.l10n.patternsWeNoticed
-                  .toUpperCase(),
-              style: AppTextStyles
-                  .labelMedium
-                  .copyWith(
-                color:
-                AppColors.calendarCompleted,
-                fontSize: 13,
-                fontWeight:
-                FontWeight.w900,
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            ...patterns.asMap().entries.map(
-                  (entry) {
-                return Padding(
-                  padding: EdgeInsets.only(
-                    bottom:
-                    entry.key ==
-                        patterns.length - 1
-                        ? 0
-                        : 18,
-                  ),
-                  child: _PatternItem(
-                    data: entry.value,
-                  ),
-                );
-              },
-            ),
-          ],
         ],
       ),
-    );
-  }
-}
-
-class _PatternItem extends StatelessWidget {
-  final MonthlyPatternData data;
-
-  const _PatternItem({
-    required this.data,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment:
-      CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 7,
-          height: 7,
-          margin: const EdgeInsets.only(
-            top: 6,
-          ),
-          decoration: const BoxDecoration(
-            color: AppColors.calendarCompleted,
-            shape: BoxShape.circle,
-          ),
-        ),
-
-        const SizedBox(width: 10),
-
-        Expanded(
-          child: Column(
-            crossAxisAlignment:
-            CrossAxisAlignment.start,
-            children: [
-              Text(
-                data.title.toUpperCase(),
-                style: AppTextStyles
-                    .labelMedium
-                    .copyWith(
-                  color: AppColors.homeBrown,
-                  fontSize: 12,
-                  fontWeight:
-                  FontWeight.w800,
-                ),
-              ),
-
-              const SizedBox(height: 5),
-
-              Text(
-                data.description,
-                style: AppTextStyles
-                    .bodyMedium
-                    .copyWith(
-                  color: AppColors.homeBrown,
-                  fontSize: 14,
-                  height: 1.5,
-                  fontWeight:
-                  FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

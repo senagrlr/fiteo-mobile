@@ -8,11 +8,13 @@ import 'package:fiteo_myapp/features/profile/presentation/models/progress_models
 class ProgressMetricTabs extends StatelessWidget {
   final ProgressMetric selectedMetric;
   final ValueChanged<ProgressMetric> onChanged;
+  final bool isPremium;
 
   const ProgressMetricTabs({
     super.key,
     required this.selectedMetric,
     required this.onChanged,
+    required this.isPremium,
   });
 
   @override
@@ -25,6 +27,7 @@ class ProgressMetricTabs extends StatelessWidget {
             label: context.l10n.weight,
             isSelected:
             selectedMetric == ProgressMetric.weight,
+            showLock: !isPremium,
             onTap: () {
               onChanged(ProgressMetric.weight);
             },
@@ -81,11 +84,13 @@ class _MetricTab extends StatelessWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
+  final bool showLock;
 
   const _MetricTab({
     required this.label,
     required this.isSelected,
     required this.onTap,
+    this.showLock = false,
   });
 
   @override
@@ -111,16 +116,30 @@ class _MetricTab extends StatelessWidget {
         ),
         child: FittedBox(
           fit: BoxFit.scaleDown,
-          child: Text(
-            label,
-            maxLines: 1,
-            style: AppTextStyles.labelSmall.copyWith(
-              color: isSelected
-                  ? AppColors.homeBrown
-                  : AppColors.planTrackingSecondaryLabel,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                maxLines: 1,
+                style: AppTextStyles.labelSmall.copyWith(
+                  color: isSelected
+                      ? AppColors.homeBrown
+                      : AppColors.planTrackingSecondaryLabel,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              if (showLock) ...[
+                const SizedBox(width: 3),
+                const Icon(
+                  Icons.lock_outline_rounded,
+                  size: 11,
+                  color:
+                  AppColors.planTrackingSecondaryLabel,
+                ),
+              ],
+            ],
           ),
         ),
       ),

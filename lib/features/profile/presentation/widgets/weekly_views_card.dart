@@ -6,6 +6,7 @@ import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/features/home/data/calendar_repository.dart';
+import 'package:fiteo_myapp/features/profile/presentation/widgets/weekly_views_loading_card.dart';
 
 class WeeklyViewsCard extends StatefulWidget {
   final VoidCallback? onArrowTap;
@@ -112,9 +113,7 @@ class _WeeklyViewsCardState extends State<WeeklyViewsCard> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const WeeklyViewsLoadingCard();
     }
 
     final positiveValues = values

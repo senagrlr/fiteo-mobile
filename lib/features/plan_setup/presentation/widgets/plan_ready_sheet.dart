@@ -6,6 +6,7 @@ import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
+import 'package:fiteo_myapp/features/profile/data/plan_tracking_calculator.dart';
 
 class AiNutritionPlan {
   final int calories;
@@ -13,6 +14,8 @@ class AiNutritionPlan {
   final int carbsGrams;
   final int fatsGrams;
   final int waterMl;
+  final double tdee;
+  final double expectedWeeklyWeightChangeKg;
 
   const AiNutritionPlan({
     required this.calories,
@@ -20,6 +23,8 @@ class AiNutritionPlan {
     required this.carbsGrams,
     required this.fatsGrams,
     required this.waterMl,
+    required this.tdee,
+    required this.expectedWeeklyWeightChangeKg,
   });
 
   AiNutritionPlan copyWith({
@@ -28,6 +33,8 @@ class AiNutritionPlan {
     int? carbsGrams,
     int? fatsGrams,
     int? waterMl,
+    double? tdee,
+    double? expectedWeeklyWeightChangeKg,
   }) {
     return AiNutritionPlan(
       calories: calories ?? this.calories,
@@ -35,6 +42,9 @@ class AiNutritionPlan {
       carbsGrams: carbsGrams ?? this.carbsGrams,
       fatsGrams: fatsGrams ?? this.fatsGrams,
       waterMl: waterMl ?? this.waterMl,
+      tdee: tdee ?? this.tdee,
+      expectedWeeklyWeightChangeKg:
+      expectedWeeklyWeightChangeKg ?? this.expectedWeeklyWeightChangeKg,
     );
   }
 }
@@ -150,6 +160,12 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
       return;
     }
 
+    final expectedWeeklyWeightChangeKg =
+    const PlanTrackingCalculator().calculateExpectedWeeklyWeightChange(
+      calorieGoal: calories.toDouble(),
+      tdee: widget.initialPlan.tdee,
+    );
+
     Navigator.pop(
       context,
       AiNutritionPlan(
@@ -158,6 +174,8 @@ class _PlanReadySheetState extends State<PlanReadySheet> {
         carbsGrams: carbs,
         fatsGrams: fats,
         waterMl: (waterLiters * 1000).round(),
+        tdee: widget.initialPlan.tdee,
+        expectedWeeklyWeightChangeKg: expectedWeeklyWeightChangeKg,
       ),
     );
   }

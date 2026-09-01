@@ -19,6 +19,10 @@ import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/shared/ai_mod
 
 import 'package:fiteo_myapp/features/meals/data/meal_repository.dart';
 import 'package:fiteo_myapp/features/profile/data/saved_recipe_repository.dart';
+import 'package:fiteo_myapp/features/ai_coach/data/ai_usage_limits.dart';
+import 'package:fiteo_myapp/features/ai_coach/data/ai_usage_repository.dart';
+import 'package:fiteo_myapp/features/ai_coach/data/ai_usage_state.dart';
+import 'package:fiteo_myapp/features/membership/data/membership_repository.dart';
 
 class CookAiScreen extends StatefulWidget {
   final VoidCallback onSwitchToCoach;
@@ -49,34 +53,47 @@ class _CookAiScreenState extends State<CookAiScreen> {
   final SavedRecipeRepository _savedRecipeRepository =
   SavedRecipeRepository();
 
+  final MembershipRepository _membershipRepository =
+  MembershipRepository();
+
+  bool _isPremium = false;
+
   bool isGenerating = false;
 
   CookRecipeResult? generatedRecipeResult;
 
-  int recipeCount = 0;
+  final AiUsageRepository _usageRepository =
+  AiUsageRepository();
+
+  AiUsageState _recipeUsage =
+  const AiUsageState.empty();
 
   String? savedRecipeId;
 
-  static const int dailyRecipeLimit = 2;
-
   bool get _hasReachedDailyRecipeLimit =>
-      recipeCount >= dailyRecipeLimit;
+      !_isPremium &&
+          _recipeUsage.hasReachedLimit(
+            baseLimit: AiUsageLimits.freeRecipes,
+          );
 
   @override
   void initState() {
     super.initState();
 
-    _loadRecipeCount();
+    _loadInitialState();
   }
 
-  Future<void> _loadRecipeCount() async {
-    final count =
-    await _chatRepository.getTodayRecipeCount();
+  Future<void> _loadInitialState() async {
+    final results = await Future.wait([
+      _usageRepository.getTodayRecipeUsage(),
+      _membershipRepository.isPremium(),
+    ]);
 
     if (!mounted) return;
 
     setState(() {
-      recipeCount = count;
+      _recipeUsage = results[0] as AiUsageState;
+      _isPremium = results[1] as bool;
     });
   }
 
@@ -161,13 +178,17 @@ class _CookAiScreenState extends State<CookAiScreen> {
       return;
     }
 
-    await _chatRepository
-        .incrementTodayRecipeCount();
-
     if (!mounted) return;
 
     setState(() {
-      recipeCount++;
+      if (!_isPremium) {
+        _recipeUsage = AiUsageState(
+          usedCount: _recipeUsage.usedCount + 1,
+          rewardedCredits:
+          _recipeUsage.rewardedCredits,
+        );
+      }
+
       generatedRecipeResult = recipe;
       savedRecipeId = null;
     });
@@ -406,9 +427,9 @@ class _CookAiScreenState extends State<CookAiScreen> {
   @override
   Widget build(BuildContext context) {
     final remainingRecipeRequests =
-    (dailyRecipeLimit - recipeCount).clamp(
-      0,
-      dailyRecipeLimit,
+    _recipeUsage.remaining(
+      baseLimit:
+      AiUsageLimits.freeRecipes,
     );
 
     return SystemNavigationBar(
@@ -456,29 +477,22 @@ class _CookAiScreenState extends State<CookAiScreen> {
                         height: 18,
                       ),
 
-                      Text(
-                        remainingRecipeRequests >
-                            0
-                            ? context.l10n
-                            .recipeRequestsLeftToday(
-                          remainingRecipeRequests,
-                        )
-                            : context.l10n
-                            .dailyRecipeLimitReached,
-                        style:
-                        AppTextStyles.bodySmall.copyWith(
-                          color:
-                          AppColors.homeSecondaryValue,
-                          fontSize:
-                          12,
-                          fontWeight:
-                          FontWeight.w500,
+                      if (!_isPremium) ...[
+                        Text(
+                          remainingRecipeRequests > 0
+                              ? context.l10n.recipeRequestsLeftToday(
+                            remainingRecipeRequests,
+                          )
+                              : context.l10n.dailyRecipeLimitReached,
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.homeSecondaryValue,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
 
-                      const SizedBox(
-                        height: 12,
-                      ),
+                        const SizedBox(height: 12),
+                      ],
 
                       CookMessageInput(
                         controller:

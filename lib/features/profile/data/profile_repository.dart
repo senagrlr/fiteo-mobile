@@ -58,6 +58,30 @@ class ProfileRepository {
     await _firestore.collection('users').doc(user.uid).update(updates);
   }
 
+  Future<void> updateNutritionPlan(
+      Map<String, dynamic> values,
+      ) async {
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception('User not logged in');
+    }
+
+    final updates = <String, dynamic>{
+      'updatedAt': FieldValue.serverTimestamp(),
+      'nutritionPlan.updatedAt': FieldValue.serverTimestamp(),
+    };
+
+    values.forEach((key, value) {
+      updates['nutritionPlan.$key'] = value;
+    });
+
+    await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .update(updates);
+  }
+
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,

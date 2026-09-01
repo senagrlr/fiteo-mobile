@@ -15,22 +15,31 @@ class MonthlyWeightPlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final change =
-        data.currentWeight - data.startWeight;
+    final hasWeightData =
+        data.startWeight != null && data.currentWeight != null;
 
-    final lostWeight = change < 0;
+    final change = hasWeightData
+        ? data.currentWeight! - data.startWeight!
+        : null;
 
-    final unchanged =
-        change.abs() < 0.01;
+    final lostWeight = change != null && change < 0;
+    final unchanged = change == null || change.abs() < 0.01;
 
-    final targetAbs =
-    data.monthlyTargetChange.abs();
+    final startWeightText = data.startWeight == null
+        ? '-'
+        : '${data.startWeight!.toStringAsFixed(1)} kg';
 
-    final achievedPercentage =
-    targetAbs <= 0
-        ? 0
-        : ((change.abs() / targetAbs) * 100)
-        .round();
+    final currentWeightText = data.currentWeight == null
+        ? '-'
+        : '${data.currentWeight!.toStringAsFixed(1)} kg';
+
+    final monthlyTargetText = data.monthlyTargetChange == null
+        ? '-'
+        : '${data.monthlyTargetChange!.toStringAsFixed(1)} kg';
+
+    final progressText = data.progressAchievedPercent == null
+        ? '-'
+        : '%${data.progressAchievedPercent}';
 
     return Container(
       width: double.infinity,
@@ -63,19 +72,15 @@ class MonthlyWeightPlanCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _WeightValue(
-                  value:
-                  '${data.startWeight.toStringAsFixed(1)} kg',
-                  label:
-                  context.l10n.start,
+                  value: startWeightText,
+                  label: context.l10n.start,
                 ),
               ),
 
               Expanded(
                 child: _WeightValue(
-                  value:
-                  '${data.currentWeight.toStringAsFixed(1)} kg',
-                  label:
-                  context.l10n.now,
+                  value: currentWeightText,
+                  label: context.l10n.now,
                   alignRight: true,
                 ),
               ),
@@ -108,7 +113,9 @@ class MonthlyWeightPlanCard extends StatelessWidget {
                   const SizedBox(width: 4),
 
                 Text(
-                  '${change.abs().toStringAsFixed(1)} kg',
+                  change == null
+                      ? '-'
+                      : '${change.abs().toStringAsFixed(1)} kg',
                   style:
                   AppTextStyles.titleMedium.copyWith(
                     color: AppColors.homeBrown,
@@ -127,10 +134,8 @@ class MonthlyWeightPlanCard extends StatelessWidget {
           // =====================================================
 
           _ValueRow(
-            label:
-            context.l10n.monthlyTarget,
-            value:
-            '${data.monthlyTargetChange.toStringAsFixed(1)} kg',
+            label: context.l10n.monthlyTarget,
+            value: monthlyTargetText,
           ),
 
           const SizedBox(height: 10),
@@ -140,10 +145,8 @@ class MonthlyWeightPlanCard extends StatelessWidget {
           // =====================================================
 
           _ValueRow(
-            label:
-            context.l10n.progressAchieved,
-            value:
-            '%$achievedPercentage',
+            label: context.l10n.progressAchieved,
+            value: progressText,
           ),
 
           const SizedBox(height: 25),
@@ -183,18 +186,20 @@ class MonthlyWeightPlanCard extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 13),
+          if (data.statusDescription != null &&
+              data.statusDescription!.isNotEmpty) ...[
+            const SizedBox(height: 13),
 
-          Text(
-            data.statusDescription,
-            style:
-            AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.homeBrown,
-              fontSize: 14,
-              height: 1.5,
-              fontWeight: FontWeight.w500,
+            Text(
+              data.statusDescription!,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.homeBrown,
+                fontSize: 14,
+                height: 1.5,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );

@@ -4,7 +4,6 @@ import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/features/reports/models/monthly_report_data.dart';
-import 'package:fiteo_myapp/features/reports/presentation/widgets/monthly/monthly_achievements.dart';
 import 'package:fiteo_myapp/features/reports/presentation/widgets/monthly/monthly_area_detail_card.dart';
 
 class MonthlyStrongestWeakestArea
@@ -12,13 +11,10 @@ class MonthlyStrongestWeakestArea
   final MonthlyAreaData strongestArea;
   final MonthlyAreaData weakestArea;
 
-  final List<MonthlyAchievementData> achievements;
-
   const MonthlyStrongestWeakestArea({
     super.key,
     required this.strongestArea,
     required this.weakestArea,
-    required this.achievements,
   });
 
   @override
@@ -120,35 +116,6 @@ class _MonthlyStrongestWeakestAreaState
                   showStrongest,
                 ),
               ),
-
-              // ===============================================
-              // ACHIEVEMENTS
-              // SADECE STRONGEST AREA SEÇİLİYKEN
-              // ===============================================
-
-              if (showStrongest &&
-                  widget
-                      .achievements
-                      .isNotEmpty) ...[
-                const SizedBox(
-                  height: 22,
-                ),
-
-                Container(
-                  height: 1,
-                  color:
-                  AppColors.mealFieldDivider,
-                ),
-
-                const SizedBox(
-                  height: 20,
-                ),
-
-                MonthlyAchievements(
-                  achievements:
-                  widget.achievements,
-                ),
-              ],
             ],
           ),
         ),

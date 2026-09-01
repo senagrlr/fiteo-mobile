@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AiChatService {
   static const String _chatUrl =
@@ -14,12 +15,25 @@ class AiChatService {
     required List<Map<String, dynamic>> recentMessages,
   }) async {
     try {
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        return null;
+      }
+
+      final idToken = await user.getIdToken();
+
+      if (idToken == null || idToken.isEmpty) {
+        return null;
+      }
+
       final uri = Uri.parse(_chatUrl);
 
       final response = await http.post(
         uri,
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer $idToken',
         },
         body: jsonEncode({
           'message': message,

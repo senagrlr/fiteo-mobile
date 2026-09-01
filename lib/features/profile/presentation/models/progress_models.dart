@@ -8,6 +8,13 @@ enum ProgressMetric {
   workout,
 }
 
+enum ProgressNutritionMetric {
+  calories,
+  protein,
+  carbs,
+  fat,
+}
+
 enum ProgressRange {
   days7,
   days30,
@@ -23,7 +30,7 @@ class ProgressChartData {
   final double minY;
   final double maxY;
   final double interval;
-  final double targetY;
+  final double? targetY;
 
   final String tooltipUnit;
 

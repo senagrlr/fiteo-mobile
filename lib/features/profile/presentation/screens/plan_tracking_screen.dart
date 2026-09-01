@@ -227,11 +227,11 @@ class _PlanTrackingScreenState
       // Existing Overview stays usable
       // even if AI generation/cache write fails.
     } finally {
-      if (!mounted) return;
-
-      setState(() {
-        _isOverviewAiLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isOverviewAiLoading = false;
+        });
+      }
     }
   }
 

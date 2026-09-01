@@ -19,7 +19,6 @@ import 'package:fiteo_myapp/features/home/presentation/widgets/week_calendar_row
 import 'package:fiteo_myapp/features/home/presentation/widgets/home_loading_skeleton.dart';
 import 'package:fiteo_myapp/features/home/presentation/coordinators/home_popup_coordinator.dart';
 
-import 'package:fiteo_myapp/features/reports/models/monthly_report_data.dart';
 import 'package:fiteo_myapp/features/reports/presentation/popups/monthly_report_popup.dart';
 import 'package:fiteo_myapp/features/reports/data/report_repository.dart';
 import 'package:fiteo_myapp/features/reports/presentation/mappers/monthly_report_mapper.dart';

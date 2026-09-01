@@ -41,6 +41,9 @@ class PremiumInsightService {
   static const String _url =
       'https://generatepremiuminsight-3qn3ngl7rq-uc.a.run.app';
 
+  static const Duration _requestTimeout =
+  Duration(seconds: 30);
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<String?> generateOverviewNote(
@@ -334,7 +337,8 @@ class PremiumInsightService {
         return null;
       }
 
-      final response = await http.post(
+      final response = await http
+          .post(
         Uri.parse(_url),
         headers: {
           'Authorization': 'Bearer $token',
@@ -345,7 +349,8 @@ class PremiumInsightService {
           'languageCode': _languageCode(),
           'data': data,
         }),
-      );
+      )
+          .timeout(_requestTimeout);
 
       if (response.statusCode != 200) {
         return null;

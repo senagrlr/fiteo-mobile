@@ -68,6 +68,7 @@ class _PlanTrackingScreenState
 
   bool _isOverviewLoading = true;
   bool _overviewHasError = false;
+  bool _isOverviewAiLoading = false;
   bool _isOverviewAiNoteLoading = false;
 
   final PlanTrackingRepository _planTrackingRepository =
@@ -150,6 +151,9 @@ class _PlanTrackingScreenState
         stats,
       );
 
+      final shouldRefreshAi =
+      _needsOverviewAiRefresh(stats);
+
       if (!mounted) return;
 
       setState(() {
@@ -157,40 +161,37 @@ class _PlanTrackingScreenState
         _achievements = achievements;
         _isOverviewLoading = false;
         _overviewHasError = false;
+        _isOverviewAiLoading = shouldRefreshAi;
       });
 
-      unawaited(
-        _refreshOverviewAiNote(stats),
-      );
+      if (shouldRefreshAi) {
+        await _refreshOverviewAiNote(stats);
+      }
     } catch (_) {
       if (!mounted) return;
 
       setState(() {
         _isOverviewLoading = false;
         _overviewHasError = true;
+        _isOverviewAiLoading = false;
       });
     }
+  }
+
+  bool _needsOverviewAiRefresh(
+      OverviewStats stats,
+      ) {
+    final todayKey = _dateKey(DateTime.now());
+
+    return stats.aiNote == null ||
+        stats.aiNote!.trim().isEmpty ||
+        stats.aiNoteDate != todayKey;
   }
 
   Future<void> _refreshOverviewAiNote(
       OverviewStats stats,
       ) async {
     final todayKey = _dateKey(DateTime.now());
-
-    final hasCurrentNote =
-        stats.aiNote != null &&
-            stats.aiNote!.trim().isNotEmpty &&
-            stats.aiNoteDate == todayKey;
-
-    if (hasCurrentNote) {
-      return;
-    }
-
-    if (!mounted) return;
-
-    setState(() {
-      _isOverviewAiNoteLoading = true;
-    });
 
     try {
       final note =
@@ -206,21 +207,23 @@ class _PlanTrackingScreenState
         date: todayKey,
       );
 
+      stats.aiNote = note;
+      stats.aiNoteDate = todayKey;
+
       if (!mounted) return;
 
       setState(() {
-        stats.aiNote = note;
-        stats.aiNoteDate = todayKey;
+        _overviewStats = stats;
       });
     } catch (_) {
-      // Static Overview note is shown
-      // if AI generation or cache write fails.
+      // Existing Overview stays usable
+      // even if AI generation/cache write fails.
     } finally {
-      if (mounted) {
-        setState(() {
-          _isOverviewAiNoteLoading = false;
-        });
-      }
+      if (!mounted) return;
+
+      setState(() {
+        _isOverviewAiLoading = false;
+      });
     }
   }
 
@@ -438,7 +441,7 @@ class _PlanTrackingScreenState
     return _OverviewContent(
       stats: _overviewStats!,
       achievements: _achievements,
-      isAiNoteLoading: _isOverviewAiNoteLoading,
+      isAiNoteLoading: _isOverviewAiLoading,
     );
   }
 

@@ -110,7 +110,9 @@ class OverviewLoadingContent extends StatelessWidget {
             const SizedBox(height: 24),
             _achievementSkeleton(),
             const SizedBox(height: 30),
-            _noteSkeleton(),
+            const OverviewAiNoteSkeleton(
+              shimmer: false,
+            ),
           ],
         ),
       ),
@@ -208,12 +210,46 @@ class OverviewLoadingContent extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _noteSkeleton() {
+class OverviewAiNoteSkeleton extends StatelessWidget {
+  final bool shimmer;
+
+  const OverviewAiNoteSkeleton({
+    super.key,
+    this.shimmer = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const child = _OverviewAiNoteSkeletonBody();
+
+    if (!shimmer) {
+      return child;
+    }
+
+    return const AppShimmer(
+      child: child,
+    );
+  }
+}
+
+class _OverviewAiNoteSkeletonBody extends StatelessWidget {
+  const _OverviewAiNoteSkeletonBody();
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      constraints: const BoxConstraints(minHeight: 125),
-      padding: const EdgeInsets.fromLTRB(20, 27, 20, 18),
+      constraints: const BoxConstraints(
+        minHeight: 125,
+      ),
+      padding: const EdgeInsets.fromLTRB(
+        20,
+        27,
+        20,
+        18,
+      ),
       decoration: BoxDecoration(
         color: AppColors.planTrackingNoteBackground,
         borderRadius: BorderRadius.circular(22),
@@ -228,11 +264,23 @@ class OverviewLoadingContent extends StatelessWidget {
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SkeletonBox(width: double.infinity, height: 12, borderRadius: 6),
+          SkeletonBox(
+            width: double.infinity,
+            height: 12,
+            borderRadius: 6,
+          ),
           SizedBox(height: 8),
-          SkeletonBox(width: double.infinity, height: 12, borderRadius: 6),
+          SkeletonBox(
+            width: double.infinity,
+            height: 12,
+            borderRadius: 6,
+          ),
           SizedBox(height: 8),
-          SkeletonBox(width: 180, height: 12, borderRadius: 6),
+          SkeletonBox(
+            width: 180,
+            height: 12,
+            borderRadius: 6,
+          ),
         ],
       ),
     );

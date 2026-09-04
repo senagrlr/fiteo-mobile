@@ -11,6 +11,7 @@ import 'package:fiteo_myapp/features/ai_coach/data/cook_recipe_service.dart';
 
 import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_loading_view.dart';
 import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_message_input.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_nutrition_preference_dialog.dart';
 import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_recipe_dialog.dart';
 import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_welcome_view.dart';
 
@@ -56,14 +57,14 @@ class _CookAiScreenState extends State<CookAiScreen> {
   final MembershipRepository _membershipRepository =
   MembershipRepository();
 
+  final AiUsageRepository _usageRepository =
+  AiUsageRepository();
+
   bool _isPremium = false;
 
   bool isGenerating = false;
 
   CookRecipeResult? generatedRecipeResult;
-
-  final AiUsageRepository _usageRepository =
-  AiUsageRepository();
 
   AiUsageState _recipeUsage =
   const AiUsageState.empty();
@@ -79,7 +80,6 @@ class _CookAiScreenState extends State<CookAiScreen> {
   @override
   void initState() {
     super.initState();
-
     _loadInitialState();
   }
 
@@ -89,7 +89,9 @@ class _CookAiScreenState extends State<CookAiScreen> {
       _membershipRepository.isPremium(),
     ]);
 
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
 
     setState(() {
       _recipeUsage = results[0] as AiUsageState;
@@ -100,7 +102,6 @@ class _CookAiScreenState extends State<CookAiScreen> {
   @override
   void dispose() {
     _ingredientController.dispose();
-
     super.dispose();
   }
 
@@ -130,6 +131,40 @@ class _CookAiScreenState extends State<CookAiScreen> {
 
     FocusScope.of(context).unfocus();
 
+    final preferences =
+    await _chatRepository.getRecipePreferences();
+
+    if (!mounted) {
+      return;
+    }
+
+    final currentNutritionPreference =
+    preferences['nutritionPreference']
+        ?.toString();
+
+    final selectedNutritionPreference =
+    await CookNutritionPreferenceDialog.show(
+      context,
+      initialValue:
+      currentNutritionPreference,
+      isPremium:
+      _isPremium,
+    );
+
+    if (selectedNutritionPreference == null ||
+        !mounted) {
+      return;
+    }
+
+    final recipePreferences =
+    Map<String, dynamic>.from(
+      preferences,
+    );
+
+    recipePreferences[
+    'nutritionPreference'] =
+        selectedNutritionPreference;
+
     setState(() {
       isGenerating = true;
       generatedRecipeResult = null;
@@ -137,15 +172,12 @@ class _CookAiScreenState extends State<CookAiScreen> {
 
     _ingredientController.clear();
 
-    final preferences =
-    await _chatRepository.getRecipePreferences();
-
     final startTime = DateTime.now();
 
     final recipe =
     await _recipeService.generateRecipe(
       ingredientsText: text,
-      preferences: preferences,
+      preferences: recipePreferences,
     );
 
     final elapsed =
@@ -160,7 +192,9 @@ class _CookAiScreenState extends State<CookAiScreen> {
       );
     }
 
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
 
     setState(() {
       isGenerating = false;
@@ -178,12 +212,15 @@ class _CookAiScreenState extends State<CookAiScreen> {
       return;
     }
 
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
 
     setState(() {
       if (!_isPremium) {
         _recipeUsage = AiUsageState(
-          usedCount: _recipeUsage.usedCount + 1,
+          usedCount:
+          _recipeUsage.usedCount + 1,
           rewardedCredits:
           _recipeUsage.rewardedCredits,
         );
@@ -197,7 +234,9 @@ class _CookAiScreenState extends State<CookAiScreen> {
       const Duration(milliseconds: 250),
     );
 
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
 
     _showRecipeDialog();
   }
@@ -302,32 +341,29 @@ class _CookAiScreenState extends State<CookAiScreen> {
               await _mealRepository.addMeal(
                 mealName:
                 recipe.recipeName,
-
                 amount:
                 1,
-
-                // Backend/internal değer.
                 unit:
                 'Serving',
-
-                // Backend/internal değer.
                 mealType:
                 mealType,
-
                 estimatedCalories:
                 recipe.caloriesPerServing,
-
                 protein:
                 recipe.proteinPerServing,
                 fats:
                 recipe.fatPerServing,
                 carbs:
                 recipe.carbsPerServing,
-                nutritionSource: 'ai_recipe',
-                isEstimated: true,
+                nutritionSource:
+                'ai_recipe',
+                isEstimated:
+                true,
               );
 
-              if (!mounted) return;
+              if (!mounted) {
+                return;
+              }
 
               final localizedMeal =
               _localizedMealType(
@@ -347,7 +383,9 @@ class _CookAiScreenState extends State<CookAiScreen> {
                 ),
               );
             } catch (_) {
-              if (!mounted) return;
+              if (!mounted) {
+                return;
+              }
 
               ScaffoldMessenger.of(context)
                   .showSnackBar(
@@ -480,18 +518,25 @@ class _CookAiScreenState extends State<CookAiScreen> {
                       if (!_isPremium) ...[
                         Text(
                           remainingRecipeRequests > 0
-                              ? context.l10n.recipeRequestsLeftToday(
+                              ? context.l10n
+                              .recipeRequestsLeftToday(
                             remainingRecipeRequests,
                           )
-                              : context.l10n.dailyRecipeLimitReached,
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.homeSecondaryValue,
+                              : context.l10n
+                              .dailyRecipeLimitReached,
+                          style:
+                          AppTextStyles.bodySmall.copyWith(
+                            color: AppColors
+                                .homeSecondaryValue,
                             fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                            fontWeight:
+                            FontWeight.w500,
                           ),
                         ),
 
-                        const SizedBox(height: 12),
+                        const SizedBox(
+                          height: 12,
+                        ),
                       ],
 
                       CookMessageInput(
@@ -513,9 +558,6 @@ class _CookAiScreenState extends State<CookAiScreen> {
 
                   // =================================================
                   // REWARD AD
-                  //
-                  // Sadece günlük tarif hakkı bittiyse gösterilir.
-                  // Mockup'taki gibi ekranın alt tarafında.
                   // =================================================
 
                   if (_hasReachedDailyRecipeLimit)

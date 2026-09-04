@@ -1465,6 +1465,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateWeight => 'Update';
 
   @override
+  String get goPremiumToUnlockFeature => 'Go Premium to unlock this feature';
+
+  @override
+  String get goPremium => 'Go Premium';
+
+  @override
+  String get chooseRecipeNutritionPreference =>
+      'Choose your nutrition preference';
+
+  @override
+  String get recipeNutritionPreferenceDescription =>
+      'We\'ll use this preference while creating your recipe.';
+
+  @override
+  String get recipePreferenceChangeHint =>
+      'You can change your nutrition preference anytime from Goals & Preferences.';
+
+  @override
+  String get continueToRecipe => 'Continue';
+
+  @override
+  String get nutritionKeto => 'Keto';
+
+  @override
+  String get nutritionGlutenFree => 'Gluten Free';
+
+  @override
+  String get recipeCustomizationPremiumHint =>
+      'Customizing recipes based on your nutrition preference is available exclusively to Premium users.';
+
+  @override
   String recipeAddedToMeal(String recipeName, String mealType) {
     return '$recipeName added to $mealType.';
   }

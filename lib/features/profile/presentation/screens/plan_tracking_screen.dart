@@ -31,9 +31,10 @@ import 'package:fiteo_myapp/features/profile/presentation/widgets/tracking_summa
 import 'package:fiteo_myapp/features/profile/presentation/widgets/unique_features_card.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/overview_loading_skeleton.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_loading_skeleton.dart';
-import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_tracking_locked_content.dart';
+import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_tracking_locked/plan_tracking_locked_content.dart';
 import 'package:fiteo_myapp/features/profile/data/plan_review_service.dart';
 import 'package:fiteo_myapp/features/ai/data/premium_insight_service.dart';
+import 'package:fiteo_myapp/features/profile/presentation/widgets/plan_tracking_locked/plan_tracking_locked_header.dart';
 
 class PlanTrackingScreen extends StatefulWidget {
   const PlanTrackingScreen({
@@ -554,7 +555,7 @@ class _PlanTrackingScreenState
     if (!_hasPremiumAccess) {
       return Column(
         children: [
-          OverviewLoadingHeader(
+          PlanTrackingLockedHeader(
             selectedTab: selectedTab,
             onTabChanged: _changeTab,
           ),

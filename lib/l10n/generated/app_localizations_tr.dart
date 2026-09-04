@@ -1461,6 +1461,37 @@ class AppLocalizationsTr extends AppLocalizations {
   String get updateWeight => 'Güncelle';
 
   @override
+  String get goPremiumToUnlockFeature =>
+      'Bu özelliğin kilidini açmak için Premium\'a geç';
+
+  @override
+  String get goPremium => 'Premium\'a Geç';
+
+  @override
+  String get chooseRecipeNutritionPreference => 'Beslenme tercihini seç';
+
+  @override
+  String get recipeNutritionPreferenceDescription =>
+      'Tarifini oluştururken bu tercihi dikkate alacağız.';
+
+  @override
+  String get recipePreferenceChangeHint =>
+      'Beslenme tercihini Goals & Preferences bölümünden istediğin zaman değiştirebilirsin.';
+
+  @override
+  String get continueToRecipe => 'Devam Et';
+
+  @override
+  String get nutritionKeto => 'Keto';
+
+  @override
+  String get nutritionGlutenFree => 'Glutensiz';
+
+  @override
+  String get recipeCustomizationPremiumHint =>
+      'Tariflerini beslenme tercihine göre özelleştirme özelliği yalnızca Premium kullanıcılara özeldir.';
+
+  @override
   String recipeAddedToMeal(String recipeName, String mealType) {
     return '$recipeName, $mealType öğününe eklendi.';
   }

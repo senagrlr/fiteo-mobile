@@ -6,8 +6,10 @@ import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 
 import 'package:fiteo_myapp/features/meals/domain/models/barcode_food_data.dart';
 import 'package:fiteo_myapp/features/meals/presentation/screens/barcode_scanner_screen.dart';
+
 import 'package:fiteo_myapp/features/membership/data/premium_access_service.dart';
 import 'package:fiteo_myapp/features/membership/domain/premium_feature.dart';
+import 'package:fiteo_myapp/features/membership/presentation/premium_navigation.dart';
 
 class BarcodeAddButton extends StatelessWidget {
   final ValueChanged<BarcodeFoodData> onFoodFound;
@@ -20,28 +22,117 @@ class BarcodeAddButton extends StatelessWidget {
   static final PremiumAccessService _premiumAccessService =
   PremiumAccessService();
 
-  Future<void> _handleTap(BuildContext context) async {
-    final canAccess = await _premiumAccessService.canAccess(
+  Future<void> _handleTap(
+      BuildContext context,
+      ) async {
+    final canAccess =
+    await _premiumAccessService.canAccess(
       PremiumFeature.barcodeScanner,
     );
 
-    if (!canAccess) {
+    if (!context.mounted) {
       return;
     }
 
-    if (!context.mounted) {
+    if (!canAccess) {
+      await _showPremiumDialog(context);
       return;
     }
 
     await _openScanner(context);
   }
 
+  Future<void> _showPremiumDialog(
+      BuildContext context,
+      ) async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 32,
+          ),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(
+              24,
+              28,
+              24,
+              24,
+            ),
+            decoration: BoxDecoration(
+              color: AppColors.surfacePrimary,
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.lock_rounded,
+                  size: 62,
+                  color: AppColors.homeBrown,
+                ),
+
+                const SizedBox(height: 14),
+
+                Text(
+                  context.l10n.goPremiumToUnlockFeature,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: AppColors.homeBrown,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                SizedBox(
+                  height: 46,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(
+                        dialogContext,
+                      ).pop();
+
+                      PremiumNavigation.openPaywall(
+                        context,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      elevation: 0,
+                      backgroundColor:
+                      AppColors.brandPrimary,
+                      foregroundColor:
+                      AppColors.onPrimary,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 30,
+                      ),
+                      shape: const StadiumBorder(),
+                    ),
+                    child: Text(
+                      context.l10n.goPremium,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _openScanner(
       BuildContext context,
       ) async {
     final result =
-    await Navigator.of(context)
-        .push<BarcodeFoodData>(
+    await Navigator.of(context).push<BarcodeFoodData>(
       MaterialPageRoute(
         builder: (_) =>
         const BarcodeScannerScreen(),
@@ -64,18 +155,15 @@ class BarcodeAddButton extends StatelessWidget {
           onTap: () {
             _handleTap(context);
           },
-          borderRadius:
-          BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(22),
           child: Ink(
             width: 170,
             height: 42,
             decoration: BoxDecoration(
               color: AppColors.surfacePrimary,
-              borderRadius:
-              BorderRadius.circular(22),
+              borderRadius: BorderRadius.circular(22),
               border: Border.all(
-                color:
-                AppColors.calendarCompleted,
+                color: AppColors.calendarCompleted,
                 width: 1.5,
               ),
             ),
@@ -85,8 +173,7 @@ class BarcodeAddButton extends StatelessWidget {
               children: [
                 const Icon(
                   Icons.qr_code_scanner_rounded,
-                  color:
-                  AppColors.calendarCompleted,
+                  color: AppColors.calendarCompleted,
                   size: 21,
                 ),
 
@@ -94,9 +181,8 @@ class BarcodeAddButton extends StatelessWidget {
 
                 Text(
                   context.l10n.addWithBarcode,
-                  style: AppTextStyles
-                      .labelMedium
-                      .copyWith(
+                  style:
+                  AppTextStyles.labelMedium.copyWith(
                     color:
                     AppColors.calendarCompleted,
                     fontSize: 14,

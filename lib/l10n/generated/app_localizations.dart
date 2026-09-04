@@ -2822,6 +2822,60 @@ abstract class AppLocalizations {
   /// **'Update'**
   String get updateWeight;
 
+  /// No description provided for @goPremiumToUnlockFeature.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Premium to unlock this feature'**
+  String get goPremiumToUnlockFeature;
+
+  /// No description provided for @goPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Premium'**
+  String get goPremium;
+
+  /// No description provided for @chooseRecipeNutritionPreference.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your nutrition preference'**
+  String get chooseRecipeNutritionPreference;
+
+  /// No description provided for @recipeNutritionPreferenceDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll use this preference while creating your recipe.'**
+  String get recipeNutritionPreferenceDescription;
+
+  /// No description provided for @recipePreferenceChangeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change your nutrition preference anytime from Goals & Preferences.'**
+  String get recipePreferenceChangeHint;
+
+  /// No description provided for @continueToRecipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueToRecipe;
+
+  /// No description provided for @nutritionKeto.
+  ///
+  /// In en, this message translates to:
+  /// **'Keto'**
+  String get nutritionKeto;
+
+  /// No description provided for @nutritionGlutenFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Gluten Free'**
+  String get nutritionGlutenFree;
+
+  /// No description provided for @recipeCustomizationPremiumHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Customizing recipes based on your nutrition preference is available exclusively to Premium users.'**
+  String get recipeCustomizationPremiumHint;
+
   /// No description provided for @recipeAddedToMeal.
   ///
   /// In en, this message translates to:

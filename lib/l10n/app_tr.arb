@@ -98,6 +98,15 @@
   "nutritionVegetarian": "Vejetaryen",
   "nutritionVegan": "Vegan",
   "nutritionBalancedDiet": "Dengeli Beslenme",
+  "nutritionMediterranean": "Akdeniz Tipi Beslenme",
+
+  "dietaryRequirements": "Beslenme Gereksinimleri",
+  "dietaryRequirementsHint": "Tariflerin uymasını istediğin beslenme gereksinimlerini seç.",
+  "noRestriction": "Kısıtlama Yok",
+  "dietaryPescatarian": "Pesketaryen",
+  "dietaryKeto": "Keto",
+  "dietaryGlutenFree": "Glütensiz",
+  "dietaryDairyFree": "Süt Ürünsüz",
 
   "workoutPreferenceTitle": "Nasıl egzersiz yapmayı tercih ediyorsun?",
   "workoutHome": "Evde Egzersiz",

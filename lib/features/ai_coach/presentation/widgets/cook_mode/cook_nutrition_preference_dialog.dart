@@ -9,8 +9,9 @@ import 'package:fiteo_myapp/features/membership/presentation/premium_navigation.
 class CookNutritionPreferenceDialog {
   static const List<String> options = [
     'No Restrictions',
-    'High Protein',
     'Balanced Diet',
+    'High Protein',
+    'Mediterranean',
     'Vegetarian',
     'Vegan',
     'Keto',
@@ -335,6 +336,9 @@ class CookNutritionPreferenceDialog {
       case 'Gluten Free':
         return context
             .l10n.nutritionGlutenFree;
+
+      case 'Mediterranean':
+        return context.l10n.nutritionMediterranean;
 
       default:
         return value;

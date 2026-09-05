@@ -572,6 +572,54 @@ abstract class AppLocalizations {
   /// **'Balanced Diet'**
   String get nutritionBalancedDiet;
 
+  /// No description provided for @nutritionMediterranean.
+  ///
+  /// In en, this message translates to:
+  /// **'Mediterranean'**
+  String get nutritionMediterranean;
+
+  /// No description provided for @dietaryRequirements.
+  ///
+  /// In en, this message translates to:
+  /// **'Dietary Requirements'**
+  String get dietaryRequirements;
+
+  /// No description provided for @dietaryRequirementsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select any dietary requirements you want recipes to follow.'**
+  String get dietaryRequirementsHint;
+
+  /// No description provided for @noRestriction.
+  ///
+  /// In en, this message translates to:
+  /// **'No Restriction'**
+  String get noRestriction;
+
+  /// No description provided for @dietaryPescatarian.
+  ///
+  /// In en, this message translates to:
+  /// **'Pescatarian'**
+  String get dietaryPescatarian;
+
+  /// No description provided for @dietaryKeto.
+  ///
+  /// In en, this message translates to:
+  /// **'Keto'**
+  String get dietaryKeto;
+
+  /// No description provided for @dietaryGlutenFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Gluten Free'**
+  String get dietaryGlutenFree;
+
+  /// No description provided for @dietaryDairyFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Dairy Free'**
+  String get dietaryDairyFree;
+
   /// No description provided for @workoutPreferenceTitle.
   ///
   /// In en, this message translates to:

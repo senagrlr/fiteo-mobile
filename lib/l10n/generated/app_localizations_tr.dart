@@ -262,6 +262,31 @@ class AppLocalizationsTr extends AppLocalizations {
   String get nutritionBalancedDiet => 'Dengeli Beslenme';
 
   @override
+  String get nutritionMediterranean => 'Akdeniz Tipi Beslenme';
+
+  @override
+  String get dietaryRequirements => 'Beslenme Gereksinimleri';
+
+  @override
+  String get dietaryRequirementsHint =>
+      'Tariflerin uymasını istediğin beslenme gereksinimlerini seç.';
+
+  @override
+  String get noRestriction => 'Kısıtlama Yok';
+
+  @override
+  String get dietaryPescatarian => 'Pesketaryen';
+
+  @override
+  String get dietaryKeto => 'Keto';
+
+  @override
+  String get dietaryGlutenFree => 'Glütensiz';
+
+  @override
+  String get dietaryDairyFree => 'Süt Ürünsüz';
+
+  @override
   String get workoutPreferenceTitle =>
       'Nasıl egzersiz yapmayı tercih ediyorsun?';
 

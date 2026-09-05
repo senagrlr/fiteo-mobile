@@ -259,6 +259,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nutritionBalancedDiet => 'Balanced Diet';
 
   @override
+  String get nutritionMediterranean => 'Mediterranean';
+
+  @override
+  String get dietaryRequirements => 'Dietary Requirements';
+
+  @override
+  String get dietaryRequirementsHint =>
+      'Select any dietary requirements you want recipes to follow.';
+
+  @override
+  String get noRestriction => 'No Restriction';
+
+  @override
+  String get dietaryPescatarian => 'Pescatarian';
+
+  @override
+  String get dietaryKeto => 'Keto';
+
+  @override
+  String get dietaryGlutenFree => 'Gluten Free';
+
+  @override
+  String get dietaryDairyFree => 'Dairy Free';
+
+  @override
   String get workoutPreferenceTitle => 'How do you like to work out?';
 
   @override

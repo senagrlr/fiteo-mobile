@@ -98,6 +98,15 @@
   "nutritionVegetarian": "Vegetarian",
   "nutritionVegan": "Vegan",
   "nutritionBalancedDiet": "Balanced Diet",
+  "nutritionMediterranean": "Mediterranean",
+
+  "dietaryRequirements": "Dietary Requirements",
+  "dietaryRequirementsHint": "Select any dietary requirements you want recipes to follow.",
+  "noRestriction": "No Restriction",
+  "dietaryPescatarian": "Pescatarian",
+  "dietaryKeto": "Keto",
+  "dietaryGlutenFree": "Gluten Free",
+  "dietaryDairyFree": "Dairy Free",
 
   "workoutPreferenceTitle": "How do you like to work out?",
   "workoutHome": "Home Workouts",

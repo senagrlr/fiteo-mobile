@@ -34,6 +34,8 @@ class _GoalsPreferencesScreenState
   String? selectedNutrition = 'High Protein';
   String? selectedWorkout = 'Home Workouts';
 
+  List<String> selectedDietaryRequirements = [];
+
   String weightUnit = 'kg';
 
   final weightController = TextEditingController();
@@ -66,10 +68,9 @@ class _GoalsPreferencesScreenState
 
   final List<String> nutritionOptions = const [
     'No Restrictions',
-    'High Protein',
-    'Vegetarian',
-    'Vegan',
     'Balanced Diet',
+    'High Protein',
+    'Mediterranean',
   ];
 
   final List<String> workoutOptions = const [
@@ -77,6 +78,15 @@ class _GoalsPreferencesScreenState
     'Gym',
     'Walking / Cardio',
     'Strength Training',
+  ];
+
+  final List<String> dietaryRequirementOptions = const [
+    'Vegetarian',
+    'Vegan',
+    'Pescatarian',
+    'Keto',
+    'Gluten Free',
+    'Dairy Free',
   ];
 
   @override
@@ -100,7 +110,7 @@ class _GoalsPreferencesScreenState
     await _loadPreferences();
   }
 
-  Future<void> _showNutritionPremiumDialog() async {
+  Future<void> _showDietaryRequirementsPremiumDialog() async {
     await showDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -183,6 +193,244 @@ class _GoalsPreferencesScreenState
     );
   }
 
+  Future<void> _showDietaryRequirementsDialog() async {
+    if (!isPremium) {
+      await _showDietaryRequirementsPremiumDialog();
+      return;
+    }
+
+    final tempSelected =
+    List<String>.from(selectedDietaryRequirements);
+
+    final result = await showDialog<List<String>>(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withValues(
+        alpha: 0.22,
+      ),
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (
+              context,
+              setDialogState,
+              ) {
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 26,
+              ),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(
+                  24,
+                  28,
+                  24,
+                  22,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.surfacePrimary,
+                  borderRadius:
+                  BorderRadius.circular(28),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      context.l10n.dietaryRequirements,
+                      textAlign: TextAlign.center,
+                      style:
+                      AppTextStyles.titleMedium.copyWith(
+                        color: AppColors.homeBrown,
+                        fontSize: 19,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+
+                    const SizedBox(height: 22),
+
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 10,
+                      runSpacing: 10,
+                      children:
+                      dietaryRequirementOptions
+                          .map((option) {
+                        final isSelected =
+                        tempSelected.contains(
+                          option,
+                        );
+
+                        return Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              setDialogState(() {
+                                if (isSelected) {
+                                  tempSelected.remove(
+                                    option,
+                                  );
+                                } else {
+                                  tempSelected.add(
+                                    option,
+                                  );
+                                }
+                              });
+                            },
+                            borderRadius:
+                            BorderRadius.circular(22),
+                            child: AnimatedContainer(
+                              duration: const Duration(
+                                milliseconds: 160,
+                              ),
+                              padding:
+                              const EdgeInsets.symmetric(
+                                horizontal: 15,
+                                vertical: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? AppColors.brandPrimary
+                                    .withValues(
+                                  alpha: 0.16,
+                                )
+                                    : AppColors.surfaceSoft,
+                                borderRadius:
+                                BorderRadius.circular(22),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? AppColors.brandPrimary
+                                      : AppColors.homeBrown
+                                      .withValues(
+                                    alpha: 0.08,
+                                  ),
+                                  width:
+                                  isSelected ? 1.5 : 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize:
+                                MainAxisSize.min,
+                                children: [
+                                  if (isSelected) ...[
+                                    const Icon(
+                                      Icons.check_rounded,
+                                      color:
+                                      AppColors.brandPrimary,
+                                      size: 17,
+                                    ),
+                                    const SizedBox(width: 5),
+                                  ],
+                                  Text(
+                                    _dietaryRequirementLabel(
+                                      option,
+                                    ),
+                                    style: AppTextStyles
+                                        .labelMedium
+                                        .copyWith(
+                                      color: isSelected
+                                          ? AppColors.homeBrown
+                                          : AppColors
+                                          .homeSecondaryValue,
+                                      fontSize: 13,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w700
+                                          : FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    Text(
+                      context.l10n
+                          .dietaryRequirementsHint,
+                      textAlign: TextAlign.center,
+                      style:
+                      AppTextStyles.bodySmall.copyWith(
+                        color:
+                        AppColors.homeSecondaryValue,
+                        fontSize: 11,
+                        height: 1.4,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    SizedBox(
+                      width: double.infinity,
+                      height: 46,
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.pop(
+                            dialogContext,
+                            tempSelected,
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor:
+                          AppColors.homeBrown,
+                          side: BorderSide(
+                            color: AppColors.homeBrown
+                                .withValues(
+                              alpha: 0.22,
+                            ),
+                          ),
+                          shape: const StadiumBorder(),
+                        ),
+                        child: Text(
+                          context.l10n.save,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(
+                          dialogContext,
+                          <String>[],
+                        );
+                      },
+                      child: Text(
+                        context.l10n.noRestriction,
+                        style: AppTextStyles.bodySmall
+                            .copyWith(
+                          color:
+                          AppColors.homeSecondaryValue,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    if (result == null || !mounted) {
+      return;
+    }
+
+    setState(() {
+      selectedDietaryRequirements = result;
+    });
+  }
+
   String _formatWeight(double value) {
     return value.toStringAsFixed(1);
   }
@@ -213,6 +461,21 @@ class _GoalsPreferencesScreenState
         selectedNutrition =
         preferences['nutritionPreference']
         as String?;
+
+        final rawDietaryRequirements =
+        preferences['dietaryRequirements'];
+
+        selectedDietaryRequirements =
+        rawDietaryRequirements is List
+            ? rawDietaryRequirements
+            .map((item) => item.toString())
+            .where(
+              (item) =>
+              dietaryRequirementOptions
+                  .contains(item),
+        )
+            .toList()
+            : <String>[];
 
         selectedWorkout =
         preferences['workoutPreference']
@@ -356,6 +619,9 @@ class _GoalsPreferencesScreenState
       case 'Balanced Diet':
         return context.l10n.nutritionBalancedDiet;
 
+      case 'Mediterranean':
+        return context.l10n.nutritionMediterranean;
+
       default:
         return value;
     }
@@ -369,6 +635,33 @@ class _GoalsPreferencesScreenState
     }
 
     return label;
+  }
+
+  String _dietaryRequirementLabel(
+      String value,
+      ) {
+    switch (value) {
+      case 'Vegetarian':
+        return context.l10n.nutritionVegetarian;
+
+      case 'Vegan':
+        return context.l10n.nutritionVegan;
+
+      case 'Pescatarian':
+        return context.l10n.dietaryPescatarian;
+
+      case 'Keto':
+        return context.l10n.dietaryKeto;
+
+      case 'Gluten Free':
+        return context.l10n.dietaryGlutenFree;
+
+      case 'Dairy Free':
+        return context.l10n.dietaryDairyFree;
+
+      default:
+        return value;
+    }
   }
 
   String _workoutLabel(String value) {
@@ -412,6 +705,9 @@ class _GoalsPreferencesScreenState
           'activityLevel': selectedActivity,
           'nutritionPreference':
           selectedNutrition,
+          if (isPremium)
+            'dietaryRequirements':
+            selectedDietaryRequirements,
           'workoutPreference':
           selectedWorkout,
 
@@ -522,6 +818,13 @@ class _GoalsPreferencesScreenState
 
     final localizedNutrition =
     nutritionOptions.map(_nutritionLabel).toList();
+
+    final dietaryRequirementsText =
+    selectedDietaryRequirements.isEmpty
+        ? context.l10n.noRestriction
+        : selectedDietaryRequirements
+        .map(_dietaryRequirementLabel)
+        .join(', ');
 
     final localizedWorkouts =
     workoutOptions.map(_workoutLabel).toList();
@@ -705,10 +1008,6 @@ class _GoalsPreferencesScreenState
                       localizedNutrition,
                       icon: Icons
                           .restaurant_menu_outlined,
-                      isLocked: !isPremium,
-                      onLockedTap: () {
-                        _showNutritionPremiumDialog();
-                      },
                       onChanged: (value) {
                         if (value == null) {
                           return;
@@ -721,6 +1020,82 @@ class _GoalsPreferencesScreenState
                               );
                         });
                       },
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: _showDietaryRequirementsDialog,
+                        borderRadius: BorderRadius.circular(18),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 15,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceSoft,
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(
+                              color: AppColors.homeBrown.withValues(
+                                alpha: 0.08,
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.restaurant_outlined,
+                                color: AppColors.homeBrown,
+                              ),
+
+                              const SizedBox(width: 12),
+
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      context.l10n.dietaryRequirements,
+                                      style: AppTextStyles.labelMedium
+                                          .copyWith(
+                                        color: AppColors.homeBrown,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 3),
+
+                                    Text(
+                                      dietaryRequirementsText,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: AppTextStyles.bodySmall
+                                          .copyWith(
+                                        color:
+                                        AppColors.homeSecondaryValue,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              const SizedBox(width: 8),
+
+                              Icon(
+                                isPremium
+                                    ? Icons.chevron_right_rounded
+                                    : Icons.lock_outline_rounded,
+                                color: AppColors.homeBrown,
+                                size: 21,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
 
                     const SizedBox(height: 14),

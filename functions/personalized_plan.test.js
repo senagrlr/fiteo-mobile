@@ -13,7 +13,7 @@ const basePreferences = {
   gender: "Male",
   goal: "Lose Weight",
   activityLevel: "Moderately Active",
-  nutritionPreference: "Balanced",
+  nutritionPreference: "Balanced Diet",
   workoutPreference: "Mixed",
 };
 

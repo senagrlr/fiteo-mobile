@@ -20,6 +20,7 @@ import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/shared/ai_mod
 
 import 'package:fiteo_myapp/features/meals/data/meal_repository.dart';
 import 'package:fiteo_myapp/features/profile/data/saved_recipe_repository.dart';
+import 'package:fiteo_myapp/features/profile/data/profile_repository.dart';
 import 'package:fiteo_myapp/features/ai_coach/data/ai_usage_limits.dart';
 import 'package:fiteo_myapp/features/ai_coach/data/ai_usage_repository.dart';
 import 'package:fiteo_myapp/features/ai_coach/data/ai_usage_state.dart';
@@ -53,6 +54,9 @@ class _CookAiScreenState extends State<CookAiScreen> {
 
   final SavedRecipeRepository _savedRecipeRepository =
   SavedRecipeRepository();
+
+  final ProfileRepository _profileRepository =
+  ProfileRepository();
 
   final MembershipRepository _membershipRepository =
   MembershipRepository();
@@ -132,8 +136,7 @@ class _CookAiScreenState extends State<CookAiScreen> {
     FocusScope.of(context).unfocus();
 
     final preferences =
-    await _chatRepository
-        .getRecipePreferences();
+    await _chatRepository.getRecipePreferences();
 
     if (!mounted) {
       return;

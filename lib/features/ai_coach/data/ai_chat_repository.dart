@@ -183,14 +183,27 @@ class AiChatRepository {
       };
     }).toList().reversed.toList();
   }
-  Future<Map<String, dynamic>>
-  getRecipePreferences() async {
-    final preferences =
-    await getUserPreferences();
+  Future<Map<String, dynamic>> getRecipePreferences() async {
+    final user = _auth.currentUser;
+
+    if (user == null) return {};
+
+    final doc = await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .get();
+
+    final data = doc.data();
+
+    final preferences = Map<String, dynamic>.from(
+      data?['userPreferences'] ?? {},
+    );
+
+    final nutritionPlan =
+    data?['nutritionPlan'] as Map<String, dynamic>?;
 
     return {
       'goal': preferences['goal'],
-
       'nutritionPreference':
       preferences['nutritionPreference'],
 
@@ -201,16 +214,20 @@ class AiChatRepository {
         preferences['dietaryRequirements'],
 
       'calorieGoal':
-      preferences['calorieGoal'],
+      nutritionPlan?['calorieGoal'] ??
+          nutritionPlan?['dailyCalories'],
 
       'proteinGoal':
-      preferences['proteinGoal'],
+      nutritionPlan?['proteinGoal'] ??
+          nutritionPlan?['proteinGrams'],
 
       'carbsGoal':
-      preferences['carbsGoal'],
+      nutritionPlan?['carbsGoal'] ??
+          nutritionPlan?['carbsGrams'],
 
       'fatGoal':
-      preferences['fatGoal'],
+      nutritionPlan?['fatGoal'] ??
+          nutritionPlan?['fatsGrams'],
     };
   }
 }

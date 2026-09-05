@@ -747,8 +747,6 @@
   "goPremiumToUnlockFeature": "Go Premium to unlock this feature",
   "goPremium": "Go Premium",
 
-  "chooseRecipeNutritionPreference": "Choose your nutrition preference",
-  "recipeNutritionPreferenceDescription": "We'll use this preference while creating your recipe.",
   "recipePreferenceChangeHint": "You can change your dietary requirements anytime from Goals & Preferences.",
   "continueToRecipe": "Continue",
   "nutritionKeto": "Keto",

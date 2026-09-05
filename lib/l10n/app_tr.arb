@@ -745,8 +745,6 @@
   "goPremiumToUnlockFeature": "Bu özelliğin kilidini açmak için Premium'a geç",
   "goPremium": "Premium'a Geç",
 
-  "chooseRecipeNutritionPreference": "Beslenme tercihini seç",
-  "recipeNutritionPreferenceDescription": "Tarifini oluştururken bu tercihi dikkate alacağız.",
   "recipePreferenceChangeHint": "Beslenme gereksinimlerini istediğin zaman Hedefler ve Tercihler bölümünden değiştirebilirsin.",
   "continueToRecipe": "Devam Et",
   "nutritionKeto": "Keto",

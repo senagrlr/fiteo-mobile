@@ -1028,69 +1028,43 @@ class _GoalsPreferencesScreenState
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: _showDietaryRequirementsDialog,
-                        borderRadius: BorderRadius.circular(18),
-                        child: Container(
-                          width: double.infinity,
+                        borderRadius: BorderRadius.circular(24),
+                        child: Ink(
+                          height: 52,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
-                            vertical: 15,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.surfaceSoft,
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(
-                              color: AppColors.homeBrown.withValues(
-                                alpha: 0.08,
-                              ),
-                            ),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
                           ),
                           child: Row(
                             children: [
                               const Icon(
                                 Icons.restaurant_outlined,
                                 color: AppColors.homeBrown,
+                                size: 21,
                               ),
-
                               const SizedBox(width: 12),
-
                               Expanded(
-                                child: Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      context.l10n.dietaryRequirements,
-                                      style: AppTextStyles.labelMedium
-                                          .copyWith(
-                                        color: AppColors.homeBrown,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 3),
-
-                                    Text(
-                                      dietaryRequirementsText,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: AppTextStyles.bodySmall
-                                          .copyWith(
-                                        color:
-                                        AppColors.homeSecondaryValue,
-                                      ),
-                                    ),
-                                  ],
+                                child: Text(
+                                  dietaryRequirementsText,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    color: AppColors.homeSecondaryValue,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
-
                               const SizedBox(width: 8),
-
                               Icon(
                                 isPremium
-                                    ? Icons.chevron_right_rounded
+                                    ? Icons.keyboard_arrow_down
                                     : Icons.lock_outline_rounded,
-                                color: AppColors.homeBrown,
-                                size: 21,
+                                color: AppColors.homeSecondaryValue,
+                                size: isPremium ? 24 : 18,
                               ),
                             ],
                           ),

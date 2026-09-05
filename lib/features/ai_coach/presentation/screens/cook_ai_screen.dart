@@ -65,7 +65,7 @@ class _CookAiScreenState extends State<CookAiScreen> {
   AiUsageRepository();
 
   bool _isPremium = false;
-
+  bool _hasShownFreeDietaryPromo = false;
   bool isGenerating = false;
 
   CookRecipeResult? generatedRecipeResult;
@@ -192,14 +192,19 @@ class _CookAiScreenState extends State<CookAiScreen> {
           .toList()
           : <String>[];
     } else {
-      await CookDietaryRequirementsDialog.show(
-        context,
-        initialValues: const [],
-        isPremium: false,
-      );
+      if (!_hasShownFreeDietaryPromo) {
+        final result =
+        await CookDietaryRequirementsDialog.show(
+          context,
+          initialValues: const [],
+          isPremium: false,
+        );
 
-      if (!mounted) {
-        return;
+        if (result == null || !mounted) {
+          return;
+        }
+
+        _hasShownFreeDietaryPromo = true;
       }
 
       recipePreferences.remove(

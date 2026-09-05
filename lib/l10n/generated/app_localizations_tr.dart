@@ -1493,13 +1493,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get goPremium => 'Premium\'a Geç';
 
   @override
-  String get chooseRecipeNutritionPreference => 'Beslenme tercihini seç';
-
-  @override
-  String get recipeNutritionPreferenceDescription =>
-      'Tarifini oluştururken bu tercihi dikkate alacağız.';
-
-  @override
   String get recipePreferenceChangeHint =>
       'Beslenme gereksinimlerini istediğin zaman Hedefler ve Tercihler bölümünden değiştirebilirsin.';
 
@@ -1514,7 +1507,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get recipeCustomizationPremiumHint =>
-      'Tariflerini beslenme tercihine göre özelleştirme özelliği yalnızca Premium kullanıcılara özeldir.';
+      'Tariflerini beslenme gereksinimlerine göre özelleştirme özelliği yalnızca Premium kullanıcılara özeldir.';
 
   @override
   String recipeAddedToMeal(String recipeName, String mealType) {

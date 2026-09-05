@@ -2882,18 +2882,6 @@ abstract class AppLocalizations {
   /// **'Go Premium'**
   String get goPremium;
 
-  /// No description provided for @chooseRecipeNutritionPreference.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose your nutrition preference'**
-  String get chooseRecipeNutritionPreference;
-
-  /// No description provided for @recipeNutritionPreferenceDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'We\'ll use this preference while creating your recipe.'**
-  String get recipeNutritionPreferenceDescription;
-
   /// No description provided for @recipePreferenceChangeHint.
   ///
   /// In en, this message translates to:
@@ -2921,7 +2909,7 @@ abstract class AppLocalizations {
   /// No description provided for @recipeCustomizationPremiumHint.
   ///
   /// In en, this message translates to:
-  /// **'Customizing recipes based on your nutrition preference is available exclusively to Premium users.'**
+  /// **'Customizing recipes based on your dietary requirements is available exclusively to Premium users.'**
   String get recipeCustomizationPremiumHint;
 
   /// No description provided for @recipeAddedToMeal.

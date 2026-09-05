@@ -58,8 +58,6 @@ class _AiCoachScreenState
 
   bool showWelcomeInsteadOfChat = true;
 
-  bool hasInitializedChatView = false;
-
   bool isCookMode = false;
 
   String? temporaryErrorMessage;
@@ -362,15 +360,6 @@ class _AiCoachScreenState
               ),
         )
             .toList();
-
-        if (!hasInitializedChatView &&
-            messages.isNotEmpty) {
-          hasInitializedChatView =
-          true;
-
-          showWelcomeInsteadOfChat =
-          false;
-        }
 
         final hasMessages =
             messages.isNotEmpty &&

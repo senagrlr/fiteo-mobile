@@ -1496,14 +1496,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goPremium => 'Go Premium';
 
   @override
-  String get chooseRecipeNutritionPreference =>
-      'Choose your nutrition preference';
-
-  @override
-  String get recipeNutritionPreferenceDescription =>
-      'We\'ll use this preference while creating your recipe.';
-
-  @override
   String get recipePreferenceChangeHint =>
       'You can change your dietary requirements anytime from Goals & Preferences.';
 
@@ -1518,7 +1510,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recipeCustomizationPremiumHint =>
-      'Customizing recipes based on your nutrition preference is available exclusively to Premium users.';
+      'Customizing recipes based on your dietary requirements is available exclusively to Premium users.';
 
   @override
   String recipeAddedToMeal(String recipeName, String mealType) {

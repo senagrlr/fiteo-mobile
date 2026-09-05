@@ -192,6 +192,16 @@ class _CookAiScreenState extends State<CookAiScreen> {
           .toList()
           : <String>[];
     } else {
+      await CookDietaryRequirementsDialog.show(
+        context,
+        initialValues: const [],
+        isPremium: false,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
       recipePreferences.remove(
         'dietaryRequirements',
       );

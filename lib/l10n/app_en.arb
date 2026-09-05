@@ -754,7 +754,7 @@
   "nutritionKeto": "Keto",
   "nutritionGlutenFree": "Gluten Free",
 
-  "recipeCustomizationPremiumHint": "Customizing recipes based on your nutrition preference is available exclusively to Premium users.",
+  "recipeCustomizationPremiumHint": "Customizing recipes based on your dietary requirements is available exclusively to Premium users.",
 
 
   "recipeAddedToMeal": "{recipeName} added to {mealType}.",

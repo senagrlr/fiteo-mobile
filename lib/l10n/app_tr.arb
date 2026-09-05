@@ -752,7 +752,7 @@
   "nutritionKeto": "Keto",
   "nutritionGlutenFree": "Glutensiz",
 
-  "recipeCustomizationPremiumHint": "Tariflerini beslenme tercihine göre özelleştirme özelliği yalnızca Premium kullanıcılara özeldir.",
+  "recipeCustomizationPremiumHint": "Tariflerini beslenme gereksinimlerine göre özelleştirme özelliği yalnızca Premium kullanıcılara özeldir.",
 
   "recipeAddedToMeal": "{recipeName}, {mealType} öğününe eklendi.",
   "@recipeAddedToMeal": {

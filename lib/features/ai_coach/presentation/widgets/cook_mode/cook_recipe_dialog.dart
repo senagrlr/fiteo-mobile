@@ -182,6 +182,7 @@ class _CookRecipeDialogState extends State<CookRecipeDialog>
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 AnimatedBuilder(
                   animation: _heartScale,
@@ -213,8 +214,6 @@ class _CookRecipeDialogState extends State<CookRecipeDialog>
                     ),
                   ),
                 ),
-
-                const Spacer(),
 
                 IconButton(
                   onPressed: () {

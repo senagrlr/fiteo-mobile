@@ -733,6 +733,18 @@
   "weeklyWeightUpdateDescription": "Planını düzenli takip edebilmemiz için haftalık kilonu ölç ve güncelle.",
   "updateWeight": "Güncelle",
 
+  "goPremiumToUnlockFeature": "Bu özelliğin kilidini açmak için Premium'a geç",
+  "goPremium": "Premium'a Geç",
+
+  "chooseRecipeNutritionPreference": "Beslenme tercihini seç",
+  "recipeNutritionPreferenceDescription": "Tarifini oluştururken bu tercihi dikkate alacağız.",
+  "recipePreferenceChangeHint": "Beslenme tercihini Goals & Preferences bölümünden istediğin zaman değiştirebilirsin.",
+  "continueToRecipe": "Devam Et",
+  "nutritionKeto": "Keto",
+  "nutritionGlutenFree": "Glutensiz",
+
+  "recipeCustomizationPremiumHint": "Tariflerini beslenme tercihine göre özelleştirme özelliği yalnızca Premium kullanıcılara özeldir.",
+
   "recipeAddedToMeal": "{recipeName}, {mealType} öğününe eklendi.",
   "@recipeAddedToMeal": {
     "placeholders": {

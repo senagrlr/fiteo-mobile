@@ -14,6 +14,10 @@ class ProgressChartCard extends StatelessWidget {
   final ValueChanged<ProgressRange> onRangeChanged;
   final bool isPremium;
 
+  final ProgressNutritionMetric? selectedNutritionMetric;
+  final ValueChanged<ProgressNutritionMetric>?
+  onNutritionMetricChanged;
+
   const ProgressChartCard({
     super.key,
     required this.data,
@@ -21,6 +25,8 @@ class ProgressChartCard extends StatelessWidget {
     required this.availableRanges,
     required this.onRangeChanged,
     required this.isPremium,
+    this.selectedNutritionMetric,
+    this.onNutritionMetricChanged,
   });
 
   String _rangeLabel(
@@ -42,8 +48,31 @@ class ProgressChartCard extends StatelessWidget {
     }
   }
 
+  String _nutritionLabel(
+      BuildContext context,
+      ProgressNutritionMetric metric,
+      ) {
+    switch (metric) {
+      case ProgressNutritionMetric.calories:
+        return context.l10n.calories;
+
+      case ProgressNutritionMetric.protein:
+        return context.l10n.protein;
+
+      case ProgressNutritionMetric.carbs:
+        return context.l10n.carbs;
+
+      case ProgressNutritionMetric.fat:
+        return context.l10n.fat;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final hasNutritionSelector =
+        selectedNutritionMetric != null &&
+            onNutritionMetricChanged != null;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(
@@ -65,90 +94,185 @@ class ProgressChartCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: PopupMenuButton<ProgressRange>(
-              onSelected: onRangeChanged,
-              color: AppColors.surfacePrimary,
-              elevation: 3,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              itemBuilder: (context) {
-                return availableRanges.map((range) {
-                  return PopupMenuItem<ProgressRange>(
-                    value: range,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            _rangeLabel(
-                              context,
-                              range,
-                            ),
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              color: AppColors.homeBrown,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              if (hasNutritionSelector) ...[
+                PopupMenuButton<ProgressNutritionMetric>(
+                  onSelected: onNutritionMetricChanged,
+                  color: AppColors.surfacePrimary,
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                    BorderRadius.circular(16),
+                  ),
+                  itemBuilder: (context) {
+                    return ProgressNutritionMetric.values
+                        .map(
+                          (metric) => PopupMenuItem<
+                          ProgressNutritionMetric>(
+                        value: metric,
+                        child: Text(
+                          _nutritionLabel(
+                            context,
+                            metric,
+                          ),
+                          style: AppTextStyles
+                              .bodyMedium
+                              .copyWith(
+                            color:
+                            AppColors.homeBrown,
+                            fontSize: 14,
+                            fontWeight:
+                            FontWeight.w600,
                           ),
                         ),
-                        if (!isPremium &&
-                            range != ProgressRange.days7)
-                          const Icon(
-                            Icons.lock_outline_rounded,
-                            size: 16,
-                            color:
-                            AppColors.planTrackingSecondaryLabel,
+                      ),
+                    )
+                        .toList();
+                  },
+                  child: Container(
+                    padding:
+                    const EdgeInsets.symmetric(
+                      horizontal: 11,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceSoft,
+                      borderRadius:
+                      BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      mainAxisSize:
+                      MainAxisSize.min,
+                      children: [
+                        Text(
+                          _nutritionLabel(
+                            context,
+                            selectedNutritionMetric!,
                           ),
+                          style: AppTextStyles
+                              .labelSmall
+                              .copyWith(
+                            color:
+                            AppColors.homeBrown,
+                            fontSize: 11,
+                            fontWeight:
+                            FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(width: 3),
+                        const Icon(
+                          Icons
+                              .keyboard_arrow_down_rounded,
+                          color:
+                          AppColors.homeBrown,
+                          size: 18,
+                        ),
                       ],
                     ),
-                  );
-                }).toList();
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 11,
-                  vertical: 6,
+                  ),
                 ),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceSoft,
-                  borderRadius: BorderRadius.circular(16),
+
+                const SizedBox(width: 8),
+              ],
+
+              PopupMenuButton<ProgressRange>(
+                onSelected: onRangeChanged,
+                color: AppColors.surfacePrimary,
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                  BorderRadius.circular(16),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _rangeLabel(
-                        context,
-                        selectedRange,
+                itemBuilder: (context) {
+                  return availableRanges.map(
+                        (range) {
+                      return PopupMenuItem<
+                          ProgressRange>(
+                        value: range,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                _rangeLabel(
+                                  context,
+                                  range,
+                                ),
+                                style: AppTextStyles
+                                    .bodyMedium
+                                    .copyWith(
+                                  color:
+                                  AppColors.homeBrown,
+                                  fontSize: 14,
+                                  fontWeight:
+                                  FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            if (!isPremium &&
+                                range !=
+                                    ProgressRange.days7)
+                              const Icon(
+                                Icons
+                                    .lock_outline_rounded,
+                                size: 16,
+                                color: AppColors
+                                    .planTrackingSecondaryLabel,
+                              ),
+                          ],
+                        ),
+                      );
+                    },
+                  ).toList();
+                },
+                child: Container(
+                  padding:
+                  const EdgeInsets.symmetric(
+                    horizontal: 11,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceSoft,
+                    borderRadius:
+                    BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    mainAxisSize:
+                    MainAxisSize.min,
+                    children: [
+                      Text(
+                        _rangeLabel(
+                          context,
+                          selectedRange,
+                        ),
+                        style: AppTextStyles
+                            .labelSmall
+                            .copyWith(
+                          color: AppColors
+                              .planTrackingSecondaryLabel,
+                          fontSize: 11,
+                          fontWeight:
+                          FontWeight.w700,
+                        ),
                       ),
-                      style:
-                      AppTextStyles.labelSmall.copyWith(
+                      const SizedBox(width: 3),
+                      const Icon(
+                        Icons
+                            .keyboard_arrow_down_rounded,
                         color: AppColors
                             .planTrackingSecondaryLabel,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                        size: 18,
                       ),
-                    ),
-
-                    const SizedBox(width: 3),
-
-                    const Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      color:
-                      AppColors.planTrackingSecondaryLabel,
-                      size: 18,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 40),
 
-          // Grafik artık daha uzun.
           SizedBox(
             height: 250,
             child: LineChart(
@@ -167,12 +291,14 @@ class ProgressChartCard extends StatelessWidget {
   LineChartData _chartData(
       BuildContext context,
       ) {
-    final chartMinY =
-    data.minY == 0 ? -data.interval * 0.08 : data.minY;
+    final chartMinY = data.minY == 0
+        ? -data.interval * 0.08
+        : data.minY;
 
     return LineChartData(
       minX: 0,
-      maxX: (data.bottomLabels.length - 1).toDouble(),
+      maxX:
+      (data.bottomLabels.length - 1).toDouble(),
 
       minY: chartMinY,
       maxY: data.maxY,
@@ -201,7 +327,9 @@ class ProgressChartCard extends StatelessWidget {
           }
 
           return FlLine(
-            color: AppColors.homeBrown.withValues(alpha: 0.07),
+            color: AppColors.homeBrown.withValues(
+              alpha: 0.07,
+            ),
             strokeWidth: 1,
           );
         },
@@ -234,11 +362,15 @@ class ProgressChartCard extends StatelessWidget {
                 meta: meta,
                 space: 5,
                 child: Text(
-                  _formatAxisValue(value),
+                  _formatAxisValue(
+                    value,
+                  ),
                   maxLines: 1,
                   softWrap: false,
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.planTrackingSecondaryLabel,
+                  style:
+                  AppTextStyles.caption.copyWith(
+                    color: AppColors
+                        .planTrackingSecondaryLabel,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                   ),
@@ -256,12 +388,14 @@ class ProgressChartCard extends StatelessWidget {
             getTitlesWidget: (value, meta) {
               final rounded = value.round();
 
-              if ((value - rounded).abs() > 0.01) {
+              if ((value - rounded).abs() >
+                  0.01) {
                 return const SizedBox.shrink();
               }
 
               if (rounded < 0 ||
-                  rounded >= data.bottomLabels.length) {
+                  rounded >=
+                      data.bottomLabels.length) {
                 return const SizedBox.shrink();
               }
 
@@ -298,33 +432,46 @@ class ProgressChartCard extends StatelessWidget {
           getTooltipItems: (spots) {
             final seenX = <double>{};
 
-            return spots.map((spot) {
-              if (!seenX.add(spot.x)) {
-                return null;
-              }
+            return spots.map(
+                  (spot) {
+                if (!seenX.add(
+                  spot.x,
+                )) {
+                  return null;
+                }
 
-              return LineTooltipItem(
-                '${_formatTooltipValue(spot.y)} ${data.tooltipUnit}',
-                AppTextStyles.labelSmall.copyWith(
-                  color: AppColors.onPrimary,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                ),
-              );
-            }).toList();
+                return LineTooltipItem(
+                  '${_formatTooltipValue(spot.y)} ${data.tooltipUnit}',
+                  AppTextStyles.labelSmall
+                      .copyWith(
+                    color: AppColors.onPrimary,
+                    fontSize: 11,
+                    fontWeight:
+                    FontWeight.w700,
+                  ),
+                );
+              },
+            ).toList();
           },
         ),
       ),
 
       extraLinesData: ExtraLinesData(
-        horizontalLines: data.targetY == null
+        horizontalLines:
+        data.targetY == null
             ? []
             : [
           HorizontalLine(
             y: data.targetY!,
-            color: data.lineColor.withValues(alpha: 0.35,),
+            color: data.lineColor
+                .withValues(
+              alpha: 0.35,
+            ),
             strokeWidth: 1.5,
-            dashArray: [6, 5],
+            dashArray: [
+              6,
+              5,
+            ],
           ),
         ],
       ),
@@ -345,49 +492,71 @@ class ProgressChartCard extends StatelessWidget {
 
     final bars = <LineChartBarData>[];
 
-    var currentSpots = <FlSpot>[data.spots.first];
-    var currentIsZeroSegment = _isZeroSegment(
+    var currentSpots = <FlSpot>[
+      data.spots.first,
+    ];
+
+    var currentIsZeroSegment =
+    _isZeroSegment(
       data.spots[0],
       data.spots[1],
     );
 
-    for (var i = 1; i < data.spots.length; i++) {
+    for (var i = 1;
+    i < data.spots.length;
+    i++) {
       final currentSpot = data.spots[i];
-      currentSpots.add(currentSpot);
+
+      currentSpots.add(
+        currentSpot,
+      );
 
       if (i == data.spots.length - 1) {
         bars.add(
           _createLineBar(
             currentSpots,
-            isCurved: !currentIsZeroSegment,
+            isCurved:
+            !currentIsZeroSegment,
           ),
         );
+
         break;
       }
 
-      final nextIsZeroSegment = _isZeroSegment(
+      final nextIsZeroSegment =
+      _isZeroSegment(
         currentSpot,
         data.spots[i + 1],
       );
 
-      if (nextIsZeroSegment != currentIsZeroSegment) {
+      if (nextIsZeroSegment !=
+          currentIsZeroSegment) {
         bars.add(
           _createLineBar(
             currentSpots,
-            isCurved: !currentIsZeroSegment,
+            isCurved:
+            !currentIsZeroSegment,
           ),
         );
 
-        currentSpots = [currentSpot];
-        currentIsZeroSegment = nextIsZeroSegment;
+        currentSpots = [
+          currentSpot,
+        ];
+
+        currentIsZeroSegment =
+            nextIsZeroSegment;
       }
     }
 
     return bars;
   }
 
-  bool _isZeroSegment(FlSpot first, FlSpot second) {
-    return first.y == 0 && second.y == 0;
+  bool _isZeroSegment(
+      FlSpot first,
+      FlSpot second,
+      ) {
+    return first.y == 0 &&
+        second.y == 0;
   }
 
   LineChartBarData _createLineBar(
@@ -397,14 +566,17 @@ class ProgressChartCard extends StatelessWidget {
     return LineChartBarData(
       spots: spots,
       isCurved: isCurved,
-      curveSmoothness: isCurved ? 0.28 : 0,
+      curveSmoothness:
+      isCurved ? 0.28 : 0,
       color: data.lineColor,
       barWidth: 3,
       isStrokeCapRound: true,
 
       belowBarData: BarAreaData(
         show: true,
-        color: data.lineColor.withValues(alpha: 0.055),
+        color: data.lineColor.withValues(
+          alpha: 0.055,
+        ),
       ),
 
       dotData: FlDotData(
@@ -417,16 +589,20 @@ class ProgressChartCard extends StatelessWidget {
             ) {
           return FlDotCirclePainter(
             radius: 3.5,
-            color: AppColors.surfacePrimary,
+            color:
+            AppColors.surfacePrimary,
             strokeWidth: 2,
-            strokeColor: data.lineColor,
+            strokeColor:
+            data.lineColor,
           );
         },
       ),
     );
   }
 
-  String _formatAxisValue(double value) {
+  String _formatAxisValue(
+      double value,
+      ) {
     if (value == value.roundToDouble()) {
       return value.toInt().toString();
     }
@@ -434,13 +610,17 @@ class ProgressChartCard extends StatelessWidget {
     return value.toStringAsFixed(1);
   }
 
-  String _formatTooltipValue(double value) {
+  String _formatTooltipValue(
+      double value,
+      ) {
     if (value == value.roundToDouble()) {
       return value.toInt().toString();
     }
 
-    if (data.tooltipUnit == 'L' && value.abs() < 1) {
-      final formatted = value.toStringAsFixed(2);
+    if (data.tooltipUnit == 'L' &&
+        value.abs() < 1) {
+      final formatted =
+      value.toStringAsFixed(2);
 
       if (formatted.endsWith('0')) {
         return value.toStringAsFixed(1);

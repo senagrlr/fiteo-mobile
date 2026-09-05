@@ -5,13 +5,17 @@ import 'package:fiteo_myapp/app/theme/app_colors.dart';
 import 'package:fiteo_myapp/app/theme/app_text_styles.dart';
 import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 import 'package:fiteo_myapp/common/utils/app_snackbar.dart';
+import 'package:fiteo_myapp/common/utils/weight_unit_converter.dart';
 import 'package:fiteo_myapp/common/widgets/custom_button.dart';
 import 'package:fiteo_myapp/common/widgets/system_navigation_bar.dart';
+
+import 'package:fiteo_myapp/features/membership/data/premium_access_service.dart';
+import 'package:fiteo_myapp/features/membership/presentation/premium_navigation.dart';
+
 import 'package:fiteo_myapp/features/profile/data/profile_repository.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/profile_dropdown_field.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/profile_input.dart';
 import 'package:fiteo_myapp/features/profile/presentation/widgets/settings_card.dart';
-import 'package:fiteo_myapp/common/utils/weight_unit_converter.dart';
 
 class GoalsPreferencesScreen extends StatefulWidget {
   const GoalsPreferencesScreen({
@@ -39,8 +43,12 @@ class _GoalsPreferencesScreenState
   final ProfileRepository _profileRepository =
   ProfileRepository();
 
+  final PremiumAccessService _premiumAccessService =
+  PremiumAccessService();
+
   bool isLoading = true;
   bool isSaving = false;
+  bool isPremium = false;
 
   final List<String> goals = const [
     'Lose Weight',
@@ -74,7 +82,105 @@ class _GoalsPreferencesScreenState
   @override
   void initState() {
     super.initState();
-    _loadPreferences();
+    _initializeScreen();
+  }
+
+  Future<void> _initializeScreen() async {
+    final premium =
+    await _premiumAccessService.isPremium();
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      isPremium = premium;
+    });
+
+    await _loadPreferences();
+  }
+
+  Future<void> _showNutritionPremiumDialog() async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 32,
+          ),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(
+              24,
+              28,
+              24,
+              24,
+            ),
+            decoration: BoxDecoration(
+              color: AppColors.surfacePrimary,
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.lock_rounded,
+                  size: 62,
+                  color: AppColors.homeBrown,
+                ),
+
+                const SizedBox(height: 14),
+
+                Text(
+                  context.l10n.goPremiumToUnlockFeature,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: AppColors.homeBrown,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                SizedBox(
+                  height: 46,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+
+                      PremiumNavigation.openPaywall(
+                        context,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      elevation: 0,
+                      backgroundColor:
+                      AppColors.brandPrimary,
+                      foregroundColor:
+                      AppColors.onPrimary,
+                      padding:
+                      const EdgeInsets.symmetric(
+                        horizontal: 30,
+                      ),
+                      shape: const StadiumBorder(),
+                    ),
+                    child: Text(
+                      context.l10n.goPremium,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   String _formatWeight(double value) {
@@ -129,20 +235,20 @@ class _GoalsPreferencesScreenState
         weightKg == null
             ? ''
             : _formatWeight(
-            WeightUnitConverter.kgToDisplay(
-              kg: weightKg,
-              unit: weightUnit,
-            )
+          WeightUnitConverter.kgToDisplay(
+            kg: weightKg,
+            unit: weightUnit,
+          ),
         );
 
         targetWeightController.text =
         targetWeightKg == null
             ? ''
             : _formatWeight(
-            WeightUnitConverter.kgToDisplay(
-              kg: targetWeightKg,
-              unit: weightUnit,
-            )
+          WeightUnitConverter.kgToDisplay(
+            kg: targetWeightKg,
+            unit: weightUnit,
+          ),
         );
 
         dailyCaloriesController.text =
@@ -152,13 +258,17 @@ class _GoalsPreferencesScreenState
                 '';
       }
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       setState(() {
         isLoading = false;
       });
     } catch (_) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       setState(() {
         isLoading = false;
@@ -300,10 +410,13 @@ class _GoalsPreferencesScreenState
         {
           'goal': selectedGoal,
           'activityLevel': selectedActivity,
-          'nutritionPreference': selectedNutrition,
-          'workoutPreference': selectedWorkout,
+          'nutritionPreference':
+          selectedNutrition,
+          'workoutPreference':
+          selectedWorkout,
 
-          'weight': weightController.text.trim().isEmpty
+          'weight':
+          weightController.text.trim().isEmpty
               ? null
               : double.tryParse(
             weightController.text.trim(),
@@ -320,37 +433,47 @@ class _GoalsPreferencesScreenState
           ),
 
           'targetWeight':
-          targetWeightController.text.trim().isEmpty
+          targetWeightController.text
+              .trim()
+              .isEmpty
               ? null
               : double.tryParse(
-            targetWeightController.text.trim(),
+            targetWeightController.text
+                .trim(),
           ) ==
               null
               ? null
               : double.parse(
             WeightUnitConverter.displayToKg(
               value: double.parse(
-                targetWeightController.text.trim(),
+                targetWeightController.text
+                    .trim(),
               ),
               unit: weightUnit,
             ).toStringAsFixed(1),
           ),
 
           'weightUnit': weightUnit,
-
         },
       );
 
-      await _profileRepository.updateNutritionPlan({
-        'calorieGoal':
-        dailyCaloriesController.text.trim().isEmpty
-            ? null
-            : int.tryParse(
-          dailyCaloriesController.text.trim(),
-        ),
-      });
+      await _profileRepository.updateNutritionPlan(
+        {
+          'calorieGoal':
+          dailyCaloriesController.text
+              .trim()
+              .isEmpty
+              ? null
+              : int.tryParse(
+            dailyCaloriesController.text
+                .trim(),
+          ),
+        },
+      );
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       AppSnackbar.showSuccess(
         context,
@@ -362,7 +485,9 @@ class _GoalsPreferencesScreenState
         true,
       );
     } catch (_) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       setState(() {
         isSaving = false;
@@ -419,7 +544,8 @@ class _GoalsPreferencesScreenState
           ),
           title: Text(
             context.l10n.goalsPreferences,
-            style: AppTextStyles.titleMedium.copyWith(
+            style:
+            AppTextStyles.titleMedium.copyWith(
               color: AppColors.homeBrown,
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -441,17 +567,26 @@ class _GoalsPreferencesScreenState
                   title: context.l10n.bodyGoals,
                   children: [
                     ProfileInput(
-                      controller: weightController,
-                      hintText: weightUnit == 'lb'
+                      controller:
+                      weightController,
+                      hintText:
+                      weightUnit == 'lb'
                           ? 'Current Weight (lb)'
-                          : context.l10n.currentWeightKg,
-                      icon: Icons.monitor_weight_outlined,
-                      keyboardType: const TextInputType.numberWithOptions(
+                          : context.l10n
+                          .currentWeightKg,
+                      icon:
+                      Icons.monitor_weight_outlined,
+                      keyboardType:
+                      const TextInputType
+                          .numberWithOptions(
                         decimal: true,
                       ),
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(
-                          RegExp(r'^\d*\.?\d{0,1}'),
+                        FilteringTextInputFormatter
+                            .allow(
+                          RegExp(
+                            r'^\d*\.?\d{0,1}',
+                          ),
                         ),
                       ],
                     ),
@@ -459,17 +594,25 @@ class _GoalsPreferencesScreenState
                     const SizedBox(height: 14),
 
                     ProfileInput(
-                      controller: targetWeightController,
-                      hintText: weightUnit == 'lb'
+                      controller:
+                      targetWeightController,
+                      hintText:
+                      weightUnit == 'lb'
                           ? 'Target Weight (lb)'
-                          : context.l10n.targetWeightKg,
+                          : context.l10n
+                          .targetWeightKg,
                       icon: Icons.track_changes,
-                      keyboardType: const TextInputType.numberWithOptions(
+                      keyboardType:
+                      const TextInputType
+                          .numberWithOptions(
                         decimal: true,
                       ),
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(
-                          RegExp(r'^\d*\.?\d{0,1}'),
+                        FilteringTextInputFormatter
+                            .allow(
+                          RegExp(
+                            r'^\d*\.?\d{0,1}',
+                          ),
                         ),
                       ],
                     ),
@@ -500,7 +643,8 @@ class _GoalsPreferencesScreenState
                   context.l10n.preferencesTitle,
                   children: [
                     ProfileDropdownField(
-                      value: selectedGoal == null
+                      value:
+                      selectedGoal == null
                           ? null
                           : _goalLabel(
                         selectedGoal!,
@@ -508,7 +652,9 @@ class _GoalsPreferencesScreenState
                       items: localizedGoals,
                       icon: Icons.flag_outlined,
                       onChanged: (value) {
-                        if (value == null) return;
+                        if (value == null) {
+                          return;
+                        }
 
                         setState(() {
                           selectedGoal =
@@ -533,7 +679,9 @@ class _GoalsPreferencesScreenState
                       icon: Icons
                           .directions_run_outlined,
                       onChanged: (value) {
-                        if (value == null) return;
+                        if (value == null) {
+                          return;
+                        }
 
                         setState(() {
                           selectedActivity =
@@ -557,8 +705,14 @@ class _GoalsPreferencesScreenState
                       localizedNutrition,
                       icon: Icons
                           .restaurant_menu_outlined,
+                      isLocked: !isPremium,
+                      onLockedTap: () {
+                        _showNutritionPremiumDialog();
+                      },
                       onChanged: (value) {
-                        if (value == null) return;
+                        if (value == null) {
+                          return;
+                        }
 
                         setState(() {
                           selectedNutrition =
@@ -583,7 +737,9 @@ class _GoalsPreferencesScreenState
                       icon: Icons
                           .fitness_center_outlined,
                       onChanged: (value) {
-                        if (value == null) return;
+                        if (value == null) {
+                          return;
+                        }
 
                         setState(() {
                           selectedWorkout =
@@ -609,8 +765,7 @@ class _GoalsPreferencesScreenState
                   AppColors.authButtonGreen,
                   textColor: Colors.white,
                   height: 54,
-                  width:
-                  screenWidth * 0.72,
+                  width: screenWidth * 0.72,
                   fontSize: 17,
                 ),
               ],

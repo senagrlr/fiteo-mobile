@@ -735,6 +735,18 @@
   "weeklyWeightUpdateDescription": "Measure and update your weekly weight so we can track your plan consistently.",
   "updateWeight": "Update",
 
+  "goPremiumToUnlockFeature": "Go Premium to unlock this feature",
+  "goPremium": "Go Premium",
+
+  "chooseRecipeNutritionPreference": "Choose your nutrition preference",
+  "recipeNutritionPreferenceDescription": "We'll use this preference while creating your recipe.",
+  "recipePreferenceChangeHint": "You can change your nutrition preference anytime from Goals & Preferences.",
+  "continueToRecipe": "Continue",
+  "nutritionKeto": "Keto",
+  "nutritionGlutenFree": "Gluten Free",
+
+  "recipeCustomizationPremiumHint": "Customizing recipes based on your nutrition preference is available exclusively to Premium users.",
+
 
   "recipeAddedToMeal": "{recipeName} added to {mealType}.",
   "@recipeAddedToMeal": {

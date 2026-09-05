@@ -262,6 +262,31 @@ class AppLocalizationsTr extends AppLocalizations {
   String get nutritionBalancedDiet => 'Dengeli Beslenme';
 
   @override
+  String get nutritionMediterranean => 'Akdeniz Tipi Beslenme';
+
+  @override
+  String get dietaryRequirements => 'Beslenme Gereksinimleri';
+
+  @override
+  String get dietaryRequirementsHint =>
+      'Tariflerin uymasını istediğin beslenme gereksinimlerini seç.';
+
+  @override
+  String get noRestriction => 'Kısıtlama Yok';
+
+  @override
+  String get dietaryPescatarian => 'Pesketaryen';
+
+  @override
+  String get dietaryKeto => 'Keto';
+
+  @override
+  String get dietaryGlutenFree => 'Glütensiz';
+
+  @override
+  String get dietaryDairyFree => 'Süt Ürünsüz';
+
+  @override
   String get workoutPreferenceTitle =>
       'Nasıl egzersiz yapmayı tercih ediyorsun?';
 
@@ -1468,15 +1493,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get goPremium => 'Premium\'a Geç';
 
   @override
-  String get chooseRecipeNutritionPreference => 'Beslenme tercihini seç';
-
-  @override
-  String get recipeNutritionPreferenceDescription =>
-      'Tarifini oluştururken bu tercihi dikkate alacağız.';
-
-  @override
   String get recipePreferenceChangeHint =>
-      'Beslenme tercihini Goals & Preferences bölümünden istediğin zaman değiştirebilirsin.';
+      'Beslenme gereksinimlerini istediğin zaman Hedefler ve Tercihler bölümünden değiştirebilirsin.';
 
   @override
   String get continueToRecipe => 'Devam Et';
@@ -1489,7 +1507,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get recipeCustomizationPremiumHint =>
-      'Tariflerini beslenme tercihine göre özelleştirme özelliği yalnızca Premium kullanıcılara özeldir.';
+      'Tariflerini beslenme gereksinimlerine göre özelleştirme özelliği yalnızca Premium kullanıcılara özeldir.';
 
   @override
   String recipeAddedToMeal(String recipeName, String mealType) {

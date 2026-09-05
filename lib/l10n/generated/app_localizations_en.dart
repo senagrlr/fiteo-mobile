@@ -259,6 +259,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nutritionBalancedDiet => 'Balanced Diet';
 
   @override
+  String get nutritionMediterranean => 'Mediterranean';
+
+  @override
+  String get dietaryRequirements => 'Dietary Requirements';
+
+  @override
+  String get dietaryRequirementsHint =>
+      'Select any dietary requirements you want recipes to follow.';
+
+  @override
+  String get noRestriction => 'No Restriction';
+
+  @override
+  String get dietaryPescatarian => 'Pescatarian';
+
+  @override
+  String get dietaryKeto => 'Keto';
+
+  @override
+  String get dietaryGlutenFree => 'Gluten Free';
+
+  @override
+  String get dietaryDairyFree => 'Dairy Free';
+
+  @override
   String get workoutPreferenceTitle => 'How do you like to work out?';
 
   @override
@@ -1471,16 +1496,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goPremium => 'Go Premium';
 
   @override
-  String get chooseRecipeNutritionPreference =>
-      'Choose your nutrition preference';
-
-  @override
-  String get recipeNutritionPreferenceDescription =>
-      'We\'ll use this preference while creating your recipe.';
-
-  @override
   String get recipePreferenceChangeHint =>
-      'You can change your nutrition preference anytime from Goals & Preferences.';
+      'You can change your dietary requirements anytime from Goals & Preferences.';
 
   @override
   String get continueToRecipe => 'Continue';
@@ -1493,7 +1510,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recipeCustomizationPremiumHint =>
-      'Customizing recipes based on your nutrition preference is available exclusively to Premium users.';
+      'Customizing recipes based on your dietary requirements is available exclusively to Premium users.';
 
   @override
   String recipeAddedToMeal(String recipeName, String mealType) {

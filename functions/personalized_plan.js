@@ -558,6 +558,7 @@ function createGeneratePersonalizedPlanHandler(openaiApiKey) {
                 JSON.stringify(calculation.allowedRanges) +
                 "\n\nChoose the personalized values. " +
                 "High Protein, Build Muscle, and Strength Training can justify choosing protein toward the higher end of the allowed range. " +
+                "Mediterranean means preferring a Mediterranean-style eating pattern, emphasizing vegetables, fruits, legumes, whole grains, olive oil, fish, and minimally processed foods. It does not change the allowed calorie or macro ranges. " +
                 "Do not calculate carbohydrates.",
             },
           ],

@@ -38,20 +38,16 @@ class _NutritionPreferenceScreenState
       label: context.l10n.nutritionNoRestrictions,
       ),
       (
+      value: 'Balanced Diet',
+      label: context.l10n.nutritionBalancedDiet,
+      ),
+      (
       value: 'High Protein',
       label: context.l10n.nutritionHighProtein,
       ),
       (
-      value: 'Vegetarian',
-      label: context.l10n.nutritionVegetarian,
-      ),
-      (
-      value: 'Vegan',
-      label: context.l10n.nutritionVegan,
-      ),
-      (
-      value: 'Balanced Diet',
-      label: context.l10n.nutritionBalancedDiet,
+      value: 'Mediterranean',
+      label: context.l10n.nutritionMediterranean,
       ),
     ];
 

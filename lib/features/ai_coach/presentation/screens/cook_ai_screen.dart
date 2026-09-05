@@ -11,7 +11,7 @@ import 'package:fiteo_myapp/features/ai_coach/data/cook_recipe_service.dart';
 
 import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_loading_view.dart';
 import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_message_input.dart';
-import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_nutrition_preference_dialog.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_dietary_requirements_dialog.dart';
 import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_recipe_dialog.dart';
 import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_welcome_view.dart';
 
@@ -20,6 +20,7 @@ import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/shared/ai_mod
 
 import 'package:fiteo_myapp/features/meals/data/meal_repository.dart';
 import 'package:fiteo_myapp/features/profile/data/saved_recipe_repository.dart';
+import 'package:fiteo_myapp/features/profile/data/profile_repository.dart';
 import 'package:fiteo_myapp/features/ai_coach/data/ai_usage_limits.dart';
 import 'package:fiteo_myapp/features/ai_coach/data/ai_usage_repository.dart';
 import 'package:fiteo_myapp/features/ai_coach/data/ai_usage_state.dart';
@@ -54,6 +55,9 @@ class _CookAiScreenState extends State<CookAiScreen> {
   final SavedRecipeRepository _savedRecipeRepository =
   SavedRecipeRepository();
 
+  final ProfileRepository _profileRepository =
+  ProfileRepository();
+
   final MembershipRepository _membershipRepository =
   MembershipRepository();
 
@@ -61,7 +65,7 @@ class _CookAiScreenState extends State<CookAiScreen> {
   AiUsageRepository();
 
   bool _isPremium = false;
-
+  bool _hasShownFreeDietaryPromo = false;
   bool isGenerating = false;
 
   CookRecipeResult? generatedRecipeResult;
@@ -138,32 +142,75 @@ class _CookAiScreenState extends State<CookAiScreen> {
       return;
     }
 
-    final currentNutritionPreference =
-    preferences['nutritionPreference']
-        ?.toString();
-
-    final selectedNutritionPreference =
-    await CookNutritionPreferenceDialog.show(
-      context,
-      initialValue:
-      currentNutritionPreference,
-      isPremium:
-      _isPremium,
-    );
-
-    if (selectedNutritionPreference == null ||
-        !mounted) {
-      return;
-    }
-
     final recipePreferences =
     Map<String, dynamic>.from(
       preferences,
     );
 
-    recipePreferences[
-    'nutritionPreference'] =
-        selectedNutritionPreference;
+    final hasDietaryRequirements =
+    preferences.containsKey(
+      'dietaryRequirements',
+    );
+
+    if (_isPremium &&
+        !hasDietaryRequirements) {
+      final selectedRequirements =
+      await CookDietaryRequirementsDialog
+          .show(
+        context,
+        initialValues: const [],
+        isPremium: true,
+      );
+
+      if (selectedRequirements == null ||
+          !mounted) {
+        return;
+      }
+
+      await _profileRepository
+          .updateUserPreferences({
+        'dietaryRequirements':
+        selectedRequirements,
+      });
+
+      recipePreferences[
+      'dietaryRequirements'] =
+          selectedRequirements;
+    } else if (_isPremium) {
+      final rawRequirements =
+      preferences[
+      'dietaryRequirements'];
+
+      recipePreferences[
+      'dietaryRequirements'] =
+      rawRequirements is List
+          ? rawRequirements
+          .map(
+            (item) =>
+            item.toString(),
+      )
+          .toList()
+          : <String>[];
+    } else {
+      if (!_hasShownFreeDietaryPromo) {
+        final result =
+        await CookDietaryRequirementsDialog.show(
+          context,
+          initialValues: const [],
+          isPremium: false,
+        );
+
+        if (result == null || !mounted) {
+          return;
+        }
+
+        _hasShownFreeDietaryPromo = true;
+      }
+
+      recipePreferences.remove(
+        'dietaryRequirements',
+      );
+    }
 
     setState(() {
       isGenerating = true;

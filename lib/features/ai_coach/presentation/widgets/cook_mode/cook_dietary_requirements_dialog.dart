@@ -6,26 +6,26 @@ import 'package:fiteo_myapp/common/extensions/localization_extension.dart';
 
 import 'package:fiteo_myapp/features/membership/presentation/premium_navigation.dart';
 
-class CookNutritionPreferenceDialog {
+class CookDietaryRequirementsDialog {
   static const List<String> options = [
-    'No Restrictions',
-    'High Protein',
-    'Balanced Diet',
     'Vegetarian',
     'Vegan',
+    'Pescatarian',
     'Keto',
     'Gluten Free',
+    'Dairy Free',
   ];
 
-  static Future<String?> show(
+  static Future<List<String>?> show(
       BuildContext context, {
-        String? initialValue,
+        required List<String> initialValues,
         required bool isPremium,
       }) {
-    String? selectedValue;
+    final selectedValues =
+    List<String>.from(initialValues);
     String? lockedOption;
 
-    return showDialog<String>(
+    return showDialog<List<String>>(
       context: context,
       barrierDismissible: true,
       barrierColor: Colors.black.withValues(
@@ -59,8 +59,7 @@ class CookNutritionPreferenceDialog {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      context.l10n
-                          .chooseRecipeNutritionPreference,
+                      context.l10n.dietaryRequirements,
                       textAlign: TextAlign.center,
                       style:
                       AppTextStyles.titleMedium.copyWith(
@@ -72,14 +71,89 @@ class CookNutritionPreferenceDialog {
 
                     const SizedBox(height: 22),
 
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: options.map(
-                            (option) {
-                          final isSelected =
-                              selectedValue == option;
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                    Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        if (!isPremium) {
+                          setDialogState(() {
+                            lockedOption = 'No Restriction';
+                          });
+                          return;
+                        }
+
+                        setDialogState(() {
+                          selectedValues.clear();
+                          lockedOption = null;
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(22),
+                      child: AnimatedContainer(
+                        duration: const Duration(
+                          milliseconds: 160,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 15,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: selectedValues.isEmpty
+                              ? AppColors.brandPrimary.withValues(
+                            alpha: 0.16,
+                          )
+                              : AppColors.surfaceSoft,
+                          borderRadius:
+                          BorderRadius.circular(22),
+                          border: Border.all(
+                            color: selectedValues.isEmpty
+                                ? AppColors.brandPrimary
+                                : AppColors.homeBrown.withValues(
+                              alpha: 0.08,
+                            ),
+                            width:
+                            selectedValues.isEmpty ? 1.5 : 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (selectedValues.isEmpty) ...[
+                              const Icon(
+                                Icons.check_rounded,
+                                color: AppColors.brandPrimary,
+                                size: 17,
+                              ),
+                              const SizedBox(width: 5),
+                            ],
+                            Text(
+                              context.l10n.noRestriction,
+                              style: AppTextStyles.labelMedium
+                                  .copyWith(
+                                color: selectedValues.isEmpty
+                                    ? AppColors.homeBrown
+                                    : AppColors
+                                    .homeSecondaryValue,
+                                fontSize: 13,
+                                fontWeight:
+                                selectedValues.isEmpty
+                                    ? FontWeight.w700
+                                    : FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  ...options.map((option) {
+                              final isSelected =
+                              selectedValues.contains(option);
 
                           final showLock =
                               !isPremium &&
@@ -98,7 +172,12 @@ class CookNutritionPreferenceDialog {
                                 }
 
                                 setDialogState(() {
-                                  selectedValue = option;
+                                  if (isSelected) {
+                                    selectedValues.remove(option);
+                                  } else {
+                                    selectedValues.add(option);
+                                  }
+
                                   lockedOption = null;
                                 });
                               },
@@ -197,8 +276,8 @@ class CookNutritionPreferenceDialog {
                               ),
                             ),
                           );
-                        },
-                      ).toList(),
+                  }),
+                    ],
                     ),
 
                     const SizedBox(height: 20),
@@ -261,15 +340,9 @@ class CookNutritionPreferenceDialog {
                       height: 46,
                       child: OutlinedButton(
                         onPressed: () {
-                          final fallbackValue =
-                          options.contains(initialValue)
-                              ? initialValue!
-                              : 'No Restrictions';
-
                           Navigator.pop(
                             dialogContext,
-                            selectedValue ??
-                                fallbackValue,
+                            List<String>.from(selectedValues),
                           );
                         },
                         style:
@@ -310,31 +383,23 @@ class CookNutritionPreferenceDialog {
       String value,
       ) {
     switch (value) {
-      case 'No Restrictions':
-        return context
-            .l10n.nutritionNoRestrictions;
-
-      case 'High Protein':
-        return context
-            .l10n.nutritionHighProtein;
-
-      case 'Balanced Diet':
-        return context
-            .l10n.nutritionBalancedDiet;
-
       case 'Vegetarian':
-        return context
-            .l10n.nutritionVegetarian;
+        return context.l10n.nutritionVegetarian;
 
       case 'Vegan':
         return context.l10n.nutritionVegan;
 
+      case 'Pescatarian':
+        return context.l10n.dietaryPescatarian;
+
       case 'Keto':
-        return context.l10n.nutritionKeto;
+        return context.l10n.dietaryKeto;
 
       case 'Gluten Free':
-        return context
-            .l10n.nutritionGlutenFree;
+        return context.l10n.dietaryGlutenFree;
+
+      case 'Dairy Free':
+        return context.l10n.dietaryDairyFree;
 
       default:
         return value;

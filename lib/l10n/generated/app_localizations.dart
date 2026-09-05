@@ -572,6 +572,54 @@ abstract class AppLocalizations {
   /// **'Balanced Diet'**
   String get nutritionBalancedDiet;
 
+  /// No description provided for @nutritionMediterranean.
+  ///
+  /// In en, this message translates to:
+  /// **'Mediterranean'**
+  String get nutritionMediterranean;
+
+  /// No description provided for @dietaryRequirements.
+  ///
+  /// In en, this message translates to:
+  /// **'Dietary Requirements'**
+  String get dietaryRequirements;
+
+  /// No description provided for @dietaryRequirementsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select any dietary requirements you want recipes to follow.'**
+  String get dietaryRequirementsHint;
+
+  /// No description provided for @noRestriction.
+  ///
+  /// In en, this message translates to:
+  /// **'No Restriction'**
+  String get noRestriction;
+
+  /// No description provided for @dietaryPescatarian.
+  ///
+  /// In en, this message translates to:
+  /// **'Pescatarian'**
+  String get dietaryPescatarian;
+
+  /// No description provided for @dietaryKeto.
+  ///
+  /// In en, this message translates to:
+  /// **'Keto'**
+  String get dietaryKeto;
+
+  /// No description provided for @dietaryGlutenFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Gluten Free'**
+  String get dietaryGlutenFree;
+
+  /// No description provided for @dietaryDairyFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Dairy Free'**
+  String get dietaryDairyFree;
+
   /// No description provided for @workoutPreferenceTitle.
   ///
   /// In en, this message translates to:
@@ -2834,22 +2882,10 @@ abstract class AppLocalizations {
   /// **'Go Premium'**
   String get goPremium;
 
-  /// No description provided for @chooseRecipeNutritionPreference.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose your nutrition preference'**
-  String get chooseRecipeNutritionPreference;
-
-  /// No description provided for @recipeNutritionPreferenceDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'We\'ll use this preference while creating your recipe.'**
-  String get recipeNutritionPreferenceDescription;
-
   /// No description provided for @recipePreferenceChangeHint.
   ///
   /// In en, this message translates to:
-  /// **'You can change your nutrition preference anytime from Goals & Preferences.'**
+  /// **'You can change your dietary requirements anytime from Goals & Preferences.'**
   String get recipePreferenceChangeHint;
 
   /// No description provided for @continueToRecipe.
@@ -2873,7 +2909,7 @@ abstract class AppLocalizations {
   /// No description provided for @recipeCustomizationPremiumHint.
   ///
   /// In en, this message translates to:
-  /// **'Customizing recipes based on your nutrition preference is available exclusively to Premium users.'**
+  /// **'Customizing recipes based on your dietary requirements is available exclusively to Premium users.'**
   String get recipeCustomizationPremiumHint;
 
   /// No description provided for @recipeAddedToMeal.

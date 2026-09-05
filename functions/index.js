@@ -526,14 +526,27 @@ exports.initializePlanTrackingOnPremium =
             afterData
           );
 
-      if (wasPremium || !isPremium) {
-        return;
-      }
-
       const userRef = admin
         .firestore()
         .collection("users")
         .doc(uid);
+
+      if (wasPremium && !isPremium) {
+        await userRef.update({
+          "userPreferences.dietaryRequirements":
+              FieldValue.delete(),
+        });
+
+        console.log(
+          `Dietary requirements cleared for downgraded user ${uid}`
+        );
+
+        return;
+      }
+
+      if (wasPremium || !isPremium) {
+        return;
+      }
 
       const trackingRef = userRef
         .collection("planTracking")
@@ -2404,9 +2417,50 @@ exports.generateRecipeFromIngredients = onRequest(
         });
       }
 
-      const compactPreferences = {
-        goal: preferences.goal || null,
-        nutritionPreference: preferences.nutritionPreference || null,
+      const allowedDietaryRequirements = new Set([
+        "Vegetarian",
+        "Vegan",
+        "Pescatarian",
+        "Keto",
+        "Gluten Free",
+        "Dairy Free",
+      ]);
+
+      const dietaryRequirements =
+          isPremium &&
+          Array.isArray(preferences.dietaryRequirements)
+            ? preferences.dietaryRequirements
+                .map((value) => String(value).trim())
+                .filter(
+                  (value) =>
+                    allowedDietaryRequirements.has(value)
+                )
+            : [];
+
+      const recipeContext = {
+        userPreferences: {
+          goal:
+              preferences.goal || null,
+
+          nutritionPreference:
+              preferences.nutritionPreference || null,
+
+          dietaryRequirements,
+        },
+
+        nutritionPlan: {
+          calorieGoal:
+              Number(preferences.calorieGoal) || null,
+
+          proteinGoal:
+              Number(preferences.proteinGoal) || null,
+
+          carbsGoal:
+              Number(preferences.carbsGoal) || null,
+
+          fatGoal:
+              Number(preferences.fatGoal) || null,
+        },
       };
 
       const client = new OpenAI({
@@ -2426,7 +2480,9 @@ exports.generateRecipeFromIngredients = onRequest(
               "Parse ingredient input flexibly. Ingredients may be separated by commas, spaces, slashes, dashes, or new lines. Multi-word ingredients such as ground beef, olive oil, or red pepper should be treated as single ingredients when appropriate. " +
               "You may add only basic pantry items such as salt, black pepper, water, and a small amount of oil. " +
               "Do not add new main ingredients such as rice, pasta, meat, fish, cheese, tomato, lettuce, vegetables, fruits, dairy, eggs, or grains unless the user provided them. " +
-              "The user's goal or nutrition preference is only a light preference. Never add new main ingredients just to match the goal. " +
+              "The user's goal and nutrition preference are light preferences only. Use them as general guidance and never add new main ingredients just to match them. " +
+              "Dietary requirements are stronger recipe constraints. Respect the provided dietary requirements using only compatible ingredients from the user's input and allowed pantry items. Do not add substitute main ingredients that the user did not provide. " +
+              "Calorie and macro goals are general daily targets. Use them only as light guidance for portion size and recipe balance; do not force a recipe to exactly match the user's full daily targets. " +
               "Estimate calories by summing ingredient calories. Cooking usually changes weight, not total calories, unless oil or another ingredient is added. " +
               "Also estimate protein, fat, and carbohydrates for the full recipe and return the values per serving. " +
               "If you add allowed pantry items such as oil, include their estimated calories in the ingredients list and totalCalories. Salt, pepper, and water should be 0 kcal. " +
@@ -2438,8 +2494,8 @@ exports.generateRecipeFromIngredients = onRequest(
             content:
               "User ingredients: " +
               ingredients +
-              "\nUser preferences: " +
-              JSON.stringify(compactPreferences) +
+              "\nUser recipe context: " +
+              JSON.stringify(recipeContext) +
               "\nCreate a recipe using only these ingredients and allowed pantry items.",
           },
         ],

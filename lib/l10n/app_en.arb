@@ -98,6 +98,15 @@
   "nutritionVegetarian": "Vegetarian",
   "nutritionVegan": "Vegan",
   "nutritionBalancedDiet": "Balanced Diet",
+  "nutritionMediterranean": "Mediterranean",
+
+  "dietaryRequirements": "Dietary Requirements",
+  "dietaryRequirementsHint": "Select any dietary requirements you want recipes to follow.",
+  "noRestriction": "No Restriction",
+  "dietaryPescatarian": "Pescatarian",
+  "dietaryKeto": "Keto",
+  "dietaryGlutenFree": "Gluten Free",
+  "dietaryDairyFree": "Dairy Free",
 
   "workoutPreferenceTitle": "How do you like to work out?",
   "workoutHome": "Home Workouts",
@@ -738,14 +747,12 @@
   "goPremiumToUnlockFeature": "Go Premium to unlock this feature",
   "goPremium": "Go Premium",
 
-  "chooseRecipeNutritionPreference": "Choose your nutrition preference",
-  "recipeNutritionPreferenceDescription": "We'll use this preference while creating your recipe.",
-  "recipePreferenceChangeHint": "You can change your nutrition preference anytime from Goals & Preferences.",
+  "recipePreferenceChangeHint": "You can change your dietary requirements anytime from Goals & Preferences.",
   "continueToRecipe": "Continue",
   "nutritionKeto": "Keto",
   "nutritionGlutenFree": "Gluten Free",
 
-  "recipeCustomizationPremiumHint": "Customizing recipes based on your nutrition preference is available exclusively to Premium users.",
+  "recipeCustomizationPremiumHint": "Customizing recipes based on your dietary requirements is available exclusively to Premium users.",
 
 
   "recipeAddedToMeal": "{recipeName} added to {mealType}.",

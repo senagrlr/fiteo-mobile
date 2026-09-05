@@ -167,6 +167,12 @@ class _CookAiScreenState extends State<CookAiScreen> {
         return;
       }
 
+      await _profileRepository
+          .updateUserPreferences({
+        'dietaryRequirements':
+        selectedRequirements,
+      });
+
       recipePreferences[
       'dietaryRequirements'] =
           selectedRequirements;

@@ -747,7 +747,7 @@
 
   "chooseRecipeNutritionPreference": "Beslenme tercihini seç",
   "recipeNutritionPreferenceDescription": "Tarifini oluştururken bu tercihi dikkate alacağız.",
-  "recipePreferenceChangeHint": "Beslenme tercihini Goals & Preferences bölümünden istediğin zaman değiştirebilirsin.",
+  "recipePreferenceChangeHint": "Beslenme gereksinimlerini istediğin zaman Hedefler ve Tercihler bölümünden değiştirebilirsin.",
   "continueToRecipe": "Devam Et",
   "nutritionKeto": "Keto",
   "nutritionGlutenFree": "Glutensiz",

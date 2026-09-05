@@ -183,21 +183,34 @@ class AiChatRepository {
       };
     }).toList().reversed.toList();
   }
-
-  Future<Map<String, dynamic>> getRecipePreferences() async {
-    final user = _auth.currentUser;
-
-    if (user == null) return {};
-
-    final doc = await _firestore.collection('users').doc(user.uid).get();
-
-    final preferences = Map<String, dynamic>.from(
-      doc.data()?['userPreferences'] ?? {},
-    );
+  Future<Map<String, dynamic>>
+  getRecipePreferences() async {
+    final preferences =
+    await getUserPreferences();
 
     return {
       'goal': preferences['goal'],
-      'nutritionPreference': preferences['nutritionPreference'],
+
+      'nutritionPreference':
+      preferences['nutritionPreference'],
+
+      if (preferences.containsKey(
+        'dietaryRequirements',
+      ))
+        'dietaryRequirements':
+        preferences['dietaryRequirements'],
+
+      'calorieGoal':
+      preferences['calorieGoal'],
+
+      'proteinGoal':
+      preferences['proteinGoal'],
+
+      'carbsGoal':
+      preferences['carbsGoal'],
+
+      'fatGoal':
+      preferences['fatGoal'],
     };
   }
 }

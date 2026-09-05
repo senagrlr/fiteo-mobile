@@ -1501,7 +1501,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get recipePreferenceChangeHint =>
-      'Beslenme tercihini Goals & Preferences bölümünden istediğin zaman değiştirebilirsin.';
+      'Beslenme gereksinimlerini istediğin zaman Hedefler ve Tercihler bölümünden değiştirebilirsin.';
 
   @override
   String get continueToRecipe => 'Devam Et';

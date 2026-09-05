@@ -2897,7 +2897,7 @@ abstract class AppLocalizations {
   /// No description provided for @recipePreferenceChangeHint.
   ///
   /// In en, this message translates to:
-  /// **'You can change your nutrition preference anytime from Goals & Preferences.'**
+  /// **'You can change your dietary requirements anytime from Goals & Preferences.'**
   String get recipePreferenceChangeHint;
 
   /// No description provided for @continueToRecipe.

@@ -1505,7 +1505,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recipePreferenceChangeHint =>
-      'You can change your nutrition preference anytime from Goals & Preferences.';
+      'You can change your dietary requirements anytime from Goals & Preferences.';
 
   @override
   String get continueToRecipe => 'Continue';

@@ -11,7 +11,7 @@ import 'package:fiteo_myapp/features/ai_coach/data/cook_recipe_service.dart';
 
 import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_loading_view.dart';
 import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_message_input.dart';
-import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_nutrition_preference_dialog.dart';
+import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_dietary_requirements_dialog.dart';
 import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_recipe_dialog.dart';
 import 'package:fiteo_myapp/features/ai_coach/presentation/widgets/cook_mode/cook_welcome_view.dart';
 
@@ -132,27 +132,10 @@ class _CookAiScreenState extends State<CookAiScreen> {
     FocusScope.of(context).unfocus();
 
     final preferences =
-    await _chatRepository.getRecipePreferences();
+    await _chatRepository
+        .getRecipePreferences();
 
     if (!mounted) {
-      return;
-    }
-
-    final currentNutritionPreference =
-    preferences['nutritionPreference']
-        ?.toString();
-
-    final selectedNutritionPreference =
-    await CookNutritionPreferenceDialog.show(
-      context,
-      initialValue:
-      currentNutritionPreference,
-      isPremium:
-      _isPremium,
-    );
-
-    if (selectedNutritionPreference == null ||
-        !mounted) {
       return;
     }
 
@@ -161,9 +144,49 @@ class _CookAiScreenState extends State<CookAiScreen> {
       preferences,
     );
 
-    recipePreferences[
-    'nutritionPreference'] =
-        selectedNutritionPreference;
+    final hasDietaryRequirements =
+    preferences.containsKey(
+      'dietaryRequirements',
+    );
+
+    if (_isPremium &&
+        !hasDietaryRequirements) {
+      final selectedRequirements =
+      await CookDietaryRequirementsDialog
+          .show(
+        context,
+        initialValues: const [],
+        isPremium: true,
+      );
+
+      if (selectedRequirements == null ||
+          !mounted) {
+        return;
+      }
+
+      recipePreferences[
+      'dietaryRequirements'] =
+          selectedRequirements;
+    } else if (_isPremium) {
+      final rawRequirements =
+      preferences[
+      'dietaryRequirements'];
+
+      recipePreferences[
+      'dietaryRequirements'] =
+      rawRequirements is List
+          ? rawRequirements
+          .map(
+            (item) =>
+            item.toString(),
+      )
+          .toList()
+          : <String>[];
+    } else {
+      recipePreferences.remove(
+        'dietaryRequirements',
+      );
+    }
 
     setState(() {
       isGenerating = true;
